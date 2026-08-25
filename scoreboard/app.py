@@ -72,7 +72,7 @@ class Application:
         render_thread = threading.Thread(target=self.render_loop, name="render", daemon=True)
         render_thread.start()
 
-        async with httpx.AsyncClient(timeout=15, headers={"User-Agent": "nhl-scoreboard"}) as http:
+        async with httpx.AsyncClient(timeout=15, follow_redirects=True, headers={"User-Agent": "nhl-scoreboard"}) as http:
             tasks = [asyncio.create_task(run_source_forever(src, self._context(key, src, http)), name=f"source:{key}")
                      for key, src in self.registry.sources.items()]
             web = self.config.get().web

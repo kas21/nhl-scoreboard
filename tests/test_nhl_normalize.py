@@ -130,7 +130,9 @@ def test_detect_goal_penalty_state_events():
 async def test_api_retries_then_succeeds_and_handles_429():
     async with httpx.AsyncClient() as http, respx.mock(base_url=BASE_URL) as mock:
         route = mock.get("/score/now")
-        route.side_effect = [httpx.ConnectError("boom"), httpx.Response(429, headers={"Retry-After": "0"}), httpx.Response(200, json={"games": []})]
+        route.side_effect = [httpx.ConnectError("boom"), httpx.Response(429, headers={"Retry-After": "0"}),
+                             httpx.Response(307, headers={"Location": f"{BASE_URL}/score/2026-09-29"})]
+        mock.get("/score/2026-09-29").mock(return_value=httpx.Response(200, json={"games": []}))
         import scoreboard.nhl.api as api_mod
         api_mod.RETRY_DELAYS = (0, 0, 0)
         assert await NhlApi(http).score() == {"games": []}

@@ -39,7 +39,7 @@ class NhlApi:
         last: Exception | None = None
         for attempt, delay in enumerate((*RETRY_DELAYS, None)):
             try:
-                resp = await self._http.get(url)
+                resp = await self._http.get(url, follow_redirects=True)
                 if resp.status_code == 429:
                     wait = float(resp.headers.get("Retry-After", delay or 30))
                     log.warning("NHL API rate limited on %s; waiting %ss", path, wait)

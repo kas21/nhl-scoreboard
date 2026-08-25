@@ -20,6 +20,7 @@ def main(argv: list[str] | None = None) -> None:
 
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO,
                         format="%(asctime)s %(levelname)-7s %(name)s: %(message)s")
+    logging.getLogger("httpx").setLevel(logging.WARNING)
     from .app import Application
 
     Application(args.config, args.output, demo=args.demo).run()
