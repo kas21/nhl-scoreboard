@@ -5,8 +5,8 @@ from PIL import Image
 from pydantic import BaseModel, Field
 
 from ..render import Spacer, Text, VBox, render_tree
-from ..render.text import fit_font
 from ..render.anim import frame_at, hold, slide_in
+from ..render.text import fit_font
 from .base import BaseBoard, BoardContext
 
 

@@ -30,10 +30,7 @@ def test_profile_fallback():
 
 
 def test_clock_drops_rows_that_do_not_fit(ctx):
-    from PIL import Image
     small = replace(ctx, width=64, height=32, profile=profile_for(64, 32))
     frame = ClockBoard().render(small, ClockConfig(show_date=True))
-    # nothing drawn in the last row means nothing was clipped off the bottom
-    bottom = frame.crop((0, 31, 64, 32))
-    assert bottom.getbbox() is None or Image.eval(bottom, lambda v: v).getbbox() is None or True
-    assert frame.getbbox()[3] <= 32
+    # rows that don't fit are dropped, so drawn content never touches the last row
+    assert frame.crop((0, 31, 64, 32)).getbbox() is None
