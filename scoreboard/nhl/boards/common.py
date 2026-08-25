@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from functools import lru_cache
 from typing import Any
 
 from PIL import Image, ImageDraw
@@ -56,6 +57,7 @@ def color_bar(abbrev: str, width: int, height: int) -> Img:
     return Img(img)
 
 
+@lru_cache(maxsize=32)
 def gradient_backdrop(width: int, height: int, away: str, home: str) -> Image.Image:
     """Team colours fading from each edge into black — cheap and looks good on LEDs."""
     img = Image.new("RGB", (width, height), (0, 0, 0))

@@ -88,11 +88,11 @@ def test_goal_board_favorite_vs_opponent(world):
     assert not board.matches(opp, GoalConfig(opponent_goals=False))
     ctx = make_ctx(world, 128, 64, live, fav, elapsed=2.0)
     board.enter(ctx, cfg)
-    assert len(board._frames) / 30 == pytest.approx(cfg.duration, abs=0.5)
+    assert board._seq.duration == pytest.approx(cfg.duration, abs=0.5)
     assert board.render(ctx, cfg).getbbox() is not None
     other = GoalBoard()
     other.enter(make_ctx(world, 128, 64, live, opp), cfg)
-    assert len(other._frames) < len(board._frames)         # opponent = short flash
+    assert other._seq.duration < board._seq.duration       # opponent = short flash
     assert other.done(make_ctx(world, 128, 64, live, opp, elapsed=cfg.opponent_duration + 1), cfg)
 
 

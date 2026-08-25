@@ -7,8 +7,7 @@ from PIL import Image
 from pydantic import BaseModel, ConfigDict, Field
 
 from ...boards.base import BaseBoard, BoardContext
-from ...render import HBox, Spacer, Text, VBox, load_font, render_tree
-from ...render.anim import frame_at, hold, slide_in
+from ...render import HBox, Sequence, Spacer, Text, VBox, load_font, render_tree
 from ...render.text import fit_font
 from .common import DIM, GREY, WHITE, YELLOW, fmt_time, local_time, score_text, team_logo
 
@@ -28,7 +27,7 @@ class TickerBoard(BaseBoard):
 
     def __init__(self) -> None:
         self._games: list[dict[str, Any]] = []
-        self._cache: dict[int, list[Image.Image]] = {}
+        self._cache: dict[int, Sequence] = {}
         self._size: tuple[int, int] = (0, 0)
 
     def enter(self, ctx: BoardContext, cfg: TickerConfig) -> None:
@@ -50,12 +49,11 @@ class TickerBoard(BaseBoard):
             return render_tree(Text("NO GAMES TODAY", load_font("pixel", ctx.profile.font_medium), GREY), ctx.width, ctx.height)
         idx, within = self._slot(ctx, cfg)
         idx = min(idx, len(self._games) - 1)
-        frames = self._cache.get(idx)
-        if frames is None:
+        seq = self._cache.get(idx)
+        if seq is None:
             still = render_tree(self._card(self._games[idx], ctx, cfg), ctx.width, ctx.height)
-            frames = slide_in(still, ctx.fps // 3, "up") + hold(still, 1)
-            self._cache[idx] = frames
-        return frame_at(frames, within, ctx.fps)
+            seq = self._cache[idx] = Sequence(ctx.fps).slide_in("up", 0.35).hold(cfg.seconds_per_game).build(still)
+        return seq.at(within)
 
     def done(self, ctx: BoardContext, cfg: TickerConfig) -> bool:
         return ctx.elapsed >= cfg.seconds_per_game * max(len(self._games), 1)

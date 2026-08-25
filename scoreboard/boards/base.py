@@ -14,6 +14,7 @@ from PIL import Image
 from pydantic import BaseModel
 
 from ..data import Event, Snapshot
+from ..render.anim import Sequence
 from ..render.profiles import SizeProfile
 
 
@@ -61,6 +62,31 @@ class BaseBoard:
 
     def done(self, ctx: BoardContext, cfg: BaseModel) -> bool:
         return False
+
+
+class SequenceMixin:
+    """For boards that are one pre-rendered timeline: implement ``build(ctx, cfg) -> Sequence``.
+
+    Handles caching, rebuilding on size change, playback and completion.
+    """
+
+    _seq: Sequence | None = None
+    _seq_size: tuple[int, int] = (0, 0)
+
+    def build(self, ctx: BoardContext, cfg: BaseModel) -> Sequence:
+        raise NotImplementedError
+
+    def enter(self, ctx: BoardContext, cfg: BaseModel) -> None:
+        self._seq = self.build(ctx, cfg)
+        self._seq_size = (ctx.width, ctx.height)
+
+    def render(self, ctx: BoardContext, cfg: BaseModel) -> Image.Image:
+        if self._seq is None or self._seq_size != (ctx.width, ctx.height):
+            self.enter(ctx, cfg)
+        return self._seq.at(ctx.elapsed)  # type: ignore[union-attr]
+
+    def done(self, ctx: BoardContext, cfg: BaseModel) -> bool:
+        return self._seq is not None and self._seq.finished(ctx.elapsed)
 
 
 class EventBoard(BaseBoard):

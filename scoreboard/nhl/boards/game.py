@@ -7,7 +7,7 @@ from PIL import Image
 from pydantic import BaseModel, ConfigDict, Field
 
 from ...boards.base import BaseBoard, BoardContext
-from ...render import HBox, Spacer, Text, VBox, load_font, render_tree
+from ...render import HBox, Pulse, Sheen, Spacer, Text, VBox, load_font, render_tree
 from ...render.text import fit_font
 from .common import (
     DIM,
@@ -52,9 +52,9 @@ class GameBoard(BaseBoard):
             tree = self._final(game, ctx, cfg)
         else:
             tree = self._live(game, ctx, cfg)
-        frame = render_tree(tree, ctx.width, ctx.height)
+        frame = render_tree(tree, ctx.width, ctx.height, t=ctx.elapsed)
         if cfg.gradient:
-            bg = gradient_backdrop(ctx.width, ctx.height, game["away"]["abbrev"], game["home"]["abbrev"])
+            bg = gradient_backdrop(ctx.width, ctx.height, game["away"]["abbrev"], game["home"]["abbrev"]).copy()
             mask = frame.convert("L").point(lambda v: 255 if v else 0)
             bg.paste(frame, (0, 0), mask)
             frame = bg
@@ -115,11 +115,11 @@ class GameBoard(BaseBoard):
             label = f"{g[side]['abbrev']} PP {code[1]}-{code[2]}"
             if g["powerplay"]["clock"] and p.width >= 96:
                 label += f" {g['powerplay']['clock']}"
-            badges.append(indicator(label, p, YELLOW))
+            badges.append(Sheen(indicator(label, p, YELLOW), period=2.5))
         if g["pulled_goalie"] & 1:
-            badges.append(indicator(f"{g['away']['abbrev']} EN", p, RED, WHITE))
+            badges.append(Pulse(indicator(f"{g['away']['abbrev']} EN", p, RED, WHITE), period=1.2))
         if g["pulled_goalie"] & 2:
-            badges.append(indicator(f"{g['home']['abbrev']} EN", p, RED, WHITE))
+            badges.append(Pulse(indicator(f"{g['home']['abbrev']} EN", p, RED, WHITE), period=1.2))
         return badges
 
     def _final(self, g: dict[str, Any], ctx: BoardContext, cfg: GameConfig):

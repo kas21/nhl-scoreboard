@@ -1,0 +1,216 @@
+"""Animated layout nodes: element-level, continuous motion inside a tree.
+
+Each node wraps a child, pre-renders its material once (cached by the child's
+structure), and produces a cheap crop / composite per frame from ``t``:
+
+    HBox([Marquee(Text(long_name, f), width=60, speed=20),
+          Sheen(badge, period=2.0),
+          Pulse(Text("EN", f), period=1.0)])
+
+Static neighbours in the tree stay cached; only these nodes do per-frame work.
+"""
+from __future__ import annotations
+
+import math
+from collections.abc import Callable, Hashable
+from dataclasses import dataclass, field
+from typing import Literal
+
+from PIL import Image, ImageEnhance
+
+from .anim import Easing, ease_out_cubic
+from .layout import Node, _cache_get, _cache_put, render_node
+
+Direction = Literal["left", "right", "up", "down"]
+
+
+class AnimatedNode(Node):
+    child: Node
+
+    @property
+    def is_static(self) -> bool:
+        return False
+
+    def cache_key(self):
+        return None
+
+    def measure(self) -> tuple[int, int]:
+        return self.child.measure()
+
+    def _material(self, tag: str, build: Callable[[], Image.Image], *extra: Hashable) -> Image.Image:
+        """Per-child pre-rendered material, cached across frames when the child is static."""
+        ck = self.child.cache_key()
+        if ck is None or not self.child.is_static:
+            return build()
+        key = (tag, ck, *extra)
+        img = _cache_get(key)
+        if img is None:
+            img = _cache_put(key, build())
+        return img
+
+    def _child_image(self) -> Image.Image:
+        return self._material("node", lambda: render_node(self.child))
+
+
+def _phase(t: float, period: float) -> float:
+    return (t % period) / period if period > 0 else 0.0
+
+
+@dataclass
+class Marquee(AnimatedNode):
+    """Scroll a too-wide child horizontally inside ``width``; passes through if it fits."""
+
+    child: Node
+    width: int
+    speed: float = 20.0          # px/s
+    gap: int = 12
+    pause: float = 1.0           # seconds to hold before the first scroll
+
+    def measure(self):
+        cw, ch = self.child.measure()
+        return (min(cw, self.width), ch)
+
+    def place(self, x, y, w, h, t=0.0):
+        img = self._child_image()
+        if img.width <= self.width:
+            yield (img, x + (w - img.width) // 2, y + (h - img.height) // 2)
+            return
+        cycle = img.width + self.gap
+        strip = self._material("marquee", lambda: self._strip(img, cycle), self.gap)
+        offset = 0 if t < self.pause else int(((t - self.pause) * self.speed) % cycle)
+        view = strip.crop((offset, 0, offset + self.width, img.height))
+        yield (view, x + (w - self.width) // 2, y + (h - img.height) // 2)
+
+    @staticmethod
+    def _strip(img: Image.Image, cycle: int) -> Image.Image:
+        strip = Image.new("RGBA", (cycle * 2, img.height), (0, 0, 0, 0))
+        strip.alpha_composite(img, (0, 0))
+        strip.alpha_composite(img, (cycle, 0))
+        return strip
+
+
+@dataclass
+class Sheen(AnimatedNode):
+    """A soft highlight band sweeping across the child (only where the child is opaque)."""
+
+    child: Node
+    period: float = 2.0
+    band: int = 8
+    strength: float = 0.7
+    steps: int = 24              # quantised phases -> effectively pre-rendered
+
+    def place(self, x, y, w, h, t=0.0):
+        img = self._child_image()
+        step = int(_phase(t, self.period) * self.steps) % self.steps
+        frame = self._material("sheen", lambda: self._frame(img, step), self.band, self.strength, self.steps, step)
+        yield (frame, x + (w - img.width) // 2, y + (h - img.height) // 2)
+
+    def _frame(self, img: Image.Image, step: int) -> Image.Image:
+        travel = img.width + self.band
+        pos = int(step / self.steps * travel) - self.band
+        band = Image.new("L", img.size, 0)
+        px = band.load()
+        for bx in range(self.band):
+            col = pos + bx
+            if 0 <= col < img.width:
+                k = 1 - abs((bx + 0.5) / self.band * 2 - 1)      # triangle profile
+                v = int(255 * self.strength * k)
+                for yy in range(img.height):
+                    px[col, yy] = v
+        alpha = img.getchannel("A")
+        mask = Image.eval(band, lambda v: v)                    # copy
+        mask.paste(0, mask=Image.eval(alpha, lambda a: 255 - a))
+        out = img.copy()
+        out.paste(Image.new("RGBA", img.size, (255, 255, 255, 255)), (0, 0), mask)
+        return out
+
+
+@dataclass
+class Pulse(AnimatedNode):
+    """Brightness breathing between ``low`` and ``high``."""
+
+    child: Node
+    period: float = 1.0
+    low: float = 0.35
+    high: float = 1.0
+    steps: int = 16
+
+    def place(self, x, y, w, h, t=0.0):
+        img = self._child_image()
+        k = 0.5 - 0.5 * math.cos(2 * math.pi * _phase(t, self.period))
+        level = int(k * (self.steps - 1))
+        frame = self._material("pulse", lambda: self._frame(img, level), self.low, self.high, self.steps, level)
+        yield (frame, x + (w - img.width) // 2, y + (h - img.height) // 2)
+
+    def _frame(self, img: Image.Image, level: int) -> Image.Image:
+        factor = self.low + (self.high - self.low) * level / max(self.steps - 1, 1)
+        rgb = ImageEnhance.Brightness(img.convert("RGB")).enhance(factor)
+        out = rgb.convert("RGBA")
+        out.putalpha(img.getchannel("A"))
+        return out
+
+
+@dataclass
+class Blink(AnimatedNode):
+    child: Node
+    period: float = 1.0
+    duty: float = 0.5
+
+    def place(self, x, y, w, h, t=0.0):
+        if _phase(t, self.period) < self.duty:
+            yield from self.child.place(x, y, w, h, t)
+
+
+@dataclass
+class Slide(AnimatedNode):
+    """Finite entrance: the child slides into its own box from ``direction``."""
+
+    child: Node
+    duration: float = 0.5
+    direction: Direction = "left"
+    delay: float = 0.0
+    easing: Easing = field(default=ease_out_cubic)
+
+    def place(self, x, y, w, h, t=0.0):
+        img = self._child_image()
+        p = 1.0 if self.duration <= 0 else min(max((t - self.delay) / self.duration, 0.0), 1.0)
+        k = 1 - self.easing(p)
+        dx = dy = 0
+        if self.direction == "left":
+            dx = -int(w * k)
+        elif self.direction == "right":
+            dx = int(w * k)
+        elif self.direction == "up":
+            dy = -int(h * k)
+        else:
+            dy = int(h * k)
+        if dx == 0 and dy == 0:
+            yield (img, x + (w - img.width) // 2, y + (h - img.height) // 2)
+            return
+        box = Image.new("RGBA", (max(w, 1), max(h, 1)), (0, 0, 0, 0))
+        box.paste(img, ((w - img.width) // 2 + dx, (h - img.height) // 2 + dy), img)   # paste clips negatives
+        yield (box, x, y)
+
+
+@dataclass
+class Fade(AnimatedNode):
+    """Finite opacity ramp from ``start`` to ``end`` over ``duration``."""
+
+    child: Node
+    duration: float = 0.5
+    start: float = 0.0
+    end: float = 1.0
+    delay: float = 0.0
+    steps: int = 16
+
+    def place(self, x, y, w, h, t=0.0):
+        img = self._child_image()
+        p = 1.0 if self.duration <= 0 else min(max((t - self.delay) / self.duration, 0.0), 1.0)
+        level = int((self.start + (self.end - self.start) * p) * (self.steps - 1) + 0.5)
+        frame = self._material("fade", lambda: self._frame(img, level), self.steps, level)
+        yield (frame, x + (w - img.width) // 2, y + (h - img.height) // 2)
+
+    def _frame(self, img: Image.Image, level: int) -> Image.Image:
+        out = img.copy()
+        out.putalpha(img.getchannel("A").point(lambda a: a * level // max(self.steps - 1, 1)))
+        return out
