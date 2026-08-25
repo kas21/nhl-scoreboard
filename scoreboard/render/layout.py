@@ -14,7 +14,7 @@ from typing import Literal
 
 from PIL import Image, ImageDraw, ImageFont
 
-from .text import text_size
+from .text import text_box
 
 Align = Literal["start", "center", "end"]
 RGB = tuple[int, int, int]
@@ -69,9 +69,12 @@ class Text(Node):
     fill: RGB = (255, 255, 255)
     antialias: bool = False
     _size: tuple[int, int] = field(init=False, repr=False)
+    _origin: tuple[int, int] = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
-        self._size = text_size(self.text, self.font)
+        left, top, right, bottom = text_box(self.text, self.font, self.antialias)
+        self._size = (int(right - left), int(bottom - top))
+        self._origin = (-int(left), -int(top))
 
     def measure(self) -> tuple[int, int]:
         return self._size
@@ -81,7 +84,7 @@ class Text(Node):
         draw = ImageDraw.Draw(img)
         if not self.antialias:
             draw.fontmode = "1"
-        draw.text((0, 0), self.text, font=self.font, fill=self.fill, anchor="la")
+        draw.text(self._origin, self.text, font=self.font, fill=self.fill, anchor="la")
         yield (img, x + _align(w - self._size[0], "center"), y + _align(h - self._size[1], "center"))
 
 

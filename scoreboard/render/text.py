@@ -29,15 +29,25 @@ def load_font(name: str = DEFAULT_FONT, size: int = 8) -> ImageFont.FreeTypeFont
         return ImageFont.load_default()
 
 
-def text_size(text: str, font: ImageFont.ImageFont) -> tuple[int, int]:
-    """Box needed to draw ``text`` at (0, 0) with the top-left ("la") anchor.
+def text_box(text: str, font: ImageFont.ImageFont, antialias: bool = False) -> tuple[int, int, int, int]:
+    """Glyph box (l, t, r, b) for ``text`` drawn at (0, 0) with the "la" anchor.
 
-    Uses the glyph box rather than font metrics: pixel fonts often declare
-    descenders far larger than they draw, which would waste LED rows.
+    Measured in the same render mode as drawing: 1-bit mode disables hinting
+    and changes advances, so measuring antialiased would clip. Uses the glyph
+    box rather than font metrics because pixel fonts often declare descenders
+    far larger than they draw.
     """
-    _, _, right, bottom = font.getbbox(text, anchor="la")
-    advance = font.getlength(text) if hasattr(font, "getlength") else right
-    return int(max(right, advance)) + 1, int(bottom)
+    mode = "L" if antialias else "1"
+    try:
+        return font.getbbox(text, mode=mode, anchor="la")
+    except TypeError:                   # bitmap fonts: no mode/anchor kwargs
+        return font.getbbox(text)
+
+
+def text_size(text: str, font: ImageFont.ImageFont, antialias: bool = False) -> tuple[int, int]:
+    """Tight (width, height) of the ink for ``text``."""
+    left, top, right, bottom = text_box(text, font, antialias)
+    return int(right - left), int(bottom - top)
 
 
 def fit_font(text: str, name: str, max_width: int, start: int, minimum: int = 5):
