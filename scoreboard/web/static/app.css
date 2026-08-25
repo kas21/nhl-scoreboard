@@ -1,0 +1,31 @@
+:root { --bg:#0e1116; --panel:#171c24; --fg:#e6e9ef; --muted:#8b94a5; --accent:#4f8cff; --err:#ff5d5d; }
+* { box-sizing:border-box; }
+body { margin:0; font:15px/1.4 system-ui,sans-serif; background:var(--bg); color:var(--fg); }
+header { display:flex; gap:16px; align-items:center; padding:12px 20px; background:var(--panel); position:sticky; top:0; }
+header h1 { font-size:18px; margin:0 auto 0 0; }
+nav a { color:var(--muted); text-decoration:none; padding:6px 10px; border-radius:6px; }
+nav a.active, nav a:hover { color:var(--fg); background:#222a35; }
+main { max-width:900px; margin:0 auto; padding:20px; }
+.card { background:var(--panel); border-radius:10px; padding:16px 20px; margin-bottom:16px; }
+.card h2 { margin:0 0 12px; font-size:16px; }
+.preview { display:flex; justify-content:center; background:#000; border-radius:8px; padding:12px; }
+.preview img { image-rendering:pixelated; width:100%; max-width:640px; }
+.status { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; }
+.status div span { display:block; color:var(--muted); font-size:12px; }
+.field { display:grid; grid-template-columns:200px 1fr; gap:8px 16px; align-items:center; padding:6px 0; border-bottom:1px solid #222a35; }
+.field label { color:var(--fg); }
+.field small { color:var(--muted); grid-column:2; }
+input, select { background:#0e1116; color:var(--fg); border:1px solid #2a3340; border-radius:6px; padding:6px 8px; font:inherit; max-width:320px; }
+input[type=checkbox] { width:18px; height:18px; }
+input[type=range] { max-width:320px; }
+button { background:var(--accent); color:#fff; border:0; border-radius:6px; padding:8px 14px; font:inherit; cursor:pointer; }
+button.secondary { background:#2a3340; }
+button.danger { background:var(--err); }
+.row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.error { color:var(--err); }
+.ok { color:#5fd28a; }
+pre { background:#000; padding:12px; border-radius:8px; overflow:auto; max-height:400px; font-size:12px; }
+.playlist li { display:flex; gap:10px; align-items:center; padding:6px 0; list-style:none; }
+.playlist ul { padding:0; margin:0; }
+.muted { color:var(--muted); }
+details summary { cursor:pointer; font-weight:600; padding:8px 0; }

@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+config.json
+config.json.*
+.pytest_cache/
+dist/
+*.egg-info/
+scoreboard/assets/logos/png/

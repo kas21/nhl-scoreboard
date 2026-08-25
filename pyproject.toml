@@ -1,0 +1,48 @@
+[project]
+name = "nhl-scoreboard"
+version = "0.1.0"
+description = "Standalone LED matrix scoreboard for Raspberry Pi — NHL first, pluggable for more"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = [
+    "pillow>=10.0",
+    "httpx>=0.27",
+    "pydantic>=2.6",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "astral>=3.2",
+]
+
+[project.optional-dependencies]
+emulator = ["rgbmatrixemulator>=0.14.0"]
+pi = ["rgbmatrix"]
+dev = ["pytest>=8", "pytest-asyncio>=0.23", "respx>=0.21", "ruff>=0.4"]
+
+[project.scripts]
+scoreboard = "scoreboard.__main__:main"
+
+[project.entry-points."scoreboard.boards"]
+clock = "scoreboard.boards.clock:ClockBoard"
+splash = "scoreboard.boards.splash:SplashBoard"
+blank = "scoreboard.boards.blank:BlankBoard"
+
+[project.entry-points."scoreboard.sources"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["scoreboard"]
+
+[tool.uv.sources]
+rgbmatrix = { url = "https://github.com/falkyre/nhl-led-scoreboard-img/releases/download/latest-trixie/rgbmatrix-0.0.1-cp313-cp313-linux_aarch64.whl" }
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

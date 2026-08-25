@@ -1,0 +1,72 @@
+"""Board contract.
+
+A board is a pure renderer: given the snapshot, its own validated config and
+the time since it was shown, return a frame. It must not touch the network,
+the wall clock (use ``ctx.now``), or the matrix.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+from datetime import datetime
+from typing import ClassVar, Protocol, runtime_checkable
+
+from PIL import Image
+from pydantic import BaseModel
+
+from ..data import Event, Snapshot
+from ..render.profiles import SizeProfile
+
+
+class EmptyConfig(BaseModel):
+    model_config = {"frozen": True, "extra": "forbid"}
+
+
+@dataclass(frozen=True)
+class BoardContext:
+    snapshot: Snapshot
+    profile: SizeProfile
+    width: int
+    height: int
+    fps: int
+    now: datetime          # local wall-clock time (tz-aware)
+    elapsed: float         # seconds since this board was entered
+    event: Event | None = None
+
+
+@runtime_checkable
+class Board(Protocol):
+    key: ClassVar[str]
+    title: ClassVar[str]
+    config_model: ClassVar[type[BaseModel]]
+    requires: ClassVar[frozenset[str]]
+
+    def render(self, ctx: BoardContext, cfg: BaseModel) -> Image.Image: ...
+
+    def done(self, ctx: BoardContext, cfg: BaseModel) -> bool:
+        """Self-terminating boards (tickers) return True when finished."""
+        ...
+
+
+class BaseBoard:
+    key: ClassVar[str] = ""
+    title: ClassVar[str] = ""
+    config_model: ClassVar[type[BaseModel]] = EmptyConfig
+    requires: ClassVar[frozenset[str]] = frozenset()
+
+    def enter(self, ctx: BoardContext, cfg: BaseModel) -> None:
+        """Called once when the board becomes active; pre-render here."""
+
+    def render(self, ctx: BoardContext, cfg: BaseModel) -> Image.Image:
+        raise NotImplementedError
+
+    def done(self, ctx: BoardContext, cfg: BaseModel) -> bool:
+        return False
+
+
+class EventBoard(BaseBoard):
+    """A board that plays in response to an event (goal, penalty...)."""
+
+    event_kinds: ClassVar[frozenset[str]] = frozenset()
+
+    def matches(self, event: Event, cfg: BaseModel) -> bool:
+        return event.kind in self.event_kinds
