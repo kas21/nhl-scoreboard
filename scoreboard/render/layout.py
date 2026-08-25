@@ -14,7 +14,7 @@ from typing import Literal
 
 from PIL import Image, ImageDraw, ImageFont
 
-from .text import text_box
+from .text import is_bitmap, text_box
 
 Align = Literal["start", "center", "end"]
 RGB = tuple[int, int, int]
@@ -84,7 +84,10 @@ class Text(Node):
         draw = ImageDraw.Draw(img)
         if not self.antialias:
             draw.fontmode = "1"
-        draw.text(self._origin, self.text, font=self.font, fill=self.fill, anchor="la")
+        if is_bitmap(self.font):
+            draw.text(self._origin, self.text, font=self.font, fill=self.fill)
+        else:
+            draw.text(self._origin, self.text, font=self.font, fill=self.fill, anchor="la")
         yield (img, x + _align(w - self._size[0], "center"), y + _align(h - self._size[1], "center"))
 
 

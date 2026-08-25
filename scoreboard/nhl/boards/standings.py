@@ -52,19 +52,20 @@ class StandingsBoard(BaseBoard):
         logo_px = row_h - 1
         sections = []
         for title, teams in self._groups(standings, cfg):
-            sections.append(HBox([Text(title, font, YELLOW), Spacer(), Text("GP  PTS", font, GREY)]))
+            wide = ctx.width >= 96
+            sections.append(HBox([Text(title, font, YELLOW), Spacer(), Text("GP  PTS" if wide else "PTS", font, GREY)]))
             for abbrev in teams:
                 r = rows.get(abbrev) or {}
                 color = WHITE if abbrev in highlight else GREY
                 sections.append(HBox([
                     Img(logo(abbrev, logo_px)), Text(abbrev, font, color), Spacer(),
-                    Text(f"{r.get('gp', 0):>2}  {r.get('points', 0):>3}", font, color),
+                    Text(f"{r.get('gp', 0):>2}  {r.get('points', 0):>3}" if wide else f"{r.get('points', 0):>3}", font, color),
                 ], spacing=2))
             sections.append(Box(0, p.pad))
-        tree = VBox(sections, spacing=1, align="start")
-        _, total_h = tree.measure()
-        strip = render_tree(tree, ctx.width, max(total_h, ctx.height) + ctx.height)
-        return strip
+        body = HBox([Box(p.pad, 0), VBox(sections, spacing=1, align="start"), Box(p.pad, 0)])
+        tree = VBox([body, Spacer()], align="start")
+        _, total_h = body.measure()
+        return render_tree(tree, ctx.width, max(total_h + p.pad, ctx.height))
 
     def render(self, ctx: BoardContext, cfg: StandingsConfig) -> Image.Image:
         if self._strip is None or self._size != (ctx.width, ctx.height):

@@ -70,7 +70,7 @@ class GoalBoard(EventBoard):
             self.__done_at = len(self._frames) / fps
             return
         goal_word = Text("GOAL!", fit_font("GOAL!", "block", ctx.width - 2 * p.pad, p.font_large), t.accent)
-        rows = [Spacer(), HBox([Img(logo(abbrev, p.logo)), goal_word], spacing=p.pad)]
+        rows = [HBox([Img(logo(abbrev, p.logo_small)), goal_word], spacing=p.pad)]
         goal = ev.payload.get("goal") if ev else None
         if cfg.show_scorer and goal:
             who = goal.get("scorer") or ""
@@ -79,8 +79,9 @@ class GoalBoard(EventBoard):
             if goal.get("assists"):
                 rows.append(Text(", ".join(goal["assists"]), fit_font(", ".join(goal["assists"]), "pixel", ctx.width - 2 * p.pad, p.font_small), GREY))
         rows.append(Text(ev.payload.get("score", "") if ev else "", load_font("pixel", p.font_small), GREY))
-        rows.append(Spacer())
-        still = render_tree(VBox(rows, spacing=1), ctx.width, ctx.height, background=t.primary)
+        while len(rows) > 1 and VBox(rows, spacing=1).measure()[1] > ctx.height:
+            rows.pop()
+        still = render_tree(VBox([Spacer(), *rows, Spacer()], spacing=1), ctx.width, ctx.height, background=t.primary)
         intro = flash(Image.new("RGB", still.size, (0, 0, 0)), t.primary, count=2, frames_per_flash=max(fps // 8, 1))
         intro += slide_in(still, frames=fps // 2, direction="right")
         outro = fade(still, fps // 2, 1.0, 0.0)
@@ -127,8 +128,10 @@ class PenaltyBoard(EventBoard):
         who = pen.get("player") or ""
         dur = f"{pen.get('duration')} MIN" if pen.get("duration") else ""
         line = " ".join(x for x in (who, dur) if x)
-        if line:
+        if line and text_size(line, fit_font(line, "pixel", usable, p.font_small))[0] <= usable:
             rows.append(Text(line, fit_font(line, "pixel", usable, p.font_small), GREY))
+        elif dur:
+            rows.append(Text(dur, load_font("pixel", p.font_small), GREY))
         rows.append(Spacer())
         still = render_tree(VBox(rows, spacing=1), ctx.width, ctx.height, background=tuple(int(c * 0.35) for c in t.primary))
         fps = ctx.fps

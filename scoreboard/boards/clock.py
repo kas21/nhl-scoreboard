@@ -17,7 +17,7 @@ class ClockConfig(BaseModel):
     show_seconds: bool = False
     show_date: bool = True
     color: tuple[int, int, int] = Field((255, 255, 255), description="Time colour (RGB)")
-    date_color: tuple[int, int, int] = Field((120, 120, 120), description="Date colour (RGB)")
+    date_color: tuple[int, int, int] = Field((190, 190, 190), description="Date colour (RGB)")
 
 
 class ClockBoard(BaseBoard):

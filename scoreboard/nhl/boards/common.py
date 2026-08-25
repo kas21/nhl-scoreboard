@@ -12,8 +12,8 @@ from ...render.profiles import SizeProfile
 from ..teams import logo, team
 
 WHITE = (255, 255, 255)
-GREY = (140, 140, 140)
-DIM = (90, 90, 90)
+GREY = (190, 190, 190)     # secondary text — LEDs need far more than screen-grey to read
+DIM = (120, 120, 120)
 YELLOW = (255, 200, 0)
 RED = (230, 40, 40)
 

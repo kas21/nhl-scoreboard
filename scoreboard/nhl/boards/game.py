@@ -113,7 +113,7 @@ class GameBoard(BaseBoard):
         if code != "ev":
             side = "away" if code[0] == "a" else "home"
             label = f"{g[side]['abbrev']} PP {code[1]}-{code[2]}"
-            if g["powerplay"]["clock"]:
+            if g["powerplay"]["clock"] and p.width >= 96:
                 label += f" {g['powerplay']['clock']}"
             badges.append(indicator(label, p, YELLOW))
         if g["pulled_goalie"] & 1:

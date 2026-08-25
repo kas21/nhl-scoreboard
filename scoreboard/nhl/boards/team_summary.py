@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from ...boards.base import BaseBoard, BoardContext
 from ...render import HBox, Spacer, Text, VBox, load_font, render_tree
-from ...render.layout import Img
+from ...render.layout import Box, Img
 from ..teams import logo, team
 from .common import DIM, GREY, WHITE, YELLOW, fmt_date, fmt_time, local_time
 
@@ -40,11 +40,14 @@ class TeamSummaryBoard(BaseBoard):
             Text(record, font_m, YELLOW),
             Text(f"{rec['points']} PTS", font_s, GREY),
         ], spacing=1)
-        left = VBox([Img(logo(s["abbrev"], p.logo)), Text(f"L10 {'-'.join(map(str, rec['l10']))}  {rec['streak']}", font_s, GREY)], spacing=1) \
-            if p.width >= 96 else Img(logo(s["abbrev"], p.logo))
-        rows = [HBox([left, Spacer(), header], spacing=p.pad)]
+        rows = [HBox([Img(logo(s["abbrev"], p.logo)), Spacer(), header], spacing=p.pad)]
+        if p.width >= 96:
+            rows.append(HBox([Text("L10", font_s, DIM), Spacer(), Text(f"{'-'.join(map(str, rec['l10']))}  {rec['streak']}", font_s, GREY)]))
         rows.extend(self._games(s, ctx, cfg))
-        return render_tree(VBox([Spacer(), *rows, Spacer()], spacing=p.pad), ctx.width, ctx.height,
+        while len(rows) > 1 and VBox(rows, spacing=1).measure()[1] > ctx.height - 2 * p.pad:
+            rows.pop()
+        body = HBox([Box(p.pad, 0), VBox(rows, spacing=1), Box(p.pad, 0)])
+        return render_tree(VBox([Spacer(), body, Spacer()]), ctx.width, ctx.height,
                            background=tuple(int(c * 0.25) for c in t.primary))
 
     def _games(self, s: dict[str, Any], ctx: BoardContext, cfg: TeamSummaryConfig) -> list:
@@ -55,14 +58,14 @@ class TeamSummaryBoard(BaseBoard):
         if prev:
             vs = "vs" if prev["home"] else "@"
             col = (80, 220, 80) if prev["result"] == "W" else (230, 80, 80)
-            rows.append(HBox([Text("LAST", font, DIM), Spacer(),
+            rows.append(HBox([Text("LAST", font, DIM), Spacer(min=3),
                               Text(f"{prev['result']} {prev['score']}-{prev['opponent_score']} {vs} {prev['opponent']}", font, col)]))
         if nxt:
             vs = "vs" if nxt["home"] else "@"
             start = local_time(nxt["start_time_utc"], ctx.now.tzinfo)
             when = "TODAY" if start and start.date() == ctx.now.date() else fmt_date(nxt["date"])
-            rows.append(HBox([Text("NEXT", font, DIM), Spacer(),
+            rows.append(HBox([Text("NEXT", font, DIM), Spacer(min=3),
                               Text(f"{when} {fmt_time(start, cfg.time_24h)} {vs} {nxt['opponent']}", font, WHITE)]))
-        elif not p.height < 48:
-            rows.append(Text("NO UPCOMING GAMES", font, DIM))
-        return rows if p.height >= 48 else rows[:1]
+        elif p.height >= 48:
+            rows.append(HBox([Text("NEXT", font, DIM), Spacer(min=3), Text("NO GAMES SCHEDULED", font, GREY)]))
+        return rows

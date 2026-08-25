@@ -8,21 +8,37 @@ from PIL import ImageFont
 
 FONT_DIR = Path(__file__).parent / "fonts"
 
-FONTS = {
-    "pixel": "CutePixel.ttf",
+FONTS = {                       # vector fonts, sized freely (large text only)
     "score": "score_font.ttf",
     "clock": "clock_font.ttf",
     "block": "minecraft_bold.ttf",
 }
+# Hand-drawn bitmap fonts (public-domain X11 set) keyed by pixel height. These
+# are what make small text legible on an LED matrix; TrueType rasterised at
+# 6-10 px turns to mush.
+BITMAP = {
+    "pixel": {6: "tom-thumb", 7: "5x7", 8: "5x8", 9: "6x9", 10: "6x10", 12: "6x12", 13: "7x13", 15: "9x15B", 18: "9x18B", 20: "10x20"},
+    "pixelbold": {6: "tom-thumb", 7: "5x7", 8: "5x8", 9: "6x9", 10: "6x10", 12: "6x12", 13: "6x13B", 14: "7x13B", 15: "8x13B", 18: "9x18B", 20: "10x20"},
+    "narrow": {6: "4x6", 7: "4x6", 8: "5x8", 9: "6x9", 10: "6x10", 12: "6x12", 13: "7x13", 15: "9x15B", 18: "9x18B", 20: "10x20"},
+}
 DEFAULT_FONT = "pixel"
+
+
+def is_bitmap(font: ImageFont.ImageFont) -> bool:
+    return not isinstance(font, ImageFont.FreeTypeFont)
 
 
 @lru_cache(maxsize=128)
 def load_font(name: str = DEFAULT_FONT, size: int = 8) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
-    """Load a bundled font by short name (or a path). Falls back to PIL's default."""
+    """Load a bundled font by family name (or a TTF path) at ``size`` px.
+
+    Bitmap families snap to the largest bundled face that is <= size.
+    """
+    family = BITMAP.get(name)
+    if family:
+        best = max((h for h in family if h <= size), default=min(family))
+        return ImageFont.load(str(FONT_DIR / "pil" / f"{family[best]}.pil"))
     path = FONT_DIR / FONTS.get(name, name)
-    if path.suffix.lower() == ".bdf":
-        return ImageFont.load(str(path.with_suffix(".pil"))) if path.with_suffix(".pil").exists() else ImageFont.load_default()
     try:
         return ImageFont.truetype(str(path), size)
     except OSError:
@@ -37,11 +53,11 @@ def text_box(text: str, font: ImageFont.ImageFont, antialias: bool = False) -> t
     box rather than font metrics because pixel fonts often declare descenders
     far larger than they draw.
     """
+    if is_bitmap(font):
+        left, top, right, bottom = font.getbbox(text)
+        return left, top, right, bottom
     mode = "L" if antialias else "1"
-    try:
-        return font.getbbox(text, mode=mode, anchor="la")
-    except TypeError:                   # bitmap fonts: no mode/anchor kwargs
-        return font.getbbox(text)
+    return font.getbbox(text, mode=mode, anchor="la")
 
 
 def text_size(text: str, font: ImageFont.ImageFont, antialias: bool = False) -> tuple[int, int]:

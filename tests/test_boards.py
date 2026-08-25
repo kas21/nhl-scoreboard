@@ -23,6 +23,14 @@ def test_splash_animates(ctx):
     assert first.tobytes() != last.tobytes()
 
 
+def test_bitmap_fonts_snap_to_nearest_size():
+    from scoreboard.render.text import is_bitmap, load_font, text_size
+    f = load_font("pixel", 8)
+    assert is_bitmap(f) and text_size("78 PTS", f)[1] == 8
+    assert text_size("W", load_font("pixel", 11))[1] == 10       # 11 -> 6x10
+    assert text_size("W", load_font("pixel", 3))[1] == 6         # below smallest -> tom-thumb
+
+
 def test_profile_fallback():
     assert profile_for(128, 64).name == "128x64"
     assert profile_for(96, 48).name == "64x32"
