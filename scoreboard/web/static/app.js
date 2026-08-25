@@ -68,6 +68,16 @@ function Field({ name, schema, value, onChange, root }) {
   } else if (s.type === 'integer' || s.type === 'number') {
     input = html`<input type="number" ...${common} value=${value ?? ''} min=${s.minimum} max=${s.maximum} step=${s.type === 'integer' ? 1 : 'any'}
       onchange=${e => onChange(e.target.value === '' ? null : +e.target.value)} />`;
+  } else if (s.type === 'array' && s.items && resolve(s.items, root).enum) {
+    const opts = resolve(s.items, root).enum; const sel = value || [];
+    input = html`<div class="tags">
+      ${sel.map((v, i) => html`<span class="tag">${v} <a onclick=${() => onChange(sel.filter((_, j) => j !== i))}>✕</a></span>`)}
+      <select onchange=${e => { if (e.target.value) onChange([...sel, e.target.value]); e.target.value = ''; }}>
+        <option value="">+ add</option>${opts.filter(o => !sel.includes(o)).map(o => html`<option value=${o}>${o}</option>`)}
+      </select></div>`;
+  } else if (s.type === 'array' && s.items && resolve(s.items, root).type === 'string') {
+    input = html`<input type="text" ...${common} value=${(value || []).join(', ')} placeholder="comma separated"
+      onchange=${e => onChange(e.target.value.split(',').map(x => x.trim()).filter(Boolean))} />`;
   } else if (s.type === 'array' && Array.isArray(value) && value.length === 3 && value.every(Number.isInteger)) {
     const hex = '#' + value.map(v => v.toString(16).padStart(2, '0')).join('');
     input = html`<input type="color" ...${common} value=${hex} onchange=${e => onChange([1, 3, 5].map(i => parseInt(e.target.value.substr(i, 2), 16)))} />`;

@@ -41,6 +41,10 @@ class SourceContext:
         key = f"{self.key}.{subkey}" if subkey else self.key
         self._store.publish(key, value)
 
+    def publish_to(self, key: str, value: Any) -> None:
+        """Publish under an arbitrary key (e.g. the sport-agnostic ``main_event``)."""
+        self._store.publish(key, value)
+
     def snapshot(self):
         return self._store.get()
 

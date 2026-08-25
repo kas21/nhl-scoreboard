@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 
 
 class Application:
-    def __init__(self, config_path: Path, output_mode: str = "auto") -> None:
+    def __init__(self, config_path: Path, output_mode: str = "auto", demo: bool = False) -> None:
         self.logs = LogBuffer()
         logging.getLogger().addHandler(self.logs)
         self.config = ConfigStore(config_path)
@@ -33,6 +33,11 @@ class Application:
         self.events = EventBus()
         self.snapshots.subscribe(self.events.on_snapshot)
         self.registry = load_registry()
+        if demo:
+            from .demo import DemoSource
+
+            log.warning("DEMO MODE: replaying a recorded game")
+            self.registry.sources = {"nhl": DemoSource()}
         for detector in self.registry.detectors:
             self.events.register(detector)
         self.director = Director(self.config, self.snapshots, self.registry, self.events)

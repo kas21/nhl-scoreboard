@@ -28,4 +28,7 @@ pre { background:#000; padding:12px; border-radius:8px; overflow:auto; max-heigh
 .playlist li { display:flex; gap:10px; align-items:center; padding:6px 0; list-style:none; }
 .playlist ul { padding:0; margin:0; }
 .muted { color:var(--muted); }
+.tags { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.tag { background:#2a3340; border-radius:14px; padding:3px 10px; font-size:13px; }
+.tag a { cursor:pointer; color:var(--muted); margin-left:4px; }
 details summary { cursor:pointer; font-weight:600; padding:8px 0; }

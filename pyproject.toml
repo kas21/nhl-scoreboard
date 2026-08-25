@@ -16,8 +16,9 @@ dependencies = [
 
 [project.optional-dependencies]
 emulator = ["rgbmatrixemulator>=0.14.0"]
-pi = ["rgbmatrix"]
+pi = ["rgbmatrix ; python_full_version >= '3.13' and platform_machine == 'aarch64'"]
 dev = ["pytest>=8", "pytest-asyncio>=0.23", "respx>=0.21", "ruff>=0.4"]
+build = ["cairosvg>=2.7"]
 
 [project.scripts]
 scoreboard = "scoreboard.__main__:main"
@@ -26,8 +27,18 @@ scoreboard = "scoreboard.__main__:main"
 clock = "scoreboard.boards.clock:ClockBoard"
 splash = "scoreboard.boards.splash:SplashBoard"
 blank = "scoreboard.boards.blank:BlankBoard"
+"nhl.game" = "scoreboard.nhl.boards.game:GameBoard"
+"nhl.ticker" = "scoreboard.nhl.boards.ticker:TickerBoard"
+"nhl.standings" = "scoreboard.nhl.boards.standings:StandingsBoard"
+"nhl.team_summary" = "scoreboard.nhl.boards.team_summary:TeamSummaryBoard"
+"nhl.goal" = "scoreboard.nhl.boards.events:GoalBoard"
+"nhl.penalty" = "scoreboard.nhl.boards.events:PenaltyBoard"
 
 [project.entry-points."scoreboard.sources"]
+nhl = "scoreboard.nhl.source:NhlSource"
+
+[project.entry-points."scoreboard.detectors"]
+nhl = "scoreboard.nhl.events:detect_main_event"
 
 [build-system]
 requires = ["hatchling"]

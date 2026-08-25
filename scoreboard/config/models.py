@@ -67,11 +67,29 @@ class PlaylistEntry(FrozenModel):
 class Playlists(FrozenModel):
     """What to show in each application state, in order."""
 
-    offday: tuple[PlaylistEntry, ...] = (PlaylistEntry(board="clock"),)
-    pregame: tuple[PlaylistEntry, ...] = (PlaylistEntry(board="clock"),)
-    live: tuple[PlaylistEntry, ...] = (PlaylistEntry(board="clock", duration=None),)
-    intermission: tuple[PlaylistEntry, ...] = (PlaylistEntry(board="clock"),)
-    postgame: tuple[PlaylistEntry, ...] = (PlaylistEntry(board="clock"),)
+    offday: tuple[PlaylistEntry, ...] = (
+        PlaylistEntry(board="nhl.team_summary", duration=10),
+        PlaylistEntry(board="clock", duration=10),
+        PlaylistEntry(board="nhl.ticker", duration=None),
+        PlaylistEntry(board="nhl.standings", duration=None),
+    )
+    pregame: tuple[PlaylistEntry, ...] = (
+        PlaylistEntry(board="nhl.game", duration=15),
+        PlaylistEntry(board="nhl.ticker", duration=None),
+        PlaylistEntry(board="clock", duration=10),
+    )
+    live: tuple[PlaylistEntry, ...] = (PlaylistEntry(board="nhl.game", duration=None),)
+    intermission: tuple[PlaylistEntry, ...] = (
+        PlaylistEntry(board="nhl.game", duration=15),
+        PlaylistEntry(board="nhl.ticker", duration=None),
+        PlaylistEntry(board="nhl.standings", duration=None),
+    )
+    postgame: tuple[PlaylistEntry, ...] = (
+        PlaylistEntry(board="nhl.game", duration=20),
+        PlaylistEntry(board="nhl.ticker", duration=None),
+        PlaylistEntry(board="nhl.standings", duration=None),
+        PlaylistEntry(board="clock", duration=10),
+    )
 
 
 class WebConfig(FrozenModel):

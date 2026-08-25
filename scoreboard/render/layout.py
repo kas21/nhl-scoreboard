@@ -129,17 +129,18 @@ class _Linear(Node):
         spacers = [c for c in self.children if isinstance(c, Spacer)]
         extra = max(total_main - used, 0)
         weight_total = sum(s.weight for s in spacers) or 0
-        cursor = 0
+        cursor = 0 if weight_total else extra // 2      # no spacers: centre along the main axis
         for child, (cw, ch) in zip(self.children, sizes):
             main = cw if self.horizontal else ch
             if isinstance(child, Spacer) and weight_total:
                 main += extra * child.weight // weight_total
+            stretch = isinstance(child, (_Linear, Stack, Anchor))   # containers fill the cross axis
             if self.horizontal:
-                cy = y + _align(h - ch, self.align)
-                yield from child.place(x + cursor, cy, main, ch)
+                cross = h if stretch else ch
+                yield from child.place(x + cursor, y + _align(h - cross, self.align), main, cross)
             else:
-                cx = x + _align(w - cw, self.align)
-                yield from child.place(cx, y + cursor, cw, main)
+                cross = w if stretch else cw
+                yield from child.place(x + _align(w - cross, self.align), y + cursor, cross, main)
             cursor += main + self.spacing
 
 

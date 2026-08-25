@@ -14,6 +14,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--output", choices=["auto", "hardware", "emulator", "none"], default="auto",
                         help="frame sink (default: hardware if available, else emulator, else none)")
     parser.add_argument("--emulator", action="store_const", const="emulator", dest="output", help="shortcut for --output emulator")
+    parser.add_argument("--demo", action="store_true", help="replay a recorded game instead of polling the NHL")
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args(argv)
 
@@ -21,7 +22,7 @@ def main(argv: list[str] | None = None) -> None:
                         format="%(asctime)s %(levelname)-7s %(name)s: %(message)s")
     from .app import Application
 
-    Application(args.config, args.output).run()
+    Application(args.config, args.output, demo=args.demo).run()
 
 
 if __name__ == "__main__":

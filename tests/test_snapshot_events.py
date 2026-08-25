@@ -26,3 +26,12 @@ def test_detectors_run_on_change_and_queue_events():
     events = bus.drain()
     assert [e.kind for e in events] == ["goal"]
     assert bus.drain() == ()
+
+
+def test_drain_collapses_bursts_to_latest_per_kind_and_team():
+    bus = EventBus()
+    bus._queue = [Event("goal", team="TOR", payload={"n": 1}), Event("goal", team="TOR", payload={"n": 2}),
+                  Event("goal", team="MTL"), Event("penalty", team="TOR")]
+    events = bus.drain()
+    assert [(e.kind, e.team) for e in events] == [("goal", "TOR"), ("goal", "MTL"), ("penalty", "TOR")]
+    assert events[0].payload == {"n": 2}

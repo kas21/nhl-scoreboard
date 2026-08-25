@@ -38,5 +38,10 @@ class EventBus:
             self._queue.extend(detector(prev, new))
 
     def drain(self) -> tuple[Event, ...]:
-        events, self._queue = tuple(self._queue), []
-        return events
+        """Return queued events, collapsed so a burst (missed polls, restart mid-game)
+        plays at most one event per (kind, team) — the latest — instead of a backlog."""
+        latest: dict[tuple[str, str | None], Event] = {}
+        for ev in self._queue:
+            latest[(ev.kind, ev.team)] = ev
+        self._queue = []
+        return tuple(latest.values())
