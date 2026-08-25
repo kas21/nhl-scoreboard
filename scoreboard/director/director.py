@@ -22,6 +22,7 @@ from ..render.profiles import profile_for
 from .brightness import brightness_for
 from .playlist import Cursor, advance, available_entries, clamp
 from .state import PLAYLIST_STATES, AppState, compute_state
+from .transitions import transition
 
 log = logging.getLogger(__name__)
 
@@ -44,6 +45,8 @@ class Director:
         self._active_event: tuple[Event, EventBoard, float] | None = None
         self._pending: list[Event] = []
         self._board_cfg_cache: dict[tuple[str, int], BaseModel] = {}
+        self._last_frame: Image.Image | None = None
+        self._transition: tuple[Image.Image, float] | None = None     # (outgoing frame, started_at)
         self._cfg_version = 0
         config.subscribe(self._on_config)
 
@@ -76,6 +79,11 @@ class Director:
         ctx = self._context(cfg, snap, mono, event)
         board_cfg = self._board_config(cfg, board)
         if key != self._active_key:
+            if (self._active_key is not None and self._last_frame is not None and not isinstance(board, EventBoard)
+                    and cfg.transition.style != "none" and self._last_frame.size == (cfg.display.width, cfg.display.height)):
+                self._transition = (self._last_frame, mono)
+            else:
+                self._transition = None          # event boards cut in instantly
             self._active_key = key
             board.enter(ctx, board_cfg)
         try:
@@ -83,6 +91,14 @@ class Director:
         except Exception:
             log.exception("board %s failed to render", key)
             frame = Image.new("RGB", (cfg.display.width, cfg.display.height))
+        if self._transition:
+            outgoing, started = self._transition
+            progress = (mono - started) / cfg.transition.duration
+            if progress >= 1.0:
+                self._transition = None
+            else:
+                frame = transition(cfg.transition.style, outgoing, frame, progress)
+        self._last_frame = frame
         self._after_render(board, ctx, board_cfg, cfg, mono)
         return frame
 

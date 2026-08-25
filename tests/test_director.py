@@ -109,3 +109,35 @@ def test_brightness_modes():
     tz = ZoneInfo("America/Toronto")
     assert brightness_for(datetime(2026, 6, 21, 13, 0, tzinfo=tz), sun, loc, live=False) == 80
     assert brightness_for(datetime(2026, 6, 21, 23, 30, tzinfo=tz), sun, loc, live=False) == 20
+
+
+def test_transition_blends_between_playlist_boards(tmp_path):
+    from scoreboard.director.transitions import STYLES, transition
+
+    red, blue = Image.new("RGB", (8, 4), (255, 0, 0)), Image.new("RGB", (8, 4), (0, 0, 255))
+    assert transition("fade", red, blue, 0.5).getpixel((0, 0)) not in ((255, 0, 0), (0, 0, 255))
+    assert transition("wipe", red, blue, 0.5).getpixel((0, 0)) == (0, 0, 255)
+    assert transition("wipe", red, blue, 0.5).getpixel((7, 0)) == (255, 0, 0)
+    for style in STYLES:
+        assert transition(style, red, blue, 1.0) is blue and transition(style, red, blue, 0.0).size == (8, 4)
+
+    config, _, _, d = make(tmp_path)
+    config.update({"transition": {"style": "fade", "duration": 1.0},
+                   "playlists": {"offday": [{"board": "clock", "duration": 2}, {"board": "blank", "duration": 2}]}})
+    t = booted(d)
+    d.frame(t + 2.1)                       # clock duration expired -> cursor advances
+    d.frame(t + 2.2)                       # switch to blank happens here, transition starts
+    mid = d.frame(t + 2.7)                 # halfway through a 1s fade from clock to black
+    assert d.active_board == "blank"
+    assert mid.getbbox() is not None       # still shows fading clock pixels
+    settled = d.frame(t + 3.5)
+    assert settled.getbbox() is None       # pure blank after the transition
+
+
+def test_no_transition_into_event_boards(tmp_path):
+    config, snapshots, events, d = make(tmp_path)
+    config.update({"transition": {"style": "fade", "duration": 1.0}})
+    t = booted(d)
+    events._queue.append(Event("goal", team="TOR", ts=t))
+    frame = d.frame(t + 0.1)
+    assert d.active_board == "goal" and frame.getpixel((0, 0)) == (255, 0, 0)   # instant, no fade

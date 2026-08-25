@@ -92,6 +92,13 @@ class Playlists(FrozenModel):
     )
 
 
+class TransitionConfig(FrozenModel):
+    """How the display changes from one board to the next."""
+
+    style: Literal["none", "fade", "slide_left", "slide_right", "slide_up", "slide_down", "wipe", "blinds"] = "fade"
+    duration: float = Field(0.5, ge=0.1, le=3.0, description="Seconds")
+
+
 class WebConfig(FrozenModel):
     port: int = Field(8080, ge=1, le=65535)
     host: str = "0.0.0.0"
@@ -105,6 +112,7 @@ class AppConfig(FrozenModel):
     location: LocationConfig = LocationConfig()
     brightness: BrightnessConfig = BrightnessConfig()
     playlists: Playlists = Playlists()
+    transition: TransitionConfig = TransitionConfig()
     web: WebConfig = WebConfig()
     boards: dict[str, dict[str, Any]] = Field(
         default_factory=dict, description="Per-board settings, validated by each board's model"
