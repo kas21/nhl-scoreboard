@@ -14,9 +14,10 @@ from __future__ import annotations
 import math
 from collections.abc import Callable, Hashable
 from dataclasses import dataclass, field
+from functools import lru_cache
 from typing import Literal
 
-from PIL import Image, ImageEnhance
+from PIL import Image, ImageChops, ImageEnhance
 
 from .anim import Easing, ease_out_cubic
 from .layout import Node, _cache_get, _cache_put, render_node
@@ -98,6 +99,18 @@ class Marquee(AnimatedNode):
         return strip
 
 
+@lru_cache(maxsize=64)
+def _ramp(width: int, height: int, diagonal: bool) -> Image.Image:
+    """L image whose pixel value encodes position along the sweep axis (x+y or x), scaled to 0..255."""
+    span = (width + height) if diagonal else width
+    img = Image.new("L", (width, height))
+    px = img.load()
+    for yy in range(height):
+        for xx in range(width):
+            px[xx, yy] = ((xx + yy) if diagonal else xx) * 255 // max(span - 1, 1)
+    return img
+
+
 @dataclass
 class Sheen(AnimatedNode):
     """A soft highlight band sweeping across the child (only where the child is opaque).
@@ -105,19 +118,21 @@ class Sheen(AnimatedNode):
     ``diagonal`` sweeps along x+y like the old client's ByteFX sheen; ``once`` plays a
     single sweep starting at ``delay`` seconds (e.g. right after an entrance) and then
     shows the plain child. ``reverse`` sweeps bottom-right -> top-left.
+    Frames are built with a C-speed LUT over a cached position ramp, so 60 phases per
+    sweep are cheap enough to compute on the fly (and are cached anyway).
     """
 
     child: Node
-    h_align: str = field(default="center", kw_only=True)
-    v_align: str = field(default="center", kw_only=True)
     period: float = 2.0
     band: int = 8
     strength: float = 0.7
-    steps: int = 24              # quantised phases -> effectively pre-rendered
+    steps: int = 60              # phases per sweep (30 fps x 2 s = smooth)
     diagonal: bool = True
     once: bool = False
     delay: float = 0.0
     reverse: bool = False
+    h_align: str = field(default="center", kw_only=True)
+    v_align: str = field(default="center", kw_only=True)
 
     def place(self, x, y, w, h, t=0.0):
         img = self._child_image()
@@ -134,19 +149,15 @@ class Sheen(AnimatedNode):
     def _frame(self, img: Image.Image, step: int) -> Image.Image:
         wdt, hgt = img.size
         span = (wdt + hgt) if self.diagonal else wdt
-        travel = span + self.band
-        pos = int(step / self.steps * travel) - self.band
-        band = Image.new("L", img.size, 0)
-        px = band.load()
-        for yy in range(hgt):
-            for xx in range(wdt):
-                d = (xx + yy if self.diagonal else xx) - pos
-                if 0 <= d < self.band:
-                    k = 1 - abs((d + 0.5) / self.band * 2 - 1)      # triangle profile
-                    px[xx, yy] = int(255 * self.strength * k)
-        alpha = img.getchannel("A")
-        mask = Image.eval(band, lambda v: v)                    # copy
-        mask.paste(0, mask=Image.eval(alpha, lambda a: 255 - a))
+        pos = step / self.steps * (span + self.band) - self.band       # band leading edge in sweep units
+        scale = 255 / max(span - 1, 1)
+        lut = []
+        for v in range(256):
+            d = v / scale - pos
+            k = 1 - abs((d + 0.5) / self.band * 2 - 1) if 0 <= d < self.band else 0.0
+            lut.append(int(255 * self.strength * max(k, 0.0)))
+        band = _ramp(wdt, hgt, self.diagonal).point(lut)
+        mask = ImageChops.multiply(band, img.getchannel("A"))
         out = img.copy()
         out.paste(Image.new("RGBA", img.size, (255, 255, 255, 255)), (0, 0), mask)
         return out
