@@ -44,12 +44,20 @@ class Application:
         self.preview = PreviewHub()
         self.output = create_output(self.config.get().display, output_mode, self.director.brightness())
         self._stop = threading.Event()
+        self.exit_code = 0
         self.config.subscribe(lambda cfg: logging.getLogger().setLevel(cfg.log_level))
 
     # -- render thread -------------------------------------------------------
 
     def render_loop(self) -> None:
         log.info("render loop started")
+        try:
+            self._render_loop()
+        except BaseException:
+            log.exception("render loop crashed")
+            raise
+
+    def _render_loop(self) -> None:
         while not self._stop.is_set():
             started = time.monotonic()
             cfg = self.config.get()
@@ -90,6 +98,16 @@ class Application:
                     loop.add_signal_handler(sig, stop.set)
                 except NotImplementedError:
                     pass
+
+            async def watch_render_thread() -> None:
+                while not stop.is_set():
+                    await asyncio.sleep(2)
+                    if not render_thread.is_alive():
+                        log.critical("render thread died; exiting so the service manager restarts us")
+                        self.exit_code = 3
+                        stop.set()
+
+            tasks.append(asyncio.create_task(watch_render_thread(), name="render-watchdog"))
             await stop.wait()
             log.info("shutting down")
             server.should_exit = True
@@ -105,7 +123,7 @@ class Application:
             raw = self.config.get().sources.get(key, {})
             try:
                 return source.config_model.model_validate(raw)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 log.warning("invalid config for source %s, using defaults", key)
                 return source.config_model()
         ctx = SourceContext(key, self.snapshots, cfg_getter, http)
@@ -115,3 +133,5 @@ class Application:
 
     def run(self) -> None:
         asyncio.run(self.run_async())
+        if self.exit_code:
+            raise SystemExit(self.exit_code)

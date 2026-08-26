@@ -77,7 +77,7 @@ class MatrixOutput:
     def close(self) -> None:
         try:
             self._matrix.Clear()
-        except Exception:  # noqa: BLE001
+        except Exception:
             pass
 
 

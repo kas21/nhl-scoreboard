@@ -16,7 +16,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from .models import AppConfig, deep_merge
+from .models import CONFIG_VERSION, AppConfig, deep_merge
 
 log = logging.getLogger(__name__)
 
@@ -84,14 +84,28 @@ class ConfigStore:
             return cfg
         try:
             raw = json.loads(self._path.read_text())
-            return AppConfig.model_validate(raw)
-        except (json.JSONDecodeError, ValidationError) as exc:
-            broken = self._path.with_suffix(".json.broken")
-            log.error("config at %s is invalid (%s); moved to %s, using defaults", self._path, exc, broken)
-            os.replace(self._path, broken)
-            cfg = AppConfig()
+        except json.JSONDecodeError as exc:
+            return self._reset_broken(f"not valid JSON: {exc}")
+        if not isinstance(raw, dict):
+            return self._reset_broken("top level is not an object")
+        raw = migrate(raw)
+        cfg, dropped = salvage(raw)
+        if cfg is None:
+            return self._reset_broken("could not salvage any settings")
+        if dropped:
+            log.warning("config: dropped invalid settings %s (backup kept as %s)", dropped, self._path.with_suffix(".json.1"))
             self._write(cfg)
-            return cfg
+        elif raw.get("version") != cfg.version:
+            self._write(cfg)                                    # persist migration
+        return cfg
+
+    def _reset_broken(self, reason: str) -> AppConfig:
+        broken = self._path.with_suffix(".json.broken")
+        log.error("config at %s is unusable (%s); moved to %s, using defaults", self._path, reason, broken)
+        os.replace(self._path, broken)
+        cfg = AppConfig()
+        self._write(cfg)
+        return cfg
 
     def _write(self, cfg: AppConfig) -> None:
         self._path.parent.mkdir(parents=True, exist_ok=True)
@@ -109,3 +123,66 @@ class ConfigStore:
             if src.exists():
                 os.replace(src, self._path.with_suffix(f".json.{i + 1}"))
         os.replace(self._path, self._path.with_suffix(".json.1"))
+
+
+# -- migration & salvage -------------------------------------------------------
+
+MIGRATIONS: dict[int, Callable[[dict[str, Any]], dict[str, Any]]] = {
+    # 1 -> 2 example: lambda d: {**d, "display": {k: v for k, v in d["display"].items() if k != "old_key"}}
+}
+
+
+def migrate(raw: dict[str, Any]) -> dict[str, Any]:
+    """Apply versioned migrations to bring an old document up to CONFIG_VERSION."""
+    doc = dict(raw)
+    version = int(doc.get("version") or 1)
+    while version < CONFIG_VERSION:
+        step = MIGRATIONS.get(version)
+        doc = step(doc) if step else doc
+        version += 1
+        doc["version"] = version
+    return doc
+
+
+def salvage(raw: dict[str, Any], max_rounds: int = 50) -> tuple[AppConfig | None, list[str]]:
+    """Validate, dropping only the offending keys (unknown or invalid) until it passes.
+
+    Returns (config, dropped_paths). A user never loses their whole config
+    because one field was renamed or one value went out of range.
+    """
+    doc = json.loads(json.dumps(raw))
+    dropped: list[str] = []
+    for _ in range(max_rounds):
+        try:
+            return AppConfig.model_validate(doc), dropped
+        except ValidationError as exc:
+            progressed = False
+            for err in exc.errors():
+                loc = [str(p) for p in err["loc"]]
+                if not loc:
+                    continue
+                if _delete_path(doc, loc):
+                    dropped.append(".".join(loc))
+                    progressed = True
+            if not progressed:
+                return None, dropped
+    return None, dropped
+
+
+def _delete_path(doc: dict[str, Any], loc: list[str]) -> bool:
+    node: Any = doc
+    for key in loc[:-1]:
+        if isinstance(node, dict) and key in node:
+            node = node[key]
+        elif isinstance(node, list) and key.isdigit() and int(key) < len(node):
+            node = node[int(key)]
+        else:
+            return False
+    last = loc[-1]
+    if isinstance(node, dict) and last in node:
+        del node[last]
+        return True
+    if isinstance(node, list) and last.isdigit() and int(last) < len(node):
+        del node[int(last)]
+        return True
+    return False

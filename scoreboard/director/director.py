@@ -21,7 +21,7 @@ from ..plugins import Registry
 from ..render.profiles import profile_for
 from .brightness import brightness_for
 from .playlist import Cursor, advance, available_entries, clamp
-from .state import PLAYLIST_STATES, AppState, compute_state
+from .state import PLAYLIST_STATES, AppState, compute_state, is_offline
 from .transitions import transition
 
 log = logging.getLogger(__name__)
@@ -31,6 +31,8 @@ ERROR_BOARD = "clock"
 FALLBACK_BOARD = "clock"
 BOOT_SECONDS = 4.0
 EVENT_MAX_SECONDS = 30.0
+QUARANTINE_SECONDS = 60.0       # a board that raises is skipped for this long
+STALE_DOT = (200, 40, 40)
 
 
 class Director:
@@ -46,6 +48,7 @@ class Director:
         self._pending: list[Event] = []
         self._board_cfg_cache: dict[tuple[str, int], BaseModel] = {}
         self._last_frame: Image.Image | None = None
+        self._quarantine: dict[str, float] = {}       # board key -> monotonic time it may run again
         self._transition: tuple[Image.Image, float] | None = None     # (outgoing frame, started_at)
         self._cfg_version = 0
         config.subscribe(self._on_config)
@@ -89,8 +92,11 @@ class Director:
         try:
             frame = board.render(ctx, board_cfg)
         except Exception:
-            log.exception("board %s failed to render", key)
-            frame = Image.new("RGB", (cfg.display.width, cfg.display.height))
+            log.exception("board %s failed to render; skipping it for %ss", key, QUARANTINE_SECONDS)
+            self._quarantine[key] = mono + QUARANTINE_SECONDS
+            self._active_event = None
+            self._cursor = advance(self._cursor, 10**6, mono)     # move on; count is re-clamped next frame
+            frame = self._last_frame or Image.new("RGB", (cfg.display.width, cfg.display.height))
         if self._transition:
             outgoing, started = self._transition
             progress = (mono - started) / cfg.transition.duration
@@ -99,6 +105,8 @@ class Director:
             else:
                 frame = transition(cfg.transition.style, outgoing, frame, progress)
         self._last_frame = frame
+        if is_offline(snap):
+            frame = _stale_marker(frame)
         self._after_render(board, ctx, board_cfg, cfg, mono)
         return frame
 
@@ -111,7 +119,7 @@ class Director:
     def _now(self, cfg: AppConfig) -> datetime:
         try:
             return datetime.now(ZoneInfo(cfg.location.timezone))
-        except Exception:  # noqa: BLE001
+        except Exception:
             return datetime.now().astimezone()
 
     def _sync_state(self, snap: Snapshot, mono: float) -> None:
@@ -123,15 +131,20 @@ class Director:
             log.info("state %s -> %s", self._cursor.state.value, new_state.value)
             self._cursor = Cursor(new_state, 0, mono)
 
+    def _usable(self, mono: float) -> set[str]:
+        self._quarantine = {k: until for k, until in self._quarantine.items() if until > mono}
+        return {k for k in self._registry.boards if k not in self._quarantine}
+
     def _select(self, cfg: AppConfig, snap: Snapshot, mono: float) -> tuple[BaseBoard, str, Event | None]:
         boards = self._registry.boards
+        usable = self._usable(mono)
         if self._active_event:
             event, board, started = self._active_event
             return board, board.key, event
         while self._pending:
             event = self._pending.pop(0)
             for eb in self._registry.event_boards:
-                if eb.matches(event, self._board_config(cfg, eb)):
+                if eb.key in usable and eb.matches(event, self._board_config(cfg, eb)):
                     self._active_event = (event, eb, mono)
                     return eb, eb.key, event
         state = self._cursor.state
@@ -139,7 +152,7 @@ class Director:
             return boards.get(BOOT_BOARD) or boards[FALLBACK_BOARD], BOOT_BOARD, None
         if state == AppState.ERROR:
             return boards[ERROR_BOARD], ERROR_BOARD, None
-        entries = available_entries(getattr(cfg.playlists, state.value), set(boards))
+        entries = available_entries(getattr(cfg.playlists, state.value), usable)
         entries = [e for e in entries if snap.has(*boards[e.board].requires)]
         if not entries:
             return boards[FALLBACK_BOARD], FALLBACK_BOARD, None
@@ -156,7 +169,7 @@ class Director:
             return
         if self._cursor.state not in PLAYLIST_STATES:
             return
-        entries = available_entries(getattr(cfg.playlists, self._cursor.state.value), set(self._registry.boards))
+        entries = available_entries(getattr(cfg.playlists, self._cursor.state.value), self._usable(mono))
         if not entries:
             return
         entry = entries[min(self._cursor.index, len(entries) - 1)]
@@ -178,6 +191,9 @@ class Director:
         )
 
     def _board_config(self, cfg: AppConfig, board: BaseBoard) -> BaseModel:
+        return self._board_config_impl(cfg, board)
+
+    def _board_config_impl(self, cfg: AppConfig, board: BaseBoard) -> BaseModel:
         cache_key = (board.key, self._cfg_version)
         cached = self._board_cfg_cache.get(cache_key)
         if cached is not None:
@@ -190,3 +206,13 @@ class Director:
             model = board.config_model()
         self._board_cfg_cache[cache_key] = model
         return model
+
+
+def _stale_marker(frame: Image.Image) -> Image.Image:
+    """Tiny red dot bottom-right: data is being shown but the feed is unreachable."""
+    out = frame.copy()
+    w, h = out.size
+    for dx in (1, 2):
+        for dy in (1, 2):
+            out.putpixel((w - 1 - dx, h - 1 - dy), STALE_DOT)
+    return out

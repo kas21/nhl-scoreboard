@@ -51,7 +51,8 @@ def test_compute_state_from_snapshot():
     assert compute_state(store.get()) == AppState.OFFDAY
     assert compute_state(store.publish("main_event", {"phase": "live"})) == AppState.LIVE
     assert compute_state(store.publish("main_event", {"phase": "intermission"})) == AppState.INTERMISSION
-    assert compute_state(store.publish("system", {"online": False})) == AppState.ERROR
+    assert compute_state(store.publish("system", {"online": False})) == AppState.INTERMISSION   # offline but has data
+    assert compute_state(SnapshotStore().publish("system", {"online": False})) == AppState.ERROR  # offline, nothing to show
 
 
 def test_boot_then_playlist_rotation(tmp_path):
@@ -141,3 +142,37 @@ def test_no_transition_into_event_boards(tmp_path):
     events._queue.append(Event("goal", team="TOR", ts=t))
     frame = d.frame(t + 0.1)
     assert d.active_board == "goal" and frame.getpixel((0, 0)) == (255, 0, 0)   # instant, no fade
+
+
+class BrokenBoard(BlankBoard):
+    key = "broken"
+    title = "Broken"
+
+    def render(self, ctx, cfg):
+        raise RuntimeError("boom")
+
+
+def test_broken_board_is_quarantined_and_rotation_continues(tmp_path):
+    config = ConfigStore(tmp_path / "config.json")
+    config.update({"transition": {"style": "none"},
+                   "playlists": {"offday": [{"board": "broken", "duration": 5}, {"board": "blank", "duration": 5}]}})
+    snapshots, events = SnapshotStore(), EventBus()
+    reg = Registry(boards={b.key: b for b in (ClockBoard(), SplashBoard(), BlankBoard(), BrokenBoard())})
+    d = Director(config, snapshots, reg, events)
+    t = booted(d)
+    d.frame(t + 0.1)
+    assert d.active_board == "blank"                       # skipped past the broken board
+    for i in range(1, 30):
+        d.frame(t + 0.1 + i)
+    assert d.active_board == "blank"                       # never returns to it inside the quarantine window
+
+
+def test_stale_marker_when_offline_with_data(tmp_path):
+    _, snapshots, _, d = make(tmp_path)
+    t = booted(d)
+    snapshots.publish("nhl.scores", [])                    # we have (some) data
+    snapshots.publish("system", {"online": False})
+    frame = d.frame(t + 0.1)
+    w, h = frame.size
+    assert frame.getpixel((w - 2, h - 2)) == (200, 40, 40)
+    assert d.state == AppState.OFFDAY                      # still showing data, not the error clock

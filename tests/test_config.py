@@ -58,3 +58,27 @@ def test_deep_merge_is_non_mutating():
     out = deep_merge(base, {"a": {"b": 9}})
     assert out == {"a": {"b": 9, "c": 2}}
     assert base == {"a": {"b": 1, "c": 2}}
+
+
+def test_salvage_drops_only_bad_keys(tmp_path):
+    path = tmp_path / "config.json"
+    path.write_text(json.dumps({"display": {"width": 64, "renamed_field": 1, "pwm_bits": 99}, "brightness": {"day": 42}}))
+    cfg = ConfigStore(path).get()
+    assert cfg.display.width == 64 and cfg.brightness.day == 42       # good values survive
+    assert cfg.display.pwm_bits == 11                                  # invalid -> default
+    assert not (tmp_path / "config.json.broken").exists()
+    assert json.loads(path.read_text())["display"].get("renamed_field") is None
+
+
+def test_migration_bumps_version(tmp_path):
+    from scoreboard.config import store as store_mod
+    store_mod.MIGRATIONS[1] = lambda d: {**d, "brightness": {"day": 55}}
+    store_mod.CONFIG_VERSION = 2
+    try:
+        path = tmp_path / "config.json"
+        path.write_text(json.dumps({"version": 1}))
+        cfg = ConfigStore(path).get()
+        assert cfg.brightness.day == 55
+    finally:
+        del store_mod.MIGRATIONS[1]
+        store_mod.CONFIG_VERSION = 1

@@ -29,10 +29,18 @@ PLAYLIST_STATES = (AppState.OFFDAY, AppState.PREGAME, AppState.LIVE, AppState.IN
 _PHASES = {s.value: s for s in (AppState.PREGAME, AppState.LIVE, AppState.INTERMISSION, AppState.POSTGAME)}
 
 
+def is_offline(snapshot: Snapshot) -> bool:
+    return (snapshot.get(SYSTEM_KEY) or {}).get("online") is False
+
+
+def has_data(snapshot: Snapshot) -> bool:
+    """Anything besides the system key has ever been published."""
+    return any(k != SYSTEM_KEY for k in snapshot.data)
+
+
 def compute_state(snapshot: Snapshot) -> AppState:
-    system = snapshot.get(SYSTEM_KEY) or {}
-    if system.get("online") is False:
-        return AppState.ERROR
+    if is_offline(snapshot) and not has_data(snapshot):
+        return AppState.ERROR                      # nothing to show: clock until we get data
     event = snapshot.get(MAIN_EVENT_KEY)
     if not event:
         return AppState.OFFDAY

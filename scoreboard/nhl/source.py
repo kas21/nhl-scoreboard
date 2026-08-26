@@ -30,6 +30,8 @@ from .teams import NHL_TEAMS
 
 log = logging.getLogger(__name__)
 
+OFFLINE_AFTER_FAILURES = 3      # consecutive score-poll failures before we report offline
+
 TeamAbbrev = Literal[NHL_TEAMS]  # type: ignore[valid-type]
 
 
@@ -58,6 +60,7 @@ class NhlSource:
 
     async def _scores_loop(self, ctx: SourceContext, api: NhlApi) -> None:
         delayed: list[tuple[float, dict[str, Any], list[dict[str, Any]]]] = []
+        failures = 0
         try:                                   # records come from standings; give them a head start
             await asyncio.wait_for(self._standings_ready.wait(), timeout=5)
         except TimeoutError:
@@ -75,10 +78,14 @@ class NhlSource:
                 if main:
                     main = {**main, "favorite_side": favorite_side(main, cfg.favorites)}
                 self._deliver(ctx, cfg, main, games, delayed)
-                ctx.publish_to("system", {"online": True})
+                failures = 0
+                ctx.publish_to("system", {"online": True, "failures": 0})
             except NhlApiError as exc:
-                ctx.log.warning("score poll failed: %s", exc)
-                ctx.publish_to("system", {"online": False})
+                failures += 1
+                ctx.log.warning("score poll failed (%s in a row): %s", failures, exc)
+                if failures >= OFFLINE_AFTER_FAILURES:
+                    ctx.publish_to("system", {"online": False, "failures": failures})
+                main = (ctx.snapshot().get("main_event") or None)      # keep polling cadence of last known state
             active = bool(main and main["state"] in ACTIVE_STATES)
             await asyncio.sleep(cfg.live_interval if active else cfg.idle_interval)
 
@@ -137,7 +144,7 @@ def _local_today(ctx: SourceContext) -> str:
         from zoneinfo import ZoneInfo
 
         return datetime.now(ZoneInfo(tz)).date().isoformat() if tz else datetime.now().astimezone().date().isoformat()
-    except Exception:  # noqa: BLE001
+    except Exception:
         return datetime.now().astimezone().date().isoformat()
 
 

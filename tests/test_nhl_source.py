@@ -40,15 +40,17 @@ async def test_source_publishes_scores_main_event_standings_and_summary(monkeypa
     assert snap.get("main_event")["home"]["abbrev"] == "TOR" and snap.get("main_event")["phase"] == "postgame"
     assert snap.get("main_event")["home"]["record"].count("-") == 2   # scores waited for standings
     assert "TOR" in snap.get("nhl.team_summary")
-    assert snap.get("system") == {"online": True}
+    assert snap.get("system")["online"] is True
 
 
 @pytest.mark.asyncio
-async def test_source_marks_offline_on_failure():
+async def test_source_marks_offline_on_failure(monkeypatch):
     store = SnapshotStore()
     cfg = NhlConfig(favorites=["TOR"])
     import scoreboard.nhl.api as api_mod
+    import scoreboard.nhl.source as src
     api_mod.RETRY_DELAYS = (0, 0, 0)
+    monkeypatch.setattr(src, "OFFLINE_AFTER_FAILURES", 1)       # threshold itself is covered below
     async with httpx.AsyncClient() as http, respx.mock(base_url=BASE_URL) as mock:
         mock.get("/score/now").mock(return_value=httpx.Response(503))
         mock.get("/standings/now").mock(return_value=httpx.Response(503))
@@ -59,4 +61,9 @@ async def test_source_marks_offline_on_failure():
             if store.get().has("system"):
                 break
         task.cancel()
-    assert store.get().get("system") == {"online": False}
+    assert store.get().get("system")["online"] is False
+
+
+def test_offline_threshold_is_several_failures():
+    from scoreboard.nhl.source import OFFLINE_AFTER_FAILURES
+    assert OFFLINE_AFTER_FAILURES >= 3

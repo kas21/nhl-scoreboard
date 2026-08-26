@@ -104,9 +104,13 @@ class WebConfig(FrozenModel):
     host: str = "0.0.0.0"
 
 
+CONFIG_VERSION = 1
+
+
 class AppConfig(FrozenModel):
     """Root config document, persisted as config.json."""
 
+    version: int = Field(CONFIG_VERSION, description="Config schema version (managed by the app)")
     setup_complete: bool = False
     display: DisplayConfig = DisplayConfig()
     location: LocationConfig = LocationConfig()
