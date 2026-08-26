@@ -61,6 +61,7 @@ function Field({ name, schema, value, onChange, root }) {
   const s = resolve(schema, root);
   const label = s.title || name;
   const common = { id: name };
+  if (value === undefined && s.default !== undefined) value = s.default;
   let input;
   if (s.enum) {
     input = html`<select ...${common} value=${value} onchange=${e => onChange(e.target.value)}>${s.enum.map(v => html`<option value=${v}>${v}</option>`)}</select>`;

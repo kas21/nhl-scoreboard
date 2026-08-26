@@ -94,3 +94,14 @@ def test_geocode_proxy(tmp_path):
         r = c.get("/api/geocode", params={"q": "Toronto"}).json()
     assert r == [{"name": "Toronto", "region": "Ontario", "country": "CA", "latitude": 43.7, "longitude": -79.416, "timezone": "America/Toronto"}]
     assert c.get("/api/geocode", params={"q": "T"}).json() == []
+
+
+def test_config_api_returns_effective_plugin_defaults(tmp_path):
+    c, config = client(tmp_path)
+    cfg = c.get("/api/config").json()
+    assert cfg["boards"]["clock"]["format"] == "12h"            # default, not stored
+    assert cfg["boards"]["clock"]["show_date"] is True
+    assert "clock" not in config.get().boards                   # config.json still holds overrides only
+    c.patch("/api/config", json={"boards": {"clock": {"format": "24h"}}})
+    assert c.get("/api/config").json()["boards"]["clock"] == {**cfg["boards"]["clock"], "format": "24h"}
+    assert config.get().boards["clock"] == {"format": "24h"}

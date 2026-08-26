@@ -105,27 +105,45 @@ def create_app(
             "setup_complete": config.get().setup_complete,
         }
 
+    def effective(cfg) -> dict[str, Any]:
+        """Config as the app sees it: plugin sections filled in with each model's defaults.
+
+        config.json stores only overrides, so without this the UI would show
+        defaults as blank / unchecked.
+        """
+        doc = cfg.model_dump(mode="json")
+        for section, models in (("boards", registry.board_models()), ("sources", registry.source_models())):
+            merged = {}
+            for key, model in models.items():
+                raw = doc[section].get(key, {})
+                try:
+                    merged[key] = model.model_validate(raw).model_dump(mode="json")
+                except ValidationError:
+                    merged[key] = {**model().model_dump(mode="json"), **raw}
+            doc[section] = {**doc[section], **merged}
+        return doc
+
     @app.get("/api/config")
     def get_config() -> dict[str, Any]:
-        return config.get().model_dump(mode="json")
+        return effective(config.get())
 
     @app.patch("/api/config")
     def patch_config(patch: dict[str, Any]) -> dict[str, Any]:
         try:
-            return config.update(patch).model_dump(mode="json")
+            return effective(config.update(patch))
         except ValidationError as exc:
             raise HTTPException(status_code=422, detail=exc.errors()) from exc
 
     @app.put("/api/config")
     def put_config(document: dict[str, Any]) -> dict[str, Any]:
         try:
-            return config.replace(document).model_dump(mode="json")
+            return effective(config.replace(document))
         except ValidationError as exc:
             raise HTTPException(status_code=422, detail=exc.errors()) from exc
 
     @app.post("/api/config/reset")
     def reset_config() -> dict[str, Any]:
-        return config.reset().model_dump(mode="json")
+        return effective(config.reset())
 
     @app.get("/api/schema")
     def schema() -> dict[str, Any]:
