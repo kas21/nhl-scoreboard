@@ -53,6 +53,19 @@ class TeamSummaryBoard(BaseBoard):
     title = "Team summary"
     config_model = TeamSummaryConfig
     requires = frozenset({"nhl.team_summary"})
+    summary_key = "nhl.team_summary"
+
+    def logo_image(self, abbrev: str) -> Image.Image:
+        return logo(abbrev, 128)
+
+    def team_colors(self, abbrev: str) -> tuple[tuple[int, int, int], tuple[int, int, int]]:
+        t = team(abbrev)
+        return t.primary, t.text_on_primary
+
+    def _record_lines(self, rec: dict[str, Any]) -> list[str]:
+        """Text lines under the RECORD header (sport-specific)."""
+        return [f"{rec['wins']}-{rec['losses']}-{rec['otl']}  {rec['points']} PTS",
+                f"GP {rec['gp']}  L10 {'-'.join(map(str, rec['l10']))}"]
 
     def __init__(self) -> None:
         self._teams: list[dict[str, Any]] = []
@@ -61,7 +74,7 @@ class TeamSummaryBoard(BaseBoard):
         self._size = (0, 0)
 
     def enter(self, ctx: BoardContext, cfg: TeamSummaryConfig) -> None:
-        self._teams = list((ctx.snapshot.get("nhl.team_summary") or {}).values())
+        self._teams = list((ctx.snapshot.get(self.summary_key) or {}).values())
         self._built = {}
         self._size = (ctx.width, ctx.height)
         self._timeline = [self._seconds(s, ctx, cfg) for s in self._teams]
@@ -70,13 +83,13 @@ class TeamSummaryBoard(BaseBoard):
 
     def _rows(self, s: dict[str, Any], ctx: BoardContext, cfg: TeamSummaryConfig) -> list[tuple[Image.Image, bool]]:
         f6 = load_font("pl", 6)
-        t = team(s["abbrev"])
+        primary, fg = self.team_colors(s["abbrev"])
         w = ctx.width
         rec = s["record"]
 
         def header(text: str) -> tuple[Image.Image, bool]:
             """Section bar in team colour, fading out before the logo so it never cuts through it."""
-            bar = chip(text, f6, t.text_on_primary, t.primary, pad=(1, 1, w, 1)).crop((0, 0, w, 7))
+            bar = chip(text, f6, fg, primary, pad=(1, 1, w, 1)).crop((0, 0, w, 7))
             bar.putalpha(_fade_mask(w, 7, solid_until=FADE_START, gone_at=FADE_END))
             return bar, False
 
@@ -91,13 +104,9 @@ class TeamSummaryBoard(BaseBoard):
 
         streak = rec.get("streak", "")
         streak_color = GREEN if streak.startswith("W") else RED if streak.startswith("L") else WHITE
-        rows = [
-            header("RECORD"),
-            line([(f"{rec['wins']}-{rec['losses']}-{rec['otl']}  {rec['points']} PTS", WHITE)]),
-            line([(f"GP {rec['gp']}  L10 {'-'.join(map(str, rec['l10']))}", WHITE)]),
-            line([("STREAK", WHITE), (streak, streak_color)]),
-            header("LAST"),
-        ]
+        rows = [header("RECORD")]
+        rows += [line([(txt, WHITE)]) for txt in self._record_lines(rec)]
+        rows += [line([("STREAK", WHITE), (streak, streak_color)]), header("LAST")]
         prev, nxt = s.get("prev_game"), s.get("next_game")
         if prev:
             rows.append(line([(f"{fmt_date(prev['date'])} {'VS' if prev['home'] else 'AT'} {prev['opponent']}", WHITE)]))
@@ -122,7 +131,7 @@ class TeamSummaryBoard(BaseBoard):
             comp.alpha_composite(img, (0, y))
             meta.append((y, animated, img.height))
             y += img.height + 1
-        lg = fit_logo(logo(s["abbrev"], 128), int(ctx.width * 0.55), int(ctx.height * 0.86))
+        lg = fit_logo(self.logo_image(s["abbrev"]), int(ctx.width * 0.55), int(ctx.height * 0.86))
         return comp, meta, lg
 
     def _seconds(self, s, ctx, cfg) -> float:

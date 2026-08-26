@@ -39,16 +39,23 @@ test_pattern = "scoreboard.boards.test_pattern:TestPatternBoard"
 "flights.nearby" = "scoreboard.extras.flights.board:NearbyBoard"
 "flights.overhead" = "scoreboard.extras.flights.board:OverheadBoard"
 "weather.current" = "scoreboard.extras.weather.board:WeatherBoard"
+"nfl.game" = "scoreboard.nfl.boards.game:NflGameBoard"
+"nfl.ticker" = "scoreboard.nfl.boards.others:NflTickerBoard"
+"nfl.standings" = "scoreboard.nfl.boards.others:NflStandingsBoard"
+"nfl.team_summary" = "scoreboard.nfl.boards.others:NflTeamSummaryBoard"
+"nfl.score" = "scoreboard.nfl.boards.others:NflScoreBoard"
 
 [project.entry-points."scoreboard.sources"]
 nhl = "scoreboard.nhl.source:NhlSource"
 holidays = "scoreboard.extras.holidays.source:HolidaysSource"
 flights = "scoreboard.extras.flights.source:FlightsSource"
 weather = "scoreboard.extras.weather.source:WeatherSource"
+nfl = "scoreboard.nfl.source:NflSource"
 
 [project.entry-points."scoreboard.detectors"]
 nhl = "scoreboard.nhl.events:detect_main_event"
 flights = "scoreboard.extras.flights.source:detect_overhead"
+nfl = "scoreboard.nfl.events:detect_nfl"
 
 [build-system]
 requires = ["hatchling"]

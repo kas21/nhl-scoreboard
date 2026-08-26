@@ -112,17 +112,17 @@ def test_detect_goal_penalty_state_events():
     store = SnapshotStore()
     base = normalize_game({"id": 7, "gameState": "LIVE", "awayTeam": {"abbrev": "TOR", "score": 0}, "homeTeam": {"abbrev": "MTL", "score": 0},
                            "periodDescriptor": {"number": 1, "periodType": "REG"}})
-    s0 = store.publish("main_event", base)
+    s0 = store.publish("nhl.main_event", base)
     scored = {**base, "away": {**base["away"], "score": 1}, "state": "CRIT",
               "goals": [{"team": "TOR", "scorer": "A. Matthews", "assists": [], "period": 1, "time": "05:00"}],
               "penalties": [{"team": "MTL", "type": "MIN", "duration": 2, "desc": "tripping", "player": "X", "period": 1, "time": "04:00"}],
               "powerplay": {"code": "a54", "clock": "01:59"}}
-    s1 = store.publish("main_event", scored)
+    s1 = store.publish("nhl.main_event", scored)
     kinds = {e.kind: e for e in detect_main_event(s0, s1)}
     assert set(kinds) == {"nhl.goal", "nhl.penalty", "nhl.state_change", "nhl.powerplay"}
     assert kinds["nhl.goal"].team == "TOR" and kinds["nhl.goal"].payload["goal"]["scorer"] == "A. Matthews"
     assert kinds["nhl.penalty"].payload["penalty"]["desc"] == "tripping"
-    other = store.publish("main_event", {**scored, "id": 8})
+    other = store.publish("nhl.main_event", {**scored, "id": 8})
     assert list(detect_main_event(s1, other)) == []      # different game: no stale events
 
 

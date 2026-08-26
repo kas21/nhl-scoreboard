@@ -13,6 +13,7 @@ import uvicorn
 
 from .config import ConfigStore
 from .data import SnapshotStore
+from .data.arbiter import MainEventArbiter
 from .data.events import EventBus
 from .data.source import SourceContext, run_source_forever
 from .director import Director
@@ -32,6 +33,7 @@ class Application:
         self.snapshots = SnapshotStore()
         self.events = EventBus()
         self.snapshots.subscribe(self.events.on_snapshot)
+        self.arbiter = MainEventArbiter(self.snapshots, lambda: self.config.get().sports.priority)
         self.registry = load_registry()
         if demo:
             from .demo import DemoSource

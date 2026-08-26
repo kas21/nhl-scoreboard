@@ -11,7 +11,7 @@ from ...boards.base import BaseBoard, BoardContext
 from ...render import load_font
 from ...render.fx import chip
 from ...render.text import text_size
-from ..teams import team
+from ..teams import logo, team
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -38,6 +38,22 @@ class StandingsBoard(BaseBoard):
     title = "Standings"
     config_model = StandingsConfig
     requires = frozenset({"nhl.standings"})
+    standings_key = "nhl.standings"
+    summary_key = "nhl.team_summary"
+    points_header = "PTS"
+
+    def logo_image(self, abbrev: str) -> Image.Image:
+        return logo(abbrev, 128)
+
+    def team_colors(self, abbrev: str) -> tuple[tuple[int, int, int], tuple[int, int, int]]:
+        t = team(abbrev)
+        return t.primary, t.text_on_primary
+
+    def _record(self, r: dict[str, Any]) -> str:
+        return f"{r.get('wins', 0)}-{r.get('losses', 0)}-{r.get('otl', 0)}"
+
+    def _points(self, r: dict[str, Any]) -> str:
+        return str(r.get("points", 0))
 
     def __init__(self) -> None:
         self._pages: list[tuple[Image.Image, list[tuple[int, bool]]]] = []   # (composite, [(row_y, animated)])
@@ -48,9 +64,9 @@ class StandingsBoard(BaseBoard):
     # -- building ----------------------------------------------------------------
 
     def enter(self, ctx: BoardContext, cfg: StandingsConfig) -> None:
-        standings = ctx.snapshot.get("nhl.standings") or {}
+        standings = ctx.snapshot.get(self.standings_key) or {}
         rows = standings.get("teams") or {}
-        highlight = {h.upper() for h in cfg.highlight} or set(ctx.snapshot.get("nhl.team_summary") or {})
+        highlight = {h.upper() for h in cfg.highlight} or set(ctx.snapshot.get(self.summary_key) or {})
         self._size = (ctx.width, ctx.height)
         self._header = self._header_row(ctx.width)
         self._pages = [self._page(groups, rows, highlight, ctx.width) for groups in self._grouped(standings, cfg)]
@@ -73,7 +89,7 @@ class StandingsBoard(BaseBoard):
         f6 = load_font("pl", 6)
         row = Image.new("RGBA", (width, ROW_H), (0, 0, 0, 255))
         for label, x in COLS.items():
-            row.alpha_composite(chip(label, f6, WHITE, BLACK), (x, 0))
+            row.alpha_composite(chip(self.points_header if label == "PTS" else label, f6, WHITE, BLACK), (x, 0))
         return row
 
     def _page(self, sections, rows, highlight, width) -> tuple[Image.Image, list[tuple[int, bool]]]:
@@ -83,14 +99,14 @@ class StandingsBoard(BaseBoard):
             strips.append((chip(title, f6, BLACK, WHITE, pad=(1, 1, width, 1)).crop((0, 0, width, ROW_H)), False))
             for rank, abbrev in enumerate(teams, 1):
                 r = rows.get(abbrev) or {}
-                t = team(abbrev)
+                primary, fg = self.team_colors(abbrev)
                 row = Image.new("RGBA", (width, ROW_H), (0, 0, 0, 255))
                 color = WHITE if abbrev in highlight else (200, 200, 200)
                 self._text(row, str(rank), f6, color, COLS["RK"], 1)
-                row.alpha_composite(chip(abbrev, f6, t.text_on_primary, t.primary, pad=(2, 1, 3, 1)), (COLS["TEAM"] + 1, 0))
+                row.alpha_composite(chip(abbrev, f6, fg, primary, pad=(2, 1, 3, 1)), (COLS["TEAM"] + 1, 0))
                 self._text(row, str(r.get("gp", 0)), f6, color, COLS["GP"] + 1, 1)
-                self._text(row, f"{r.get('wins', 0)}-{r.get('losses', 0)}-{r.get('otl', 0)}", f6, color, COLS["RECORD"], 1)
-                pts = str(r.get("points", 0))
+                self._text(row, self._record(r), f6, color, COLS["RECORD"], 1)
+                pts = self._points(r)
                 self._text(row, pts, f6, color, PTS_RIGHT - text_size(pts, f6)[0], 1)
                 strips.append((row, True))
                 if cutoff and r.get("wildcard_rank") == 2:

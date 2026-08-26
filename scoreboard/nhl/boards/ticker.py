@@ -46,12 +46,16 @@ class TickerBoard(BaseBoard):
     title = "Score ticker"
     config_model = TickerConfig
     requires = frozenset({"nhl.scores"})
+    scores_key = "nhl.scores"
+
+    def logo_image(self, abbrev: str, g: dict[str, Any]) -> Image.Image:
+        return logo(abbrev, 128)
 
     def __init__(self) -> None:
         self._games: list[dict[str, Any]] = []
 
     def enter(self, ctx: BoardContext, cfg: TickerConfig) -> None:
-        games = ctx.snapshot.get("nhl.scores") or []
+        games = ctx.snapshot.get(self.scores_key) or []
         if cfg.skip_finished:
             games = [g for g in games if g["phase"] != "postgame"] or games
         self._games = list(games)
@@ -69,13 +73,16 @@ class TickerBoard(BaseBoard):
         local = ctx.elapsed - idx * cfg.seconds_per_game
         return render_tree(Absolute(self._card(self._games[idx], ctx, cfg)), w, h, t=local)
 
+    def _date_label(self, g: dict[str, Any], ctx: BoardContext) -> str:
+        return fmt_date(g["date"]).replace(" ", "")
+
     def _card(self, g: dict[str, Any], ctx: BoardContext, cfg: TickerConfig) -> list:
         f7, f6 = load_font("camels", 7), load_font("pl", 6)
         half = ctx.height // 2
         logo_w, win_h = 45, half - 1
         items = []
         for side, y, direction, delay, sheen_delay in (("away", 0, "down", 0.0, 0.0), ("home", half + 1, "up", 0.3, 1.4)):
-            img = fit_logo(logo(g[side]["abbrev"], 128), logo_w, win_h + 4)
+            img = fit_logo(self.logo_image(g[side]["abbrev"], g), logo_w, win_h + 4)
             node = Sheen(Img(img), period=2.0, band=25, strength=0.6, once=True, delay=1.0 + sheen_delay)
             items.append((Slide(node, 1.0, direction, delay=delay, easing=exponential_in_out), 0, y, logo_w, win_h))
         pregame = g["phase"] == "pregame"
@@ -91,7 +98,7 @@ class TickerBoard(BaseBoard):
             else:
                 items.append((Slide(Text(str(g[side]["score"]), f7, WHITE), 0.4, "up", easing=linear, h_align="end"), 111, top + 7, 16, 12))
         if pregame:
-            date = chip(fmt_date(g["date"]).replace(" ", ""), f6, BLACK, WHITE)
+            date = chip(self._date_label(g, ctx), f6, BLACK, WHITE)
             # date chip + start time sit in the seam between the halves, clear of both name blocks
             items.append((Slide(Img(date), 0.4, "right", easing=linear, h_align="end"), 100, half - 8, 27, 7))
             start = local_time(g["start_time_utc"], ctx.now.tzinfo)

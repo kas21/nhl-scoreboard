@@ -63,13 +63,19 @@ def _glow_bar(width: int, height: int, bottom: bool) -> Image.Image:
 def goal_frames(abbrev: str, width: int, height: int, seconds: float, fps: int) -> list[Image.Image]:
     """The old ``generate_goal_animation_frames``: scrolling logo/GOAL! band over sweeping glow bars."""
     t = team(abbrev)
+    return celebration_frames("GOAL!", logo(abbrev, 128), t.primary, width, height, seconds, fps)
+
+
+def celebration_frames(word: str, logo_img: Image.Image, primary: tuple[int, int, int], width: int, height: int,
+                       seconds: float, fps: int) -> list[Image.Image]:
+    """Scrolling [logo] WORD band over sweeping red glow bars, text alternating primary/black."""
     logo_h = int(height * 0.7)
-    lg = logo(abbrev, 128).copy()
+    lg = logo_img.copy()
     lg.thumbnail((width, logo_h), Image.LANCZOS)
     lg = outlined(lg, (0, 0, 0, 255), radius=2)
     gothic = load_font("gothic", int(height * 0.625))               # 40 at 64 high
-    words = [stroked_text("GOAL!", gothic, t.primary, WHITE, width=2, pad=4),
-             stroked_text("GOAL!", gothic, BLACK, WHITE, width=2, pad=4)]
+    words = [stroked_text(word, gothic, primary, WHITE, width=2, pad=4),
+             stroked_text(word, gothic, BLACK, WHITE, width=2, pad=4)]
     gap = 20
     unit_w = lg.width + gap + words[0].width + gap
     band_h = max(lg.height, words[0].height)

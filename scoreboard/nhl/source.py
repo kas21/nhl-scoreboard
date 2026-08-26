@@ -76,7 +76,7 @@ class NhlSource:
                 if main and main["state"] in ACTIVE_STATES:
                     main = await self._enrich(api, main, records)
                 if main:
-                    main = {**main, "favorite_side": favorite_side(main, cfg.favorites)}
+                    main = {**main, "favorite_side": favorite_side(main, cfg.favorites), "sport": "nhl"}
                 self._deliver(ctx, cfg, main, games, delayed)
                 failures = 0
                 ctx.publish_to("system", {"online": True, "failures": 0})
@@ -103,14 +103,14 @@ class NhlSource:
         if cfg.delay_seconds <= 0:
             delayed.clear()
             ctx.publish(games, subkey="scores")
-            ctx.publish_to("main_event", main)
+            ctx.publish_to("nhl.main_event", main)
             return
         now = asyncio.get_event_loop().time()
         delayed.append((now, main, games))
         while delayed and now - delayed[0][0] >= cfg.delay_seconds:
             _, m, g = delayed.pop(0)
             ctx.publish(g, subkey="scores")
-            ctx.publish_to("main_event", m)
+            ctx.publish_to("nhl.main_event", m)
 
     # -- standings + team summaries -----------------------------------------
 

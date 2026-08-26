@@ -46,7 +46,9 @@ class DemoSource:
                 cfg: DemoConfig = ctx.config  # type: ignore[assignment]
                 if step is not None:
                     step = {**step, "favorite_side": favorite_side(step, cfg.favorites)}
-                ctx.publish_to("main_event", step)
+                if step is not None:
+                    step = {**step, "sport": "nhl"}
+                ctx.publish_to("nhl.main_event", step)
                 await asyncio.sleep(cfg.seconds_per_step)
 
 

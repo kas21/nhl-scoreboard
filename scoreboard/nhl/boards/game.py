@@ -45,6 +45,7 @@ class GameBoard(BaseBoard):
     title = "NHL game"
     config_model = GameConfig
     requires = frozenset({"main_event"})
+    sport = "nhl"
 
     def __init__(self) -> None:
         self._seen: dict[str, float] = {}      # indicator key -> board time it appeared (for entrance replays)
@@ -61,21 +62,28 @@ class GameBoard(BaseBoard):
             return None
         return self._seen.setdefault(key, now)
 
-    @staticmethod
-    def _logo_node(abbrev: str, from_dir: str, delay: float = 0.0, sheen_delay: float = 0.0) -> Slide:
+    # -- sport hooks (NFL etc. override these; layout stays identical) --
+
+    def logo_image(self, abbrev: str, g: dict[str, Any]) -> Image.Image:
+        return logo(abbrev, 128)
+
+    def side_colors(self, g: dict[str, Any], side: str) -> tuple[tuple[int, int, int], tuple[int, int, int]]:
+        t = team(g[side]["abbrev"])
+        return t.primary, t.text_on_primary
+
+    def _logo_node(self, abbrev: str, from_dir: str, delay: float = 0.0, sheen_delay: float = 0.0, g: dict[str, Any] | None = None) -> Slide:
         """Logo wipes in (1.5s), then a single diagonal sheen; delays stagger the two sides."""
-        img = fit_logo(logo(abbrev, 128), LOGO_W, LOGO_H)
+        img = fit_logo(self.logo_image(abbrev, g or {}), LOGO_W, LOGO_H)
         node = Sheen(Img(img), period=2.0, band=30, strength=0.6, once=True, delay=1.5 + sheen_delay, reverse=True)
         return Slide(node, duration=1.5, direction=from_dir, delay=delay, easing=exponential_out)
 
     @staticmethod
-    def _score(value: int) -> Slide:
-        return Slide(Text(str(value), load_font("score", 15), WHITE), duration=1.0, direction="up", easing=elastic_out)
+    def _score(value: int, align: str = "center") -> Slide:
+        return Slide(Text(str(value), load_font("score", 15), WHITE), duration=1.0, direction="up", easing=elastic_out, h_align=align)
 
-    @staticmethod
-    def _chip(text: str, abbrev: str, font=None):
-        t = team(abbrev)
-        return Chip(text, font or load_font("pl", 6), t.text_on_primary, t.primary)
+    def _chip(self, text: str, g: dict[str, Any], side: str, font=None):
+        primary, fg = self.side_colors(g, side)
+        return Chip(text, font or load_font("pl", 6), fg, primary)
 
     def _sog_row(self, g: dict[str, Any], f6) -> list:
         return [
@@ -93,8 +101,8 @@ class GameBoard(BaseBoard):
         phase = g["phase"]
         ly = LOGO_Y.get(phase, 9)
         items: list = [
-            (self._logo_node(g["away"]["abbrev"], "left"), 0, ly, LOGO_W, LOGO_H),
-            (self._logo_node(g["home"]["abbrev"], "right", delay=HOME_STAGGER, sheen_delay=SHEEN_STAGGER), HOME_LOGO_X, ly, LOGO_W, LOGO_H),
+            (self._logo_node(g["away"]["abbrev"], "left", g=g), 0, ly, LOGO_W, LOGO_H),
+            (self._logo_node(g["home"]["abbrev"], "right", delay=HOME_STAGGER, sheen_delay=SHEEN_STAGGER, g=g), HOME_LOGO_X, ly, LOGO_W, LOGO_H),
             (Img(reflected_gradient(GRADIENT[2], GRADIENT[3])), GRADIENT[0], GRADIENT[1], GRADIENT[2], GRADIENT[3]),
         ]
         if phase == "pregame":
@@ -109,10 +117,10 @@ class GameBoard(BaseBoard):
     def _teams_info(self, g: dict[str, Any], cfg: GameConfig) -> list:
         f6, f8 = load_font("pl", 6), load_font("block", 8)
         stroke = (0, 0, 0, 220)
-        ta, th = team(g["away"]["abbrev"]), team(g["home"]["abbrev"])
+        (ap, af), (hp, hf) = self.side_colors(g, "away"), self.side_colors(g, "home")
         items = [
-            (Slide(Chip(g["away"]["abbrev"], f8, ta.text_on_primary, ta.primary, stroke=stroke), 0.8, "left", easing=exponential_out, h_align="start"), 2, 45, 25, 11),
-            (Slide(Chip(g["home"]["abbrev"], f8, th.text_on_primary, th.primary, stroke=stroke), 0.8, "right", easing=exponential_out, h_align="end"), 101, 45, 25, 11),
+            (Slide(Chip(g["away"]["abbrev"], f8, af, ap, stroke=stroke), 0.8, "left", easing=exponential_out, h_align="start"), 2, 45, 25, 11),
+            (Slide(Chip(g["home"]["abbrev"], f8, hf, hp, stroke=stroke), 0.8, "right", easing=exponential_out, h_align="end"), 101, 45, 25, 11),
         ]
         if cfg.show_records:
             items += [
@@ -136,12 +144,11 @@ class GameBoard(BaseBoard):
         label = g["outcome"].replace("FINAL/", "FINAL/") if g["outcome"] else "FINAL"
         items = self._teams_info(g, cfg) + [
             (Chip(label, f6, WHITE, RED), 34, 14, 60, 7),
-            (self._score(g["away"]["score"]), SCORE_AWAY_X, SCORE_Y, 8, 12),
+            (self._score(g["away"]["score"], "end"), SCORE_AWAY_X - 10, SCORE_Y, 18, 12),
             (Box(fill=(255, 255, 255, 255)), *HYPHEN),
-            (self._score(g["home"]["score"]), SCORE_HOME_X - 1, SCORE_Y, 8, 12),
+            (self._score(g["home"]["score"], "start"), SCORE_HOME_X - 1, SCORE_Y, 18, 12),
         ]
-        if cfg.show_sog:
-            items += self._sog_row(g, f6)
+        items += self._final_stats_row(g, cfg, f6)
         return items
 
     def _live(self, g, ctx, cfg) -> list:
@@ -151,26 +158,36 @@ class GameBoard(BaseBoard):
         strip = HBox([Chip(period, f6, BLACK, WHITE), Text(g["clock"], f6, WHITE)], spacing=1)
         items = [
             (strip, 34, 14, 60, 7),
-            (self._score(g["away"]["score"]), SCORE_AWAY_X, SCORE_Y, 8, 12),
+            (self._score(g["away"]["score"], "end"), SCORE_AWAY_X - 10, SCORE_Y, 18, 12),
             (Box(fill=(255, 255, 255, 255)), *HYPHEN),
-            (self._score(g["home"]["score"]), SCORE_HOME_X, SCORE_Y, 8, 12),
+            (self._score(g["home"]["score"], "start"), SCORE_HOME_X, SCORE_Y, 18, 12),
         ]
-        if cfg.show_sog:
-            items += self._sog_row(g, f6)
-        # -- indicators (each replays its entrance when it appears) --
+        items += self._live_stats_row(g, cfg, f6)
+        items += self._indicators(g, t, f6)
+        return items
+
+    def _live_stats_row(self, g: dict[str, Any], cfg: GameConfig, f6) -> list:
+        return self._sog_row(g, f6) if cfg.show_sog else []
+
+    def _indicators(self, g: dict[str, Any], t: float, f6) -> list:
+        """Power play / empty net / intermission; each replays its entrance when it appears."""
+        items: list = []
         code = g["powerplay"]["code"]
         pp_side = None if code == "ev" else ("away" if code[0] == "a" else "home")
         for side, x, align in (("away", 0, "start"), ("home", 82, "end")):
             since = self._since(f"pp:{side}", pp_side == side, t)
             if since is not None:
                 label = f"PP {code[1]}-{code[2]}"
-                node = HBox([self._chip(label, g[side]["abbrev"]), Text(g["powerplay"]["clock"], f6, WHITE)], spacing=1)
+                node = HBox([self._chip(label, g, side), Text(g["powerplay"]["clock"], f6, WHITE)], spacing=1)
                 items.append((Slide(node, 0.6, "up", delay=since, easing=quartic_out, h_align=align), x, 0, 45, 7))
             en = self._since(f"en:{side}", bool(g["pulled_goalie"] & (1 if side == "away" else 2)), t)
             if en is not None:
-                node = self._chip("EMPTY NET", g[side]["abbrev"])
+                node = self._chip("EMPTY NET", g, side)
                 items.append((Slide(node, 0.6, "down", delay=en, easing=quartic_out, h_align=align), x if side == "away" else 91, 57, 37, 7))
         inter = self._since("int", g["in_intermission"], t)
         if inter is not None:
             items.append((Slide(Box(36, 3, (*GREEN, 255)), 0.3, "down", delay=inter, easing=elastic_out), 46, 0, 36, 3))
         return items
+
+    def _final_stats_row(self, g: dict[str, Any], cfg: GameConfig, f6) -> list:
+        return self._sog_row(g, f6) if cfg.show_sog else []

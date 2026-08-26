@@ -53,6 +53,7 @@ class BaseBoard:
     title: ClassVar[str] = ""
     config_model: ClassVar[type[BaseModel]] = EmptyConfig
     requires: ClassVar[frozenset[str]] = frozenset()
+    sport: ClassVar[str | None] = None      # set on boards that only make sense for one sport's main event
 
     def enter(self, ctx: BoardContext, cfg: BaseModel) -> None:
         """Called once when the board becomes active; pre-render here."""

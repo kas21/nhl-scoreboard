@@ -157,7 +157,10 @@ class Director:
         """Playlist entries that are enabled, loaded, not quarantined, and whose required data is non-empty."""
         boards = self._registry.boards
         entries = available_entries(getattr(cfg.playlists, state.value), usable)
-        return [e for e in entries if all(snap.get(k) for k in boards[e.board].requires)]
+        main = snap.get("main_event") or {}
+        return [e for e in entries
+                if all(snap.get(k) for k in boards[e.board].requires)
+                and (boards[e.board].sport is None or "main_event" not in boards[e.board].requires or main.get("sport") == boards[e.board].sport)]
 
     def _select(self, cfg: AppConfig, snap: Snapshot, mono: float) -> tuple[BaseBoard, str, Event | None]:
         boards = self._registry.boards

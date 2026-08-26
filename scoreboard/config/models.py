@@ -76,17 +76,20 @@ class Playlists(FrozenModel):
     )
     pregame: tuple[PlaylistEntry, ...] = (
         PlaylistEntry(board="nhl.game", duration=15),
+        PlaylistEntry(board="nfl.game", duration=15),
         PlaylistEntry(board="nhl.ticker", duration=None),
         PlaylistEntry(board="clock", duration=10),
     )
-    live: tuple[PlaylistEntry, ...] = (PlaylistEntry(board="nhl.game", duration=None),)
+    live: tuple[PlaylistEntry, ...] = (PlaylistEntry(board="nhl.game", duration=None), PlaylistEntry(board="nfl.game", duration=None))
     intermission: tuple[PlaylistEntry, ...] = (
         PlaylistEntry(board="nhl.game", duration=15),
+        PlaylistEntry(board="nfl.game", duration=15),
         PlaylistEntry(board="nhl.ticker", duration=None),
         PlaylistEntry(board="nhl.standings", duration=None),
     )
     postgame: tuple[PlaylistEntry, ...] = (
         PlaylistEntry(board="nhl.game", duration=20),
+        PlaylistEntry(board="nfl.game", duration=20),
         PlaylistEntry(board="nhl.ticker", duration=None),
         PlaylistEntry(board="nhl.standings", duration=None),
         PlaylistEntry(board="clock", duration=10),
@@ -98,6 +101,10 @@ class TransitionConfig(FrozenModel):
 
     style: Literal["none", "fade", "slide_left", "slide_right", "slide_up", "slide_down", "wipe", "blinds"] = "fade"
     duration: float = Field(0.5, ge=0.1, le=3.0, description="Seconds")
+
+
+class SportsConfig(FrozenModel):
+    priority: list[Literal["nhl", "nfl"]] = Field(["nhl", "nfl"], description="When two sports have a game, which wins the screen (live games always win)")
 
 
 class WebConfig(FrozenModel):
@@ -118,6 +125,7 @@ class AppConfig(FrozenModel):
     brightness: BrightnessConfig = BrightnessConfig()
     playlists: Playlists = Playlists()
     transition: TransitionConfig = TransitionConfig()
+    sports: SportsConfig = SportsConfig()
     web: WebConfig = WebConfig()
     boards: dict[str, dict[str, Any]] = Field(
         default_factory=dict, description="Per-board settings, validated by each board's model"

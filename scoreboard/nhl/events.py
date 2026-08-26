@@ -5,7 +5,7 @@ from collections.abc import Iterable
 
 from ..data import Event, Snapshot
 
-MAIN_EVENT = "main_event"
+MAIN_EVENT = "nhl.main_event"
 
 
 def detect_main_event(prev: Snapshot, new: Snapshot) -> Iterable[Event]:

@@ -32,13 +32,13 @@ async def test_source_publishes_scores_main_event_standings_and_summary(monkeypa
         task = asyncio.create_task(NhlSource().run(ctx))
         for _ in range(50):
             await asyncio.sleep(0.01)
-            if store.get().has("nhl.scores", "main_event", "nhl.standings", "nhl.team_summary"):
+            if store.get().has("nhl.scores", "nhl.main_event", "nhl.standings", "nhl.team_summary"):
                 break
         task.cancel()
         snap = store.get()
     assert len(snap.get("nhl.scores")) == 15
-    assert snap.get("main_event")["home"]["abbrev"] == "TOR" and snap.get("main_event")["phase"] == "postgame"
-    assert snap.get("main_event")["home"]["record"].count("-") == 2   # scores waited for standings
+    assert snap.get("nhl.main_event")["home"]["abbrev"] == "TOR" and snap.get("nhl.main_event")["phase"] == "postgame"
+    assert snap.get("nhl.main_event")["home"]["record"].count("-") == 2   # scores waited for standings
     assert "TOR" in snap.get("nhl.team_summary")
     assert snap.get("system")["online"] is True
 
