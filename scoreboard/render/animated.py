@@ -26,6 +26,13 @@ Direction = Literal["left", "right", "up", "down"]
 
 class AnimatedNode(Node):
     child: Node
+    h_align: str = "center"      # how the child's image sits inside the box: start | center | end
+    v_align: str = field(default="center", kw_only=True)
+
+    def _pos(self, x: int, y: int, w: int, h: int, img: Image.Image) -> tuple[int, int]:
+        ox = 0 if self.h_align == "start" else (w - img.width) if self.h_align == "end" else (w - img.width) // 2
+        oy = 0 if self.v_align == "start" else (h - img.height) if self.v_align == "end" else (h - img.height) // 2
+        return x + ox, y + oy
 
     @property
     def is_static(self) -> bool:
@@ -61,6 +68,8 @@ class Marquee(AnimatedNode):
     """Scroll a too-wide child horizontally inside ``width``; passes through if it fits."""
 
     child: Node
+    h_align: str = field(default="center", kw_only=True)
+    v_align: str = field(default="center", kw_only=True)
     width: int
     speed: float = 20.0          # px/s
     gap: int = 12
@@ -73,7 +82,7 @@ class Marquee(AnimatedNode):
     def place(self, x, y, w, h, t=0.0):
         img = self._child_image()
         if img.width <= self.width:
-            yield (img, x + (w - img.width) // 2, y + (h - img.height) // 2)
+            yield (img, *self._pos(x, y, w, h, img))
             return
         cycle = img.width + self.gap
         strip = self._material("marquee", lambda: self._strip(img, cycle), self.gap)
@@ -99,6 +108,8 @@ class Sheen(AnimatedNode):
     """
 
     child: Node
+    h_align: str = field(default="center", kw_only=True)
+    v_align: str = field(default="center", kw_only=True)
     period: float = 2.0
     band: int = 8
     strength: float = 0.7
@@ -112,13 +123,13 @@ class Sheen(AnimatedNode):
         img = self._child_image()
         local = t - self.delay
         if local < 0 or (self.once and local >= self.period):
-            yield (img, x + (w - img.width) // 2, y + (h - img.height) // 2)
+            yield (img, *self._pos(x, y, w, h, img))
             return
         step = int(_phase(local, self.period) * self.steps) % self.steps
         if self.reverse:
             step = self.steps - 1 - step
         frame = self._material("sheen", lambda: self._frame(img, step), self.band, self.strength, self.steps, self.diagonal, step)
-        yield (frame, x + (w - img.width) // 2, y + (h - img.height) // 2)
+        yield (frame, *self._pos(x, y, w, h, img))
 
     def _frame(self, img: Image.Image, step: int) -> Image.Image:
         wdt, hgt = img.size
@@ -146,6 +157,8 @@ class Pulse(AnimatedNode):
     """Brightness breathing between ``low`` and ``high``."""
 
     child: Node
+    h_align: str = field(default="center", kw_only=True)
+    v_align: str = field(default="center", kw_only=True)
     period: float = 1.0
     low: float = 0.35
     high: float = 1.0
@@ -156,7 +169,7 @@ class Pulse(AnimatedNode):
         k = 0.5 - 0.5 * math.cos(2 * math.pi * _phase(t, self.period))
         level = int(k * (self.steps - 1))
         frame = self._material("pulse", lambda: self._frame(img, level), self.low, self.high, self.steps, level)
-        yield (frame, x + (w - img.width) // 2, y + (h - img.height) // 2)
+        yield (frame, *self._pos(x, y, w, h, img))
 
     def _frame(self, img: Image.Image, level: int) -> Image.Image:
         factor = self.low + (self.high - self.low) * level / max(self.steps - 1, 1)
@@ -169,6 +182,8 @@ class Pulse(AnimatedNode):
 @dataclass
 class Blink(AnimatedNode):
     child: Node
+    h_align: str = field(default="center", kw_only=True)
+    v_align: str = field(default="center", kw_only=True)
     period: float = 1.0
     duty: float = 0.5
 
@@ -186,6 +201,8 @@ class Slide(AnimatedNode):
     """
 
     child: Node
+    h_align: str = field(default="center", kw_only=True)
+    v_align: str = field(default="center", kw_only=True)
     duration: float = 0.5
     direction: Direction = "left"
     delay: float = 0.0
@@ -208,10 +225,11 @@ class Slide(AnimatedNode):
         else:
             dy = int(h * k)
         if dx == 0 and dy == 0:
-            yield (img, x + (w - img.width) // 2, y + (h - img.height) // 2)
+            yield (img, *self._pos(x, y, w, h, img))
             return
         box = Image.new("RGBA", (max(w, 1), max(h, 1)), (0, 0, 0, 0))
-        box.paste(img, ((w - img.width) // 2 + dx, (h - img.height) // 2 + dy), img)   # paste clips negatives
+        px, py = self._pos(0, 0, w, h, img)
+        box.paste(img, (px + dx, py + dy), img)                # paste clips negatives
         yield (box, x, y)
 
 
@@ -220,6 +238,8 @@ class Fade(AnimatedNode):
     """Finite opacity ramp from ``start`` to ``end`` over ``duration``."""
 
     child: Node
+    h_align: str = field(default="center", kw_only=True)
+    v_align: str = field(default="center", kw_only=True)
     duration: float = 0.5
     start: float = 0.0
     end: float = 1.0
@@ -231,7 +251,7 @@ class Fade(AnimatedNode):
         p = 1.0 if self.duration <= 0 else min(max((t - self.delay) / self.duration, 0.0), 1.0)
         level = int((self.start + (self.end - self.start) * p) * (self.steps - 1) + 0.5)
         frame = self._material("fade", lambda: self._frame(img, level), self.steps, level)
-        yield (frame, x + (w - img.width) // 2, y + (h - img.height) // 2)
+        yield (frame, *self._pos(x, y, w, h, img))
 
     def _frame(self, img: Image.Image, level: int) -> Image.Image:
         out = img.copy()

@@ -9,7 +9,7 @@ def test_clock_renders_at_every_profile(ctx):
     board = ClockBoard()
     for w, h in [(64, 32), (64, 64), (128, 64), (128, 128), (256, 256)]:
         c = replace(ctx, width=w, height=h, profile=profile_for(w, h))
-        frame = board.render(c, ClockConfig(show_seconds=True))
+        frame = board.render(c, ClockConfig())
         assert frame.size == (w, h)
         assert frame.getbbox() is not None      # something drawn
 

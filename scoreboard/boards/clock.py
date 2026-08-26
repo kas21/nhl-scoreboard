@@ -1,4 +1,5 @@
-"""Clock board: time, date, optional seconds. Also the ERROR fallback."""
+"""Clock board — port of the old one: cyan time, magenta date above-left and year below-right,
+looping diagonal sheen on the time."""
 from __future__ import annotations
 
 from typing import Literal
@@ -6,18 +7,16 @@ from typing import Literal
 from PIL import Image
 from pydantic import BaseModel, Field
 
-from ..render import Spacer, Text, VBox, load_font, render_tree
-from ..render.text import fit_font
+from ..render import Absolute, Sheen, Text, load_font, render_tree
 from .base import BaseBoard, BoardContext
 
 
 class ClockConfig(BaseModel):
     model_config = {"frozen": True, "extra": "forbid"}
     format: Literal["12h", "24h"] = Field("12h", description="Hour format")
-    show_seconds: bool = False
     show_date: bool = True
-    color: tuple[int, int, int] = Field((255, 255, 255), description="Time colour (RGB)")
-    date_color: tuple[int, int, int] = Field((190, 190, 190), description="Date colour (RGB)")
+    color: tuple[int, int, int] = Field((0, 150, 150), description="Time colour (RGB)")
+    date_color: tuple[int, int, int] = Field((255, 0, 255), description="Date/year colour (RGB)")
 
 
 class ClockBoard(BaseBoard):
@@ -26,21 +25,20 @@ class ClockBoard(BaseBoard):
     config_model = ClockConfig
 
     def render(self, ctx: BoardContext, cfg: ClockConfig) -> Image.Image:
+        w, h = ctx.width, ctx.height
         p = ctx.profile
-        if cfg.format == "12h":
-            fmt = "%-I:%M:%S" if cfg.show_seconds else "%-I:%M"
-            time_text = ctx.now.strftime(fmt)
-            suffix = ctx.now.strftime("%p")
-        else:
-            time_text = ctx.now.strftime("%H:%M:%S" if cfg.show_seconds else "%H:%M")
-            suffix = ""
-        clock_font = fit_font(time_text, "clock", ctx.width - 2 * p.pad, p.font_score)
-        rows = [Text(time_text, clock_font, tuple(cfg.color))]
+        fmt = "%-I:%M" if cfg.format == "12h" else "%H:%M"
+        clock_size = max(int(h * 15 / 64), 8)
+        time_node = Text(ctx.now.strftime(fmt), load_font("clock", clock_size), tuple(cfg.color))
+        tw, th = time_node.measure()
+        cx, cy = (w - tw) // 2, (h - th) // 2
+        items = [(Sheen(time_node, period=3.0, band=14, strength=0.5, delay=1.0), cx, cy, tw, th)]
         if cfg.show_date:
-            rows.append(Text(ctx.now.strftime("%a %b %-d"), load_font("pixel", p.font_medium), tuple(cfg.date_color)))
-        if suffix:
-            rows.insert(1, Text(suffix, load_font("pixel", p.font_small), tuple(cfg.date_color)))
-        # Small panels: drop optional rows (AM/PM first, then date) until it fits.
-        while len(rows) > 1 and VBox(rows, spacing=1).measure()[1] > ctx.height:
-            rows.pop(1 if len(rows) == 3 else -1)
-        return render_tree(VBox([Spacer(), *rows, Spacer()], spacing=1), ctx.width, ctx.height)
+            f6 = load_font("pl", p.font_small)
+            date = Text(ctx.now.strftime("%b %d").upper(), f6, tuple(cfg.date_color))
+            year = Text(ctx.now.strftime("%Y"), f6, tuple(cfg.date_color))
+            dw, dh = date.measure()
+            yw, yh = year.measure()
+            items.append((date, cx, cy - dh - 1, dw, dh))
+            items.append((year, cx + tw - yw, cy + th + 1, yw, yh))
+        return render_tree(Absolute(items), w, h, t=ctx.elapsed)

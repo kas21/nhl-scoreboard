@@ -89,12 +89,12 @@ def test_goal_board_favorite_vs_opponent(world):
     assert not board.matches(opp, GoalConfig(opponent_goals=False))
     ctx = make_ctx(world, 128, 64, live, fav, elapsed=2.0)
     board.enter(ctx, cfg)
-    assert board._seq.duration == pytest.approx(cfg.duration, abs=0.5)
+    assert board._seq.duration == pytest.approx(cfg.duration + cfg.summary_duration, abs=0.5)
     assert board.render(ctx, cfg).getbbox() is not None
     other = GoalBoard()
     other.enter(make_ctx(world, 128, 64, live, opp), cfg)
     assert other._seq.duration < board._seq.duration       # opponent = short flash
-    assert other.done(make_ctx(world, 128, 64, live, opp, elapsed=cfg.opponent_duration + 1), cfg)
+    assert other.done(make_ctx(world, 128, 64, live, opp, elapsed=other._seq.duration + 0.1), cfg)
 
 
 def test_penalty_board_uses_description(world):
@@ -104,7 +104,7 @@ def test_penalty_board_uses_description(world):
     ctx = make_ctx(world, 128, 64, world["live"], ev, elapsed=1.0)
     img = board.render(ctx, PenaltyConfig())
     assert img.getbbox() is not None
-    assert board.done(replace(ctx, elapsed=PenaltyConfig().duration + 1), PenaltyConfig())
+    assert board.done(replace(ctx, elapsed=board._seq.duration + 0.1), PenaltyConfig())
 
 
 def test_ticker_cycles_all_games_then_done(world):

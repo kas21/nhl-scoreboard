@@ -108,13 +108,13 @@ class GameBoard(BaseBoard):
         stroke = (0, 0, 0, 220)
         ta, th = team(g["away"]["abbrev"]), team(g["home"]["abbrev"])
         items = [
-            (Slide(Chip(g["away"]["abbrev"], f8, ta.text_on_primary, ta.primary, stroke=stroke), 0.8, "left", easing=exponential_out), 2, 45, 25, 11),
-            (Slide(Anchor(Chip(g["home"]["abbrev"], f8, th.text_on_primary, th.primary, stroke=stroke), h="end"), 0.8, "right", easing=exponential_out), 101, 45, 25, 11),
+            (Slide(Chip(g["away"]["abbrev"], f8, ta.text_on_primary, ta.primary, stroke=stroke), 0.8, "left", easing=exponential_out, h_align="start"), 2, 45, 25, 11),
+            (Slide(Chip(g["home"]["abbrev"], f8, th.text_on_primary, th.primary, stroke=stroke), 0.8, "right", easing=exponential_out, h_align="end"), 101, 45, 25, 11),
         ]
         if cfg.show_records:
             items += [
-                (Slide(Anchor(Text(g["away"]["record"], f6, WHITE), h="start"), 0.5, "up", easing=cubic_out), 3, 57, 40, 5),
-                (Slide(Anchor(Text(g["home"]["record"], f6, WHITE), h="end"), 0.5, "up", easing=cubic_out), 85, 57, 40, 5),
+                (Slide(Text(g["away"]["record"], f6, WHITE), 0.5, "up", easing=cubic_out, h_align="start"), 3, 57, 40, 5),
+                (Slide(Text(g["home"]["record"], f6, WHITE), 0.5, "up", easing=cubic_out, h_align="end"), 85, 57, 40, 5),
             ]
         return items
 
@@ -162,11 +162,11 @@ class GameBoard(BaseBoard):
             if since is not None:
                 label = f"PP {code[1]}-{code[2]}"
                 node = HBox([self._chip(label, g[side]["abbrev"]), Text(g["powerplay"]["clock"], f6, WHITE)], spacing=1)
-                items.append((Slide(Anchor(node, h=align), 0.6, "up", delay=since, easing=quartic_out), x, 0, 45, 7))
+                items.append((Slide(node, 0.6, "up", delay=since, easing=quartic_out, h_align=align), x, 0, 45, 7))
             en = self._since(f"en:{side}", bool(g["pulled_goalie"] & (1 if side == "away" else 2)), t)
             if en is not None:
-                node = Anchor(self._chip("EMPTY NET", g[side]["abbrev"]), h=align)
-                items.append((Slide(node, 0.6, "down", delay=en, easing=quartic_out), x if side == "away" else 91, 57, 37, 7))
+                node = self._chip("EMPTY NET", g[side]["abbrev"])
+                items.append((Slide(node, 0.6, "down", delay=en, easing=quartic_out, h_align=align), x if side == "away" else 91, 57, 37, 7))
         inter = self._since("int", g["in_intermission"], t)
         if inter is not None:
             items.append((Slide(Box(36, 3, (*GREEN, 255)), 0.3, "down", delay=inter, easing=elastic_out), 46, 0, 36, 3))
