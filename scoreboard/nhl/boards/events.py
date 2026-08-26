@@ -118,7 +118,7 @@ def _card(rows: list[tuple[object, int, int, int, int, float]], header: Image.Im
     n = int(seconds * fps)
     for f in range(n):
         t = f / fps
-        items = [(header_node := _img(header), 0, 0, width, header.height)] + [(s, x, y, w, h) for s, x, y, w, h in statics]
+        items = [(_img(header), 0, 0, width, header.height), *[(s, x, y, w, h) for s, x, y, w, h in statics]]
         for node, x, y, w, h, delay in rows:
             if t < delay or t >= seconds - delay:
                 continue

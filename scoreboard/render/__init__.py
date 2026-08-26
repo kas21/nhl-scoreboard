@@ -17,6 +17,7 @@ from .profiles import SizeProfile, profile_for
 from .text import fit_font, load_font, text_size
 
 __all__ = [
+    "Absolute",
     "Anchor",
     "Blink",
     "Box",

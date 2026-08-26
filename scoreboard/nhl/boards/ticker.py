@@ -21,6 +21,19 @@ RED = (200, 0, 0)
 BLACK = (0, 0, 0)
 
 
+def _wrap(text: str, font, width: int) -> list[str]:
+    """Word-wrap onto up to two lines that fit ``width`` (the old board's 80px name wrap)."""
+    from ...render.text import text_size
+    if text_size(text, font)[0] <= width:
+        return [text]
+    words = text.split()
+    for i in range(len(words) - 1, 0, -1):
+        first, rest = " ".join(words[:i]), " ".join(words[i:])
+        if text_size(first, font)[0] <= width and text_size(rest, font)[0] <= width:
+            return [first, rest]
+    return [text]
+
+
 class TickerConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid", title="Score ticker")
     seconds_per_game: float = Field(8.0, ge=2, le=30)
@@ -66,9 +79,13 @@ class TickerBoard(BaseBoard):
             node = Sheen(Img(img), period=2.0, band=25, strength=0.6, once=True, delay=1.0)
             items.append((Slide(node, 1.0, direction, easing=exponential_in_out), 0, y, logo_w, win_h))
         pregame = g["phase"] == "pregame"
+        name_w = ctx.width - 48 - (0 if pregame else 20)
         for side, top in (("away", 0), ("home", half + 1)):
-            name = g[side]["name"] if pregame else g[side]["abbrev"]
-            items.append((Slide(Text(name.upper(), f7, WHITE), 0.4, "up", easing=linear, h_align="start"), 48, top + 9, 60, 8))
+            name = (g[side]["name"] if pregame else g[side]["abbrev"]).upper()
+            lines = _wrap(name, f7, name_w)
+            y0 = top + 9 if len(lines) == 1 else top + 3
+            for i, line in enumerate(lines[:2]):
+                items.append((Slide(Text(line, f7, WHITE), 0.4, "up", easing=linear, h_align="start"), 48, y0 + 8 * i, name_w, 8))
             if pregame:
                 items.append((Slide(Text(g[side]["record"] or "0-0-0", f6, LIGHT), 0.4, "up", easing=linear, h_align="start"), 48, top + 21, 40, 5))
             else:

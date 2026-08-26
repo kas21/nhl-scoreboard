@@ -1,21 +1,33 @@
-"""Favourite team summary: record, streak, last result, next game."""
+"""Team summary — port of the old board: dark gradient column, cascading text rows
+(RECORD / LAST / NEXT sections), big logo sliding in from the right with a looping sheen,
+scroll if needed, hold, exit upward."""
 from __future__ import annotations
 
 from typing import Any
 
-from PIL import Image
+from PIL import Image, ImageDraw
 from pydantic import BaseModel, ConfigDict, Field
 
 from ...boards.base import BaseBoard, BoardContext
-from ...render import HBox, Spacer, Text, VBox, load_font, render_tree
-from ...render.layout import Box, Img
+from ...render import Img, Sheen, load_font, render_node
+from ...render.anim import quintic_out
+from ...render.fx import chip, fit_logo, reflected_gradient
 from ..teams import logo, team
-from .common import DIM, GREY, WHITE, YELLOW, fmt_date, fmt_time, local_time
+from .common import fmt_date, fmt_time, local_time
+
+WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+CASCADE_FRAMES = 4
+ROW_SLIDE_FRAMES = 4
+SCROLL_DELAY = 5.0
+EXIT_PX_PER_FRAME = 3
 
 
 class TeamSummaryConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid", title="Team summary")
-    seconds_per_team: float = Field(8.0, ge=3, le=60)
+    scroll_speed: float = Field(5.0, ge=1, le=40)
+    hold_seconds: float = Field(5.0, ge=0, le=20)
     time_24h: bool = False
 
 
@@ -25,47 +37,137 @@ class TeamSummaryBoard(BaseBoard):
     config_model = TeamSummaryConfig
     requires = frozenset({"nhl.team_summary"})
 
-    def render(self, ctx: BoardContext, cfg: TeamSummaryConfig) -> Image.Image:
-        summaries = list((ctx.snapshot.get("nhl.team_summary") or {}).values())
-        if not summaries:
-            return Image.new("RGB", (ctx.width, ctx.height))
-        s = summaries[int(ctx.elapsed // cfg.seconds_per_team) % len(summaries)]
-        t = team(s["abbrev"])
-        p = ctx.profile
-        rec = s["record"]
-        font_s, font_m = load_font("pixel", p.font_small), load_font("pixel", p.font_medium)
-        record = f"{rec['wins']}-{rec['losses']}-{rec['otl']}"
-        header = VBox([
-            Text(s["abbrev"], load_font("block", p.font_medium), WHITE),
-            Text(record, font_m, YELLOW),
-            Text(f"{rec['points']} PTS", font_s, GREY),
-        ], spacing=1)
-        rows = [HBox([Img(logo(s["abbrev"], p.logo)), Spacer(), header], spacing=p.pad)]
-        if p.width >= 96:
-            rows.append(HBox([Text("L10", font_s, DIM), Spacer(), Text(f"{'-'.join(map(str, rec['l10']))}  {rec['streak']}", font_s, GREY)]))
-        rows.extend(self._games(s, ctx, cfg))
-        while len(rows) > 1 and VBox(rows, spacing=1).measure()[1] > ctx.height - 2 * p.pad:
-            rows.pop()
-        body = HBox([Box(p.pad, 0), VBox(rows, spacing=1), Box(p.pad, 0)])
-        return render_tree(VBox([Spacer(), body, Spacer()]), ctx.width, ctx.height,
-                           background=tuple(int(c * 0.25) for c in t.primary))
+    def __init__(self) -> None:
+        self._teams: list[dict[str, Any]] = []
+        self._built: dict[str, tuple[Image.Image, list[tuple[int, bool]], Image.Image]] = {}
+        self._timeline: list[float] = []
+        self._size = (0, 0)
 
-    def _games(self, s: dict[str, Any], ctx: BoardContext, cfg: TeamSummaryConfig) -> list:
-        p = ctx.profile
-        font = load_font("pixel", p.font_small)
-        rows = []
+    def enter(self, ctx: BoardContext, cfg: TeamSummaryConfig) -> None:
+        self._teams = list((ctx.snapshot.get("nhl.team_summary") or {}).values())
+        self._built = {}
+        self._size = (ctx.width, ctx.height)
+        self._timeline = [self._seconds(s, ctx, cfg) for s in self._teams]
+
+    # -- content --------------------------------------------------------------------
+
+    def _rows(self, s: dict[str, Any], ctx: BoardContext, cfg: TeamSummaryConfig) -> list[tuple[Image.Image, bool]]:
+        f6 = load_font("pl", 6)
+        t = team(s["abbrev"])
+        w = ctx.width
+        rec = s["record"]
+
+        def header(text: str) -> tuple[Image.Image, bool]:
+            return chip(text, f6, t.text_on_primary, t.primary, pad=(1, 1, w, 1)).crop((0, 0, w, 7)), False
+
+        def line(parts: list[tuple[str, tuple[int, int, int]]]) -> tuple[Image.Image, bool]:
+            img = Image.new("RGBA", (w, 6), (0, 0, 0, 0))
+            d = ImageDraw.Draw(img)
+            x = 0
+            for text, color in parts:
+                d.text((x, 0), text, font=f6, fill=color)
+                x += d.textlength(text, font=f6) + 4
+            return img, True
+
+        streak = rec.get("streak", "")
+        streak_color = GREEN if streak.startswith("W") else RED if streak.startswith("L") else WHITE
+        rows = [
+            header("RECORD"),
+            line([(f"{rec['wins']}-{rec['losses']}-{rec['otl']}  {rec['points']} PTS", WHITE)]),
+            line([(f"GP {rec['gp']}  L10 {'-'.join(map(str, rec['l10']))}", WHITE)]),
+            line([("STREAK", WHITE), (streak, streak_color)]),
+            header("LAST"),
+        ]
         prev, nxt = s.get("prev_game"), s.get("next_game")
         if prev:
-            vs = "vs" if prev["home"] else "@"
-            col = (80, 220, 80) if prev["result"] == "W" else (230, 80, 80)
-            rows.append(HBox([Text("LAST", font, DIM), Spacer(min=3),
-                              Text(f"{prev['result']} {prev['score']}-{prev['opponent_score']} {vs} {prev['opponent']}", font, col)]))
+            rows.append(line([(f"{fmt_date(prev['date'])} {'VS' if prev['home'] else 'AT'} {prev['opponent']}", WHITE)]))
+            rows.append(line([(prev["result"], GREEN if prev["result"] == "W" else RED), (f"{prev['score']}-{prev['opponent_score']}", WHITE)]))
+        else:
+            rows.append(line([("---------", WHITE)]))
+        rows.append(header("NEXT"))
         if nxt:
-            vs = "vs" if nxt["home"] else "@"
             start = local_time(nxt["start_time_utc"], ctx.now.tzinfo)
-            when = "TODAY" if start and start.date() == ctx.now.date() else fmt_date(nxt["date"])
-            rows.append(HBox([Text("NEXT", font, DIM), Spacer(min=3),
-                              Text(f"{when} {fmt_time(start, cfg.time_24h)} {vs} {nxt['opponent']}", font, WHITE)]))
-        elif p.height >= 48:
-            rows.append(HBox([Text("NEXT", font, DIM), Spacer(min=3), Text("NO GAMES SCHEDULED", font, GREY)]))
+            rows.append(line([(f"{fmt_date(nxt['date'])} {'VS' if nxt['home'] else 'AT'} {nxt['opponent']}", WHITE)]))
+            rows.append(line([(fmt_time(start, cfg.time_24h).upper(), WHITE)]))
+        else:
+            rows.append(line([("---------", WHITE)]))
         return rows
+
+    def _build(self, s: dict[str, Any], ctx: BoardContext, cfg: TeamSummaryConfig):
+        rows = self._rows(s, ctx, cfg)
+        total = sum(r.height for r, _ in rows) + max(len(rows) - 1, 0)
+        comp = Image.new("RGBA", (ctx.width, max(total, ctx.height)), (0, 0, 0, 0))
+        y, meta = 0, []
+        for img, animated in rows:
+            comp.alpha_composite(img, (0, y))
+            meta.append((y, animated, img.height))
+            y += img.height + 1
+        lg = fit_logo(logo(s["abbrev"], 128), int(ctx.width * 0.55), int(ctx.height * 0.86))
+        return comp, meta, lg
+
+    def _seconds(self, s, ctx, cfg) -> float:
+        comp, meta, _ = self._get(s, ctx, cfg)
+        fps = ctx.fps
+        travel = max(comp.height - ctx.height, 0)
+        return 0.3 + (len(meta) * CASCADE_FRAMES + ROW_SLIDE_FRAMES) / fps + SCROLL_DELAY + travel / cfg.scroll_speed + cfg.hold_seconds + (ctx.height + 4) / EXIT_PX_PER_FRAME / fps
+
+    def _get(self, s, ctx, cfg):
+        key = s["abbrev"]
+        if key not in self._built:
+            self._built[key] = self._build(s, ctx, cfg)
+        return self._built[key]
+
+    # -- playback ---------------------------------------------------------------------
+
+    def render(self, ctx: BoardContext, cfg: TeamSummaryConfig) -> Image.Image:
+        if not self._teams or self._size != (ctx.width, ctx.height):
+            self.enter(ctx, cfg)
+        w, h = ctx.width, ctx.height
+        out = Image.new("RGBA", (w, h), (0, 0, 0, 255))
+        if not self._teams:
+            return out.convert("RGB")
+        t = ctx.elapsed
+        idx = 0
+        while idx < len(self._timeline) - 1 and t >= self._timeline[idx]:
+            t -= self._timeline[idx]
+            idx += 1
+        s = self._teams[idx]
+        comp, meta, lg = self._get(s, ctx, cfg)
+        fps = ctx.fps
+        logo_in = 0.3
+        cascade_end = logo_in + (len(meta) * CASCADE_FRAMES + ROW_SLIDE_FRAMES) / fps
+        travel = max(comp.height - h, 0)
+        scroll_start = cascade_end + SCROLL_DELAY
+        scroll_end = scroll_start + travel / cfg.scroll_speed
+        exit_start = scroll_end + cfg.hold_seconds
+        exit_px = int((t - exit_start) * fps) * EXIT_PX_PER_FRAME if t >= exit_start else 0
+        # gradient column (left), text, logo (top)
+        grad = reflected_gradient(60, h)
+        out.alpha_composite(grad, (-10, -exit_px)) if exit_px <= h else None
+        offset = int(min(max(t - scroll_start, 0) * cfg.scroll_speed, travel))
+        if t < cascade_end:
+            frame_no = int((t - logo_in) * fps)
+            for i, (y, animated, hh) in enumerate(meta):
+                start = i * CASCADE_FRAMES
+                if frame_no < start:
+                    continue
+                strip = comp.crop((0, y, w, y + hh))
+                if animated and frame_no < start + ROW_SLIDE_FRAMES:
+                    k = quintic_out((frame_no - start + 1) / ROW_SLIDE_FRAMES)
+                    dy = int(hh * (1 - k))
+                    strip = strip.crop((0, 0, w, hh - dy))
+                    out.alpha_composite(strip, (0, y + dy))
+                else:
+                    out.alpha_composite(strip, (0, y))
+        else:
+            out.alpha_composite(comp.crop((0, offset, w, offset + h)), (0, -exit_px))
+        # logo: slides in from the right over 0.3s (quintic), then loops a sheen
+        lx, ly = int(w * 0.70) - lg.width // 2, (h - lg.height) // 2
+        k = quintic_out(min(t / logo_in, 1.0))
+        node = Sheen(Img(lg), period=6.0, band=40, strength=0.8, delay=logo_in)
+        limg = render_node(node, t)
+        out.paste(limg, (lx + int(lg.width * (1 - k)), ly - exit_px), limg)
+        return out.convert("RGB")
+
+    def done(self, ctx: BoardContext, cfg: TeamSummaryConfig) -> bool:
+        return bool(self._timeline) and ctx.elapsed >= sum(self._timeline)

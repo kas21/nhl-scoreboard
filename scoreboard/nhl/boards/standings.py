@@ -1,4 +1,5 @@
-"""Standings: a table that scrolls vertically, one division/group at a time."""
+"""Standings — port of the old table: RK / TEAM chip / GP / RECORD / PTS, section bars,
+row cascade-in, sticky header while scrolling, hold at the bottom, then exit upward."""
 from __future__ import annotations
 
 from typing import Any, Literal
@@ -7,17 +8,28 @@ from PIL import Image
 from pydantic import BaseModel, ConfigDict, Field
 
 from ...boards.base import BaseBoard, BoardContext
-from ...render import HBox, Spacer, Text, VBox, load_font, render_tree
-from ...render.layout import Box, Img
-from ..teams import logo
-from .common import GREY, WHITE, YELLOW
+from ...render import load_font
+from ...render.fx import chip
+from ...render.text import text_size
+from ..teams import team
+
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+ROW_H = 7
+SECTION_GAP = 5
+COLS = {"RK": 0, "TEAM": 11, "GP": 30, "RECORD": 47, "PTS": 84}   # x of each header label
+PTS_RIGHT = 96
+CASCADE_FRAMES = 5
+ROW_SLIDE_FRAMES = 4
+SCROLL_DELAY = 5.0
+EXIT_PX_PER_FRAME = 3
 
 
 class StandingsConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid", title="Standings")
     view: Literal["division", "wildcard", "league"] = "division"
-    scroll_speed: float = Field(8.0, ge=2, le=40, description="Pixels per second")
-    hold_seconds: float = Field(2.0, ge=0, le=10, description="Pause at top before scrolling")
+    scroll_speed: float = Field(5.0, ge=1, le=40, description="Pixels per second")
+    hold_seconds: float = Field(5.0, ge=0, le=20, description="Pause at the bottom before leaving")
     highlight: list[str] = Field([], description="Team abbrevs to highlight (defaults to favourites)")
 
 
@@ -28,59 +40,133 @@ class StandingsBoard(BaseBoard):
     requires = frozenset({"nhl.standings"})
 
     def __init__(self) -> None:
-        self._strip: Image.Image | None = None
+        self._pages: list[tuple[Image.Image, list[tuple[int, bool]]]] = []   # (composite, [(row_y, animated)])
+        self._header: Image.Image | None = None
         self._size = (0, 0)
+        self._timeline: list[float] = []
+
+    # -- building ----------------------------------------------------------------
 
     def enter(self, ctx: BoardContext, cfg: StandingsConfig) -> None:
-        self._strip = self._build(ctx, cfg)
-        self._size = (ctx.width, ctx.height)
-
-    def _groups(self, standings: dict[str, Any], cfg: StandingsConfig) -> list[tuple[str, list[str]]]:
-        if cfg.view == "league":
-            return [("NHL", standings["league"])]
-        if cfg.view == "wildcard":
-            return [(f"{conf[:4]} {grp}".upper(), teams) for conf, groups in standings["wildcard"].items() for grp, teams in groups.items()]
-        return [(name.upper(), teams) for name, teams in standings["division"].items()]
-
-    def _build(self, ctx: BoardContext, cfg: StandingsConfig) -> Image.Image:
-        p = ctx.profile
         standings = ctx.snapshot.get("nhl.standings") or {}
         rows = standings.get("teams") or {}
-        highlight = {h.upper() for h in cfg.highlight} or self._favorites(ctx)
-        font = load_font("pixel", p.font_small)
-        row_h = max(font.getbbox("W")[3] + 2, p.logo_small // 2 + 2)
-        logo_px = row_h - 1
-        sections = []
-        for title, teams in self._groups(standings, cfg):
-            wide = ctx.width >= 96
-            sections.append(HBox([Text(title, font, YELLOW), Spacer(), Text("GP  PTS" if wide else "PTS", font, GREY)]))
-            for abbrev in teams:
+        highlight = {h.upper() for h in cfg.highlight} or set(ctx.snapshot.get("nhl.team_summary") or {})
+        self._size = (ctx.width, ctx.height)
+        self._header = self._header_row(ctx.width)
+        self._pages = [self._page(groups, rows, highlight, ctx.width) for groups in self._grouped(standings, cfg)]
+        self._timeline = [self._page_seconds(p, ctx, cfg) for p in self._pages]
+
+    def _grouped(self, standings: dict[str, Any], cfg: StandingsConfig) -> list[list[tuple[str, list[str], bool]]]:
+        """Pages of (title, teams, cutoff_after) sections."""
+        if cfg.view == "league":
+            return [[("NHL", standings.get("league", []), False)]]
+        if cfg.view == "wildcard":
+            pages = []
+            for conf, groups in (standings.get("wildcard") or {}).items():
+                sections = [(f"{conf} {grp}".upper(), teams, grp == "Wildcard") for grp, teams in groups.items()]
+                pages.append(sections)
+            return pages or [[]]
+        divs = list((standings.get("division") or {}).items())
+        return [[(n.upper(), t, False) for n, t in divs[i:i + 2]] for i in range(0, len(divs), 2)] or [[]]
+
+    def _header_row(self, width: int) -> Image.Image:
+        f6 = load_font("pl", 6)
+        row = Image.new("RGBA", (width, ROW_H), (0, 0, 0, 255))
+        for label, x in COLS.items():
+            row.alpha_composite(chip(label, f6, WHITE, BLACK), (x, 0))
+        return row
+
+    def _page(self, sections, rows, highlight, width) -> tuple[Image.Image, list[tuple[int, bool]]]:
+        f6 = load_font("pl", 6)
+        strips: list[tuple[Image.Image, bool]] = []
+        for title, teams, cutoff in sections:
+            strips.append((chip(title, f6, BLACK, WHITE, pad=(1, 1, width, 1)).crop((0, 0, width, ROW_H)), False))
+            for rank, abbrev in enumerate(teams, 1):
                 r = rows.get(abbrev) or {}
-                color = WHITE if abbrev in highlight else GREY
-                sections.append(HBox([
-                    Img(logo(abbrev, logo_px)), Text(abbrev, font, color), Spacer(),
-                    Text(f"{r.get('gp', 0):>2}  {r.get('points', 0):>3}" if wide else f"{r.get('points', 0):>3}", font, color),
-                ], spacing=2))
-            sections.append(Box(0, p.pad))
-        body = HBox([Box(p.pad, 0), VBox(sections, spacing=1, align="start"), Box(p.pad, 0)])
-        tree = VBox([body, Spacer()], align="start")
-        _, total_h = body.measure()
-        return render_tree(tree, ctx.width, max(total_h + p.pad, ctx.height))
-
-    def render(self, ctx: BoardContext, cfg: StandingsConfig) -> Image.Image:
-        if self._strip is None or self._size != (ctx.width, ctx.height):
-            self.enter(ctx, cfg)
-        offset = int(max(ctx.elapsed - cfg.hold_seconds, 0) * cfg.scroll_speed)
-        offset = min(offset, self._strip.height - ctx.height)
-        return self._strip.crop((0, offset, ctx.width, offset + ctx.height))
-
-    def done(self, ctx: BoardContext, cfg: StandingsConfig) -> bool:
-        if self._strip is None:
-            return False
-        travel = self._strip.height - ctx.height
-        return ctx.elapsed >= cfg.hold_seconds + travel / cfg.scroll_speed + 1.0
+                t = team(abbrev)
+                row = Image.new("RGBA", (width, ROW_H), (0, 0, 0, 255))
+                color = WHITE if abbrev in highlight else (200, 200, 200)
+                self._text(row, str(rank), f6, color, COLS["RK"], 1)
+                row.alpha_composite(chip(abbrev, f6, t.text_on_primary, t.primary, pad=(2, 1, 3, 1)), (COLS["TEAM"] + 1, 0))
+                self._text(row, str(r.get("gp", 0)), f6, color, COLS["GP"] + 1, 1)
+                self._text(row, f"{r.get('wins', 0)}-{r.get('losses', 0)}-{r.get('otl', 0)}", f6, color, COLS["RECORD"], 1)
+                pts = str(r.get("points", 0))
+                self._text(row, pts, f6, color, PTS_RIGHT - text_size(pts, f6)[0], 1)
+                strips.append((row, True))
+                if cutoff and r.get("wildcard_rank") == 2:
+                    line = Image.new("RGBA", (width, 3), (0, 0, 0, 255))
+                    for x in range(2, width - 2):
+                        line.putpixel((x, 1), (100, 100, 100, 200))
+                    strips.append((line, False))
+            strips.append((Image.new("RGBA", (width, SECTION_GAP), (0, 0, 0, 255)), False))
+        total = sum(s.height for s, _ in strips)
+        comp = Image.new("RGBA", (width, max(total, 1)), (0, 0, 0, 255))
+        y, meta = 0, []
+        for img, animated in strips:
+            comp.alpha_composite(img, (0, y))
+            meta.append((y, animated))
+            y += img.height
+        return comp, meta
 
     @staticmethod
-    def _favorites(ctx: BoardContext) -> set[str]:
-        summary = ctx.snapshot.get("nhl.team_summary") or {}
-        return set(summary)
+    def _text(row: Image.Image, text: str, font, color, x: int, y: int) -> None:
+        from PIL import ImageDraw
+        ImageDraw.Draw(row).text((x, y), text, font=font, fill=color)
+
+    def _page_seconds(self, page, ctx: BoardContext, cfg: StandingsConfig) -> float:
+        comp, meta = page
+        fps = ctx.fps
+        cascade = (len(meta) * CASCADE_FRAMES + ROW_SLIDE_FRAMES) / fps
+        travel = max(comp.height - ctx.height, 0)
+        exit_secs = (comp.height + ROW_H) / EXIT_PX_PER_FRAME / fps
+        return cascade + SCROLL_DELAY + travel / cfg.scroll_speed + cfg.hold_seconds + exit_secs
+
+    # -- playback -------------------------------------------------------------------
+
+    def render(self, ctx: BoardContext, cfg: StandingsConfig) -> Image.Image:
+        if not self._pages or self._size != (ctx.width, ctx.height):
+            self.enter(ctx, cfg)
+        t = ctx.elapsed
+        idx = 0
+        while idx < len(self._timeline) - 1 and t >= self._timeline[idx]:
+            t -= self._timeline[idx]
+            idx += 1
+        comp, meta = self._pages[idx]
+        fps = ctx.fps
+        frame_no = int(t * fps)
+        cascade_frames = len(meta) * CASCADE_FRAMES + ROW_SLIDE_FRAMES
+        travel = max(comp.height - ctx.height, 0)
+        scroll_start = cascade_frames / fps + SCROLL_DELAY
+        scroll_end = scroll_start + travel / cfg.scroll_speed
+        exit_start = scroll_end + cfg.hold_seconds
+        out = Image.new("RGB", (ctx.width, ctx.height), BLACK)
+        if t < scroll_start:
+            # cascade: rows appear at 5-frame intervals with a 4-frame upward wipe
+            for i, (y, animated) in enumerate(meta):
+                start = i * CASCADE_FRAMES
+                strip = comp.crop((0, y, ctx.width, meta[i + 1][0] if i + 1 < len(meta) else comp.height))
+                if frame_no < start:
+                    continue
+                if animated and frame_no < start + ROW_SLIDE_FRAMES:
+                    k = (frame_no - start + 1) / ROW_SLIDE_FRAMES
+                    k = 1 - (1 - k) ** 5
+                    dy = int(strip.height * (1 - k))
+                    strip = strip.crop((0, 0, ctx.width, strip.height - dy))
+                    out.paste(strip, (0, y + dy))
+                else:
+                    out.paste(strip, (0, y))
+            return out
+        if t < exit_start:
+            offset = int(min(max(t - scroll_start, 0) * cfg.scroll_speed, travel))
+            out.paste(comp.crop((0, offset, ctx.width, offset + ctx.height)), (0, 0))
+            if offset > ROW_H and self._header is not None:
+                out.paste(self._header, (0, 0))
+            return out
+        exit_px = int((t - exit_start) * fps) * EXIT_PX_PER_FRAME
+        out.paste(comp.crop((0, travel, ctx.width, travel + ctx.height)), (0, -exit_px))
+        if travel > ROW_H and self._header is not None:
+            out.paste(self._header, (0, -exit_px))
+        return out
+
+    def done(self, ctx: BoardContext, cfg: StandingsConfig) -> bool:
+        return bool(self._timeline) and ctx.elapsed >= sum(self._timeline)

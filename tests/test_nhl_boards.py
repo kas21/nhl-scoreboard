@@ -67,7 +67,7 @@ def test_game_board_renders_everywhere(world, size, phase):
 @pytest.mark.parametrize("size", SIZES)
 def test_other_boards_render_everywhere(world, size):
     for board, cfg, elapsed in [(TickerBoard(), TickerConfig(), 1.0), (StandingsBoard(), StandingsConfig(), 3.0),
-                                (TeamSummaryBoard(), TeamSummaryConfig(), 0.0)]:
+                                (TeamSummaryBoard(), TeamSummaryConfig(), 2.0)]:
         img = board.render(make_ctx(world, *size, elapsed=elapsed), cfg)
         assert img.size == size and img.getbbox() is not None, type(board).__name__
 
