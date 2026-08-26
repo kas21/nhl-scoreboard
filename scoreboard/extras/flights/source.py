@@ -138,7 +138,8 @@ class FlightsSource:
             cfg: FlightsConfig = ctx.config  # type: ignore[assignment]
             loc = ctx.location
             if not cfg.enabled or loc is None:
-                ctx.publish([], subkey="nearby")
+                if loc is None:
+                    ctx.log.info("flights: no location configured; set latitude/longitude in Settings > Location")
                 await asyncio.sleep(60)
                 continue
             lat, lon = loc

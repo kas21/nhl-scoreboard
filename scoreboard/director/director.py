@@ -94,11 +94,12 @@ class Director:
         self._sync_state(snap, mono)
 
         board, key, event = self._select(cfg, snap, mono)
+        switching = key != self._active_key
+        if switching and not isinstance(board, EventBoard) and not self._active_event:
+            self._cursor = Cursor(self._cursor.state, self._cursor.index, mono)       # the new board's clock starts now
         ctx = self._context(cfg, snap, mono, event)
         board_cfg = self._board_config(cfg, board)
-        if key != self._active_key:
-            if self.override == key:
-                self._cursor = Cursor(self._cursor.state, self._cursor.index, mono)   # board clock restarts
+        if switching:
             if (self._active_key is not None and self._last_frame is not None and not isinstance(board, EventBoard)
                     and cfg.transition.style != "none" and self._last_frame.size == (cfg.display.width, cfg.display.height)):
                 self._transition = (self._last_frame, mono)
@@ -152,6 +153,12 @@ class Director:
         self._quarantine = {k: until for k, until in self._quarantine.items() if until > mono}
         return {k for k in self._registry.boards if k not in self._quarantine}
 
+    def _entries(self, cfg: AppConfig, snap: Snapshot, state: AppState, usable: set[str]) -> list:
+        """Playlist entries that are enabled, loaded, not quarantined, and whose required data is non-empty."""
+        boards = self._registry.boards
+        entries = available_entries(getattr(cfg.playlists, state.value), usable)
+        return [e for e in entries if all(snap.get(k) for k in boards[e.board].requires)]
+
     def _select(self, cfg: AppConfig, snap: Snapshot, mono: float) -> tuple[BaseBoard, str, Event | None]:
         boards = self._registry.boards
         usable = self._usable(mono)
@@ -172,8 +179,7 @@ class Director:
             return boards.get(BOOT_BOARD) or boards[FALLBACK_BOARD], BOOT_BOARD, None
         if state == AppState.ERROR:
             return boards[ERROR_BOARD], ERROR_BOARD, None
-        entries = available_entries(getattr(cfg.playlists, state.value), usable)
-        entries = [e for e in entries if snap.has(*boards[e.board].requires)]
+        entries = self._entries(cfg, snap, state, usable)
         if not entries:
             return boards[FALLBACK_BOARD], FALLBACK_BOARD, None
         self._cursor = clamp(self._cursor, len(entries))
@@ -189,7 +195,7 @@ class Director:
             return
         if self._cursor.state not in PLAYLIST_STATES:
             return
-        entries = available_entries(getattr(cfg.playlists, self._cursor.state.value), self._usable(mono))
+        entries = self._entries(cfg, self._snapshots.get(), self._cursor.state, self._usable(mono))
         if not entries:
             return
         entry = entries[min(self._cursor.index, len(entries) - 1)]

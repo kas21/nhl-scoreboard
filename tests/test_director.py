@@ -176,3 +176,24 @@ def test_stale_marker_when_offline_with_data(tmp_path):
     w, h = frame.size
     assert frame.getpixel((w - 2, h - 2)) == (200, 40, 40)
     assert d.state == AppState.OFFDAY                      # still showing data, not the error clock
+
+
+def test_board_with_empty_required_data_is_skipped(tmp_path):
+
+    class NeedsData(BlankBoard):
+        key = "needs"
+        title = "Needs data"
+        requires = frozenset({"things"})
+
+    config = ConfigStore(tmp_path / "config.json")
+    config.update({"transition": {"style": "none"}, "playlists": {"offday": [{"board": "needs", "duration": 5}, {"board": "clock", "duration": 5}]}})
+    snapshots, events = SnapshotStore(), EventBus()
+    reg = Registry(boards={b.key: b for b in (ClockBoard(), SplashBoard(), BlankBoard(), NeedsData())})
+    d = Director(config, snapshots, reg, events)
+    t = booted(d)
+    snapshots.publish("things", [])
+    d.frame(t + 0.1)
+    assert d.active_board == "clock"            # empty list -> skipped
+    snapshots.publish("things", [1])
+    d.frame(t + 5.2); d.frame(t + 5.3)
+    assert d.active_board == "needs"
