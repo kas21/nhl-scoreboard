@@ -100,14 +100,13 @@ class Marquee(AnimatedNode):
 
 
 @lru_cache(maxsize=64)
-def _ramp(width: int, height: int, diagonal: bool) -> Image.Image:
-    """L image whose pixel value encodes position along the sweep axis (x+y or x), scaled to 0..255."""
-    span = (width + height) if diagonal else width
-    img = Image.new("L", (width, height))
+def _profile(band: int, strength: float) -> Image.Image:
+    """1-D triangular highlight profile, ``band`` px wide, as an L image (1 row, padded)."""
+    img = Image.new("L", (band + 2, 1), 0)
     px = img.load()
-    for yy in range(height):
-        for xx in range(width):
-            px[xx, yy] = ((xx + yy) if diagonal else xx) * 255 // max(span - 1, 1)
+    for i in range(band):
+        k = 1 - abs((i + 0.5) / band * 2 - 1)
+        px[i + 1, 0] = int(255 * strength * k)
     return img
 
 
@@ -126,7 +125,7 @@ class Sheen(AnimatedNode):
     period: float = 2.0
     band: int = 8
     strength: float = 0.7
-    steps: int = 60              # phases per sweep (30 fps x 2 s = smooth)
+    steps: int = 120             # phases per sweep; sub-pixel, so more than the frame rate is fine
     diagonal: bool = True
     once: bool = False
     delay: float = 0.0
@@ -149,14 +148,12 @@ class Sheen(AnimatedNode):
     def _frame(self, img: Image.Image, step: int) -> Image.Image:
         wdt, hgt = img.size
         span = (wdt + hgt) if self.diagonal else wdt
-        pos = step / self.steps * (span + self.band) - self.band       # band leading edge in sweep units
-        scale = 255 / max(span - 1, 1)
-        lut = []
-        for v in range(256):
-            d = v / scale - pos
-            k = 1 - abs((d + 0.5) / self.band * 2 - 1) if 0 <= d < self.band else 0.0
-            lut.append(int(255 * self.strength * max(k, 0.0)))
-        band = _ramp(wdt, hgt, self.diagonal).point(lut)
+        pos = step / self.steps * (span + self.band) - self.band       # float leading edge, sub-pixel
+        profile = _profile(self.band, self.strength)
+        # Shear the 1-D profile across the image: input_x = x (+ y if diagonal) - pos + 1, input_y = 0.
+        # Bilinear sampling gives smooth sub-pixel motion between frames.
+        coeffs = (1.0, 1.0 if self.diagonal else 0.0, 1.0 - pos, 0.0, 0.0, 0.0)
+        band = profile.transform((wdt, hgt), Image.AFFINE, coeffs, resample=Image.BILINEAR)
         mask = ImageChops.multiply(band, img.getchannel("A"))
         out = img.copy()
         out.paste(Image.new("RGBA", img.size, (255, 255, 255, 255)), (0, 0), mask)
