@@ -82,3 +82,15 @@ def test_test_pattern_board_renders():
                        now=datetime(2026, 1, 1, tzinfo=UTC), elapsed=0.0)
     img = TestPatternBoard().render(ctx, None)
     assert img.getpixel((20, 60)) == (255, 0, 0) and img.getpixel((120, 60)) == (255, 255, 255)
+
+
+def test_geocode_proxy(tmp_path):
+    import httpx
+    import respx
+    c, _ = client(tmp_path)
+    with respx.mock() as mock:
+        mock.get(url__regex=r"https://geocoding-api\.open-meteo\.com/.*").mock(return_value=httpx.Response(200, json={"results": [
+            {"name": "Toronto", "admin1": "Ontario", "country_code": "CA", "latitude": 43.70011, "longitude": -79.4163, "timezone": "America/Toronto"}]}))
+        r = c.get("/api/geocode", params={"q": "Toronto"}).json()
+    assert r == [{"name": "Toronto", "region": "Ontario", "country": "CA", "latitude": 43.7, "longitude": -79.416, "timezone": "America/Toronto"}]
+    assert c.get("/api/geocode", params={"q": "T"}).json() == []

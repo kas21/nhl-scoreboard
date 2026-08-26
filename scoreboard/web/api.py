@@ -12,6 +12,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+import httpx
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
@@ -168,6 +169,23 @@ def create_app(
         except (subprocess.SubprocessError, OSError) as exc:
             raise HTTPException(status_code=500, detail=f"could not set hostname: {exc}") from exc
         return {"hostname": system.hostname(), "changed": ok}
+
+    @app.get("/api/geocode")
+    async def geocode(q: str) -> list[dict[str, Any]]:
+        """Town / postcode -> candidates with lat, lon and timezone (Open-Meteo geocoder, keyless)."""
+        q = q.strip()
+        if len(q) < 2:
+            return []
+        try:
+            async with httpx.AsyncClient(timeout=10) as http:
+                r = await http.get("https://geocoding-api.open-meteo.com/v1/search", params={"name": q, "count": 6, "language": "en", "format": "json"})
+                r.raise_for_status()
+                results = r.json().get("results") or []
+        except (httpx.HTTPError, ValueError) as exc:
+            raise HTTPException(status_code=502, detail=f"geocoding failed: {exc}") from exc
+        return [{"name": x.get("name"), "region": x.get("admin1", ""), "country": x.get("country_code", ""),
+                 "latitude": round(x["latitude"], 3), "longitude": round(x["longitude"], 3), "timezone": x.get("timezone", "")}
+                for x in results if "latitude" in x and "longitude" in x]
 
     @app.get("/api/logs")
     def get_logs() -> list[str]:

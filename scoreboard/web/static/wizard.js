@@ -79,9 +79,7 @@ export function Wizard({ config, save, Preview, onDone }) {
       <p class="muted">Used for game times and, if you enable it, sunset dimming.</p>
       <div class="field"><label>Timezone</label><input type="text" value=${config.location.timezone} onchange=${e => save({ location: { timezone: e.target.value } })} />
         <small>Detected: ${Intl.DateTimeFormat().resolvedOptions().timeZone} <a onclick=${() => save({ location: { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone } })} style="cursor:pointer;color:var(--accent)">use this</a></small></div>
-      <div class="field"><label>Location for sunset dimming</label>
-        <button class="secondary" onclick=${() => navigator.geolocation && navigator.geolocation.getCurrentPosition(p => save({ location: { latitude: +p.coords.latitude.toFixed(3), longitude: +p.coords.longitude.toFixed(3) } }), () => setMsg('Location permission denied — you can type coordinates in Settings later.'))}>Use my location</button>
-        <small>${config.location.latitude != null ? `Saved: ${config.location.latitude}, ${config.location.longitude}` : 'Optional.'} ${msg}</small></div>
+      <${LocationPicker} location=${config.location} save=${save} />
     <//>`,
     html`<${Step} n=${5} title="Name this scoreboard">
       <p class="muted">You'll reach it at <b>name.local:8080</b> from any device on your Wi-Fi.</p>
@@ -120,4 +118,27 @@ function Hostname() {
   return html`<div class="field"><label>Name</label><input type="text" value=${name} onchange=${e => setName(e.target.value.toLowerCase())} />
     <small>Current: ${current}.local ${msg}</small></div>
     <button class="secondary" onclick=${apply} disabled=${!name || name === current}>Save name</button>`;
+}
+
+
+function LocationPicker({ location, save }) {
+  const [q, setQ] = useState('');
+  const [results, setResults] = useState([]);
+  const [msg, setMsg] = useState('');
+  const search = () => api.get('/api/geocode?q=' + encodeURIComponent(q)).then(r => { setResults(r); setMsg(r.length ? '' : 'No matches — try a bigger town or add the country.'); }).catch(e => setMsg('Lookup failed: ' + e.message));
+  const pick = (r) => { save({ location: { latitude: r.latitude, longitude: r.longitude, timezone: r.timezone || location.timezone } }); setResults([]); setMsg(`Saved ${r.name}${r.region ? ', ' + r.region : ''} (${r.latitude}, ${r.longitude})`); };
+  const secure = window.isSecureContext && navigator.geolocation;
+  return html`
+    <div class="field"><label>Find your town</label>
+      <div class="row"><input type="text" value=${q} placeholder="e.g. Toronto, or a postcode" oninput=${e => setQ(e.target.value)} onkeydown=${e => e.key === 'Enter' && search()} />
+        <button class="secondary" onclick=${search} disabled=${q.length < 2}>Search</button></div>
+      ${results.length > 0 && html`<div class="tags" style="margin-top:6px">${results.map(r => html`<span class="tag" style="cursor:pointer" onclick=${() => pick(r)}>${r.name}${r.region ? ', ' + r.region : ''} ${r.country}</span>`)}</div>`}
+      <small>Used for weather, flights and sunset dimming. ${msg}</small></div>
+    <div class="field"><label>Or enter coordinates</label>
+      <div class="row">
+        <input type="number" step="0.001" placeholder="latitude" value=${location.latitude ?? ''} onchange=${e => save({ location: { latitude: e.target.value === '' ? null : +e.target.value } })} style="max-width:130px" />
+        <input type="number" step="0.001" placeholder="longitude" value=${location.longitude ?? ''} onchange=${e => save({ location: { longitude: e.target.value === '' ? null : +e.target.value } })} style="max-width:130px" />
+        ${secure && html`<button class="secondary" onclick=${() => navigator.geolocation.getCurrentPosition(p => pick({ name: 'your location', latitude: +p.coords.latitude.toFixed(3), longitude: +p.coords.longitude.toFixed(3) }), () => setMsg('Location permission denied.'))}>Use my location</button>`}
+      </div>
+      <small>${location.latitude != null ? `Saved: ${location.latitude}, ${location.longitude}` : 'Not set yet.'}${secure ? '' : ' (Browser location needs HTTPS, so it is hidden here.)'}</small></div>`;
 }
