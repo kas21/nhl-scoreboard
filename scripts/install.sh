@@ -52,11 +52,12 @@ section "rgbmatrix driver"
 if "$VPY" -c 'import rgbmatrix' 2>/dev/null; then
     ok "already installed"
 else
-    if ! "$VPY" -m pip install -q -e "$APP_DIR[pi]" 2>/dev/null || ! "$VPY" -c 'import rgbmatrix' 2>/dev/null; then
-        echo "    no prebuilt wheel for this Python; building from source (~3 min on a Pi 4)"
+    PYTAG="cp$("$VPY" -c 'import sys; print(f"{sys.version_info[0]}{sys.version_info[1]}")')"
+    WHEEL="https://github.com/falkyre/nhl-led-scoreboard-img/releases/download/latest-trixie/rgbmatrix-0.0.1-${PYTAG}-${PYTAG}-linux_$(uname -m).whl"
+    if ! "$VPY" -m pip install -q "$WHEEL" 2>/dev/null || ! "$VPY" -c 'import rgbmatrix' 2>/dev/null; then
+        echo "    no prebuilt wheel for $PYTAG/$(uname -m); building from source (~3 min on a Pi 4)"
         [ -d "$MATRIX_SRC" ] || git clone -q https://github.com/hzeller/rpi-rgb-led-matrix.git "$MATRIX_SRC"
-        make -C "$MATRIX_SRC" -j"$(nproc)" >/dev/null
-        "$VPY" -m pip install -q "$MATRIX_SRC/bindings/python"
+        "$VPY" -m pip install -q "$MATRIX_SRC"          # upstream ships a pyproject at the repo root
     fi
     "$VPY" -c 'import rgbmatrix' || die "rgbmatrix failed to install"
     ok "installed"
