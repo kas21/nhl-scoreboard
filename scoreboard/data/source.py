@@ -31,6 +31,7 @@ class SourceContext:
         self._config_getter = config_getter
         self.http = http
         self.timezone: str | None = None            # IANA name, set by the app from location config
+        self.location: tuple[float, float] | None = None   # (lat, lon) from location config, if set
         self.log = logging.getLogger(f"source.{key}")
 
     @property

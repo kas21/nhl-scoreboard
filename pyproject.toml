@@ -36,13 +36,17 @@ test_pattern = "scoreboard.boards.test_pattern:TestPatternBoard"
 "nhl.goal" = "scoreboard.nhl.boards.events:GoalBoard"
 "nhl.penalty" = "scoreboard.nhl.boards.events:PenaltyBoard"
 "holidays.countdown" = "scoreboard.extras.holidays.board:CountdownBoard"
+"flights.nearby" = "scoreboard.extras.flights.board:NearbyBoard"
+"flights.overhead" = "scoreboard.extras.flights.board:OverheadBoard"
 
 [project.entry-points."scoreboard.sources"]
 nhl = "scoreboard.nhl.source:NhlSource"
 holidays = "scoreboard.extras.holidays.source:HolidaysSource"
+flights = "scoreboard.extras.flights.source:FlightsSource"
 
 [project.entry-points."scoreboard.detectors"]
 nhl = "scoreboard.nhl.events:detect_main_event"
+flights = "scoreboard.extras.flights.source:detect_overhead"
 
 [build-system]
 requires = ["hatchling"]

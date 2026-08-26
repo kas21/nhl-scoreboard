@@ -136,8 +136,11 @@ class Application:
                 log.warning("invalid config for source %s, using defaults", key)
                 return source.config_model()
         ctx = SourceContext(key, self.snapshots, cfg_getter, http)
-        ctx.timezone = self.config.get().location.timezone
-        self.config.subscribe(lambda c: setattr(ctx, "timezone", c.location.timezone))
+        def apply_location(c) -> None:
+            ctx.timezone = c.location.timezone
+            ctx.location = (c.location.latitude, c.location.longitude) if c.location.latitude is not None and c.location.longitude is not None else None
+        apply_location(self.config.get())
+        self.config.subscribe(apply_location)
         return ctx
 
     def run(self) -> None:
