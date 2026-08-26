@@ -19,7 +19,9 @@ def load(name):
 
 
 @pytest.mark.asyncio
-async def test_source_publishes_scores_main_event_standings_and_summary():
+async def test_source_publishes_scores_main_event_standings_and_summary(monkeypatch):
+    import scoreboard.nhl.source as src
+    monkeypatch.setattr(src, "_local_today", lambda ctx: "2026-04-11")     # fixture game day
     store = SnapshotStore()
     cfg = NhlConfig(favorites=["TOR"], idle_interval=15, standings_interval=300)
     async with httpx.AsyncClient() as http, respx.mock(base_url=BASE_URL) as mock:
