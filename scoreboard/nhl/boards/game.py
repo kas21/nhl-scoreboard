@@ -25,7 +25,8 @@ GREEN = (0, 255, 0)
 LOGO_W, LOGO_H = 55, 45
 LOGO_Y = {"pregame": 7, "live": 9, "intermission": 9, "postgame": 9}
 HOME_LOGO_X = 73
-HOME_STAGGER = 0.4          # seconds the home logo trails the away logo (slide + sheen)
+HOME_STAGGER = 0.4          # seconds the home logo's slide trails the away logo
+SHEEN_STAGGER = 1.4         # seconds the home logo's sheen trails the away sheen (they no longer overlap)
 GRADIENT = (34, 0, 60, 64)
 SCORE_AWAY_X, SCORE_HOME_X, SCORE_Y = 53, 68, 25
 HYPHEN = (62, 30, 4, 2)
@@ -61,10 +62,10 @@ class GameBoard(BaseBoard):
         return self._seen.setdefault(key, now)
 
     @staticmethod
-    def _logo_node(abbrev: str, from_dir: str, delay: float = 0.0) -> Slide:
-        """Logo wipes in (1.5s), then a single diagonal sheen; ``delay`` staggers the two sides."""
+    def _logo_node(abbrev: str, from_dir: str, delay: float = 0.0, sheen_delay: float = 0.0) -> Slide:
+        """Logo wipes in (1.5s), then a single diagonal sheen; delays stagger the two sides."""
         img = fit_logo(logo(abbrev, 128), LOGO_W, LOGO_H)
-        node = Sheen(Img(img), period=2.0, band=30, strength=0.6, once=True, delay=1.5 + delay, reverse=True)
+        node = Sheen(Img(img), period=2.0, band=30, strength=0.6, once=True, delay=1.5 + sheen_delay, reverse=True)
         return Slide(node, duration=1.5, direction=from_dir, delay=delay, easing=exponential_out)
 
     @staticmethod
@@ -93,7 +94,7 @@ class GameBoard(BaseBoard):
         ly = LOGO_Y.get(phase, 9)
         items: list = [
             (self._logo_node(g["away"]["abbrev"], "left"), 0, ly, LOGO_W, LOGO_H),
-            (self._logo_node(g["home"]["abbrev"], "right", delay=HOME_STAGGER), HOME_LOGO_X, ly, LOGO_W, LOGO_H),
+            (self._logo_node(g["home"]["abbrev"], "right", delay=HOME_STAGGER, sheen_delay=SHEEN_STAGGER), HOME_LOGO_X, ly, LOGO_W, LOGO_H),
             (Img(reflected_gradient(GRADIENT[2], GRADIENT[3])), GRADIENT[0], GRADIENT[1], GRADIENT[2], GRADIENT[3]),
         ]
         if phase == "pregame":
