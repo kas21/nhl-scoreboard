@@ -28,6 +28,7 @@ class TeamSummaryConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid", title="Team summary")
     scroll_speed: float = Field(5.0, ge=1, le=40)
     hold_seconds: float = Field(5.0, ge=0, le=20)
+    sheen_seconds: float = Field(2.5, ge=0.5, le=10, description="Seconds per shimmer sweep across the logo")
     time_24h: bool = False
 
 
@@ -164,7 +165,7 @@ class TeamSummaryBoard(BaseBoard):
         # logo: slides in from the right over 0.3s (quintic), then loops a sheen
         lx, ly = int(w * 0.70) - lg.width // 2, (h - lg.height) // 2
         k = quintic_out(min(t / logo_in, 1.0))
-        node = Sheen(Img(lg), period=6.0, band=40, strength=0.8, delay=logo_in)
+        node = Sheen(Img(lg), period=cfg.sheen_seconds, band=40, strength=0.8, delay=logo_in)
         limg = render_node(node, t)
         out.paste(limg, (lx + int(lg.width * (1 - k)), ly - exit_px), limg)
         return out.convert("RGB")
