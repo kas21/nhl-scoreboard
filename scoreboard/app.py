@@ -37,7 +37,7 @@ class Application:
             from .demo import DemoSource
 
             log.warning("DEMO MODE: replaying a recorded game")
-            self.registry.sources = {"nhl": DemoSource()}
+            self.registry.sources = {**self.registry.sources, "nhl": DemoSource()}
         for detector in self.registry.detectors:
             self.events.register(detector)
         self.director = Director(self.config, self.snapshots, self.registry, self.events)

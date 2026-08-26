@@ -12,6 +12,7 @@ dependencies = [
     "fastapi>=0.110",
     "uvicorn[standard]>=0.29",
     "astral>=3.2",
+    "holidays>=0.50",
 ]
 
 [project.optional-dependencies]
@@ -34,9 +35,11 @@ test_pattern = "scoreboard.boards.test_pattern:TestPatternBoard"
 "nhl.team_summary" = "scoreboard.nhl.boards.team_summary:TeamSummaryBoard"
 "nhl.goal" = "scoreboard.nhl.boards.events:GoalBoard"
 "nhl.penalty" = "scoreboard.nhl.boards.events:PenaltyBoard"
+"holidays.countdown" = "scoreboard.extras.holidays.board:CountdownBoard"
 
 [project.entry-points."scoreboard.sources"]
 nhl = "scoreboard.nhl.source:NhlSource"
+holidays = "scoreboard.extras.holidays.source:HolidaysSource"
 
 [project.entry-points."scoreboard.detectors"]
 nhl = "scoreboard.nhl.events:detect_main_event"

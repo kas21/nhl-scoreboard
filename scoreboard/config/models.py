@@ -72,6 +72,7 @@ class Playlists(FrozenModel):
         PlaylistEntry(board="clock", duration=10),
         PlaylistEntry(board="nhl.ticker", duration=None),
         PlaylistEntry(board="nhl.standings", duration=None),
+        PlaylistEntry(board="holidays.countdown", duration=None),
     )
     pregame: tuple[PlaylistEntry, ...] = (
         PlaylistEntry(board="nhl.game", duration=15),
