@@ -139,3 +139,11 @@ async def test_api_retries_then_succeeds_and_handles_429():
         mock.get("/standings/now").mock(return_value=httpx.Response(500))
         with pytest.raises(NhlApiError):
             await NhlApi(http).standings()
+
+
+def test_select_main_event_ignores_future_game_days(score):
+    games = [normalize_game(g) for g in score["games"]]          # all dated 2026-04-11
+    assert select_main_event(games, ["TOR"], today="2026-04-11") is not None
+    assert select_main_event(games, ["TOR"], today="2026-04-10") is None
+    live = {**games[0], "state": "LIVE", "away": {**games[0]["away"], "abbrev": "TOR"}}
+    assert select_main_event([live], ["TOR"], today="2026-04-10") is live   # active games always count

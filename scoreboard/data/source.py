@@ -30,6 +30,7 @@ class SourceContext:
         self._store = store
         self._config_getter = config_getter
         self.http = http
+        self.timezone: str | None = None            # IANA name, set by the app from location config
         self.log = logging.getLogger(f"source.{key}")
 
     @property

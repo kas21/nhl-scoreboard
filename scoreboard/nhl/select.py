@@ -6,12 +6,19 @@ from typing import Any
 _PRIORITY = {"LIVE": 0, "CRIT": 0, "PRE": 1, "FUT": 2, "OVER": 3, "FINAL": 3, "OFF": 3}
 
 
-def select_main_event(games: list[dict[str, Any]], favorites: list[str]) -> dict[str, Any] | None:
-    """Live favourite game first (by favourite order), else the highest-priority favourite game."""
+def select_main_event(games: list[dict[str, Any]], favorites: list[str], today: str | None = None) -> dict[str, Any] | None:
+    """Live favourite game first (by favourite order), else the highest-priority favourite game.
+
+    Only games dated ``today`` (YYYY-MM-DD, local) or currently active count: the
+    score feed returns the *next* game day when there are no games today, and a
+    game a week out must not put the board into "pregame".
+    """
     best: tuple[int, int, dict[str, Any]] | None = None
     for rank, team in enumerate(t.upper() for t in favorites):
         for g in games:
             if team not in (g["away"]["abbrev"], g["home"]["abbrev"]):
+                continue
+            if today and g.get("date") != today and g["state"] not in ("LIVE", "CRIT"):
                 continue
             key = (_PRIORITY.get(g["state"], 9), rank)
             if best is None or key < best[:2]:

@@ -69,7 +69,7 @@ class NhlSource:
                 payload = await api.score("now")
                 records = records_from_standings(ctx.snapshot().get("nhl.standings"))
                 games = [normalize_game(g, records) for g in payload.get("games") or []]
-                main = select_main_event(games, cfg.favorites)
+                main = select_main_event(games, cfg.favorites, today=_local_today(ctx))
                 if main and main["state"] in ACTIVE_STATES:
                     main = await self._enrich(api, main, records)
                 if main:
@@ -128,6 +128,17 @@ class NhlSource:
                 ctx.log.warning("standings poll failed: %s", exc)
                 self._standings_ready.set()
             await asyncio.sleep(cfg.standings_interval)
+
+
+def _local_today(ctx: SourceContext) -> str:
+    """Today's date in the configured timezone (falls back to the machine's local date)."""
+    tz = getattr(ctx, "timezone", None)
+    try:
+        from zoneinfo import ZoneInfo
+
+        return datetime.now(ZoneInfo(tz)).date().isoformat() if tz else datetime.now().astimezone().date().isoformat()
+    except Exception:  # noqa: BLE001
+        return datetime.now().astimezone().date().isoformat()
 
 
 def _score_shape(main: dict[str, Any], landing: dict[str, Any]) -> dict[str, Any]:

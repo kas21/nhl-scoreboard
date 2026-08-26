@@ -108,7 +108,10 @@ class Application:
             except Exception:  # noqa: BLE001
                 log.warning("invalid config for source %s, using defaults", key)
                 return source.config_model()
-        return SourceContext(key, self.snapshots, cfg_getter, http)
+        ctx = SourceContext(key, self.snapshots, cfg_getter, http)
+        ctx.timezone = self.config.get().location.timezone
+        self.config.subscribe(lambda c: setattr(ctx, "timezone", c.location.timezone))
+        return ctx
 
     def run(self) -> None:
         asyncio.run(self.run_async())
