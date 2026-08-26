@@ -105,3 +105,12 @@ def test_live_board_frame_budget_with_animated_badges():
         board.render(make_ctx(w, 128, 64, live, elapsed=i / 30), GameConfig())
     per_frame_ms = (time.perf_counter() - t0) / n * 1000
     assert per_frame_ms < 8, per_frame_ms
+
+
+def test_animated_child_inside_slide_keeps_animating():
+    """A Sheen wrapped in a Slide must advance with t (regression: it was frozen at t=0)."""
+    from PIL import Image as _I
+    badge = Img(_I.new("RGBA", (30, 10), (200, 200, 200, 255)))
+    node = Slide(Sheen(badge, period=1.0, band=6, strength=1.0), duration=0.2, direction="left")
+    fs = frames(node, 40, 12, [0.5, 0.7, 0.9])
+    assert len(set(fs)) == 3

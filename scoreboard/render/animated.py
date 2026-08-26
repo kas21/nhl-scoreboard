@@ -56,7 +56,10 @@ class AnimatedNode(Node):
             img = _cache_put(key, build())
         return img
 
-    def _child_image(self) -> Image.Image:
+    def _child_image(self, t: float = 0.0) -> Image.Image:
+        """The child's image; animated children are rendered live at ``t`` (never cached)."""
+        if not self.child.is_static:
+            return render_node(self.child, t)
         return self._material("node", lambda: render_node(self.child))
 
 
@@ -81,7 +84,7 @@ class Marquee(AnimatedNode):
         return (min(cw, self.width), ch)
 
     def place(self, x, y, w, h, t=0.0):
-        img = self._child_image()
+        img = self._child_image(t)
         if img.width <= self.width:
             yield (img, *self._pos(x, y, w, h, img))
             return
@@ -134,7 +137,7 @@ class Sheen(AnimatedNode):
     v_align: str = field(default="center", kw_only=True)
 
     def place(self, x, y, w, h, t=0.0):
-        img = self._child_image()
+        img = self._child_image(t)
         local = t - self.delay
         if local < 0 or (self.once and local >= self.period):
             yield (img, *self._pos(x, y, w, h, img))
@@ -173,7 +176,7 @@ class Pulse(AnimatedNode):
     steps: int = 16
 
     def place(self, x, y, w, h, t=0.0):
-        img = self._child_image()
+        img = self._child_image(t)
         k = 0.5 - 0.5 * math.cos(2 * math.pi * _phase(t, self.period))
         level = int(k * (self.steps - 1))
         frame = self._material("pulse", lambda: self._frame(img, level), self.low, self.high, self.steps, level)
@@ -218,7 +221,7 @@ class Slide(AnimatedNode):
     out: bool = False
 
     def place(self, x, y, w, h, t=0.0):
-        img = self._child_image()
+        img = self._child_image(t)
         p = 1.0 if self.duration <= 0 else min(max((t - self.delay) / self.duration, 0.0), 1.0)
         k = 1 - self.easing(p)
         if self.out:
@@ -255,7 +258,7 @@ class Fade(AnimatedNode):
     steps: int = 16
 
     def place(self, x, y, w, h, t=0.0):
-        img = self._child_image()
+        img = self._child_image(t)
         p = 1.0 if self.duration <= 0 else min(max((t - self.delay) / self.duration, 0.0), 1.0)
         level = int((self.start + (self.end - self.start) * p) * (self.steps - 1) + 0.5)
         frame = self._material("fade", lambda: self._frame(img, level), self.steps, level)
