@@ -93,9 +93,9 @@ class TickerBoard(BaseBoard):
         if pregame:
             date = chip(fmt_date(g["date"]).replace(" ", ""), f6, BLACK, WHITE)
             # date chip + start time sit in the seam between the halves, clear of both name blocks
-            items.append((Slide(Img(date), 0.4, "right", easing=linear, h_align="end"), 100, half - 12, 27, 7))
+            items.append((Slide(Img(date), 0.4, "right", easing=linear, h_align="end"), 100, half - 9, 27, 7))
             start = local_time(g["start_time_utc"], ctx.now.tzinfo)
-            items.append((Slide(Text(fmt_time(start, cfg.time_24h).upper(), f6, WHITE), 0.4, "right", easing=linear, h_align="end"), 90, half - 3, 37, 5))
+            items.append((Slide(Text(fmt_time(start, cfg.time_24h).upper(), f6, WHITE), 0.4, "right", easing=linear, h_align="end"), 90, half - 1, 37, 5))
         elif g["phase"] == "postgame":
             label = g["outcome"].replace("FINAL/", "F/") if "/" in g["outcome"] else "FINAL"
             items.append((Slide(Chip(label, f6, WHITE, RED), 0.4, "right", easing=linear, h_align="end"), 67, half - 4, 60, 8))
