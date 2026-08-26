@@ -18,7 +18,7 @@ from .data.source import SourceContext, run_source_forever
 from .director import Director
 from .output import PreviewHub, create_output
 from .plugins import load_registry
-from .web.api import LogBuffer, create_app
+from .web.api import LogBuffer, SystemControl, create_app
 
 log = logging.getLogger(__name__)
 
@@ -45,6 +45,12 @@ class Application:
         self.output = create_output(self.config.get().display, output_mode, self.director.brightness())
         self._stop = threading.Event()
         self.exit_code = 0
+        self._restart_requested = threading.Event()
+
+    def request_restart(self) -> None:
+        """Exit cleanly; under systemd (Restart=always) that is a restart with fresh driver options."""
+        log.info("restart requested from the web UI")
+        self._restart_requested.set()
         self.config.subscribe(lambda cfg: logging.getLogger().setLevel(cfg.log_level))
 
     # -- render thread -------------------------------------------------------
@@ -85,7 +91,8 @@ class Application:
                      for key, src in self.registry.sources.items()]
             web = self.config.get().web
             server = uvicorn.Server(uvicorn.Config(
-                create_app(self.config, self.snapshots, self.registry, self.director, self.preview, self.logs),
+                create_app(self.config, self.snapshots, self.registry, self.director, self.preview, self.logs,
+                           system=SystemControl(self.request_restart)),
                 host=web.host, port=web.port, log_level="warning", loop="asyncio",
             ))
             server.install_signal_handlers = lambda: None  # we handle signals ourselves
@@ -101,7 +108,9 @@ class Application:
 
             async def watch_render_thread() -> None:
                 while not stop.is_set():
-                    await asyncio.sleep(2)
+                    await asyncio.sleep(1)
+                    if self._restart_requested.is_set():
+                        stop.set()
                     if not render_thread.is_alive():
                         log.critical("render thread died; exiting so the service manager restarts us")
                         self.exit_code = 3

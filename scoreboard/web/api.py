@@ -3,7 +3,12 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
+import shutil
+import socket
+import subprocess
 from collections import deque
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +27,44 @@ from ..plugins import Registry
 
 log = logging.getLogger(__name__)
 STATIC = Path(__file__).parent / "static"
+
+
+class SystemControl:
+    """Host-level actions the UI may trigger. Each is best-effort and logs what it did."""
+
+    def __init__(self, restart: Callable[[], None] | None = None) -> None:
+        self._restart = restart
+
+    def restart(self) -> bool:
+        if self._restart is None:
+            return False
+        self._restart()
+        return True
+
+    @staticmethod
+    def hostname() -> str:
+        return socket.gethostname()
+
+    @staticmethod
+    def set_hostname(name: str) -> bool:
+        """Set the machine hostname (so ``name.local`` resolves). Needs hostnamectl + root."""
+        if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,62}", name):
+            raise ValueError("hostname must be lowercase letters, digits and dashes")
+        if shutil.which("hostnamectl") is None:
+            return False
+        subprocess.run(["hostnamectl", "set-hostname", name], check=True, timeout=10)
+        return True
+
+    @staticmethod
+    def version_info() -> dict[str, Any]:
+        root = Path(__file__).resolve().parents[2]
+        rev = None
+        if shutil.which("git") and (root / ".git").exists():
+            try:
+                rev = subprocess.run(["git", "-C", str(root), "rev-parse", "--short", "HEAD"], capture_output=True, text=True, timeout=5).stdout.strip() or None
+            except (subprocess.SubprocessError, OSError):
+                rev = None
+        return {"version": __version__, "git": rev}
 
 
 class LogBuffer(logging.Handler):
@@ -43,8 +86,10 @@ def create_app(
     director: Director,
     preview: PreviewHub,
     logs: LogBuffer | None = None,
+    system: SystemControl | None = None,
 ) -> FastAPI:
     app = FastAPI(title="scoreboard", version=__version__)
+    system = system or SystemControl()
 
     @app.get("/api/status")
     def status() -> dict[str, Any]:
@@ -96,6 +141,33 @@ def create_app(
     def snapshot() -> dict[str, Any]:
         snap = snapshots.get()
         return {"version": snap.version, "data": dict(snap.data)}
+
+    @app.post("/api/override")
+    def set_override(body: dict[str, Any]) -> dict[str, Any]:
+        """Force a board onto the display (wizard test pattern, board previews)."""
+        board = body.get("board")
+        if board is not None and board not in registry.boards:
+            raise HTTPException(status_code=404, detail=f"unknown board {board!r}")
+        director.set_override(board, float(body.get("seconds", 60)))
+        return {"override": director.override}
+
+    @app.get("/api/system")
+    def system_info() -> dict[str, Any]:
+        return {**system.version_info(), "hostname": system.hostname(), "can_restart": system._restart is not None}
+
+    @app.post("/api/system/restart")
+    def system_restart() -> dict[str, Any]:
+        return {"restarting": system.restart()}
+
+    @app.post("/api/system/hostname")
+    def system_hostname(body: dict[str, Any]) -> dict[str, Any]:
+        try:
+            ok = system.set_hostname(str(body.get("hostname", "")))
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        except (subprocess.SubprocessError, OSError) as exc:
+            raise HTTPException(status_code=500, detail=f"could not set hostname: {exc}") from exc
+        return {"hostname": system.hostname(), "changed": ok}
 
     @app.get("/api/logs")
     def get_logs() -> list[str]:

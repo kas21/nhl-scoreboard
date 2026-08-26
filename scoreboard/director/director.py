@@ -49,6 +49,7 @@ class Director:
         self._board_cfg_cache: dict[tuple[str, int], BaseModel] = {}
         self._last_frame: Image.Image | None = None
         self._quarantine: dict[str, float] = {}       # board key -> monotonic time it may run again
+        self._override: tuple[str, float] | None = None   # (board key, monotonic expiry) forced by the UI
         self._transition: tuple[Image.Image, float] | None = None     # (outgoing frame, started_at)
         self._cfg_version = 0
         config.subscribe(self._on_config)
@@ -62,6 +63,20 @@ class Director:
     @property
     def active_board(self) -> str | None:
         return self._active_key
+
+    def set_override(self, board: str | None, seconds: float = 60.0) -> None:
+        """Force ``board`` onto the display for ``seconds`` (None clears). Used by the setup wizard / previews."""
+        if board is None or board not in self._registry.boards:
+            self._override = None
+            return
+        self._override = (board, _time.monotonic() + seconds)
+
+    @property
+    def override(self) -> str | None:
+        if self._override and _time.monotonic() < self._override[1]:
+            return self._override[0]
+        self._override = None
+        return None
 
     def brightness(self, now: datetime | None = None) -> int:
         cfg = self._config.get()
@@ -82,6 +97,8 @@ class Director:
         ctx = self._context(cfg, snap, mono, event)
         board_cfg = self._board_config(cfg, board)
         if key != self._active_key:
+            if self.override == key:
+                self._cursor = Cursor(self._cursor.state, self._cursor.index, mono)   # board clock restarts
             if (self._active_key is not None and self._last_frame is not None and not isinstance(board, EventBoard)
                     and cfg.transition.style != "none" and self._last_frame.size == (cfg.display.width, cfg.display.height)):
                 self._transition = (self._last_frame, mono)
@@ -138,6 +155,9 @@ class Director:
     def _select(self, cfg: AppConfig, snap: Snapshot, mono: float) -> tuple[BaseBoard, str, Event | None]:
         boards = self._registry.boards
         usable = self._usable(mono)
+        forced = self.override
+        if forced:
+            return boards[forced], forced, None
         if self._active_event:
             event, board, started = self._active_event
             return board, board.key, event

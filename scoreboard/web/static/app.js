@@ -1,5 +1,6 @@
 import { h, render, useState, useEffect } from './htm-preact.js';
 import { html } from './htm-preact.js';
+import { Wizard } from './wizard.js';
 
 const api = {
   get: (p) => fetch(p).then(r => r.json()),
@@ -163,12 +164,14 @@ function App() {
     addEventListener('hashchange', onHash); return () => removeEventListener('hashchange', onHash);
   }, []);
   const save = (patch) => api.patch('/api/config', patch).then(c => { setConfig(c); setError(null); }).catch(e => setError(e.message));
-  const pages = { dashboard: 'Dashboard', playlists: 'Boards', settings: 'Settings', diagnostics: 'Diagnostics' };
+  const pages = { dashboard: 'Dashboard', playlists: 'Boards', settings: 'Settings', diagnostics: 'Diagnostics', setup: 'Setup' };
+  const showWizard = config && (!config.setup_complete || page === 'setup');
   return html`
     <header><h1>Scoreboard</h1><nav>${Object.entries(pages).map(([k, v]) => html`<a href=${'#' + k} class=${page === k ? 'active' : ''}>${v}</a>`)}</nav></header>
     <main>
       ${error && html`<div class="card error">${error}</div>`}
       ${!config ? html`<p class="muted">Loading…</p>`
+        : showWizard ? html`<${Wizard} config=${config} save=${save} Preview=${Preview} onDone=${() => { location.hash = '#dashboard'; }} />`
         : page === 'settings' ? html`<${Settings} config=${config} schema=${schema} save=${save} />`
         : page === 'playlists' ? html`<${Playlists} config=${config} boards=${boards} save=${save} />`
         : page === 'diagnostics' ? html`<${Diagnostics} />`
