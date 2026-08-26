@@ -38,11 +38,13 @@ test_pattern = "scoreboard.boards.test_pattern:TestPatternBoard"
 "holidays.countdown" = "scoreboard.extras.holidays.board:CountdownBoard"
 "flights.nearby" = "scoreboard.extras.flights.board:NearbyBoard"
 "flights.overhead" = "scoreboard.extras.flights.board:OverheadBoard"
+"weather.current" = "scoreboard.extras.weather.board:WeatherBoard"
 
 [project.entry-points."scoreboard.sources"]
 nhl = "scoreboard.nhl.source:NhlSource"
 holidays = "scoreboard.extras.holidays.source:HolidaysSource"
 flights = "scoreboard.extras.flights.source:FlightsSource"
+weather = "scoreboard.extras.weather.source:WeatherSource"
 
 [project.entry-points."scoreboard.detectors"]
 nhl = "scoreboard.nhl.events:detect_main_event"
