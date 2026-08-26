@@ -18,10 +18,26 @@ from .common import fmt_date, fmt_time, local_time
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
+FADE_START, FADE_END = 46, 72     # header bars are solid to FADE_START, transparent by FADE_END (logo starts ~64)
 CASCADE_FRAMES = 4
 ROW_SLIDE_FRAMES = 4
 SCROLL_DELAY = 5.0
 EXIT_PX_PER_FRAME = 3
+
+
+def _fade_mask(width: int, height: int, solid_until: int, gone_at: int) -> Image.Image:
+    mask = Image.new("L", (width, height), 0)
+    px = mask.load()
+    for x in range(width):
+        if x <= solid_until:
+            a = 255
+        elif x >= gone_at:
+            a = 0
+        else:
+            a = int(255 * (1 - (x - solid_until) / (gone_at - solid_until)))
+        for y in range(height):
+            px[x, y] = a
+    return mask
 
 
 class TeamSummaryConfig(BaseModel):
@@ -59,7 +75,10 @@ class TeamSummaryBoard(BaseBoard):
         rec = s["record"]
 
         def header(text: str) -> tuple[Image.Image, bool]:
-            return chip(text, f6, t.text_on_primary, t.primary, pad=(1, 1, w, 1)).crop((0, 0, w, 7)), False
+            """Section bar in team colour, fading out before the logo so it never cuts through it."""
+            bar = chip(text, f6, t.text_on_primary, t.primary, pad=(1, 1, w, 1)).crop((0, 0, w, 7))
+            bar.putalpha(_fade_mask(w, 7, solid_until=FADE_START, gone_at=FADE_END))
+            return bar, False
 
         def line(parts: list[tuple[str, tuple[int, int, int]]]) -> tuple[Image.Image, bool]:
             img = Image.new("RGBA", (w, 6), (0, 0, 0, 0))
