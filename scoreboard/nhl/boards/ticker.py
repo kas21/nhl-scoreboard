@@ -74,10 +74,10 @@ class TickerBoard(BaseBoard):
         half = ctx.height // 2
         logo_w, win_h = 45, half - 1
         items = []
-        for side, y, direction in (("away", 0, "down"), ("home", half + 1, "up")):
+        for side, y, direction, delay, sheen_delay in (("away", 0, "down", 0.0, 0.0), ("home", half + 1, "up", 0.3, 1.4)):
             img = fit_logo(logo(g[side]["abbrev"], 128), logo_w, win_h + 4)
-            node = Sheen(Img(img), period=2.0, band=25, strength=0.6, once=True, delay=1.0)
-            items.append((Slide(node, 1.0, direction, easing=exponential_in_out), 0, y, logo_w, win_h))
+            node = Sheen(Img(img), period=2.0, band=25, strength=0.6, once=True, delay=1.0 + sheen_delay)
+            items.append((Slide(node, 1.0, direction, delay=delay, easing=exponential_in_out), 0, y, logo_w, win_h))
         pregame = g["phase"] == "pregame"
         name_w = ctx.width - 48 - (0 if pregame else 20)
         for side, top in (("away", 0), ("home", half + 1)):
