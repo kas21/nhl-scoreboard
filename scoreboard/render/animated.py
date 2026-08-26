@@ -91,32 +91,48 @@ class Marquee(AnimatedNode):
 
 @dataclass
 class Sheen(AnimatedNode):
-    """A soft highlight band sweeping across the child (only where the child is opaque)."""
+    """A soft highlight band sweeping across the child (only where the child is opaque).
+
+    ``diagonal`` sweeps along x+y like the old client's ByteFX sheen; ``once`` plays a
+    single sweep starting at ``delay`` seconds (e.g. right after an entrance) and then
+    shows the plain child. ``reverse`` sweeps bottom-right -> top-left.
+    """
 
     child: Node
     period: float = 2.0
     band: int = 8
     strength: float = 0.7
     steps: int = 24              # quantised phases -> effectively pre-rendered
+    diagonal: bool = True
+    once: bool = False
+    delay: float = 0.0
+    reverse: bool = False
 
     def place(self, x, y, w, h, t=0.0):
         img = self._child_image()
-        step = int(_phase(t, self.period) * self.steps) % self.steps
-        frame = self._material("sheen", lambda: self._frame(img, step), self.band, self.strength, self.steps, step)
+        local = t - self.delay
+        if local < 0 or (self.once and local >= self.period):
+            yield (img, x + (w - img.width) // 2, y + (h - img.height) // 2)
+            return
+        step = int(_phase(local, self.period) * self.steps) % self.steps
+        if self.reverse:
+            step = self.steps - 1 - step
+        frame = self._material("sheen", lambda: self._frame(img, step), self.band, self.strength, self.steps, self.diagonal, step)
         yield (frame, x + (w - img.width) // 2, y + (h - img.height) // 2)
 
     def _frame(self, img: Image.Image, step: int) -> Image.Image:
-        travel = img.width + self.band
+        wdt, hgt = img.size
+        span = (wdt + hgt) if self.diagonal else wdt
+        travel = span + self.band
         pos = int(step / self.steps * travel) - self.band
         band = Image.new("L", img.size, 0)
         px = band.load()
-        for bx in range(self.band):
-            col = pos + bx
-            if 0 <= col < img.width:
-                k = 1 - abs((bx + 0.5) / self.band * 2 - 1)      # triangle profile
-                v = int(255 * self.strength * k)
-                for yy in range(img.height):
-                    px[col, yy] = v
+        for yy in range(hgt):
+            for xx in range(wdt):
+                d = (xx + yy if self.diagonal else xx) - pos
+                if 0 <= d < self.band:
+                    k = 1 - abs((d + 0.5) / self.band * 2 - 1)      # triangle profile
+                    px[xx, yy] = int(255 * self.strength * k)
         alpha = img.getchannel("A")
         mask = Image.eval(band, lambda v: v)                    # copy
         mask.paste(0, mask=Image.eval(alpha, lambda a: 255 - a))
@@ -163,18 +179,25 @@ class Blink(AnimatedNode):
 
 @dataclass
 class Slide(AnimatedNode):
-    """Finite entrance: the child slides into its own box from ``direction``."""
+    """Finite box-local wipe: the child slides into (or, with ``out``, out of) its own box.
+
+    Travel is the box size in ``direction`` and the movement is clipped to the box,
+    matching the old client's ByteFX slide. ``out`` plays the reverse (exit) motion.
+    """
 
     child: Node
     duration: float = 0.5
     direction: Direction = "left"
     delay: float = 0.0
     easing: Easing = field(default=ease_out_cubic)
+    out: bool = False
 
     def place(self, x, y, w, h, t=0.0):
         img = self._child_image()
         p = 1.0 if self.duration <= 0 else min(max((t - self.delay) / self.duration, 0.0), 1.0)
         k = 1 - self.easing(p)
+        if self.out:
+            k = 1 - k
         dx = dy = 0
         if self.direction == "left":
             dx = -int(w * k)

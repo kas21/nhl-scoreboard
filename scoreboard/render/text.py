@@ -12,6 +12,10 @@ FONTS = {                       # vector fonts, sized freely (large text only)
     "score": "score_font.ttf",
     "clock": "clock_font.ttf",
     "block": "minecraft_bold.ttf",
+    "camels": "mutant_camels.ttf",
+    "ari": "ari_w9500.ttf",
+    "gothic": "special_gothic.ttf",
+    "upheaval": "upheaval.ttf",
 }
 # Hand-drawn bitmap fonts (public-domain X11 set) keyed by pixel height. These
 # are what make small text legible on an LED matrix; TrueType rasterised at
@@ -19,6 +23,7 @@ FONTS = {                       # vector fonts, sized freely (large text only)
 BITMAP = {
     "pixel": {6: "tom-thumb", 7: "5x7", 8: "5x8", 9: "6x9", 10: "6x10", 12: "6x12", 13: "7x13", 15: "9x15B", 18: "9x18B", 20: "10x20"},
     "pixelbold": {6: "tom-thumb", 7: "5x7", 8: "5x8", 9: "6x9", 10: "6x10", 12: "6x12", 13: "6x13B", 14: "7x13B", 15: "8x13B", 18: "9x18B", 20: "10x20"},
+    "pl": {6: "plfont-6", 12: "plfont-12"},          # the old client's default UI font (4px pitch, 5 tall)
     "narrow": {6: "4x6", 7: "4x6", 8: "5x8", 9: "6x9", 10: "6x10", 12: "6x12", 13: "7x13", 15: "9x15B", 18: "9x18B", 20: "10x20"},
 }
 DEFAULT_FONT = "pixel"

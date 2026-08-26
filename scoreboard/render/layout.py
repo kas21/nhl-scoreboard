@@ -122,9 +122,15 @@ class Spacer(Node):
 @dataclass
 class Img(Node):
     image: Image.Image
+    _key: Hashable = field(init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        # Content hash, not id(): transient images get their ids recycled, which
+        # would let cached material from a different image leak through.
+        self._key = ("img", self.image.size, self.image.mode, hash(self.image.tobytes()))
 
     def cache_key(self):
-        return ("img", id(self.image))
+        return self._key
 
     def measure(self) -> tuple[int, int]:
         return self.image.size
@@ -295,6 +301,30 @@ class Stack(Container):
     def _layout(self, x, y, w, h, t):
         for child in self.children:
             yield from child.place(x, y, w, h, t)
+
+
+@dataclass
+class Absolute(Container):
+    """Children at fixed rects: ``[(node, x, y, w, h), ...]`` — for pixel-exact designs."""
+
+    items: Sequence[tuple[Node, int, int, int, int]]
+
+    @property
+    def children(self):
+        return [i[0] for i in self.items]
+
+    def cache_key(self):
+        ck = self._children_key()
+        return None if ck is None else ("absolute", tuple(i[1:] for i in self.items), ck)
+
+    def measure(self):
+        if not self.items:
+            return (0, 0)
+        return (max(x + w for _, x, y, w, h in self.items), max(y + h for _, x, y, w, h in self.items))
+
+    def _layout(self, x, y, w, h, t):
+        for node, cx, cy, cw, ch in self.items:
+            yield from node.place(x + cx, y + cy, cw, ch, t)
 
 
 @dataclass

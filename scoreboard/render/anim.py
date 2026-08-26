@@ -26,6 +26,72 @@ def linear(t: float) -> float:
     return t
 
 
+def cubic_in(t: float) -> float:
+    return t ** 3
+
+
+def cubic_out(t: float) -> float:
+    return 1 - (1 - t) ** 3
+
+
+def quartic_out(t: float) -> float:
+    return 1 - (1 - t) ** 4
+
+
+def quintic_out(t: float) -> float:
+    return 1 - (1 - t) ** 5
+
+
+def quintic_in_out(t: float) -> float:
+    return 16 * t ** 5 if t < 0.5 else 1 - (-2 * t + 2) ** 5 / 2
+
+
+def exponential_out(t: float) -> float:
+    return 1.0 if t >= 1 else 1 - 2 ** (-10 * t)
+
+
+def exponential_in_out(t: float) -> float:
+    if t <= 0 or t >= 1:
+        return float(t >= 1)
+    return 2 ** (20 * t - 10) / 2 if t < 0.5 else (2 - 2 ** (-20 * t + 10)) / 2
+
+
+def elastic_out(t: float) -> float:
+    if t <= 0 or t >= 1:
+        return float(t >= 1)
+    return 2 ** (-10 * t) * math.sin((t * 10 - 0.75) * (2 * math.pi / 3)) + 1
+
+
+def elastic_in(t: float) -> float:
+    if t <= 0 or t >= 1:
+        return float(t >= 1)
+    return -(2 ** (10 * t - 10)) * math.sin((t * 10 - 10.75) * (2 * math.pi / 3))
+
+
+def back_in(t: float) -> float:
+    c1, c3 = 1.70158, 2.70158
+    return c3 * t ** 3 - c1 * t ** 2
+
+
+def bounce_out(t: float) -> float:
+    n1, d1 = 7.5625, 2.75
+    if t < 1 / d1:
+        return n1 * t * t
+    if t < 2 / d1:
+        t -= 1.5 / d1
+        return n1 * t * t + 0.75
+    if t < 2.5 / d1:
+        t -= 2.25 / d1
+        return n1 * t * t + 0.9375
+    t -= 2.625 / d1
+    return n1 * t * t + 0.984375
+
+
+EASINGS: dict[str, Easing] = {k: v for k, v in globals().items() if k in (
+    "linear", "cubic_in", "cubic_out", "quartic_out", "quintic_out", "quintic_in_out", "exponential_out",
+    "exponential_in_out", "elastic_out", "elastic_in", "back_in", "bounce_out", "ease_out_cubic", "ease_in_out")}
+
+
 def slide_in(frame: Image.Image, frames: int, direction: Direction = "left", easing: Easing = ease_out_cubic) -> list[Image.Image]:
     """Slide ``frame`` into view from off-canvas."""
     w, h = frame.size

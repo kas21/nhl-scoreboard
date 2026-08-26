@@ -73,9 +73,10 @@ def test_other_boards_render_everywhere(world, size):
 
 
 def test_live_board_shows_powerplay_and_empty_net(world):
-    img = GameBoard().render(make_ctx(world, 128, 64, world["live"]), GameConfig())
-    assert has_color(img, (255, 200, 0))     # PP badge
-    assert has_color(img, (230, 40, 40))     # EN badge
+    from scoreboard.nhl.teams import team
+    img = GameBoard().render(make_ctx(world, 128, 64, world["live"], elapsed=3.0), GameConfig())
+    assert has_color(img, team("TOR").primary, tol=10)   # PP chip in TOR colours (home PP)
+    assert has_color(img, team("FLA").primary, tol=10)   # EMPTY NET chip in FLA colours (away pulled)
 
 
 def test_goal_board_favorite_vs_opponent(world):
