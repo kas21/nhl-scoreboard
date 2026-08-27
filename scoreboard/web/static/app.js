@@ -11,6 +11,9 @@ const api = {
 
 function Preview() {
   const [src, setSrc] = useState('/api/preview.png');
+  const [led, setLed] = useState(() => { try { return localStorage.getItem('ledLook') !== '0'; } catch (e) { return true; } });
+  const canvasRef = { current: null };
+  useEffect(() => { try { localStorage.setItem('ledLook', led ? '1' : '0'); } catch (e) {} }, [led]);
   useEffect(() => {
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
     let ws, url;
@@ -23,7 +26,34 @@ function Preview() {
     connect();
     return () => ws && ws.close();
   }, []);
-  return html`<div class="preview"><img src=${src} alt="live preview" /></div>`;
+  // LED look: decode the frame, redraw every pixel as a round LED with a gap and a soft glow.
+  useEffect(() => {
+    if (!led) return;
+    const img = new Image();
+    img.onload = () => {
+      const c = document.getElementById('ledcanvas'); if (!c) return;
+      const w = img.naturalWidth, h = img.naturalHeight;
+      const cell = Math.max(2, Math.min(8, Math.floor(Math.min(640 / w, 320 / h))));
+      c.width = w * cell; c.height = h * cell;
+      const off = document.createElement('canvas'); off.width = w; off.height = h;
+      const octx = off.getContext('2d'); octx.drawImage(img, 0, 0);
+      const data = octx.getImageData(0, 0, w, h).data;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#000'; ctx.fillRect(0, 0, c.width, c.height);
+      const r = cell * 0.42;
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        const i = (y * w + x) * 4, R = data[i], G = data[i + 1], B = data[i + 2];
+        if (R + G + B < 12) { ctx.fillStyle = '#0b0b0b'; ctx.beginPath(); ctx.arc(x * cell + cell / 2, y * cell + cell / 2, r * 0.8, 0, 6.283); ctx.fill(); continue; }
+        ctx.fillStyle = `rgba(${R},${G},${B},0.35)`; ctx.beginPath(); ctx.arc(x * cell + cell / 2, y * cell + cell / 2, r * 1.35, 0, 6.283); ctx.fill();
+        ctx.fillStyle = `rgb(${R},${G},${B})`; ctx.beginPath(); ctx.arc(x * cell + cell / 2, y * cell + cell / 2, r, 0, 6.283); ctx.fill();
+      }
+    };
+    img.src = src;
+  }, [src, led]);
+  return html`<div class="preview">
+    ${led ? html`<canvas id="ledcanvas" style="max-width:100%"></canvas>` : html`<img src=${src} alt="live preview" />`}
+    <label class="ledtoggle"><input type="checkbox" checked=${led} onchange=${e => setLed(e.target.checked)} /> LED look</label>
+  </div>`;
 }
 
 function Dashboard({ config, save }) {
