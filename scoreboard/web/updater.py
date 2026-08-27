@@ -37,7 +37,8 @@ class Updater:
         return shutil.which("git") is not None and (self.root / ".git").exists()
 
     def _git(self, *args: str, timeout: int = 120) -> str:
-        r = subprocess.run(["git", "-C", str(self.root), *args], capture_output=True, text=True, timeout=timeout)
+        # the service may run as root over a checkout owned by the login user: tell git that's fine
+        r = subprocess.run(["git", "-c", f"safe.directory={self.root}", "-C", str(self.root), *args], capture_output=True, text=True, timeout=timeout)
         if r.returncode != 0:
             raise RuntimeError((r.stderr or r.stdout).strip() or f"git {' '.join(args)} failed")
         return r.stdout.strip()

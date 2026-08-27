@@ -40,6 +40,8 @@ else
     ok "cloned"
 fi
 
+git config --system --add safe.directory "$APP_DIR" 2>/dev/null || true   # service runs as root over a user-owned checkout
+
 section "Python environment"
 PY=python3
 [ -x "$APP_DIR/.venv/bin/python" ] || $PY -m venv "$APP_DIR/.venv"
