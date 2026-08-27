@@ -118,6 +118,7 @@ class SportsConfig(FrozenModel):
 class WebConfig(FrozenModel):
     port: int = Field(8080, ge=1, le=65535)
     host: str = "0.0.0.0"
+    preview_fps: int = Field(30, ge=1, le=60, description="Browser preview frame rate (only costs CPU while someone is watching)")
 
 
 CONFIG_VERSION = 1

@@ -19,6 +19,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from ...data import Event, Snapshot
 from ...data.source import SourceContext
+from .logos import LogoFetcher
 
 log = logging.getLogger(__name__)
 
@@ -39,6 +40,7 @@ class FlightsConfig(BaseModel):
     units: Literal["imperial", "metric"] = "imperial"
     include_on_ground: bool = False
     enrich_routes: bool = Field(True, description="Look up airline and route on adsbdb.com (free)")
+    airline_logos: bool = Field(True, description="Download airline logos (cached on disk; falls back to a lettered tile)")
     flightaware_api_key: str = Field("", description="Optional AeroAPI key for routes adsbdb doesn't know ($0.005/lookup)")
     flightaware_daily_budget: int = Field(30, ge=0, le=1000, description="Max paid lookups per day")
     overhead_alert: bool = Field(True, description="Interrupt the rotation when an aircraft passes close overhead")
@@ -92,7 +94,8 @@ def normalize_aircraft(raw: dict[str, Any]) -> dict[str, Any] | None:
         "bearing_compass": compass(raw.get("dir")),
         "on_ground": on_ground,
         "lat": raw["lat"], "lon": raw["lon"],
-        "airline": "", "origin": "", "destination": "", "route": "", "ident": callsign or raw.get("r") or raw.get("hex", "").upper(),
+        "airline": "", "airline_icao": "", "airline_iata": "", "logo": "",
+        "origin": "", "destination": "", "route": "", "ident": callsign or raw.get("r") or raw.get("hex", "").upper(),
     }
 
 
@@ -102,8 +105,11 @@ def parse_adsbdb(payload: dict[str, Any]) -> dict[str, str] | None:
         return None
     origin = (fr.get("origin") or {}).get("iata_code") or (fr.get("origin") or {}).get("icao_code") or ""
     dest = (fr.get("destination") or {}).get("iata_code") or (fr.get("destination") or {}).get("icao_code") or ""
+    airline = fr.get("airline") or {}
     return {
-        "airline": short_airline((fr.get("airline") or {}).get("name")),
+        "airline": short_airline(airline.get("name")),
+        "airline_icao": (airline.get("icao") or "").upper(),
+        "airline_iata": (airline.get("iata") or "").upper(),
         "origin": origin, "destination": dest,
         "route": f"{origin}-{dest}" if origin and dest else "",
         "ident": fr.get("callsign_iata") or fr.get("callsign") or "",
@@ -128,8 +134,9 @@ class FlightsSource:
     key: ClassVar[str] = "flights"
     config_model: ClassVar[type[BaseModel]] = FlightsConfig
 
-    def __init__(self) -> None:
+    def __init__(self, logos: LogoFetcher | None = None) -> None:
         self._cache: dict[str, tuple[float, dict[str, str] | None]] = {}   # callsign -> (expires, enrichment)
+        self._logos = logos or LogoFetcher()
         self._paid_day: date | None = None
         self._paid_count = 0
 
@@ -152,6 +159,8 @@ class FlightsSource:
                 aircraft = aircraft[: cfg.max_aircraft]
                 if cfg.enrich_routes:
                     aircraft = [await self._enrich(ctx.http, a, cfg) for a in aircraft]
+                if cfg.airline_logos:
+                    aircraft = [{**a, "logo": await self._logos.path_for(ctx.http, a, ctx.log)} for a in aircraft]
                 aircraft = [{**a, "metric": cfg.units == "metric"} for a in aircraft]
                 ctx.publish(aircraft, subkey="nearby")
                 ctx.publish([a for a in aircraft if is_overhead(a, cfg)] if cfg.overhead_alert else [], subkey="overhead")
@@ -205,7 +214,10 @@ class FlightsSource:
         f = flights[0]
         origin = (f.get("origin") or {}).get("code_iata") or (f.get("origin") or {}).get("code") or ""
         dest = (f.get("destination") or {}).get("code_iata") or (f.get("destination") or {}).get("code") or ""
-        return {"airline": short_airline(f.get("operator") or ""), "origin": origin, "destination": dest,
+        return {"airline": short_airline(f.get("operator") or ""),
+                "airline_icao": (f.get("operator_icao") or f.get("operator") or "").upper(),
+                "airline_iata": (f.get("operator_iata") or "").upper(),
+                "origin": origin, "destination": dest,
                 "route": f"{origin}-{dest}" if origin and dest else "", "ident": f.get("ident_iata") or cs}
 
 

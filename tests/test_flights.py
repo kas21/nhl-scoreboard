@@ -1,5 +1,7 @@
 import asyncio
+import io
 import json
+import logging
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -7,11 +9,13 @@ from zoneinfo import ZoneInfo
 import httpx
 import pytest
 import respx
+from PIL import Image
 
 from scoreboard.boards.base import BoardContext
 from scoreboard.data import Event, SnapshotStore
 from scoreboard.data.source import SourceContext
 from scoreboard.extras.flights.board import NearbyBoard, NearbyConfig, OverheadBoard, OverheadConfig
+from scoreboard.extras.flights.logos import LogoFetcher, codes_for, safe_code
 from scoreboard.extras.flights.source import (
     FlightsConfig,
     FlightsSource,
@@ -27,8 +31,17 @@ from scoreboard.render.profiles import profile_for
 FIX = Path(__file__).parent / "fixtures" / "flights"
 
 
+LOGO_URL = r"https://raw\.githubusercontent\.com/Jxck-S/airline-logos/.*"
+
+
 def load(name):
     return json.loads((FIX / name).read_text())
+
+
+def png_bytes(color=(200, 30, 30, 255), size=(40, 40)):
+    buf = io.BytesIO()
+    Image.new("RGBA", size, color).save(buf, "PNG")
+    return buf.getvalue()
 
 
 def test_normalize_and_helpers():
@@ -44,6 +57,7 @@ def test_normalize_and_helpers():
 def test_parse_adsbdb_route():
     info = parse_adsbdb(load("adsbdb_callsign.json"))
     assert info["route"] == "YYZ-YVR" and info["airline"] == "Air Canada" and info["ident"] == "AC123"
+    assert info["airline_icao"] == "ACA" and info["airline_iata"] == "AC"
     assert parse_adsbdb({"response": "unknown callsign"}) is None
 
 
@@ -61,15 +75,16 @@ def test_overhead_detection():
 
 
 @pytest.mark.asyncio
-async def test_source_polls_and_enriches():
+async def test_source_polls_and_enriches(tmp_path):
     store = SnapshotStore()
     cfg = FlightsConfig(radius_km=40, max_aircraft=3, poll_seconds=10)
     async with httpx.AsyncClient() as http, respx.mock() as mock:
         mock.get(url__regex=r"https://api\.adsb\.lol/.*").mock(return_value=httpx.Response(200, json=load("adsb_lol_point.json")))
         mock.get(url__regex=r"https://api\.adsbdb\.com/.*").mock(return_value=httpx.Response(200, json=load("adsbdb_callsign.json")))
+        mock.get(url__regex=LOGO_URL).mock(return_value=httpx.Response(200, content=png_bytes()))
         ctx = SourceContext("flights", store, lambda: cfg, http)
         ctx.location = (43.65, -79.38)
-        task = asyncio.create_task(FlightsSource().run(ctx))
+        task = asyncio.create_task(FlightsSource(LogoFetcher(tmp_path)).run(ctx))
         for _ in range(100):
             await asyncio.sleep(0.01)
             if store.get().has("flights.nearby", "flights.overhead"):
@@ -79,6 +94,9 @@ async def test_source_polls_and_enriches():
     assert 1 <= len(nearby) <= 3
     assert nearby == sorted(nearby, key=lambda a: a["distance_km"])
     assert any(a["route"] == "YYZ-YVR" for a in nearby if a["callsign"])
+    logos = [a["logo"] for a in nearby if a["logo"]]
+    assert logos and all(Path(p).is_file() for p in logos)
+    assert (tmp_path / "ACA.png").is_file()               # cached under the ICAO operator code
 
 
 def test_boards_render():
@@ -95,3 +113,59 @@ def test_boards_render():
     assert board.matches(ev, OverheadConfig())
     assert board.render(ctx, OverheadConfig()).getbbox() is not None
     assert board.done(BoardContext(**{**ctx.__dict__, "elapsed": 8.1}), OverheadConfig())
+
+
+def test_logo_code_selection_and_sanitising():
+    assert safe_code(" aca ") == "ACA" and safe_code("A") == "" and safe_code("../etc") == ""
+    ac = {"callsign": "ACA123", "airline_icao": "ACA", "airline_iata": "AC"}
+    assert codes_for(ac) == ("ACA", "AC")                  # de-duped, ICAO first
+    assert codes_for({"callsign": "N172SP"}) == ()         # a registration is not an operator code
+    assert codes_for({"callsign": "DAL45"}) == ("DAL",)    # airline prefix of the callsign
+
+
+@pytest.mark.asyncio
+async def test_logo_fetch_falls_back_caches_and_gives_up(tmp_path):
+    ac = {"callsign": "ACA123", "airline_icao": "ACA", "airline_iata": "AC"}
+    fetcher = LogoFetcher(tmp_path, tmp_path / "bundled")
+    async with httpx.AsyncClient() as http, respx.mock() as mock:
+        radarbox = mock.get(url__regex=r".*/radarbox_logos/ACA\.png").mock(return_value=httpx.Response(404))
+        flightaware = mock.get(url__regex=r".*/flightaware_logos/ACA\.png").mock(return_value=httpx.Response(200, content=png_bytes()))
+        path = await fetcher.path_for(http, ac, logging.getLogger("test"))
+        assert path == str(tmp_path / "ACA.png") and Path(path).is_file()
+        assert radarbox.call_count == 1 and flightaware.call_count == 1
+        assert await fetcher.path_for(http, ac, logging.getLogger("test")) == path
+        assert flightaware.call_count == 1                 # second call served from disk
+
+    other = {"callsign": "XXX123"}
+    async with httpx.AsyncClient() as http, respx.mock() as mock:
+        missing = mock.get(url__regex=LOGO_URL).mock(return_value=httpx.Response(404))
+        assert await fetcher.path_for(http, other, logging.getLogger("test")) == ""
+        assert await fetcher.path_for(http, other, logging.getLogger("test")) == ""
+        assert missing.call_count == 2                     # both sets tried once, then remembered as a miss
+
+
+@pytest.mark.asyncio
+async def test_logo_fetch_rejects_junk_payloads(tmp_path):
+    fetcher = LogoFetcher(tmp_path, tmp_path / "bundled")
+    async with httpx.AsyncClient() as http, respx.mock() as mock:
+        mock.get(url__regex=LOGO_URL).mock(return_value=httpx.Response(200, content=b"<html>not a png</html>"))
+        assert await fetcher.path_for(http, {"airline_icao": "ACA"}, logging.getLogger("test")) == ""
+    assert not (tmp_path / "ACA.png").exists()
+
+
+def test_board_uses_downloaded_logo(tmp_path):
+    logo = tmp_path / "ACA.png"
+    logo.write_bytes(png_bytes(color=(0, 255, 0, 255)))
+    ac = {**normalize_aircraft(load("adsb_lol_point.json")["ac"][0]), **parse_adsbdb(load("adsbdb_callsign.json"))}
+    with_logo = {**ac, "logo": str(logo)}
+    snap = SnapshotStore().publish("flights.nearby", [with_logo])
+    now = datetime(2026, 8, 26, 12, tzinfo=ZoneInfo("America/Toronto"))
+    ctx = BoardContext(snapshot=snap, profile=profile_for(128, 64), width=128, height=64, fps=30, now=now, elapsed=2.0)
+    img = NearbyBoard().render(ctx, NearbyConfig()).convert("RGB")
+    green = next((n for n, color in img.getcolors(1 << 16) if color == (0, 255, 0)), 0)
+    assert green >= 30 * 30                                # a ~40px logo block, not a 16px thumbnail
+
+    missing = {**ac, "logo": str(tmp_path / "nope.png")}
+    snap = SnapshotStore().publish("flights.nearby", [missing])
+    ctx = BoardContext(snapshot=snap, profile=profile_for(128, 64), width=128, height=64, fps=30, now=now, elapsed=2.0)
+    assert NearbyBoard().render(ctx, NearbyConfig()).getbbox() is not None   # falls back to the monogram

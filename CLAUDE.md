@@ -43,7 +43,7 @@ scoreboard/
   web/              FastAPI API + Preact/HTM UI (no build step): dashboard, boards/playlists, settings, wizard, diagnostics
   nhl/              api-web.nhle.com client, normaliser, source, season phase, event detectors, boards (ported old designs)
   nfl/              ESPN site API, normaliser, source, detectors; boards subclass the NHL ones
-  extras/           holidays, flights (adsb.lol + adsbdb), weather (Open-Meteo) — same plugin contract
+  extras/           holidays, flights (adsb.lol + adsbdb + airline logos), weather (Open-Meteo) — same plugin contract
   assets/           logos (svg + pre-rasterised png), fonts under render/fonts, holiday images, penalty gif
 tests/              pytest; fixtures/ are real API captures (NHL 2026-04-11 game day, ESPN, adsb.lol, Open-Meteo)
 tools/ scripts/     build steps; Pi install.sh + pi_tuning.sh

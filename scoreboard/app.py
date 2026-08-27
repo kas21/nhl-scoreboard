@@ -43,7 +43,8 @@ class Application:
         for detector in self.registry.detectors:
             self.events.register(detector)
         self.director = Director(self.config, self.snapshots, self.registry, self.events)
-        self.preview = PreviewHub()
+        self.preview = PreviewHub(self.config.get().web.preview_fps)
+        self.config.subscribe(lambda c: self.preview.set_fps(c.web.preview_fps))
         self.output = create_output(self.config.get().display, output_mode, self.director.brightness())
         self._stop = threading.Event()
         self.exit_code = 0

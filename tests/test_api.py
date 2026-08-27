@@ -105,3 +105,19 @@ def test_config_api_returns_effective_plugin_defaults(tmp_path):
     c.patch("/api/config", json={"boards": {"clock": {"format": "24h"}}})
     assert c.get("/api/config").json()["boards"]["clock"] == {**cfg["boards"]["clock"], "format": "24h"}
     assert config.get().boards["clock"] == {"format": "24h"}
+
+
+def test_preview_hub_encodes_off_thread_and_drops_when_idle():
+    import time
+
+    from PIL import Image
+
+    from scoreboard.output import PreviewHub
+    hub = PreviewHub(fps=30)
+    frame = Image.new("RGB", (16, 8), (255, 0, 0))
+    t0 = time.perf_counter()
+    for _ in range(100):
+        hub.submit(frame)
+    assert (time.perf_counter() - t0) < 0.05          # render-thread cost is a copy, not an encode
+    time.sleep(0.05)
+    assert hub.latest() is not None and hub.latest()[:4] == b"\x89PNG"

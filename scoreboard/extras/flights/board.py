@@ -2,6 +2,7 @@
 'overhead' is an event board that interrupts when one passes close overhead."""
 from __future__ import annotations
 
+from functools import lru_cache
 from typing import Any
 
 from PIL import Image, ImageDraw
@@ -11,6 +12,7 @@ from ...boards.base import BaseBoard, BoardContext, EventBoard, SequenceMixin
 from ...data import Event
 from ...render import Absolute, Img, Sequence, Slide, Text, load_font, render_tree
 from ...render.anim import quintic_out
+from ...render.fx import fit_logo
 from ...render.text import text_size
 
 TEXT = (255, 255, 255)
@@ -20,6 +22,9 @@ UNKNOWN = (110, 120, 135)
 TILE_AIRLINE = (25, 60, 140)
 TILE_PRIVATE = (52, 58, 70)
 ALERT = (255, 160, 40)
+
+LOGO_MAX, LOGO_MIN = 40, 16      # the old Flight-Wall card's logo block
+LINE_H, MARGIN, GAP, BLOCK_GAP = 6, 2, 3, 4
 
 
 class NearbyConfig(BaseModel):
@@ -48,65 +53,132 @@ def _fmt_speed(ac: dict[str, Any], metric: bool) -> str:
     return "" if v is None else f"{v}{'kmh' if metric else 'mph'}"
 
 
+def _fmt_vs(ac: dict[str, Any], metric: bool) -> str:
+    v = ac.get("vertical_rate_fpm")
+    if not v:                       # missing or level flight: nothing worth a slot
+        return ""
+    return f"{v * 0.00508:+.1f}m/s" if metric else f"{v:+d}fpm"
+
+
 def _fmt_dist(ac: dict[str, Any], metric: bool) -> str:
     v = ac.get("distance_km" if metric else "distance_mi")
     return "" if v is None else f"{v:g}{'km' if metric else 'mi'} {ac.get('bearing_compass', '')}".strip()
 
 
 def _monogram_tile(ac: dict[str, Any], side: int) -> Image.Image:
-    """Airline-style square: 2-3 letter code on a coloured tile (we ship no airline logos)."""
-    code = (ac.get("ident") or ac.get("callsign") or "??")[:3]
+    """Fallback when no logo resolved: 2-3 letter operator code on a coloured tile."""
+    code = (ac.get("airline_iata") or ac.get("airline_icao") or ac.get("callsign") or ac.get("ident") or "??")[:3]
     airline = bool(ac.get("airline"))
-    tile = Image.new("RGBA", (side, side), (*(TILE_AIRLINE if airline else TILE_PRIVATE), 255))
+    tile = Image.new("RGBA", (side, side), (0, 0, 0, 0))
     d = ImageDraw.Draw(tile)
+    d.rounded_rectangle((0, 0, side - 1, side - 1), radius=3, fill=(*(TILE_AIRLINE if airline else TILE_PRIVATE), 255))
     font = load_font("block", max(6, side // 3))
     w, h = text_size(code, font)
+    if w > side - 2:
+        font = load_font("pl", 6)
+        w, h = text_size(code, font)
     d.text(((side - w) // 2, (side - h) // 2), code, font=font, fill=TEXT)
-    d.rectangle((0, 0, side - 1, side - 1), outline=(255, 255, 255, 60))
     return tile
 
 
+@lru_cache(maxsize=64)
+def _load_logo(path: str, side: int) -> Image.Image | None:
+    """Airline PNG the source downloaded, aspect-fitted to a square. None if unreadable."""
+    try:
+        with Image.open(path) as src:
+            return fit_logo(src.convert("RGBA"), side, side)
+    except (OSError, ValueError):
+        return None
+
+
+def _logo_tile(ac: dict[str, Any], side: int) -> Image.Image:
+    """The airline's logo when the source fetched one, else a monogram tile."""
+    logo = _load_logo(ac["logo"], side) if ac.get("logo") else None
+    return logo if logo is not None else _monogram_tile(ac, side)
+
+
+def _clip(text: str, font: Any, max_width: int) -> str:
+    """Longest prefix that fits; bitmap fonts have no room to spare for an ellipsis."""
+    while text and text_size(text, font)[0] > max_width:
+        text = text[:-1]
+    return text
+
+
+def _telemetry_rows(ac: dict[str, Any], metric: bool, font: Any, width: int) -> list[list[tuple[str, str, int, int]]]:
+    """Label/value pairs flowed into rows that fit ``width`` (Alt/Spd, then Hdg/VS as the old client did)."""
+    rows: list[list[tuple[str, str, int, int]]] = []
+    row: list[tuple[str, str, int, int]] = []
+    x = MARGIN
+    for label, value in (("Alt", _fmt_alt(ac, metric)), ("Spd", _fmt_speed(ac, metric)),
+                         ("Hdg", f"{ac['heading']:03d}" if ac.get("heading") is not None else ""),
+                         ("VS", _fmt_vs(ac, metric))):
+        if not value:
+            continue
+        lw, vw = text_size(f"{label}:", font)[0], text_size(value, font)[0]
+        if row and x + lw + 2 + vw > width - MARGIN:
+            rows.append(row)
+            row, x = [], MARGIN
+        row.append((label, value, lw, vw))
+        x += lw + 2 + vw + 6
+    if row:
+        rows.append(row)
+    return rows
+
+
+def _info_rows(ac: dict[str, Any]) -> list[tuple[str, tuple[int, int, int]]]:
+    route = ac.get("route")
+    rows = [
+        (ac.get("airline") or ac.get("ident") or "?", TEXT),
+        (route or ("Route unknown" if ac.get("callsign") else ac.get("registration") or ""), TEXT if route else UNKNOWN),
+        (ac.get("type_name") or ac.get("type") or ac.get("registration") or "", TEXT),
+    ]
+    return [(txt, color) for txt, color in rows if txt]
+
+
 def card(ac: dict[str, Any], width: int, height: int, metric: bool, header: str | None = None) -> list:
-    """Flight-Wall layout as Absolute items: tile left, ident/route/type beside, telemetry rows under."""
+    """Flight-Wall layout as Absolute items: logo left, airline/route/type beside, telemetry under."""
     f6 = load_font("pl", 6)
-    margin, gap = 2, 2
-    y0 = 0
     items = []
+    y0 = 0
     if header:
         items.append((Img(_bar(header, width)), 0, 0, width, 7))
         y0 = 8
     avail_h = height - y0
-    side = max(16, min(28, avail_h - 14))
-    items.append((Slide(Img(_monogram_tile(ac, side)), 0.4, "left", easing=quintic_out), margin, y0 + 1, side, side))
-    tx = margin + side + 4
-    tw = width - tx - margin
-    line1 = ac.get("airline") or ac.get("ident") or "?"
-    line2 = ac.get("route") or ("Route unknown" if ac.get("callsign") else ac.get("registration") or "")
-    line3 = ac.get("type_name") or ac.get("type") or ac.get("registration") or ""
-    rows = [(line1, TEXT), (line2, TEXT if ac.get("route") else UNKNOWN), (line3, TEXT)]
-    y = y0 + 1
-    for i, (txt, color) in enumerate(rows):
-        if txt:
-            items.append((Slide(Text(txt[:22], f6, color), 0.3, "up", delay=0.05 * i, easing=quintic_out, h_align="start"), tx, y, tw, 6))
-        y += 6 + gap
+
+    rows = _info_rows(ac)
+    top_h = len(rows) * LINE_H + GAP * (len(rows) - 1)
+    tele = _telemetry_rows(ac, metric, f6, width)
+    tele = tele[: max(1, (avail_h - LOGO_MIN - BLOCK_GAP) // (LINE_H + GAP))]
+    tele_h = len(tele) * LINE_H + GAP * (len(tele) - 1)
+    # Logo block, square, as large as the space beside the text and above the telemetry allows
+    side = max(LOGO_MIN, min(LOGO_MAX, avail_h - tele_h - BLOCK_GAP - 2, width // 3))
+    top_block_h = max(side, top_h)
+    y = y0 + max(0, (avail_h - top_block_h - BLOCK_GAP - tele_h) // 2)
+    items.append((Slide(Img(_logo_tile(ac, side)), 0.4, "left", easing=quintic_out),
+                  MARGIN, y + (top_block_h - side) // 2, side, side))
+
+    tx = MARGIN + side + 4
+    tw = width - tx - MARGIN
     dist = _fmt_dist(ac, metric)
-    if dist:
-        dw = text_size(dist, f6)[0]
-        items.append((Text(dist, f6, DIST), width - margin - dw, y0 + 1 + 2 * (6 + gap), dw, 6))
-    ty = y0 + side + 3
-    tele = [("Alt", _fmt_alt(ac, metric)), ("Spd", _fmt_speed(ac, metric)),
-            ("Hdg", f"{ac['heading']:03d}" if ac.get("heading") is not None else "")]
-    x = margin
-    for label, value in tele:
-        if not value or ty + 6 > height:
-            continue
-        lw, vw = text_size(f"{label}:", f6)[0], text_size(value, f6)[0]
-        if x + lw + 2 + vw > width - margin:
-            break
-        items.append((Text(f"{label}:", f6, LABEL), x, ty, lw, 6))
-        x += lw + 2
-        items.append((Text(value, f6, TEXT), x, ty, vw, 6))
-        x += vw + 6
+    dw = text_size(dist, f6)[0] if dist else 0
+    ty = y + max(0, (top_block_h - top_h) // 2)
+    for i, (txt, color) in enumerate(rows):
+        last = i == len(rows) - 1
+        room = tw - dw - 4 if (dist and last) else tw     # the type line shares its row with the distance
+        items.append((Slide(Text(_clip(txt, f6, room), f6, color), 0.3, "up", delay=0.05 * i,
+                            easing=quintic_out, h_align="start"), tx, ty, room, LINE_H))
+        if dist and last:
+            items.append((Text(dist, f6, DIST), width - MARGIN - dw, ty, dw, LINE_H))
+        ty += LINE_H + GAP
+
+    ty = y + top_block_h + BLOCK_GAP
+    for row in tele:
+        x = MARGIN
+        for label, value, lw, vw in row:
+            items.append((Text(f"{label}:", f6, LABEL), x, ty, lw, LINE_H))
+            items.append((Text(value, f6, TEXT), x + lw + 2, ty, vw, LINE_H))
+            x += lw + 2 + vw + 6
+        ty += LINE_H + GAP
     return items
 
 

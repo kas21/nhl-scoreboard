@@ -43,7 +43,8 @@ Event bursts collapse to the latest event per (kind, team).
 | NHL `api-web.nhle.com/v1` | `score/now` (redirects to a dated URL — follow redirects), `gamecenter/{id}/landing` (situation, penalties, goals), `standings/now`, `club-schedule-season/{TEAM}/now`, `schedule/now` (season dates) | 5 s live / 60 s idle; standings+season hourly |
 | ESPN `site.api.espn.com` | `…/football/nfl/scoreboard` (current week; `?dates=YYYYMMDD`), `apis/v2/…/nfl/standings`, `…/teams`, `…/teams/{id}/schedule` | 20 s live-day / 300 s; hourly |
 | adsb.lol | `v2/lat/{lat}/lon/{lon}/dist/{nm}` | 30 s (airplanes.live now requires approval — not used) |
-| adsbdb | `v0/callsign/{cs}` (route/airline) | cached 6 h / 1 h negative |
+| adsbdb | `v0/callsign/{cs}` (route/airline, incl. ICAO/IATA operator codes) | cached 6 h / 1 h negative |
+| Jxck-S/airline-logos (raw.githubusercontent.com) | `radarbox_logos/{CODE}.png`, then `flightaware_logos/{CODE}.png` | once per operator code; cached in `~/.scoreboard/cache/airline-logos` (misses re-tried weekly) |
 | FlightAware AeroAPI | `flights/{ident}` — optional, paid, daily budget | only when a key is set |
 | Open-Meteo | `v1/forecast` (+ geocoding for the wizard) | 10 min |
 | `holidays` package | offline | hourly recompute |
