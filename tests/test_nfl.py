@@ -3,6 +3,10 @@ from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+import httpx
+import pytest
+import respx
+
 from scoreboard.boards.base import BoardContext
 from scoreboard.data import Event, SnapshotStore
 from scoreboard.data.arbiter import MainEventArbiter, choose
@@ -108,3 +112,21 @@ def test_nfl_boards_render():
     assert sb.render(ctx(1.0, ev), ScoreConfig()).getbbox() is not None
     fg = Event("nfl.field_goal", team=live["away"]["abbrev"], payload={"side": "away", "game": live, "score": "7-3", "points": 3})
     assert NflScoreBoard().render(ctx(1.0, fg), ScoreConfig()).getbbox() is not None
+
+
+@pytest.mark.asyncio
+async def test_espn_requests_use_a_user_agent_espn_accepts():
+    """site.api.espn.com 403s custom user agents; the app-wide one must not leak into these calls."""
+    from scoreboard import espn
+    from scoreboard.nfl.api import NflApi
+
+    seen = {}
+
+    def capture(request):
+        seen["ua"] = request.headers.get("user-agent", "")
+        return httpx.Response(200, json={"events": []})
+
+    async with httpx.AsyncClient(headers={"User-Agent": "nhl-scoreboard"}) as http, respx.mock() as mock:
+        mock.get(url__regex=r"https://site\.api\.espn\.com/.*").mock(side_effect=capture)
+        await NflApi(http).scoreboard()
+    assert seen["ua"] == espn.API_UA and "nhl-scoreboard" not in seen["ua"]

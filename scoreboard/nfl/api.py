@@ -7,6 +7,8 @@ from typing import Any
 
 import httpx
 
+from ..espn import HEADERS as ESPN_HEADERS
+
 log = logging.getLogger(__name__)
 SITE = "https://site.api.espn.com/apis/site/v2/sports/football/nfl"
 STANDINGS = "https://site.api.espn.com/apis/v2/sports/football/nfl/standings"
@@ -37,7 +39,7 @@ class NflApi:
         last: Exception | None = None
         for delay in (*RETRY_DELAYS, None):
             try:
-                resp = await self._http.get(url, params=params, follow_redirects=True)
+                resp = await self._http.get(url, params=params, follow_redirects=True, headers=ESPN_HEADERS)
                 if resp.status_code == 429:
                     await asyncio.sleep(float(resp.headers.get("Retry-After", delay or 30)))
                     continue
