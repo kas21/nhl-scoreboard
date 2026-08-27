@@ -201,6 +201,16 @@ function Diagnostics() {
   return html`<div class="card"><h2>Logs</h2><pre>${lines.join('\n')}</pre></div>`;
 }
 
+function UpdateBadge() {
+  const [st, setSt] = useState(null);
+  useEffect(() => { const t = () => api.get('/api/system/update').then(setSt).catch(() => {}); t(); const id = setInterval(t, 60000); return () => clearInterval(id); }, []);
+  if (!st) return null;
+  if (st.updating) return html`<a href="#dashboard" class="badge busy" title="Updating…">Updating…</a>`;
+  if (st.available) return html`<a href="#dashboard" class="badge" title=${st.latest_message || ''}>Update available</a>`;
+  if (st.error && st.is_checkout) return html`<a href="#dashboard" class="badge warn" title=${st.error}>Update check failed</a>`;
+  return null;
+}
+
 function App() {
   const [page, setPage] = useState(location.hash.slice(1) || 'dashboard');
   const [config, setConfig] = useState(null);
@@ -218,7 +228,7 @@ function App() {
   const pages = { dashboard: 'Dashboard', playlists: 'Boards', settings: 'Settings', diagnostics: 'Diagnostics', setup: 'Setup' };
   const showWizard = config && (!config.setup_complete || page === 'setup');
   return html`
-    <header><h1>Scoreboard</h1><nav>${Object.entries(pages).map(([k, v]) => html`<a href=${'#' + k} class=${page === k ? 'active' : ''}>${v}</a>`)}</nav></header>
+    <header><h1>Scoreboard</h1><${UpdateBadge} /><nav>${Object.entries(pages).map(([k, v]) => html`<a href=${'#' + k} class=${page === k ? 'active' : ''}>${v}</a>`)}</nav></header>
     <main>
       ${error && html`<div class="card error">${error}</div>`}
       ${!config ? html`<p class="muted">Loading…</p>`

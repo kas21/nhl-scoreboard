@@ -29,6 +29,10 @@ pre { background:#000; padding:12px; border-radius:8px; overflow:auto; max-heigh
 .playlist li { display:flex; gap:10px; align-items:center; padding:6px 0; list-style:none; }
 .playlist ul { padding:0; margin:0; }
 .muted { color:var(--muted); }
+.badge { background:var(--accent); color:#fff; border-radius:12px; padding:3px 10px; font-size:12px; text-decoration:none; animation:pulse 2s infinite; }
+.badge.busy { background:#2a3340; animation:none; }
+.badge.warn { background:#7a4a10; animation:none; }
+@keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:.55 } }
 .tags { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
 .tag { background:#2a3340; border-radius:14px; padding:3px 10px; font-size:13px; }
 .tag a { cursor:pointer; color:var(--muted); margin-left:4px; }
