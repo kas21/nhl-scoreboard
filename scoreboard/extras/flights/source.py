@@ -17,6 +17,7 @@ from typing import Any, ClassVar, Literal
 import httpx
 from pydantic import BaseModel, ConfigDict, Field
 
+from ...config.models import ADVANCED
 from ...data import Event, Snapshot
 from ...data.source import SourceContext
 from .logos import LogoFetcher
@@ -36,7 +37,7 @@ class FlightsConfig(BaseModel):
     enabled: bool = Field(True, description="Poll for aircraft (needs a location: set it in the wizard or Settings)")
     radius_km: int = Field(40, ge=5, le=250, description="Show aircraft within this distance")
     max_aircraft: int = Field(8, ge=1, le=20)
-    poll_seconds: int = Field(30, ge=10, le=600)
+    poll_seconds: int = Field(30, ge=10, le=600, json_schema_extra=ADVANCED)
     units: Literal["imperial", "metric"] = "imperial"
     include_on_ground: bool = False
     enrich_routes: bool = Field(True, description="Look up airline and route on adsbdb.com (free)")

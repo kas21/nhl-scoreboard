@@ -41,6 +41,17 @@ def test_schema_includes_board_models(tmp_path):
     assert "format" in schema["properties"]["boards"]["properties"]["clock"]["properties"]
 
 
+def test_schema_marks_expert_fields_advanced(tmp_path):
+    """The web UI hides `advanced` fields behind a toggle, so the hint must survive export."""
+    c, _ = client(tmp_path)
+    schema = c.get("/api/schema").json()
+    display = schema["$defs"]["DisplayConfig"]["properties"]
+    assert display["pwm_lsb_nanoseconds"]["advanced"] is True
+    assert "advanced" not in display["width"]                       # everyday fields stay visible
+    assert schema["$defs"]["WebConfig"]["properties"]["host"]["advanced"] is True
+    assert "advanced" not in schema["$defs"]["WebConfig"]["properties"]["port"]
+
+
 def test_boards_and_index(tmp_path):
     c, _ = client(tmp_path)
     keys = {b["key"] for b in c.get("/api/boards").json()}

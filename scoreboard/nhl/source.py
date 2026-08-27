@@ -16,6 +16,7 @@ from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from ..config.models import ADVANCED
 from ..data.source import SourceContext
 from ..logos import watch as watch_logos
 from .api import NhlApi, NhlApiError
@@ -40,9 +41,9 @@ TeamAbbrev = Literal[NHL_TEAMS]  # type: ignore[valid-type]
 class NhlConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid", title="NHL")
     favorites: list[TeamAbbrev] = Field(["TOR"], description="Favourite teams, highest priority first", json_schema_extra={"x-widget": "team-picker"})
-    live_interval: float = Field(5.0, ge=2, le=60, description="Seconds between polls while a favourite is playing")
-    idle_interval: float = Field(60.0, ge=15, le=600, description="Seconds between polls otherwise")
-    standings_interval: float = Field(3600.0, ge=300, description="Seconds between standings refreshes")
+    live_interval: float = Field(5.0, ge=2, le=60, description="Seconds between polls while a favourite is playing", json_schema_extra=ADVANCED)
+    idle_interval: float = Field(60.0, ge=15, le=600, description="Seconds between polls otherwise", json_schema_extra=ADVANCED)
+    standings_interval: float = Field(3600.0, ge=300, description="Seconds between standings refreshes", json_schema_extra=ADVANCED)
     delay_seconds: float = Field(0.0, ge=0, le=120, description="Delay live updates to match your TV broadcast")
     show_games_within_days: int = Field(2, ge=0, le=30, description="Only show the league slate (ticker) when it is this close; further-out games stay off the panel")
     follow_preseason: bool = Field(True, description="Treat your team's preseason games like any other game")

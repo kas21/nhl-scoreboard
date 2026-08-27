@@ -11,6 +11,7 @@ from typing import Any, ClassVar, Literal
 import httpx
 from pydantic import BaseModel, ConfigDict, Field
 
+from ...config.models import ADVANCED
 from ...data.source import SourceContext
 
 log = logging.getLogger(__name__)
@@ -41,7 +42,7 @@ class WeatherConfig(BaseModel):
     enabled: bool = True
     units: Literal["metric", "imperial"] = "imperial"
     label: str = Field("", max_length=16, description="Name shown on the board (e.g. your town); blank = 'WEATHER'")
-    refresh_seconds: int = Field(600, ge=120, le=3600)
+    refresh_seconds: int = Field(600, ge=120, le=3600, json_schema_extra=ADVANCED)
     forecast_days: int = Field(3, ge=1, le=5)
 
 

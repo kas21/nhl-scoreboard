@@ -1,6 +1,7 @@
 import { h, render, useState, useEffect } from './htm-preact.js';
 import { html } from './htm-preact.js';
 import { Wizard } from './wizard.js';
+import { Settings } from './settings.js';
 
 const api = {
   get: (p) => fetch(p).then(r => r.json()),
@@ -99,97 +100,6 @@ function Dashboard({ config, save }) {
     </div>`;
 }
 
-// ---- schema-driven forms ---------------------------------------------------
-
-function resolve(schema, root) {
-  if (schema && schema.$ref) return resolve(root.$defs[schema.$ref.split('/').pop()], root);
-  if (schema && schema.anyOf) { const s = schema.anyOf.find(x => x.type !== 'null'); return { ...resolve(s, root), nullable: true, title: schema.title, description: schema.description }; }
-  return schema;
-}
-
-function Field({ name, schema, value, onChange, root }) {
-  const s = resolve(schema, root);
-  const label = s.title || name;
-  const common = { id: name };
-  if (value === undefined && s.default !== undefined) value = s.default;
-  let input;
-  if (s.enum) {
-    input = html`<select ...${common} value=${value} onchange=${e => onChange(e.target.value)}>${s.enum.map(v => html`<option value=${v}>${v}</option>`)}</select>`;
-  } else if (s.type === 'boolean') {
-    input = html`<input type="checkbox" ...${common} checked=${!!value} onchange=${e => onChange(e.target.checked)} />`;
-  } else if (s.type === 'integer' || s.type === 'number') {
-    input = html`<input type="number" ...${common} value=${value ?? ''} min=${s.minimum} max=${s.maximum} step=${s.type === 'integer' ? 1 : 'any'}
-      onchange=${e => onChange(e.target.value === '' ? null : +e.target.value)} />`;
-  } else if (s.type === 'array' && s.items && resolve(s.items, root).enum) {
-    const opts = resolve(s.items, root).enum; const sel = value || [];
-    input = html`<div class="tags">
-      ${sel.map((v, i) => html`<span class="tag">${v} <a onclick=${() => onChange(sel.filter((_, j) => j !== i))}>✕</a></span>`)}
-      <select onchange=${e => { if (e.target.value) onChange([...sel, e.target.value]); e.target.value = ''; }}>
-        <option value="">+ add</option>${opts.filter(o => !sel.includes(o)).map(o => html`<option value=${o}>${o}</option>`)}
-      </select></div>`;
-  } else if (s.type === 'array' && s.items && resolve(s.items, root).type === 'string') {
-    input = html`<input type="text" ...${common} value=${(value || []).join(', ')} placeholder="comma separated"
-      onchange=${e => onChange(e.target.value.split(',').map(x => x.trim()).filter(Boolean))} />`;
-  } else if (s.type === 'array' && Array.isArray(value) && value.length === 3 && value.every(Number.isInteger)) {
-    const hex = '#' + value.map(v => v.toString(16).padStart(2, '0')).join('');
-    input = html`<input type="color" ...${common} value=${hex} onchange=${e => onChange([1, 3, 5].map(i => parseInt(e.target.value.substr(i, 2), 16)))} />`;
-  } else if (s.type === 'object' && s.additionalProperties && resolve(s.additionalProperties, root).enum) {
-    // map of key -> enum (e.g. per-team logo overrides): rows of free-text key + picker
-    const opts = resolve(s.additionalProperties, root).enum;
-    const map = value || {};
-    const entries = Object.entries(map);
-    const rename = (from, to) => onChange(Object.fromEntries(entries.map(([k, v]) => [k === from ? to : k, v])));
-    input = html`<div class="map">
-      ${entries.map(([k, v]) => html`<div class="map-row">
-        <input type="text" value=${k} onchange=${e => e.target.value.trim() && rename(k, e.target.value.trim())} />
-        <select value=${v} onchange=${e => onChange({ ...map, [k]: e.target.value })}>
-          ${opts.map(o => html`<option value=${o}>${o}</option>`)}
-        </select>
-        <a class="rm" onclick=${() => { const n = { ...map }; delete n[k]; onChange(n); }}>✕</a>
-      </div>`)}
-      <div class="map-row">
-        <input type="text" placeholder="+ add key, e.g. nhl:WSH"
-          onchange=${e => { const k = e.target.value.trim(); if (k && !(k in map)) { onChange({ ...map, [k]: opts[0] }); e.target.value = ''; } }} />
-      </div>
-    </div>`;
-  } else if (s.type === 'string') {
-    input = html`<input type="text" ...${common} value=${value ?? ''} onchange=${e => onChange(e.target.value)} />`;
-  } else {
-    return null;
-  }
-  return html`<div class="field"><label for=${name}>${label}</label>${input}${s.description && html`<small>${s.description}</small>`}</div>`;
-}
-
-function Section({ title, schema, value, onSave, root }) {
-  const s = resolve(schema, root);
-  if (!s || !s.properties) return null;
-  return html`<details class="card" open>
-    <summary>${title}</summary>
-    ${Object.entries(s.properties).map(([k, sub]) => html`<${Field} key=${k} name=${k} schema=${sub} root=${root} value=${value?.[k]} onChange=${v => onSave({ [k]: v })} />`)}
-  </details>`;
-}
-
-const HIDDEN = new Set(['boards', 'sources', 'playlists', 'setup_complete']);
-
-function Settings({ config, schema, save }) {
-  if (!schema) return html`<p class="muted">Loading…</p>`;
-  return html`
-    ${Object.entries(schema.properties).filter(([k]) => !HIDDEN.has(k)).map(([k, sub]) => {
-      const r = resolve(sub, schema);
-      if (!r.properties) return html`<div class="card"><${Field} name=${k} schema=${sub} root=${schema} value=${config[k]} onChange=${v => save({ [k]: v })} /></div>`;
-      return html`<${Section} key=${k} title=${r.title || k} schema=${sub} root=${schema} value=${config[k]} onSave=${p => save({ [k]: p })} />`;
-    })}
-    <h2>Boards</h2>
-    ${Object.entries(schema.properties.boards.properties).map(([k, sub]) => html`
-      <${Section} key=${k} title=${sub.title || k} schema=${sub} root=${sub} value=${config.boards[k] || {}} onSave=${p => save({ boards: { [k]: p } })} />`)}
-    <h2>Data sources</h2>
-    ${Object.entries(schema.properties.sources.properties).map(([k, sub]) => html`
-      <${Section} key=${k} title=${sub.title || k} schema=${sub} root=${sub} value=${config.sources[k] || {}} onSave=${p => save({ sources: { [k]: p } })} />`)}
-    <div class="card row">
-      <button class="danger" onclick=${() => confirm('Reset all settings to defaults?') && api.post('/api/config/reset').then(() => location.reload())}>Reset to defaults</button>
-    </div>`;
-}
-
 function Playlists({ config, boards, save }) {
   const states = Object.keys(config.playlists);
   const update = (state, list) => save({ playlists: { [state]: list } });
@@ -252,7 +162,7 @@ function App() {
       ${error && html`<div class="card error">${error}</div>`}
       ${!config ? html`<p class="muted">Loading…</p>`
         : showWizard ? html`<${Wizard} config=${config} save=${save} Preview=${Preview} onDone=${() => { location.hash = '#dashboard'; }} />`
-        : page === 'settings' ? html`<${Settings} config=${config} schema=${schema} save=${save} />`
+        : page === 'settings' ? html`<${Settings} config=${config} schema=${schema} boards=${boards} save=${save} />`
         : page === 'playlists' ? html`<${Playlists} config=${config} boards=${boards} save=${save} />`
         : page === 'diagnostics' ? html`<${Diagnostics} />`
         : html`<${Dashboard} config=${config} save=${save} />`}

@@ -11,6 +11,7 @@ from zoneinfo import ZoneInfo
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from ...config.models import ADVANCED
 from ...data.source import SourceContext
 
 log = logging.getLogger(__name__)
@@ -31,7 +32,7 @@ class HolidaysConfig(BaseModel):
     horizon_days: int = Field(90, ge=1, le=365, description="How far ahead to look")
     custom: list[CustomHoliday] = Field([], description="Your own dates (birthdays, puck drop, ...)")
     disabled: list[str] = Field([], description="Holiday names to hide")
-    refresh_seconds: int = Field(3600, ge=300, le=86400)
+    refresh_seconds: int = Field(3600, ge=300, le=86400, json_schema_extra=ADVANCED)
 
 
 def slug(name: str) -> str:

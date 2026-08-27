@@ -16,6 +16,14 @@ GpioMapping = Literal["regular", "adafruit-hat", "adafruit-hat-pwm", "regular-pi
 LogoVariant = Literal[tuple(LOGO_VARIANTS)]  # type: ignore[valid-type]
 
 
+ADVANCED: dict[str, Any] = {"advanced": True}
+"""Field marker: shown in the web UI only when "Advanced" is ticked.
+
+For settings that are real but rarely touched — panel driver tuning, poll
+cadences — so the common fields aren't buried among them.
+"""
+
+
 class FrozenModel(BaseModel):
     """Immutable base: config objects are replaced, never mutated."""
 
@@ -31,18 +39,18 @@ class DisplayConfig(FrozenModel):
     parallel: int = Field(1, ge=1, le=3, description="Parallel chains")
     gpio_mapping: GpioMapping = Field("adafruit-hat-pwm", description="Hardware mapping")
     fps: int = Field(30, ge=5, le=60, description="Render loop frame rate")
-    pwm_bits: int = Field(11, ge=1, le=11)
-    pwm_lsb_nanoseconds: int = Field(130, ge=50, le=3000)
-    pwm_dither_bits: int = Field(0, ge=0, le=2)
-    slowdown_gpio: int = Field(4, ge=0, le=5)
-    limit_refresh: int = Field(0, ge=0, description="Cap refresh Hz (0 = unlimited)")
-    scan_mode: int = Field(0, ge=0, le=1)
-    row_addr_type: int = Field(0, ge=0, le=5)
-    multiplexing: int = Field(0, ge=0, le=18)
-    panel_type: str = Field("", description="e.g. FM6126A, leave blank for most panels")
-    rgb_sequence: str = Field("RGB", pattern=r"^[RGB]{3}$")
-    pixel_mapper: str = Field("", description="e.g. 'U-mapper;Rotate:90'")
-    drop_privileges: bool = Field(False, description="Appliance mode keeps root")
+    pwm_bits: int = Field(11, ge=1, le=11, json_schema_extra=ADVANCED)
+    pwm_lsb_nanoseconds: int = Field(130, ge=50, le=3000, json_schema_extra=ADVANCED)
+    pwm_dither_bits: int = Field(0, ge=0, le=2, json_schema_extra=ADVANCED)
+    slowdown_gpio: int = Field(4, ge=0, le=5, json_schema_extra=ADVANCED)
+    limit_refresh: int = Field(0, ge=0, description="Cap refresh Hz (0 = unlimited)", json_schema_extra=ADVANCED)
+    scan_mode: int = Field(0, ge=0, le=1, json_schema_extra=ADVANCED)
+    row_addr_type: int = Field(0, ge=0, le=5, json_schema_extra=ADVANCED)
+    multiplexing: int = Field(0, ge=0, le=18, json_schema_extra=ADVANCED)
+    panel_type: str = Field("", description="e.g. FM6126A, leave blank for most panels", json_schema_extra=ADVANCED)
+    rgb_sequence: str = Field("RGB", pattern=r"^[RGB]{3}$", json_schema_extra=ADVANCED)
+    pixel_mapper: str = Field("", description="e.g. 'U-mapper;Rotate:90'", json_schema_extra=ADVANCED)
+    drop_privileges: bool = Field(False, description="Appliance mode keeps root", json_schema_extra=ADVANCED)
 
 
 class LocationConfig(FrozenModel):
@@ -137,7 +145,7 @@ class SportsConfig(FrozenModel):
 
 class WebConfig(FrozenModel):
     port: int = Field(8080, ge=1, le=65535)
-    host: str = "0.0.0.0"
+    host: str = Field("0.0.0.0", json_schema_extra=ADVANCED)
     preview_fps: int = Field(30, ge=1, le=60, description="Browser preview frame rate (only costs CPU while someone is watching)")
     update_check_hours: int = Field(24, ge=0, le=168, description="How often to look for updates on GitHub (0 = never)")
 
