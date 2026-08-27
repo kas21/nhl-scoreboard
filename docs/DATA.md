@@ -47,6 +47,7 @@ Event bursts collapse to the latest event per (kind, team).
 | Jxck-S/airline-logos (raw.githubusercontent.com) | `radarbox_logos/{CODE}.png`, then `flightaware_logos/{CODE}.png` | once per operator code; cached under `$SCOREBOARD_CACHE_DIR/airline-logos` (misses re-tried weekly) |
 | FlightAware AeroAPI | `flights/{ident}` — optional, paid, daily budget | only when a key is set |
 | ESPN CDN | `i/teamlogos/{nhl,nfl}/500/{code}.png` — team logos, none shipped in the repo | once per team on first run; cached under `$SCOREBOARD_CACHE_DIR/logos` |
+| ESPN CDN | `guid/{team-guid}/logos/{variant}.png` — alternate marks (secondary, light treatments) | only for teams set to a variant; URL comes from `…/teams`, art downscaled to 500px on store |
 | Open-Meteo | `v1/forecast` (+ geocoding for the wizard) | 10 min |
 | `holidays` package | offline | hourly recompute |
 

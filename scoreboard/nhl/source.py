@@ -17,7 +17,7 @@ from typing import Any, ClassVar, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from ..data.source import SourceContext
-from ..logos import prefetch as prefetch_logos
+from ..logos import watch as watch_logos
 from .api import NhlApi, NhlApiError
 from .normalize import (
     ACTIVE_STATES,
@@ -58,7 +58,7 @@ class NhlSource:
     async def run(self, ctx: SourceContext) -> None:
         api = NhlApi(ctx.http)
         self._standings_ready = asyncio.Event()
-        await asyncio.gather(prefetch_logos(ctx.http, "nhl", NHL_TEAMS, ctx.log),
+        await asyncio.gather(watch_logos(ctx.http, "nhl", NHL_TEAMS, ctx.log),
                              self._scores_loop(ctx, api), self._standings_loop(ctx, api))
 
     # -- scores + main event ------------------------------------------------

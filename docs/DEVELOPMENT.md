@@ -20,6 +20,12 @@ Python ≥ 3.11 (Pi OS Bookworm ships 3.11, Trixie 3.13). No Node toolchain: the
 - Fonts: drop a BDF in `render/fonts/bdf/` and run `tools/build_fonts.py`; map sizes in `render/text.py`.
 - Team logos aren't in the repo: `logos.py` fetches them from ESPN's CDN on first run into
   `$SCOREBOARD_CACHE_DIR/logos/{sport}/{ABBREV}.png` (default `~/.scoreboard/cache`). To override one, drop a PNG there; to re-fetch, delete it.
+- Alternate logos: a team can use a variant instead (`logovariants.py`), cached alongside as
+  `{ABBREV}__{variant}.png`. Boards never ask for one — they call `teams.logo(abbrev, size)` as
+  always and `logos.logo()` resolves the choice from config, so adding a variant needs no board change.
+  The branded variants live on a per-team GUID path that only ESPN's *team API* hands out, so a
+  variant fetch costs one extra request per league; the flat `default`/`dark` paths need none.
+  That API 403s unknown user agents, hence the explicit `ESPN_API_UA` on the discovery request.
   Tests run against an empty cache (`conftest.py` points `SCOREBOARD_CACHE_DIR` at a temp dir), so boards
   render the placeholder tile — assert on layout, not on club colours.
 

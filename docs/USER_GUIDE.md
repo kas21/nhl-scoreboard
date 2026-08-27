@@ -25,6 +25,24 @@ on a Pi install, `~/.scoreboard/cache/logos/` when you run it yourself. Until th
 show as a plain coloured tile. Delete a file there to re-fetch it, or drop your own PNG in its place
 to override one.
 
+### Alternate logos
+
+A club's primary logo is not always the one that reads best on a panel. Some are wordmarks that
+turn to mush at 22px (Washington, Los Angeles); others are dark marks that vanish against a black
+panel (Tampa Bay, Toronto). ESPN publishes several variants per team, and **Settings -> LogosConfig**
+picks between them:
+
+- **Use curated defaults** (on): the audited picks for the six NHL teams whose default genuinely
+  fails — Colorado, Los Angeles, Tampa Bay, Toronto, Vancouver and Washington. Every other team is
+  untouched.
+- **Overrides**: your own choice for any team, keyed `<sport>:<ABBREV>` (e.g. `nhl:CHI`), since NHL
+  and NFL both have a `WSH`. An override always beats the curated pick.
+
+Variants are `default`, `dark`, and the primary/secondary mark in several treatments —
+`secondary_on_black` is usually the one you want for an alternate mark on a dark panel. The new
+art downloads within a few seconds of saving; until it lands the team keeps its old logo, and
+nothing needs a restart.
+
 ## Pages
 - **Dashboard** — live preview of exactly what the panel shows, state, brightness slider.
 - **Boards** — per-state playlists. States: *offseason*, *offday* (season on, no game today), *pregame*,

@@ -133,6 +133,25 @@ function Field({ name, schema, value, onChange, root }) {
   } else if (s.type === 'array' && Array.isArray(value) && value.length === 3 && value.every(Number.isInteger)) {
     const hex = '#' + value.map(v => v.toString(16).padStart(2, '0')).join('');
     input = html`<input type="color" ...${common} value=${hex} onchange=${e => onChange([1, 3, 5].map(i => parseInt(e.target.value.substr(i, 2), 16)))} />`;
+  } else if (s.type === 'object' && s.additionalProperties && resolve(s.additionalProperties, root).enum) {
+    // map of key -> enum (e.g. per-team logo overrides): rows of free-text key + picker
+    const opts = resolve(s.additionalProperties, root).enum;
+    const map = value || {};
+    const entries = Object.entries(map);
+    const rename = (from, to) => onChange(Object.fromEntries(entries.map(([k, v]) => [k === from ? to : k, v])));
+    input = html`<div class="map">
+      ${entries.map(([k, v]) => html`<div class="map-row">
+        <input type="text" value=${k} onchange=${e => e.target.value.trim() && rename(k, e.target.value.trim())} />
+        <select value=${v} onchange=${e => onChange({ ...map, [k]: e.target.value })}>
+          ${opts.map(o => html`<option value=${o}>${o}</option>`)}
+        </select>
+        <a class="rm" onclick=${() => { const n = { ...map }; delete n[k]; onChange(n); }}>✕</a>
+      </div>`)}
+      <div class="map-row">
+        <input type="text" placeholder="+ add key, e.g. nhl:WSH"
+          onchange=${e => { const k = e.target.value.trim(); if (k && !(k in map)) { onChange({ ...map, [k]: opts[0] }); e.target.value = ''; } }} />
+      </div>
+    </div>`;
   } else if (s.type === 'string') {
     input = html`<input type="text" ...${common} value=${value ?? ''} onchange=${e => onChange(e.target.value)} />`;
   } else {

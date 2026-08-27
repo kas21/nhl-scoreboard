@@ -10,7 +10,10 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from ..logovariants import VARIANTS as LOGO_VARIANTS
+
 GpioMapping = Literal["regular", "adafruit-hat", "adafruit-hat-pwm", "regular-pi1", "classic", "classic-pi1"]
+LogoVariant = Literal[tuple(LOGO_VARIANTS)]  # type: ignore[valid-type]
 
 
 class FrozenModel(BaseModel):
@@ -111,6 +114,23 @@ class TransitionConfig(FrozenModel):
     duration: float = Field(0.5, ge=0.1, le=3.0, description="Seconds")
 
 
+class LogosConfig(FrozenModel):
+    """Which artwork each team uses.
+
+    Some clubs' primary logo is a wordmark, or a dark mark on a dark panel, and turns to
+    mush at the sizes a matrix has to work with. The audited defaults fix the handful of
+    NHL teams where that happens; ``overrides`` lets you disagree, per team.
+    """
+
+    use_curated_defaults: bool = Field(
+        True, description="Use the audited per-team logo picks for teams whose default is unreadable on a panel"
+    )
+    overrides: dict[str, LogoVariant] = Field(
+        default_factory=dict,
+        description="Per-team logo choice, keyed '<sport>:<ABBREV>', e.g. {'nhl:WSH': 'secondary_on_black'}",
+    )
+
+
 class SportsConfig(FrozenModel):
     priority: list[Literal["nhl", "nfl"]] = Field(["nhl", "nfl"], description="When two sports have a game, which wins the screen (live games always win)")
 
@@ -136,6 +156,7 @@ class AppConfig(FrozenModel):
     playlists: Playlists = Playlists()
     transition: TransitionConfig = TransitionConfig()
     sports: SportsConfig = SportsConfig()
+    logos: LogosConfig = LogosConfig()
     web: WebConfig = WebConfig()
     boards: dict[str, dict[str, Any]] = Field(
         default_factory=dict, description="Per-board settings, validated by each board's model"

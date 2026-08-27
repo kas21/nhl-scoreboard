@@ -37,3 +37,10 @@ pre { background:#000; padding:12px; border-radius:8px; overflow:auto; max-heigh
 .tag { background:#2a3340; border-radius:14px; padding:3px 10px; font-size:13px; }
 .tag a { cursor:pointer; color:var(--muted); margin-left:4px; }
 details summary { cursor:pointer; font-weight:600; padding:8px 0; }
+
+.map { display: flex; flex-direction: column; gap: 4px; }
+.map-row { display: flex; gap: 6px; align-items: center; }
+.map-row input[type=text] { flex: 1 1 auto; min-width: 0; }
+.map-row select { flex: 1 1 auto; min-width: 0; }
+.map-row .rm { cursor: pointer; opacity: .7; padding: 0 4px; }
+.map-row .rm:hover { opacity: 1; }
