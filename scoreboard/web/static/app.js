@@ -56,6 +56,25 @@ function Preview() {
   </div>`;
 }
 
+function Updater() {
+  const [st, setSt] = useState(null);
+  const refresh = () => api.get('/api/system/update').then(setSt).catch(() => {});
+  useEffect(() => { refresh(); const id = setInterval(refresh, 3000); return () => clearInterval(id); }, []);
+  if (!st) return null;
+  if (!st.is_checkout) return html`<div class="card"><h2>Updates</h2><p class="muted">This install is not a git checkout, so it can't update itself. Reinstall with <code>scripts/install.sh</code> to enable.</p></div>`;
+  const busy = st.updating || st.checking;
+  return html`<div class="card"><h2>Updates</h2>
+    <div class="row">
+      <span>${st.available ? html`<b>Update available</b> — ${st.behind} new commit${st.behind === 1 ? '' : 's'}${st.latest_message ? html`: <i>${st.latest_message}</i>` : ''}` : html`<span class="ok">Up to date</span>`}
+      <span class="muted"> · ${st.current || '?'}${st.checked_at ? ` · checked ${new Date(st.checked_at * 1000).toLocaleTimeString()}` : ''}</span></span>
+      <button class="secondary" disabled=${busy} onclick=${() => api.post('/api/system/update/check').then(setSt)}>Check now</button>
+      ${st.available && html`<button disabled=${busy} onclick=${() => confirm('Update and restart the scoreboard?') && api.post('/api/system/update').then(setSt)}>${st.updating ? 'Updating…' : 'Update & restart'}</button>`}
+    </div>
+    ${st.error && html`<p class="error">${st.error}</p>`}
+    ${st.log && st.log.length > 0 && html`<pre>${st.log.join('\n')}</pre>`}
+  </div>`;
+}
+
 function Dashboard({ config, save }) {
   const [status, setStatus] = useState(null);
   useEffect(() => {
@@ -72,6 +91,7 @@ function Dashboard({ config, save }) {
         <div><span>Version</span>${status.version}</div>
       </div>` : html`<p class="muted">Loading…</p>`}
     </div>
+    <${Updater} />
     <div class="card"><h2>Brightness</h2>
       <input type="range" min="1" max="100" value=${config.brightness.day}
         onchange=${e => save({ brightness: { day: +e.target.value } })} />

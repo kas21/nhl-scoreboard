@@ -119,6 +119,7 @@ class WebConfig(FrozenModel):
     port: int = Field(8080, ge=1, le=65535)
     host: str = "0.0.0.0"
     preview_fps: int = Field(30, ge=1, le=60, description="Browser preview frame rate (only costs CPU while someone is watching)")
+    update_check_hours: int = Field(24, ge=0, le=168, description="How often to look for updates on GitHub (0 = never)")
 
 
 CONFIG_VERSION = 1

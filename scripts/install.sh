@@ -9,7 +9,7 @@
 # systemd unit (runs as root: the matrix driver needs GPIO) -> start.
 set -euo pipefail
 
-REPO_URL="${SCOREBOARD_REPO:-https://github.com/kas21/nhl-scoreboard.git}"
+REPO_URL="${SCOREBOARD_REPO:-https://github.com/kas21/nhl-scoreboard.git}"   # public; the app updates itself from here
 BRANCH="${SCOREBOARD_BRANCH:-main}"
 APP_DIR="${SCOREBOARD_DIR:-/opt/scoreboard}"
 CONFIG_DIR="${SCOREBOARD_CONFIG_DIR:-/etc/scoreboard}"

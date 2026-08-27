@@ -20,6 +20,7 @@ from .director import Director
 from .output import PreviewHub, create_output
 from .plugins import load_registry
 from .web.api import LogBuffer, SystemControl, create_app
+from .web.updater import Updater
 
 log = logging.getLogger(__name__)
 
@@ -49,6 +50,7 @@ class Application:
         self._stop = threading.Event()
         self.exit_code = 0
         self._restart_requested = threading.Event()
+        self.updater = Updater(restart=self.request_restart)
 
     def request_restart(self) -> None:
         """Exit cleanly; under systemd (Restart=always) that is a restart with fresh driver options."""
@@ -95,7 +97,7 @@ class Application:
             web = self.config.get().web
             server = uvicorn.Server(uvicorn.Config(
                 create_app(self.config, self.snapshots, self.registry, self.director, self.preview, self.logs,
-                           system=SystemControl(self.request_restart)),
+                           system=SystemControl(self.request_restart), updater=self.updater),
                 host=web.host, port=web.port, log_level="warning", loop="asyncio",
             ))
             server.install_signal_handlers = lambda: None  # we handle signals ourselves
@@ -120,6 +122,16 @@ class Application:
                         stop.set()
 
             tasks.append(asyncio.create_task(watch_render_thread(), name="render-watchdog"))
+
+            async def update_checker() -> None:
+                await asyncio.sleep(30)
+                while not stop.is_set():
+                    hours = self.config.get().web.update_check_hours
+                    if hours > 0 and self.updater.is_checkout:
+                        await asyncio.to_thread(self.updater.check)
+                    await asyncio.sleep(max(hours, 1) * 3600 if hours > 0 else 3600)
+
+            tasks.append(asyncio.create_task(update_checker(), name="update-checker"))
             await stop.wait()
             log.info("shutting down")
             server.should_exit = True

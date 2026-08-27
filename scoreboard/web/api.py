@@ -25,6 +25,7 @@ from ..data import SnapshotStore
 from ..director import Director
 from ..output import PreviewHub
 from ..plugins import Registry
+from .updater import Updater
 
 log = logging.getLogger(__name__)
 STATIC = Path(__file__).parent / "static"
@@ -88,9 +89,11 @@ def create_app(
     preview: PreviewHub,
     logs: LogBuffer | None = None,
     system: SystemControl | None = None,
+    updater: Updater | None = None,
 ) -> FastAPI:
     app = FastAPI(title="scoreboard", version=__version__)
     system = system or SystemControl()
+    updater = updater or Updater(restart=system._restart)
 
     @app.get("/api/status")
     def status() -> dict[str, Any]:
@@ -173,6 +176,18 @@ def create_app(
     @app.get("/api/system")
     def system_info() -> dict[str, Any]:
         return {**system.version_info(), "hostname": system.hostname(), "can_restart": system._restart is not None}
+
+    @app.get("/api/system/update")
+    def update_state() -> dict[str, Any]:
+        return updater.state()
+
+    @app.post("/api/system/update/check")
+    def update_check() -> dict[str, Any]:
+        return updater.check()
+
+    @app.post("/api/system/update")
+    def update_start() -> dict[str, Any]:
+        return {"started": updater.update(), **updater.state()}
 
     @app.post("/api/system/restart")
     def system_restart() -> dict[str, Any]:
