@@ -29,6 +29,11 @@ class Updater:
         self._state: dict[str, Any] = {"available": False, "checking": False, "updating": False, "behind": 0,
                                        "current": None, "latest": None, "latest_message": None, "checked_at": None,
                                        "log": [], "error": None, "is_checkout": self.is_checkout}
+        if self.is_checkout:
+            try:
+                self._state["current"] = self._git("rev-parse", "--short", "HEAD", timeout=10)
+            except (RuntimeError, subprocess.SubprocessError, OSError):
+                pass
 
     # -- helpers --------------------------------------------------------------
 

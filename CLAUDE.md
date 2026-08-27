@@ -18,11 +18,10 @@ uv run python tools/rasterize_logos.py              # SVG -> PNG logos (needs th
 uv run python tools/build_fonts.py                  # BDF -> .pil bitmap fonts
 ```
 
-Deploy to the bench Pi (private repo, so rsync for now):
-```bash
-rsync -az --exclude .venv --exclude .git --exclude __pycache__ --exclude .pytest_cache ./ rpi@nhl-led-scoreboard-office.local:~/scoreboard/
-ssh rpi@nhl-led-scoreboard-office.local 'cd ~/scoreboard && sudo .venv/bin/pip install -q -e . ; sudo systemctl restart scoreboard'
-```
+Deploy to the bench Pi: push to `main`, then either click *Update* on the dashboard or
+`curl -s -X POST http://nhl-led-scoreboard-office.local:8080/api/system/update` (the Pi's `~/scoreboard` is a
+git checkout of this repo; the app fast-forwards, reinstalls if deps changed, restarts). rsync still works for
+uncommitted experiments but will make the checkout dirty — `git checkout .` on the Pi before the next update.
 Service: `scoreboard.service` (root, `--output hardware`), config at `/etc/scoreboard/config.json`,
 web UI http://nhl-led-scoreboard-office.local:8080, logs `journalctl -u scoreboard`.
 

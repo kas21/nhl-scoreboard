@@ -49,6 +49,10 @@ turned off per board. `delay_seconds` (NHL source) holds updates back to match a
 Standings from a finished season carry a FINAL banner; far-off game days don't show as "tonight";
 the countdown board takes the front. This is all automatic from the league calendars.
 
+## Updates
+The Dashboard tells you when a new version is available and updates with one click (the panel goes dark for
+~10 s while it restarts). Nothing else to do.
+
 ## If something looks wrong
 - Colours swapped / mirrored → Setup → Colours & orientation → Apply.
 - Flicker → Setup → Flicker fix (GPIO slowdown) → Apply; make sure the install ran `pi_tuning.sh`.

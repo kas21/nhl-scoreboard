@@ -12,7 +12,7 @@ Python ≥ 3.11 (Pi OS Bookworm ships 3.11, Trixie 3.13). No Node toolchain: the
 - Boards: render to PNG from fixtures and *look at them* (a contact-sheet script is quick to write with
   `BoardContext` + `SnapshotStore`); readability at 1:1 on LEDs differs from the emulator.
 - Every change: tests + ruff must pass; commit with `type: message`; push to `main`.
-- Deploy to the Pi via rsync (CLAUDE.md), restart the service, check `/api/status` and the preview.
+- Deploy to the Pi: push, then Dashboard → *Update & restart* (or `POST /api/system/update`); check `/api/status` and the preview.
 - Playlists on an existing install don't pick up new default entries — add new boards through the
   Boards page or a PATCH to `/api/config`.
 
@@ -22,7 +22,7 @@ Python ≥ 3.11 (Pi OS Bookworm ships 3.11, Trixie 3.13). No Node toolchain: the
 
 ## Release checklist (when the repo goes public)
 1. GitHub Actions: pytest + ruff on push; build `rgbmatrix` wheels for cp311/cp312/cp313 aarch64.
-2. `scripts/install.sh` clone path + OTA "Update" button (`/api/system/update`).
+2. ~~installer clone path + OTA button~~ done.
 3. pi-gen image.
 
 ## Backlog

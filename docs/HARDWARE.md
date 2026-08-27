@@ -7,18 +7,21 @@
 - Adafruit RGB Matrix HAT/Bonnet (with the PWM jumper solder mod recommended) or direct wiring.
 - 5 V supply sized for the panel (a 128x64 can draw 4 A+ at full white).
 
-## Install (bench path, until the repo is public)
+## Install
 ```bash
-rsync -az ./ rpi@<host>:~/scoreboard/          # from a checkout
-ssh rpi@<host> 'cd ~/scoreboard && sudo ./scripts/install.sh'
-ssh rpi@<host> 'sudo ~/scoreboard/scripts/pi_tuning.sh && sudo reboot'
+curl -fsSL https://raw.githubusercontent.com/kas21/nhl-scoreboard/main/scripts/install.sh | bash
+sudo /opt/scoreboard/scripts/pi_tuning.sh && sudo reboot
 ```
+(From a checkout: `sudo ./scripts/install.sh` uses that checkout in place.)
 `install.sh`: apt deps → venv → `pip install -e .` → `rgbmatrix` (prebuilt wheel for this Python, else source
 build) → `scoreboard.service` (root, `--output hardware`, restart on failure) → starts it.
 `pi_tuning.sh`: blacklists `snd_bcm2835` (conflicts with the matrix PWM — the driver refuses to start
 otherwise) and adds `isolcpus=3` (dedicated core for the refresh thread; removes residual flicker).
 
-Once the repo is public: `curl -fsSL https://raw.githubusercontent.com/kas21/nhl-scoreboard/main/scripts/install.sh | bash`.
+## Updates
+The dashboard checks GitHub daily (`web.update_check_hours`) and shows **Update available** with a one-click
+*Update & restart* (git fast-forward → reinstall if dependencies changed → restart). Requires the install to be a
+git checkout, which `install.sh` guarantees. API: `GET/POST /api/system/update`, `POST /api/system/update/check`.
 
 ## Display settings (Settings → Display, or the wizard)
 | Setting | Notes |
