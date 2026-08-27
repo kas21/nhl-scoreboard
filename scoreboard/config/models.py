@@ -122,6 +122,22 @@ class TransitionConfig(FrozenModel):
     duration: float = Field(0.5, ge=0.1, le=3.0, description="Seconds")
 
 
+class TickerConfig(FrozenModel):
+    """Ticker mode: scroll the playlist through the panel instead of switching board to board.
+
+    Boards are laid out side by side and moved right-to-left; each keeps its own clock, so
+    entrances play as a board arrives. Event boards (goals, penalties) still cut in over the
+    top and the strip resumes where it left off. A tile as wide as the panel is only ever
+    whole for an instant — set ``tile_width`` smaller for a true ticker.
+    """
+
+    enabled: bool = Field(False, description="Scroll boards through the display instead of switching between them")
+    speed: float = Field(24.0, ge=1, le=200, description="Scroll speed in pixels per second")
+    tile_width: int = Field(0, ge=0, le=1024, title="Board width",
+                            description="How wide each board is in the strip (0 = the full panel)")
+    gap: int = Field(0, ge=0, le=64, title="Gap between boards", description="Blank pixels between boards")
+
+
 class LogosConfig(FrozenModel):
     """Which artwork each team uses.
 
@@ -163,6 +179,7 @@ class AppConfig(FrozenModel):
     brightness: BrightnessConfig = BrightnessConfig()
     playlists: Playlists = Playlists()
     transition: TransitionConfig = TransitionConfig()
+    ticker: TickerConfig = TickerConfig()
     sports: SportsConfig = SportsConfig()
     logos: LogosConfig = LogosConfig()
     web: WebConfig = WebConfig()

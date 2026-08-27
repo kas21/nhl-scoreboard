@@ -49,7 +49,12 @@ nothing needs a restart.
   *live*, *intermission*, *postgame*. Reorder, enable/disable, set seconds ("auto" lets the board decide,
   e.g. a ticker runs through every game once).
 - **Settings** — every option, grouped: Display, Location, Brightness (fixed / sunrise-sunset / hours),
-  Transition between boards, Sports priority, per-board settings, per-data-source settings.
+  Transition between boards, Ticker mode, Sports priority, per-board settings, per-data-source settings.
+- **Ticker mode** (Settings → Appearance) — instead of one board at a time, the playlist scrolls through
+  the panel like a stock ticker. *Speed* is pixels per second; *Board width* sets how wide each board is
+  in the strip (0 = the full panel, which means you always see two half-boards — set it to half your panel
+  width for a proper ticker and each board drops to its smaller layout). Goals and penalties still take
+  over the whole panel, then the strip carries on.
 - **Diagnostics** — recent log lines.
 
 ## Boards

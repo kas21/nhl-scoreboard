@@ -22,6 +22,7 @@ from ..render.profiles import profile_for
 from .brightness import brightness_for
 from .playlist import Cursor, advance, available_entries, clamp
 from .state import PLAYLIST_STATES, AppState, compute_state, is_offline
+from .strip import Strip, StripFrame
 from .transitions import transition
 
 log = logging.getLogger(__name__)
@@ -29,6 +30,7 @@ log = logging.getLogger(__name__)
 BOOT_BOARD = "splash"
 ERROR_BOARD = "clock"
 FALLBACK_BOARD = "clock"
+TICKER_KEY = "__ticker__"       # sentinel active board while the scrolling strip owns the panel
 BOOT_SECONDS = 4.0
 EVENT_MAX_SECONDS = 30.0
 QUARANTINE_SECONDS = 60.0       # a board that raises is skipped for this long
@@ -51,6 +53,7 @@ class Director:
         self._quarantine: dict[str, float] = {}       # board key -> monotonic time it may run again
         self._override: tuple[str, float] | None = None   # (board key, monotonic expiry) forced by the UI
         self._transition: tuple[Image.Image, float] | None = None     # (outgoing frame, started_at)
+        self._strip = Strip()
         self._cfg_version = 0
         config.subscribe(self._on_config)
 
@@ -62,6 +65,8 @@ class Director:
 
     @property
     def active_board(self) -> str | None:
+        if self._active_key == TICKER_KEY:
+            return self._strip.current or TICKER_KEY
         return self._active_key
 
     def set_override(self, board: str | None, seconds: float = 60.0) -> None:
@@ -92,6 +97,13 @@ class Director:
         snap = self._snapshots.get()
         self._pending.extend(self._events.drain())
         self._sync_state(snap, mono)
+
+        ticker = self._ticker_frame(cfg, snap, mono)
+        if ticker is not None:
+            self._active_key = TICKER_KEY
+            self._transition = None
+            self._last_frame = ticker
+            return _stale_marker(ticker) if is_offline(snap) else ticker
 
         board, key, event = self._select(cfg, snap, mono)
         switching = key != self._active_key
@@ -148,6 +160,7 @@ class Director:
         if new_state != self._cursor.state:
             log.info("state %s -> %s", self._cursor.state.value, new_state.value)
             self._cursor = Cursor(new_state, 0, mono)
+            self._strip.reset()
 
     def _usable(self, mono: float) -> set[str]:
         self._quarantine = {k: until for k, until in self._quarantine.items() if until > mono}
@@ -162,6 +175,46 @@ class Director:
                 if all(snap.get(k) for k in boards[e.board].requires)
                 and (boards[e.board].sport is None or "main_event" not in boards[e.board].requires or main.get("sport") == boards[e.board].sport)]
 
+    def _ticker_frame(self, cfg: AppConfig, snap: Snapshot, mono: float) -> Image.Image | None:
+        """The scrolling strip, or None when something else owns the panel this frame."""
+        if not cfg.ticker.enabled or self._cursor.state not in PLAYLIST_STATES:
+            return None
+        if self.override:
+            return None                                  # the UI override cuts in full-screen
+        usable = self._usable(mono)
+        if self._active_event or self._claim_event(cfg, usable, mono):
+            return None                                  # so do event boards; unmatched events are dropped here
+        entries = self._entries(cfg, snap, self._cursor.state, usable)
+        if not entries:
+            return None
+        return self._strip.frame(StripFrame(
+            keys=tuple(e.board for e in entries),
+            width=cfg.display.width,
+            height=cfg.display.height,
+            mono=mono,
+            tile_width=cfg.ticker.tile_width,
+            speed=cfg.ticker.speed,
+            gap=cfg.ticker.gap,
+            make_board=self._tile_board,
+            make_ctx=lambda entered, w, h: self._context(cfg, snap, mono, None, entered_at=entered, size=(w, h)),
+            board_cfg=lambda b: self._board_config(cfg, b),
+            on_error=lambda key: self._quarantine_board(key, mono),
+        ))
+
+    def _quarantine_board(self, key: str, mono: float) -> None:
+        self._quarantine[key] = mono + QUARANTINE_SECONDS
+
+    def _tile_board(self, key: str) -> BaseBoard | None:
+        """A private instance per tile: boards keep per-showing state, and a strip can hold two of one board."""
+        prototype = self._registry.boards.get(key)
+        if prototype is None:
+            return None
+        try:
+            return type(prototype)()
+        except Exception:
+            log.exception("board %s cannot be instantiated per tile; sharing the registry instance", key)
+            return prototype
+
     def _select(self, cfg: AppConfig, snap: Snapshot, mono: float) -> tuple[BaseBoard, str, Event | None]:
         boards = self._registry.boards
         usable = self._usable(mono)
@@ -171,12 +224,10 @@ class Director:
         if self._active_event:
             event, board, started = self._active_event
             return board, board.key, event
-        while self._pending:
-            event = self._pending.pop(0)
-            for eb in self._registry.event_boards:
-                if eb.key in usable and eb.matches(event, self._board_config(cfg, eb)):
-                    self._active_event = (event, eb, mono)
-                    return eb, eb.key, event
+        claimed = self._claim_event(cfg, usable, mono)
+        if claimed:
+            eb, event = claimed
+            return eb, eb.key, event
         state = self._cursor.state
         if state == AppState.BOOT:
             return boards.get(BOOT_BOARD) or boards[FALLBACK_BOARD], BOOT_BOARD, None
@@ -188,6 +239,16 @@ class Director:
         self._cursor = clamp(self._cursor, len(entries))
         entry = entries[self._cursor.index]
         return boards[entry.board], entry.board, None
+
+    def _claim_event(self, cfg: AppConfig, usable: set[str], mono: float) -> tuple[EventBoard, Event] | None:
+        """Take the first pending event that has a board to show it; events nothing matches are dropped."""
+        while self._pending:
+            event = self._pending.pop(0)
+            for eb in self._registry.event_boards:
+                if eb.key in usable and eb.matches(event, self._board_config(cfg, eb)):
+                    self._active_event = (event, eb, mono)
+                    return eb, event
+        return None
 
     def _after_render(self, board: BaseBoard, ctx: BoardContext, board_cfg: BaseModel, cfg: AppConfig, mono: float) -> None:
         if self._active_event:
@@ -206,17 +267,21 @@ class Director:
         if expired or board.done(ctx, board_cfg):
             self._cursor = advance(self._cursor, len(entries), mono)
 
-    def _context(self, cfg: AppConfig, snap: Snapshot, mono: float, event: Event | None) -> BoardContext:
+    def _context(self, cfg: AppConfig, snap: Snapshot, mono: float, event: Event | None,
+                 entered_at: float | None = None, size: tuple[int, int] | None = None) -> BoardContext:
         entered = self._active_event[2] if self._active_event else self._cursor.entered_at
+        entered = entered if entered_at is None else entered_at
+        width, height = size or (cfg.display.width, cfg.display.height)
         return BoardContext(
             snapshot=snap,
-            profile=profile_for(cfg.display.width, cfg.display.height),
-            width=cfg.display.width,
-            height=cfg.display.height,
+            profile=profile_for(width, height),
+            width=width,
+            height=height,
             fps=cfg.display.fps,
             now=self._now(cfg),
             elapsed=mono - entered,
             event=event,
+            ticker=size is not None,
         )
 
     def _board_config(self, cfg: AppConfig, board: BaseBoard) -> BaseModel:

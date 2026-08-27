@@ -32,6 +32,7 @@ class BoardContext:
     now: datetime          # local wall-clock time (tz-aware)
     elapsed: float         # seconds since this board was entered
     event: Event | None = None
+    ticker: bool = False   # True when the board is a tile in the scrolling strip, not the whole panel
 
 
 @runtime_checkable
