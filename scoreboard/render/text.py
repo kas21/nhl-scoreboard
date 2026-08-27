@@ -16,6 +16,7 @@ FONTS = {                       # vector fonts, sized freely (large text only)
     "ari": "ari_w9500.ttf",
     "gothic": "special_gothic.ttf",
     "upheaval": "upheaval.ttf",
+    "cute": "CutePixel.ttf",
 }
 # Hand-drawn bitmap fonts (public-domain X11 set) keyed by pixel height. These
 # are what make small text legible on an LED matrix; TrueType rasterised at

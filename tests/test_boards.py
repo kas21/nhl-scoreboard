@@ -1,6 +1,6 @@
 from dataclasses import replace
 
-from scoreboard.boards.clock import ClockBoard, ClockConfig
+from scoreboard.boards.clock import CLOCK_FONTS, ClockBoard, ClockConfig
 from scoreboard.boards.splash import SplashBoard, SplashConfig
 from scoreboard.render.profiles import profile_for
 
@@ -49,6 +49,13 @@ def test_clock_fills_the_panel(ctx):
     tall = replace(ctx, width=128, height=64, profile=profile_for(128, 64), now=widest)
     left, top, right, bottom = board.render(tall, ClockConfig()).getbbox()
     assert bottom - top >= 64 * 0.7
+
+
+def test_clock_renders_in_every_font(ctx):
+    board, widest = ClockBoard(), ctx.now.replace(hour=22, minute=47)
+    for family in CLOCK_FONTS:
+        left, top, right, bottom = board.render(replace(ctx, now=widest), ClockConfig(font=family)).getbbox()
+        assert left >= 0 and top >= 0 and right <= ctx.width and bottom <= ctx.height
 
 
 def test_clock_digits_keep_one_size_across_the_hour(ctx):

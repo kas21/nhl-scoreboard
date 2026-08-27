@@ -12,6 +12,7 @@ from ..render import Absolute, Sheen, Text, load_font, render_tree
 from ..render.text import text_size
 from .base import BaseBoard, BoardContext
 
+CLOCK_FONTS = ("clock", "score", "block", "ari", "gothic", "upheaval", "camels", "cute")
 MIN_CLOCK = 8
 DATE_RATIO = 0.4          # date/year height relative to the time, as the old client had it
 WIDEST_TIME = "88:88"     # size for the widest time so the digits don't resize every minute
@@ -21,6 +22,7 @@ WIDEST_DATE, WIDEST_YEAR = "AUG 88", "8888"
 class ClockConfig(BaseModel):
     model_config = {"frozen": True, "extra": "forbid"}
     format: Literal["12h", "24h"] = Field("12h", description="Hour format")
+    font: Literal[CLOCK_FONTS] = Field("block", description="Typeface for the time")
     show_date: bool = True
     color: tuple[int, int, int] = Field((0, 150, 150), description="Time colour (RGB)")
     date_color: tuple[int, int, int] = Field((255, 0, 255), description="Date/year colour (RGB)")
@@ -35,10 +37,10 @@ def _date_font(clock_size: int) -> ImageFont.ImageFont:
 
 
 @lru_cache(maxsize=32)
-def _fonts(width: int, height: int, pad: int, show_date: bool) -> tuple[ImageFont.ImageFont, ImageFont.ImageFont]:
-    """Largest clock face whose whole block (date / time / year) still fits the panel."""
+def _fonts(width: int, height: int, pad: int, show_date: bool, family: str) -> tuple[ImageFont.ImageFont, ImageFont.ImageFont]:
+    """Largest face of ``family`` whose whole block (date / time / year) still fits the panel."""
     for size in range(height, MIN_CLOCK - 1, -1):
-        clock = load_font("clock", size)
+        clock = load_font(family, size)
         date = _date_font(size)
         tw, th = text_size(WIDEST_TIME, clock)
         block_w, block_h = tw, th
@@ -48,7 +50,7 @@ def _fonts(width: int, height: int, pad: int, show_date: bool) -> tuple[ImageFon
             block_w, block_h = max(tw, dw, yw), th + dh + yh + 2
         if block_w <= width - 2 * pad and block_h <= height - 2 * pad:
             return clock, date
-    return load_font("clock", MIN_CLOCK), _date_font(MIN_CLOCK)
+    return load_font(family, MIN_CLOCK), _date_font(MIN_CLOCK)
 
 
 class ClockBoard(BaseBoard):
@@ -60,7 +62,7 @@ class ClockBoard(BaseBoard):
         w, h = ctx.width, ctx.height
         pad = ctx.profile.pad
         fmt = "%-I:%M" if cfg.format == "12h" else "%H:%M"
-        clock_font, date_font = _fonts(w, h, pad, cfg.show_date)
+        clock_font, date_font = _fonts(w, h, pad, cfg.show_date, cfg.font)
         time_node = Text(ctx.now.strftime(fmt), clock_font, tuple(cfg.color))
         tw, th = time_node.measure()
 
