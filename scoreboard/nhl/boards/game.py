@@ -133,11 +133,18 @@ class GameBoard(BaseBoard):
         f6 = load_font("pl", 6)
         start = local_time(g["start_time_utc"], ctx.now.tzinfo)
         date = fmt_date(g["date"]).replace(" ", "")
-        return self._teams_info(g, cfg) + [
+        return self._teams_info(g, cfg) + self._pre_chip(g) + [
             (Chip(date, f6, BLACK, WHITE), 39, 14, 50, 7),
             (Text(fmt_time(start, cfg.time_24h).upper() or "TBD", f6, WHITE), 39, 22, 50, 5),
             (Text("VS", load_font("score", 15), WHITE), 39, 31, 50, 12),
         ]
+
+    @staticmethod
+    def _pre_chip(g: dict[str, Any]) -> list:
+        """Small yellow PRE tag for preseason games (gameType 1)."""
+        if g.get("type") != 1:
+            return []
+        return [(Chip("PRE", load_font("pl", 6), (0, 0, 0), (255, 200, 0)), 54, 4, 20, 7)]
 
     def _final(self, g, ctx, cfg) -> list:
         f6 = load_font("pl", 6)
@@ -156,7 +163,7 @@ class GameBoard(BaseBoard):
         t = ctx.elapsed
         period = "INT" if g["in_intermission"] else g["period"].upper()
         strip = HBox([Chip(period, f6, BLACK, WHITE), Text(g["clock"], f6, WHITE)], spacing=1)
-        items = [
+        items = self._pre_chip(g) + [
             (strip, 34, 14, 60, 7),
             (self._score(g["away"]["score"], "end"), SCORE_AWAY_X - 10, SCORE_Y, 18, 12),
             (Box(fill=(255, 255, 255, 255)), *HYPHEN),

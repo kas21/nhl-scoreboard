@@ -31,6 +31,9 @@ class NhlApi:
     async def landing(self, game_id: int | str) -> dict[str, Any]:
         return await self._get(f"/gamecenter/{game_id}/landing")
 
+    async def schedule_now(self) -> dict[str, Any]:
+        return await self._get("/schedule/now")
+
     async def club_schedule_season(self, team: str) -> dict[str, Any]:
         return await self._get(f"/club-schedule-season/{team.upper()}/now")
 

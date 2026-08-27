@@ -103,6 +103,10 @@ class TickerBoard(BaseBoard):
             items.append((Slide(Img(date), 0.4, "right", easing=linear, h_align="end"), 100, half - 8, 27, 7))
             start = local_time(g["start_time_utc"], ctx.now.tzinfo)
             items.append((Slide(Text(fmt_time(start, cfg.time_24h).upper(), f6, WHITE), 0.4, "right", easing=linear, h_align="end"), 90, half + 2, 37, 5))
+        if g.get("type") == 1:
+            items.append((Chip("PRE", f6, BLACK, (255, 200, 0)), 108, 1, 19, 7))
+        if pregame:
+            pass
         elif g["phase"] == "postgame":
             label = g["outcome"].replace("FINAL/", "F/") if "/" in g["outcome"] else "FINAL"
             items.append((Slide(Chip(label, f6, WHITE, RED), 0.4, "right", easing=linear, h_align="end"), 67, half - 4, 60, 8))

@@ -25,6 +25,7 @@ class NflConfig(BaseModel):
     live_interval: float = Field(20.0, ge=10, le=120, description="Seconds between polls while a favourite is playing")
     idle_interval: float = Field(300.0, ge=60, le=3600)
     standings_interval: float = Field(3600.0, ge=600)
+    show_games_within_days: int = Field(2, ge=0, le=30, description="Only show the week's slate when the next game is this close")
 
 
 class NflSource:
@@ -46,6 +47,11 @@ class NflSource:
                 games = normalize_scoreboard(await api.scoreboard())      # current week
                 today = _today(ctx)
                 games = sorted(games, key=lambda g: g["start_time_utc"])
+                ctx.publish(_season(games, today), subkey="season")
+                upcoming = [g for g in games if g["phase"] != "postgame"]
+                nearest = min((g["date"] for g in upcoming), default=None)
+                if nearest and _days(today, nearest) > cfg.show_games_within_days and not any(g["phase"] in ("live", "intermission") for g in games):
+                    games = [g for g in games if g["phase"] == "postgame"]        # keep results, hide far-off games
                 main = select_main_event(games, cfg.favorites, today=today)
                 if main:
                     main = {**main, "favorite_side": favorite_side(main, cfg.favorites)}
@@ -87,3 +93,22 @@ def _today(ctx: SourceContext) -> str:
         return datetime.now(ZoneInfo(ctx.timezone)).date().isoformat() if ctx.timezone else datetime.now().astimezone().date().isoformat()
     except Exception:
         return datetime.now().astimezone().date().isoformat()
+
+
+def _days(today: str, other: str) -> int:
+    from datetime import date as _d
+    try:
+        return (_d.fromisoformat(other) - _d.fromisoformat(today)).days
+    except ValueError:
+        return 0
+
+
+def _season(games: list, today: str) -> dict:
+    """Phase from the slate ESPN hands us: no games = offseason; season.type 1/2/3 = pre/regular/playoffs."""
+    if not games:
+        return {"sport": "nfl", "phase": "offseason", "week": None, "next_game_date": None, "days_to_next": None}
+    types = {g["type"] for g in games}
+    phase = "playoffs" if 3 in types else "regular" if 2 in types else "preseason"
+    nxt = min((g for g in games if g["phase"] != "postgame"), key=lambda g: g["start_time_utc"], default=None)
+    return {"sport": "nfl", "phase": phase, "week": games[0].get("week"),
+            "next_game_date": nxt["date"] if nxt else None, "days_to_next": _days(today, nxt["date"]) if nxt else None}

@@ -18,6 +18,7 @@ SYSTEM_KEY = "system"
 class AppState(str, Enum):
     BOOT = "boot"
     ERROR = "error"
+    OFFSEASON = "offseason"
     OFFDAY = "offday"
     PREGAME = "pregame"
     LIVE = "live"
@@ -25,7 +26,7 @@ class AppState(str, Enum):
     POSTGAME = "postgame"
 
 
-PLAYLIST_STATES = (AppState.OFFDAY, AppState.PREGAME, AppState.LIVE, AppState.INTERMISSION, AppState.POSTGAME)
+PLAYLIST_STATES = (AppState.OFFSEASON, AppState.OFFDAY, AppState.PREGAME, AppState.LIVE, AppState.INTERMISSION, AppState.POSTGAME)
 _PHASES = {s.value: s for s in (AppState.PREGAME, AppState.LIVE, AppState.INTERMISSION, AppState.POSTGAME)}
 
 
@@ -43,5 +44,11 @@ def compute_state(snapshot: Snapshot) -> AppState:
         return AppState.ERROR                      # nothing to show: clock until we get data
     event = snapshot.get(MAIN_EVENT_KEY)
     if not event:
-        return AppState.OFFDAY
+        return AppState.OFFSEASON if is_offseason(snapshot) else AppState.OFFDAY
     return _PHASES.get(event.get("phase"), AppState.OFFDAY)
+
+
+def is_offseason(snapshot: Snapshot) -> bool:
+    """Every sport that has reported a season phase says off-season (and at least one has)."""
+    phases = [v.get("phase") for k, v in snapshot.data.items() if k.endswith(".season") and isinstance(v, dict)]
+    return bool(phases) and all(p == "offseason" for p in phases)

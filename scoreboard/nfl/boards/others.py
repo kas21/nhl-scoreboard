@@ -40,6 +40,7 @@ class NflStandingsBoard(NhlStandings):
     requires = frozenset({"nfl.standings"})
     standings_key = "nfl.standings"
     summary_key = "nfl.team_summary"
+    season_key = "nfl.season"
     points_header = "PCT"
 
     def logo_image(self, abbrev: str) -> Image.Image:

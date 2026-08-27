@@ -67,6 +67,14 @@ class PlaylistEntry(FrozenModel):
 class Playlists(FrozenModel):
     """What to show in each application state, in order."""
 
+    offseason: tuple[PlaylistEntry, ...] = (
+        PlaylistEntry(board="season.countdown", duration=12),
+        PlaylistEntry(board="clock", duration=10),
+        PlaylistEntry(board="weather.current", duration=None),
+        PlaylistEntry(board="holidays.countdown", duration=None),
+        PlaylistEntry(board="flights.nearby", duration=None),
+        PlaylistEntry(board="nhl.team_summary", duration=10),
+    )
     offday: tuple[PlaylistEntry, ...] = (
         PlaylistEntry(board="nhl.team_summary", duration=10),
         PlaylistEntry(board="clock", duration=10),

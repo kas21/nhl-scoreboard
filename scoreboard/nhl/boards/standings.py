@@ -69,7 +69,8 @@ class StandingsBoard(BaseBoard):
         highlight = {h.upper() for h in cfg.highlight} or set(ctx.snapshot.get(self.summary_key) or {})
         self._size = (ctx.width, ctx.height)
         self._header = self._header_row(ctx.width)
-        self._pages = [self._page(groups, rows, highlight, ctx.width) for groups in self._grouped(standings, cfg)]
+        banner = self._banner(ctx)
+        self._pages = [self._page(groups, rows, highlight, ctx.width, banner) for groups in self._grouped(standings, cfg)]
         self._timeline = [self._page_seconds(p, ctx, cfg) for p in self._pages]
 
     def _grouped(self, standings: dict[str, Any], cfg: StandingsConfig) -> list[list[tuple[str, list[str], bool]]]:
@@ -92,9 +93,20 @@ class StandingsBoard(BaseBoard):
             row.alpha_composite(chip(self.points_header if label == "PTS" else label, f6, WHITE, BLACK), (x, 0))
         return row
 
-    def _page(self, sections, rows, highlight, width) -> tuple[Image.Image, list[tuple[int, bool]]]:
+    season_key = "nhl.season"
+
+    def _banner(self, ctx: BoardContext) -> str | None:
+        season = ctx.snapshot.get(self.season_key) or {}
+        sid = season.get("standings_season_id")
+        if season.get("standings_final") and sid:
+            return f"FINAL {str(sid)[:4]}-{str(sid)[6:]}"
+        return None
+
+    def _page(self, sections, rows, highlight, width, banner: str | None = None) -> tuple[Image.Image, list[tuple[int, bool]]]:
         f6 = load_font("pl", 6)
         strips: list[tuple[Image.Image, bool]] = []
+        if banner:
+            strips.append((chip(banner, f6, (0, 0, 0), (255, 200, 0), pad=(1, 1, width, 1)).crop((0, 0, width, ROW_H)), False))
         for title, teams, cutoff in sections:
             strips.append((chip(title, f6, BLACK, WHITE, pad=(1, 1, width, 1)).crop((0, 0, width, ROW_H)), False))
             for rank, abbrev in enumerate(teams, 1):

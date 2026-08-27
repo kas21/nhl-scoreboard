@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import UTC, datetime
+from datetime import date, datetime
 from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -25,6 +25,7 @@ from .normalize import (
     records_from_standings,
     team_summary,
 )
+from .season import season_info
 from .select import favorite_side, select_main_event
 from .teams import NHL_TEAMS
 
@@ -42,6 +43,8 @@ class NhlConfig(BaseModel):
     idle_interval: float = Field(60.0, ge=15, le=600, description="Seconds between polls otherwise")
     standings_interval: float = Field(3600.0, ge=300, description="Seconds between standings refreshes")
     delay_seconds: float = Field(0.0, ge=0, le=120, description="Delay live updates to match your TV broadcast")
+    show_games_within_days: int = Field(2, ge=0, le=30, description="Only show the league slate (ticker) when it is this close; further-out games stay off the panel")
+    follow_preseason: bool = Field(True, description="Treat your team's preseason games like any other game")
 
 
 class NhlSource:
@@ -72,7 +75,13 @@ class NhlSource:
                 payload = await api.score("now")
                 records = records_from_standings(ctx.snapshot().get("nhl.standings"))
                 games = [normalize_game(g, records) for g in payload.get("games") or []]
-                main = select_main_event(games, cfg.favorites, today=_local_today(ctx))
+                if not cfg.follow_preseason:
+                    games = [g for g in games if g["type"] != 1]
+                today = _local_today(ctx)
+                slate_date = payload.get("currentDate") or (games[0]["date"] if games else today)
+                if _days_between(today, slate_date) > cfg.show_games_within_days:
+                    games = []                                   # too far out to be "tonight's games"
+                main = select_main_event(games, cfg.favorites, today=today)
                 if main and main["state"] in ACTIVE_STATES:
                     main = await self._enrich(api, main, records)
                 if main:
@@ -118,19 +127,28 @@ class NhlSource:
         while True:
             cfg: NhlConfig = ctx.config  # type: ignore[assignment]
             try:
-                standings = normalize_standings(await api.standings("now"))
+                raw_standings = await api.standings("now")
+                standings = normalize_standings(raw_standings)
                 ctx.publish(standings, subkey="standings")
                 self._standings_ready.set()
-                today = datetime.now(UTC).date().isoformat()
+                today = _local_today(ctx)
                 summaries = {}
+                schedules = {}
                 for team in cfg.favorites:
                     try:
-                        schedule = await api.club_schedule_season(team)
+                        schedules[team] = await api.club_schedule_season(team)
                     except NhlApiError as exc:
                         ctx.log.warning("schedule fetch failed for %s: %s", team, exc)
-                        schedule = None
-                    summaries[team] = team_summary(team, standings, schedule, today)
+                        schedules[team] = None
+                    summaries[team] = team_summary(team, standings, schedules[team], today)
                 ctx.publish(summaries, subkey="team_summary")
+                try:
+                    sched_now = await api.schedule_now()
+                    st_season = next((int(r.get("seasonId")) for r in raw_standings.get("standings") or [] if r.get("seasonId")), None)
+                    fav = cfg.favorites[0] if cfg.favorites else None
+                    ctx.publish({**season_info(sched_now, date.fromisoformat(today), st_season, schedules.get(fav), fav), "favorite": fav}, subkey="season")
+                except (NhlApiError, ValueError) as exc:
+                    ctx.log.warning("season info failed: %s", exc)
             except NhlApiError as exc:
                 ctx.log.warning("standings poll failed: %s", exc)
                 self._standings_ready.set()
@@ -158,3 +176,10 @@ def _score_shape(main: dict[str, Any], landing: dict[str, Any]) -> dict[str, Any
         "clock": landing.get("clock") or {}, "periodDescriptor": landing.get("periodDescriptor") or {},
         "gameOutcome": landing.get("gameOutcome") or {}, "situation": landing.get("situation") or {},
     }
+
+
+def _days_between(today: str, other: str) -> int:
+    try:
+        return (date.fromisoformat(other) - date.fromisoformat(today)).days
+    except ValueError:
+        return 0
