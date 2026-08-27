@@ -82,3 +82,21 @@ def test_migration_bumps_version(tmp_path):
     finally:
         del store_mod.MIGRATIONS[1]
         store_mod.CONFIG_VERSION = 1
+
+
+def test_log_level_changes_apply_without_a_restart(tmp_path):
+    """The listener was once registered inside request_restart(), so it never fired."""
+    import logging
+
+    from scoreboard.app import Application
+
+    root = logging.getLogger()
+    original = root.level
+    try:
+        app = Application(tmp_path / "config.json", output_mode="none")
+        app.config.update({"log_level": "DEBUG"})
+        assert root.level == logging.DEBUG
+        app.config.update({"log_level": "WARNING"})
+        assert root.level == logging.WARNING
+    finally:
+        root.setLevel(original)

@@ -11,6 +11,7 @@ from pathlib import Path
 import httpx
 import uvicorn
 
+from . import logos
 from .config import ConfigStore
 from .data import SnapshotStore
 from .data.arbiter import MainEventArbiter
@@ -31,6 +32,9 @@ class Application:
         logging.getLogger().addHandler(self.logs)
         self.config = ConfigStore(config_path)
         logging.getLogger().setLevel(self.config.get().log_level)
+        self.config.subscribe(lambda cfg: logging.getLogger().setLevel(cfg.log_level))
+        self._apply_logos(self.config.get())
+        self.config.subscribe(self._apply_logos)
         self.snapshots = SnapshotStore()
         self.events = EventBus()
         self.snapshots.subscribe(self.events.on_snapshot)
@@ -52,11 +56,15 @@ class Application:
         self._restart_requested = threading.Event()
         self.updater = Updater(restart=self.request_restart)
 
+    @staticmethod
+    def _apply_logos(cfg) -> None:
+        """Boards resolve their own logo variant, so the choice only has to land here."""
+        logos.apply_config(cfg.logos.use_curated_defaults, cfg.logos.overrides)
+
     def request_restart(self) -> None:
         """Exit cleanly; under systemd (Restart=always) that is a restart with fresh driver options."""
         log.info("restart requested from the web UI")
         self._restart_requested.set()
-        self.config.subscribe(lambda cfg: logging.getLogger().setLevel(cfg.log_level))
 
     # -- render thread -------------------------------------------------------
 
