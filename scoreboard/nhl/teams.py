@@ -8,10 +8,11 @@ from pathlib import Path
 
 from PIL import Image
 
+from ..logos import logo as cached_logo
+
 RGB = tuple[int, int, int]
 ASSETS = Path(__file__).parent.parent / "assets"
 BRANDING_FILE = ASSETS / "teams_branding.toml"
-LOGO_DIR = ASSETS / "logos" / "png"
 
 TEAM_NAMES: dict[str, tuple[str, str]] = {   # abbrev -> (city, nickname)
     "ANA": ("Anaheim", "Ducks"), "BOS": ("Boston", "Bruins"), "BUF": ("Buffalo", "Sabres"),
@@ -66,18 +67,13 @@ def team(abbrev: str) -> Team:
     return Team(abbrev, city, name, **colors)  # type: ignore[arg-type]
 
 
-@lru_cache(maxsize=256)
 def logo(abbrev: str, size: int) -> Image.Image:
-    """Pre-rasterised logo scaled to fit a ``size`` square (RGBA). Placeholder if missing."""
-    candidates = sorted(LOGO_DIR.glob(f"{abbrev.upper()}_*.png"), key=lambda p: int(p.stem.split("_")[1]))
-    src = next((p for p in candidates if int(p.stem.split("_")[1]) >= size), candidates[-1] if candidates else None)
-    if src is None:
-        return _placeholder(abbrev, size)
-    img = Image.open(src).convert("RGBA")
-    img.thumbnail((size, size), Image.LANCZOS)
-    return img
+    """Logo scaled to fit a ``size`` square (RGBA), or a neutral tile until the fetch lands."""
+    img = cached_logo("nhl", abbrev, size)
+    return img if img is not None else _placeholder(abbrev, size)
 
 
+@lru_cache(maxsize=128)
 def _placeholder(abbrev: str, size: int) -> Image.Image:
     from PIL import ImageDraw
 

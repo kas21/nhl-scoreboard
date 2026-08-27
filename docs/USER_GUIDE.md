@@ -19,6 +19,12 @@ NHL is the main event; NFL works the same way. Everything is set up from a web p
    - **Name** — the address you'll use (`name.local:8080`).
 5. Finish. The wizard is always available again under **Setup**.
 
+Team logos aren't bundled — the app downloads them once from ESPN's CDN the first time it runs
+(~4 MB for both leagues, a second or two) and caches them on disk: `/var/cache/scoreboard/logos/`
+on a Pi install, `~/.scoreboard/cache/logos/` when you run it yourself. Until that finishes, teams
+show as a plain coloured tile. Delete a file there to re-fetch it, or drop your own PNG in its place
+to override one.
+
 ## Pages
 - **Dashboard** — live preview of exactly what the panel shows, state, brightness slider.
 - **Boards** — per-state playlists. States: *offseason*, *offday* (season on, no game today), *pregame*,

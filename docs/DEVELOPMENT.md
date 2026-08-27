@@ -2,7 +2,7 @@
 
 ## Setup
 ```bash
-uv sync --extra dev --extra emulator --extra build
+uv sync --extra dev --extra emulator
 uv run scoreboard --demo --emulator      # emulator window + web UI, replaying a recorded game
 uv run pytest -q && uv run ruff check scoreboard tests
 ```
@@ -18,7 +18,10 @@ Python ≥ 3.11 (Pi OS Bookworm ships 3.11, Trixie 3.13). No Node toolchain: the
 
 ## Adding a font / logo
 - Fonts: drop a BDF in `render/fonts/bdf/` and run `tools/build_fonts.py`; map sizes in `render/text.py`.
-- NHL logos: SVG in `assets/logos/svg/` → `tools/rasterize_logos.py`. NFL: 128 px PNG in `assets/logos/nfl/`.
+- Team logos aren't in the repo: `logos.py` fetches them from ESPN's CDN on first run into
+  `$SCOREBOARD_CACHE_DIR/logos/{sport}/{ABBREV}.png` (default `~/.scoreboard/cache`). To override one, drop a PNG there; to re-fetch, delete it.
+  Tests run against an empty cache (`conftest.py` points `SCOREBOARD_CACHE_DIR` at a temp dir), so boards
+  render the placeholder tile — assert on layout, not on club colours.
 
 ## Release checklist (when the repo goes public)
 1. GitHub Actions: pytest + ruff on push; build `rgbmatrix` wheels for cp311/cp312/cp313 aarch64.

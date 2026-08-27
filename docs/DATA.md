@@ -44,9 +44,12 @@ Event bursts collapse to the latest event per (kind, team).
 | ESPN `site.api.espn.com` | `…/football/nfl/scoreboard` (current week; `?dates=YYYYMMDD`), `apis/v2/…/nfl/standings`, `…/teams`, `…/teams/{id}/schedule` | 20 s live-day / 300 s; hourly |
 | adsb.lol | `v2/lat/{lat}/lon/{lon}/dist/{nm}` | 30 s (airplanes.live now requires approval — not used) |
 | adsbdb | `v0/callsign/{cs}` (route/airline, incl. ICAO/IATA operator codes) | cached 6 h / 1 h negative |
-| Jxck-S/airline-logos (raw.githubusercontent.com) | `radarbox_logos/{CODE}.png`, then `flightaware_logos/{CODE}.png` | once per operator code; cached in `~/.scoreboard/cache/airline-logos` (misses re-tried weekly) |
+| Jxck-S/airline-logos (raw.githubusercontent.com) | `radarbox_logos/{CODE}.png`, then `flightaware_logos/{CODE}.png` | once per operator code; cached under `$SCOREBOARD_CACHE_DIR/airline-logos` (misses re-tried weekly) |
 | FlightAware AeroAPI | `flights/{ident}` — optional, paid, daily budget | only when a key is set |
+| ESPN CDN | `i/teamlogos/{nhl,nfl}/500/{code}.png` — team logos, none shipped in the repo | once per team on first run; cached under `$SCOREBOARD_CACHE_DIR/logos` |
 | Open-Meteo | `v1/forecast` (+ geocoding for the wizard) | 10 min |
 | `holidays` package | offline | hourly recompute |
+
+`SCOREBOARD_CACHE_DIR` defaults to `~/.scoreboard/cache`; the systemd unit sets it to `/var/cache/scoreboard`.
 
 Fixtures under `tests/fixtures/` are real captures of each; tests never hit the network (respx).

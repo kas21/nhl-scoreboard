@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 from pydantic import BaseModel, ConfigDict, Field
 
 from ..data.source import SourceContext
+from ..logos import prefetch as prefetch_logos
 from ..nhl.select import favorite_side, select_main_event
 from .api import NflApi, NflApiError
 from .normalize import normalize_scoreboard, normalize_standings, team_summary
@@ -34,7 +35,8 @@ class NflSource:
 
     async def run(self, ctx: SourceContext) -> None:
         api = NflApi(ctx.http)
-        await asyncio.gather(self._scores_loop(ctx, api), self._standings_loop(ctx, api))
+        await asyncio.gather(prefetch_logos(ctx.http, "nfl", NFL_TEAMS, ctx.log),
+                             self._scores_loop(ctx, api), self._standings_loop(ctx, api))
 
     async def _scores_loop(self, ctx: SourceContext, api: NflApi) -> None:
         while True:

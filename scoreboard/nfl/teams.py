@@ -1,12 +1,10 @@
-"""NFL team registry: static divisions, logos from assets, colours learned from the API."""
+"""NFL team registry: static divisions, logos from the runtime cache, colours learned from the API."""
 from __future__ import annotations
-
-from functools import lru_cache
-from pathlib import Path
 
 from PIL import Image, ImageDraw
 
-LOGO_DIR = Path(__file__).parent.parent / "assets" / "logos" / "nfl"
+from ..logos import logo as cached_logo
+
 DIVISIONS = {
     "AFC East": ["BUF", "MIA", "NE", "NYJ"], "AFC North": ["BAL", "CIN", "CLE", "PIT"],
     "AFC South": ["HOU", "IND", "JAX", "TEN"], "AFC West": ["DEN", "KC", "LAC", "LV"],
@@ -40,13 +38,13 @@ def text_on(bg: RGB) -> RGB:
     return (0, 0, 0) if lum > 140 else (255, 255, 255)
 
 
-@lru_cache(maxsize=128)
 def logo(abbrev: str, size: int) -> Image.Image:
-    path = LOGO_DIR / f"{abbrev.upper()}_128.png"
-    if not path.exists():
-        img = Image.new("RGBA", (size, size), (*colors(abbrev)[0], 255))
-        ImageDraw.Draw(img).rectangle((0, 0, size - 1, size - 1), outline=(255, 255, 255, 255))
-        return img
-    img = Image.open(path).convert("RGBA")
-    img.thumbnail((size, size), Image.LANCZOS)
+    """Logo scaled to fit a ``size`` square (RGBA), or a neutral tile until the fetch lands."""
+    img = cached_logo("nfl", abbrev, size)
+    return img if img is not None else _placeholder(abbrev, size)
+
+
+def _placeholder(abbrev: str, size: int) -> Image.Image:
+    img = Image.new("RGBA", (size, size), (*colors(abbrev)[0], 255))
+    ImageDraw.Draw(img).rectangle((0, 0, size - 1, size - 1), outline=(255, 255, 255, 255))
     return img

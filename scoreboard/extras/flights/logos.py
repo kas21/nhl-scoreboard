@@ -11,23 +11,21 @@ aircraft dict, so boards stay pure and only ever read a local file. Drop your ow
 """
 from __future__ import annotations
 
-import os
 import time
 from pathlib import Path
 from typing import Any
 
 import httpx
 
+from ...imagecache import CACHE_ROOT, is_png, store
+
 SOURCE_URLS = (
     "https://raw.githubusercontent.com/Jxck-S/airline-logos/main/radarbox_logos/{code}.png",
     "https://raw.githubusercontent.com/Jxck-S/airline-logos/main/flightaware_logos/{code}.png",
 )
 BUNDLED_DIR = Path(__file__).resolve().parents[2] / "assets" / "logos" / "airlines"
-CACHE_ROOT = Path(os.environ.get("SCOREBOARD_CACHE_DIR") or Path.home() / ".scoreboard" / "cache")
 CACHE_DIR = CACHE_ROOT / "airline-logos"
 
-PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
-MAX_LOGO_BYTES = 256 * 1024
 MISS_TTL = 7 * 86400        # absent from every set: a genuine miss, don't re-ask this week
 ERROR_TTL = 3600            # network/HTTP failure: retry hourly
 FETCH_TIMEOUT = 10.0
@@ -86,7 +84,7 @@ class LogoFetcher:
                 return self._miss(code, ERROR_TTL)
             content = resp.content
             break
-        if not content or not content.startswith(PNG_MAGIC) or len(content) > MAX_LOGO_BYTES:
+        if not is_png(content or b""):
             if content:
                 log.warning("airline logo for %s was not a usable PNG (%d bytes)", code, len(content))
             return self._miss(code, MISS_TTL)
@@ -98,14 +96,7 @@ class LogoFetcher:
 
     def _store(self, code: str, content: bytes, log) -> Path | None:
         path = self._cache_dir / f"{code}.png"
-        tmp = path.with_suffix(".png.tmp")
-        try:
-            self._cache_dir.mkdir(parents=True, exist_ok=True)
-            tmp.write_bytes(content)
-            tmp.replace(path)                  # atomic: boards never see a half-written file
-        except OSError as exc:
-            log.warning("could not cache airline logo %s: %s", code, exc)
-            tmp.unlink(missing_ok=True)
+        if not store(path, content, log):
             return self._miss(code, ERROR_TTL)
         log.info("fetched airline logo for %s (%d bytes)", code, len(content))
         return path

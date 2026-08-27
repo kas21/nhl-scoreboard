@@ -79,6 +79,8 @@ ExecStart=$APP_DIR/.venv/bin/scoreboard --config $CONFIG_DIR/config.json --outpu
 Restart=always
 RestartSec=3
 Environment=PYTHONUNBUFFERED=1
+Environment=SCOREBOARD_CACHE_DIR=/var/cache/scoreboard
+CacheDirectory=scoreboard
 WorkingDirectory=$APP_DIR
 
 [Install]

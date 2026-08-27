@@ -2,7 +2,7 @@
 'overhead' is an event board that interrupts when one passes close overhead."""
 from __future__ import annotations
 
-from functools import lru_cache
+from pathlib import Path
 from typing import Any
 
 from PIL import Image, ImageDraw
@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from ...boards.base import BaseBoard, BoardContext, EventBoard, SequenceMixin
 from ...data import Event
+from ...imagecache import load as cached_image
 from ...render import Absolute, Img, Sequence, Slide, Text, load_font, render_tree
 from ...render.anim import quintic_out
 from ...render.fx import fit_logo
@@ -81,20 +82,10 @@ def _monogram_tile(ac: dict[str, Any], side: int) -> Image.Image:
     return tile
 
 
-@lru_cache(maxsize=64)
-def _load_logo(path: str, side: int) -> Image.Image | None:
-    """Airline PNG the source downloaded, aspect-fitted to a square. None if unreadable."""
-    try:
-        with Image.open(path) as src:
-            return fit_logo(src.convert("RGBA"), side, side)
-    except (OSError, ValueError):
-        return None
-
-
 def _logo_tile(ac: dict[str, Any], side: int) -> Image.Image:
     """The airline's logo when the source fetched one, else a monogram tile."""
-    logo = _load_logo(ac["logo"], side) if ac.get("logo") else None
-    return logo if logo is not None else _monogram_tile(ac, side)
+    logo = cached_image(Path(ac["logo"]), side) if ac.get("logo") else None
+    return _monogram_tile(ac, side) if logo is None else fit_logo(logo, side, side)
 
 
 def _clip(text: str, font: Any, max_width: int) -> str:

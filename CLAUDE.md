@@ -8,13 +8,12 @@ as reference for board *designs*; the old code is not used).
 ## Commands
 
 ```bash
-uv sync --extra dev --extra emulator --extra build   # dev install (emulator + logo/font build tools)
+uv sync --extra dev --extra emulator                 # dev install (emulator + font build tools)
 uv run scoreboard --emulator                        # emulator window (:8888) + web UI (:8080)
 uv run scoreboard --demo --emulator                 # replay a recorded NHL game (works in the off-season)
 uv run scoreboard --output none                     # headless: browser preview only
 uv run pytest -q                                    # ~115 tests, <1s
 uv run ruff check --fix scoreboard tests            # lint (rules pinned in pyproject)
-uv run python tools/rasterize_logos.py              # SVG -> PNG logos (needs the 'build' extra)
 uv run python tools/build_fonts.py                  # BDF -> .pil bitmap fonts
 ```
 
@@ -43,7 +42,8 @@ scoreboard/
   nhl/              api-web.nhle.com client, normaliser, source, season phase, event detectors, boards (ported old designs)
   nfl/              ESPN site API, normaliser, source, detectors; boards subclass the NHL ones
   extras/           holidays, flights (adsb.lol + adsbdb + airline logos), weather (Open-Meteo) — same plugin contract
-  assets/           logos (svg + pre-rasterised png), fonts under render/fonts, holiday images, penalty gif
+  imagecache.py logos.py  runtime image cache ($SCOREBOARD_CACHE_DIR) + team logos fetched from ESPN's CDN
+  assets/           fonts under render/fonts, holiday images, penalty gif (team logos are fetched at runtime)
 tests/              pytest; fixtures/ are real API captures (NHL 2026-04-11 game day, ESPN, adsb.lol, Open-Meteo)
 tools/ scripts/     build steps; Pi install.sh + pi_tuning.sh
 docs/               USER_GUIDE, HARDWARE, ARCHITECTURE, DATA, PLUGINS, DEVELOPMENT

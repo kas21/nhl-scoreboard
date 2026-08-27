@@ -1,7 +1,14 @@
+import os
+import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
+
+# Point the runtime image cache at a throwaway dir before anything imports it, so tests
+# see the same empty cache everywhere instead of whatever the developer's box happens
+# to have downloaded.
+os.environ.setdefault("SCOREBOARD_CACHE_DIR", tempfile.mkdtemp(prefix="scoreboard-test-cache-"))
 
 from scoreboard.boards.base import BoardContext
 from scoreboard.config import ConfigStore

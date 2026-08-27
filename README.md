@@ -16,7 +16,6 @@ uv run scoreboard --emulator            # emulator window + web UI on :8080
 uv run scoreboard --output none         # headless: browser preview only
 uv run scoreboard --demo --emulator     # replay a recorded game (no network, works in the off-season)
 uv run pytest
-uv run --extra build python tools/rasterize_logos.py   # regenerate logo PNGs from SVGs
 ```
 
 Open http://localhost:8080 — the dashboard shows exactly what the matrix shows.

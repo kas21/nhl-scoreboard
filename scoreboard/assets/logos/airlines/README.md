@@ -1,7 +1,7 @@
 # Airline logos
 
 Logos are downloaded automatically (see `extras/flights/logos.py`) and cached under
-`~/.scoreboard/cache/airline-logos/`. Drop a PNG here, named by ICAO or IATA operator
+`$SCOREBOARD_CACHE_DIR/airline-logos/` (default `~/.scoreboard/cache`). Drop a PNG here, named by ICAO or IATA operator
 code, to override a fetched logo or to add one the sets don't carry:
 
 ```

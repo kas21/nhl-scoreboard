@@ -19,7 +19,6 @@ dependencies = [
 emulator = ["rgbmatrixemulator>=0.14.0"]
 pi = ["rgbmatrix ; python_full_version >= '3.13' and platform_machine == 'aarch64'"]
 dev = ["pytest>=8", "pytest-asyncio>=0.23", "respx>=0.21", "ruff>=0.4"]
-build = ["cairosvg>=2.7"]
 
 [project.scripts]
 scoreboard = "scoreboard.__main__:main"

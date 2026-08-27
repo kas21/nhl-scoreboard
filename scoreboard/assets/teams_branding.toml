@@ -2,224 +2,192 @@
 # Color values are RGB tuples (red, green, blue) with values 0-255
 
 [ANA]
-logo_path = "assets/logos/ANA.svg"
 primary = [207, 69, 32]
 accent = [185, 151, 91]
 text_on_primary = [0, 0, 0]
 text_on_accent = [0, 0, 0]
 
 [BOS]
-logo_path = "assets/logos/BOS.svg"
 primary = [253, 183, 23]
 accent = [0, 0, 0]
 text_on_primary = [0, 0, 0]
 text_on_accent = [255, 255, 255]
 
 [BUF]
-logo_path = "assets/logos/BUF.svg"
 primary = [0, 48, 135]
 accent = [255, 184, 28]
 text_on_primary = [255, 255, 255]
 text_on_accent = [0, 48, 135]
 
 [CGY]
-logo_path = "assets/logos/CGY.svg"
 primary = [200, 16, 46]
 accent = [241, 190, 72]
 text_on_primary = [255, 255, 255]
 text_on_accent = [0, 0, 0]
 
 [CAR]
-logo_path = "assets/logos/CAR.svg"
 primary = [200, 16, 46]
 accent = [0, 0, 0]
 text_on_primary = [0, 0, 0]
 text_on_accent = [255, 255, 255]
 
 [CHI]
-logo_path = "assets/logos/CHI.svg"
 primary = [206, 17, 38]
 accent = [0, 0, 0]
 text_on_primary = [255, 255, 255]
 text_on_accent = [255, 255, 255]
 
 [COL]
-logo_path = "assets/logos/COL.svg"
 primary = [138, 36, 50]
 accent = [194, 198, 201]
 text_on_primary = [255, 255, 255]
 text_on_accent = [0, 0, 0]
 
 [CBJ]
-logo_path = "assets/logos/CBJ.svg"
 primary = [4, 30, 66]
 accent = [200, 16, 46]
 text_on_primary = [255, 255, 255]
 text_on_accent = [255, 255, 255]
 
 [DAL]
-logo_path = "assets/logos/DAL.svg"
 primary = [0, 130, 62]
 accent = [162, 170, 173]
 text_on_primary = [255, 255, 255]
 text_on_accent = [0, 0, 0]
 
 [DET]
-logo_path = "assets/logos/DET.svg"
 primary = [200, 16, 46]
 accent = [255, 255, 255]
 text_on_primary = [255, 255, 255]
 text_on_accent = [200, 16, 46]
 
 [EDM]
-logo_path = "assets/logos/EDM.svg"
 primary = [0, 32, 91]
 accent = [209, 69, 32]
 text_on_primary = [255, 255, 255]
 text_on_accent = [255, 255, 255]
 
 [FLA]
-logo_path = "assets/logos/FLA.svg"
 primary = [200, 16, 46]
 accent = [4, 30, 66]
 text_on_primary = [255, 255, 255]
 text_on_accent = [255, 255, 255]
 
 [LAK]
-logo_path = "assets/logos/LAK.svg"
 primary = [162, 170, 173]
 accent = [0, 0, 0]
 text_on_primary = [0, 0, 0]
 text_on_accent = [255, 255, 255]
 
 [MIN]
-logo_path = "assets/logos/MIN.svg"
 primary = [14, 68, 49]
 accent = [221, 201, 163]
 text_on_primary = [221, 201, 163]
 text_on_accent = [0, 0, 0]
 
 [MTL]
-logo_path = "assets/logos/MTL.svg"
 primary = [166, 25, 46]
 accent = [0, 30, 98]
 text_on_primary = [255, 255, 255]
 text_on_accent = [255, 255, 255]
 
 [NSH]
-logo_path = "assets/logos/NSH.svg"
 primary = [255, 184, 28]
 accent = [4, 30, 66]
 text_on_primary = [4, 30, 66]
 text_on_accent = [255, 184, 28]
 
 [NJD]
-logo_path = "assets/logos/NJD.svg"
 primary = [204, 0, 0]
 accent = [0, 0, 0]
 text_on_primary = [255, 255, 255]
 text_on_accent = [255, 255, 255]
 
 [NYI]
-logo_path = "assets/logos/NYI.svg"
 primary = [0, 70, 139]
 accent = [242, 105, 36]
 text_on_primary = [255, 255, 255]
 text_on_accent = [0, 0, 0]
 
 [NYR]
-logo_path = "assets/logos/NYR.svg"
 primary = [21, 75, 148]
 accent = [195, 32, 50]
 text_on_primary = [255, 255, 255]
 text_on_accent = [255, 255, 255]
 
 [OTT]
-logo_path = "assets/logos/OTT.svg"
 primary = [200, 16, 46]
 accent = [185, 151, 91]
 text_on_primary = [0, 0, 0]
 text_on_accent = [0, 0, 0]
 
 [PHI]
-logo_path = "assets/logos/PHI.svg"
 primary = [210, 67, 3]
 accent = [0, 0, 0]
 text_on_primary = [255, 255, 255]
 text_on_accent = [255, 255, 255]
 
 [PIT]
-logo_path = "assets/logos/PIT.svg"
 primary = [255, 184, 28]
 accent = [0, 0, 0]
 text_on_primary = [0, 0, 0]
 text_on_accent = [255, 184, 28]
 
 [SEA]
-logo_path = "assets/logos/SEA.svg"
 primary = [150, 216, 216]
 accent = [0, 20, 37]
 text_on_primary = [0, 20, 37]
 text_on_accent = [150, 216, 216]
 
 [SJS]
-logo_path = "assets/logos/SJS.svg"
 primary = [0, 97, 127]
 accent = [229, 114, 0]
 text_on_primary = [255, 255, 255]
 text_on_accent = [0, 0, 0]
 
 [STL]
-logo_path = "assets/logos/STL.svg"
 primary = [0, 48, 135]
 accent = [255, 184, 28]
 text_on_primary = [255, 184, 28]
 text_on_accent = [4, 30, 66]
 
 [TBL]
-logo_path = "assets/logos/TBL.svg"
 primary = [0, 40, 104]
 accent = [255, 255, 255]
 text_on_primary = [255, 255, 255]
 text_on_accent = [0, 40, 104]
 
 [TOR]
-logo_path = "assets/logos/TOR.svg"
 primary = [0, 32, 91]
 accent = [255, 255, 255]
 text_on_primary = [255, 255, 255]
 text_on_accent = [0, 32, 91]
 
 [UTA]
-logo_path = "assets/logos/UTA.svg"
 primary = [108, 172, 228]
 accent = [255, 255, 255]
 text_on_primary = [0, 0, 0]
 text_on_accent = [0, 0, 0]
 
 [VAN]
-logo_path = "assets/logos/VAN.svg"
 primary = [0, 32, 91]
 accent = [151, 153, 155]
 text_on_primary = [255, 255, 255]
 text_on_accent = [4, 28, 44]
 
 [VGK]
-logo_path = "assets/logos/VGK.svg"
 primary = [185, 151, 91]
 accent = [51, 63, 72]
 text_on_primary = [0, 0, 0]
 text_on_accent = [255, 255, 255]
 
 [WPG]
-logo_path = "assets/logos/WPG.svg"
 primary = [4, 30, 66]
 accent = [162, 170, 173]
 text_on_primary = [255, 255, 255]
 text_on_accent = [4, 30, 66]
 
 [WSH]
-logo_path = "assets/logos/WSH.svg"
 primary = [200, 16, 46]
 accent = [4, 30, 66]
 text_on_primary = [255, 255, 255]
@@ -228,84 +196,72 @@ text_on_accent = [255, 255, 255]
 # International teams (Olympics / 4 Nations Face-Off)
 
 [CAN]
-logo_path = "assets/logos/CAN.svg"
 primary = [255, 0, 0]
 accent = [255, 255, 255]
 text_on_primary = [255, 255, 255]
 text_on_accent = [255, 0, 0]
 
 [CZE]
-logo_path = "assets/logos/CZE.svg"
 primary = [17, 69, 126]
 accent = [215, 20, 26]
 text_on_primary = [255, 255, 255]
 text_on_accent = [255, 255, 255]
 
 [FIN]
-logo_path = "assets/logos/FIN.svg"
 primary = [0, 47, 108]
 accent = [255, 255, 255]
 text_on_primary = [255, 255, 255]
 text_on_accent = [0, 47, 108]
 
 [GER]
-logo_path = "assets/logos/GER.svg"
 primary = [0, 0, 0]
 accent = [255, 204, 0]
 text_on_primary = [255, 255, 255]
 text_on_accent = [0, 0, 0]
 
 [SVK]
-logo_path = "assets/logos/SVK.svg"
 primary = [11, 78, 162]
 accent = [238, 28, 37]
 text_on_primary = [255, 255, 255]
 text_on_accent = [255, 255, 255]
 
 [SWE]
-logo_path = "assets/logos/SWE.svg"
 primary = [0, 106, 167]
 accent = [254, 204, 0]
 text_on_primary = [254, 204, 0]
 text_on_accent = [0, 106, 167]
 
 [USA]
-logo_path = "assets/logos/USA.svg"
 primary = [0, 40, 104]
 accent = [191, 10, 48]
 text_on_primary = [255, 255, 255]
 text_on_accent = [255, 255, 255]
 
 [DEN]
-logo_path = "assets/logos/DEN.svg"
 primary = [200, 16, 46]
 accent = [255, 255, 255]
 text_on_primary = [255, 255, 255]
 text_on_accent = [200, 16, 46]
 
 [ITA]
-logo_path = "assets/logos/ITA.svg"
 primary = [0, 61, 165]
 accent = [0, 146, 70]
 text_on_primary = [255, 255, 255]
 text_on_accent = [255, 255, 255]
 
 [LAT]
-logo_path = "assets/logos/LAT.svg"
 primary = [155, 35, 53]
 accent = [255, 255, 255]
 text_on_primary = [255, 255, 255]
 text_on_accent = [155, 35, 53]
 
 [SUI]
-logo_path = "assets/logos/SUI.svg"
 primary = [213, 43, 30]
 accent = [255, 255, 255]
 text_on_primary = [255, 255, 255]
 text_on_accent = [213, 43, 30]
 
 [FRA]
-logo_path = "assets/logos/FRA.svg"
 primary = [0, 35, 149]
 accent = [237, 41, 57]
 text_on_primary = [255, 255, 255]
