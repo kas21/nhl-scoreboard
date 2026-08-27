@@ -37,6 +37,29 @@ def test_profile_fallback():
     assert profile_for(8, 8).name == "64x32"
 
 
+def test_clock_fills_the_panel(ctx):
+    board = ClockBoard()
+    widest = ctx.now.replace(hour=22, minute=47)
+    for w, h in [(64, 32), (128, 32), (128, 64), (192, 128)]:
+        c = replace(ctx, width=w, height=h, profile=profile_for(w, h), now=widest)
+        left, top, right, bottom = board.render(c, ClockConfig()).getbbox()
+        assert left >= 0 and top >= 0 and right <= w and bottom <= h         # nothing clipped
+        # the stacked date/time/year block grows until one axis is full
+        assert right - left >= w * 0.8 or bottom - top >= h * 0.8
+    tall = replace(ctx, width=128, height=64, profile=profile_for(128, 64), now=widest)
+    left, top, right, bottom = board.render(tall, ClockConfig()).getbbox()
+    assert bottom - top >= 64 * 0.7
+
+
+def test_clock_digits_keep_one_size_across_the_hour(ctx):
+    """Sized for the widest time, so the digits don't grow and shrink each minute."""
+    def height(hour, minute):
+        box = ClockBoard().render(replace(ctx, now=ctx.now.replace(hour=hour, minute=minute)), ClockConfig()).getbbox()
+        return box[3] - box[1]
+
+    assert height(22, 47) == height(9, 5)
+
+
 def test_clock_drops_rows_that_do_not_fit(ctx):
     small = replace(ctx, width=64, height=32, profile=profile_for(64, 32))
     frame = ClockBoard().render(small, ClockConfig(show_date=True))
