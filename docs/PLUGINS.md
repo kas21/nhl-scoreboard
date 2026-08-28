@@ -33,8 +33,12 @@ class MyBoard(BaseBoard):
         return render_tree(tree, ctx.width, ctx.height, t=ctx.elapsed)
     def done(self, ctx, cfg) -> bool:       # optional: self-terminating boards (tickers/scrollers)
         return ctx.elapsed > 10
+    def parts(self, ctx, cfg) -> int:       # optional: tiles to claim in ticker mode, each with its own ctx.part
+        return len(ctx.snapshot.get("my.latest") or [1])
 ```
-Use `enter(ctx, cfg)` to pre-render once when the board becomes active. `SequenceMixin` turns a board
+Use `enter(ctx, cfg)` to pre-render once when the board becomes active. A board that cycles through
+items on its own clock should implement `parts()` and honour `ctx.part` when `ctx.ticker` is set, so
+the strip lays the items out side by side instead of scrolling one tile that cycles internally. `SequenceMixin` turns a board
 into `build(ctx, cfg) -> Sequence` for timeline boards. Layout/animation vocabulary: `render/__init__.py`.
 Register: `[project.entry-points."scoreboard.boards"] "my.card" = "pkg.module:MyBoard"`.
 

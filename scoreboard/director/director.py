@@ -196,7 +196,7 @@ class Director:
             speed=cfg.ticker.speed,
             gap=cfg.ticker.gap,
             make_board=self._tile_board,
-            make_ctx=lambda entered, w, h: self._context(cfg, snap, mono, None, entered_at=entered, size=(w, h)),
+            make_ctx=lambda entered, w, h, part: self._context(cfg, snap, mono, None, entered_at=entered, size=(w, h), part=part),
             board_cfg=lambda b: self._board_config(cfg, b),
             on_error=lambda key: self._quarantine_board(key, mono),
         ))
@@ -268,7 +268,7 @@ class Director:
             self._cursor = advance(self._cursor, len(entries), mono)
 
     def _context(self, cfg: AppConfig, snap: Snapshot, mono: float, event: Event | None,
-                 entered_at: float | None = None, size: tuple[int, int] | None = None) -> BoardContext:
+                 entered_at: float | None = None, size: tuple[int, int] | None = None, part: int = 0) -> BoardContext:
         entered = self._active_event[2] if self._active_event else self._cursor.entered_at
         entered = entered if entered_at is None else entered_at
         width, height = size or (cfg.display.width, cfg.display.height)
@@ -282,6 +282,7 @@ class Director:
             elapsed=mono - entered,
             event=event,
             ticker=size is not None,
+            part=part,
         )
 
     def _board_config(self, cfg: AppConfig, board: BaseBoard) -> BaseModel:

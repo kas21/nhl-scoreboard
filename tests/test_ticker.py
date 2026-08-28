@@ -53,6 +53,25 @@ class ClockFaceBoard(ColorBoard):
         return Image.new("RGB", (ctx.width, ctx.height), (level, level, level))
 
 
+class ThreeUpBoard(ColorBoard):
+    """A board worth three tiles — a score ticker with three games in it. Each part gets its own shade."""
+
+    key, title = "threeup", "Three up"
+
+    def parts(self, ctx, cfg):
+        return 3
+
+    def render(self, ctx, cfg):
+        return Image.new("RGB", (ctx.width, ctx.height), (0, 60 + 60 * ctx.part, 0))
+
+
+class CountBrokenBoard(ColorBoard):
+    key, title = "count_broken", "Broken count"
+
+    def parts(self, ctx, cfg):
+        raise RuntimeError("boom")
+
+
 class BrokenBoard(ColorBoard):
     key, title = "broken", "Broken"
 
@@ -67,7 +86,8 @@ class BrokenEntryBoard(ColorBoard):
         raise RuntimeError("boom")
 
 
-CLASSES = {c.key: c for c in (BlueBoard, GreenBoard, ClockFaceBoard, BrokenBoard, BrokenEntryBoard)}
+CLASSES = {c.key: c for c in (BlueBoard, GreenBoard, ClockFaceBoard, ThreeUpBoard,
+                              CountBrokenBoard, BrokenBoard, BrokenEntryBoard)}
 
 
 class Harness:
@@ -91,9 +111,9 @@ class Harness:
             self.built.append(board)
             return board
 
-        def make_ctx(entered, w, h):
+        def make_ctx(entered, w, h, part=0):
             return BoardContext(snapshot=Snapshot(), profile=profile_for(w, h), width=w, height=h,
-                                fps=30, now=NOW, elapsed=mono - entered, ticker=True)
+                                fps=30, now=NOW, elapsed=mono - entered, ticker=True, part=part)
 
         return self.strip.frame(StripFrame(
             mono=mono, make_board=make_board, make_ctx=make_ctx,
@@ -171,6 +191,27 @@ def test_a_playlist_that_cannot_build_yields_a_blank_frame():
     h = Harness(keys=("broken_entry",))
     frame = h.at(0.0)
     assert h.errors == ["broken_entry"] and frame.getbbox() is None
+
+
+def test_a_multi_part_board_becomes_one_tile_per_part():
+    h = Harness(keys=("threeup", "blue"), tile_width=16)
+    colors = row(h.at(0.0))
+    assert colors[0] == (0, 60, 0) and colors[16] == (0, 120, 0) and colors[32] == (0, 180, 0)
+    assert colors[48] == BLUE                           # then the next playlist entry, once the parts run out
+    assert len(h.built) == len(h.strip._tiles)          # counting parts costs no throwaway instance
+
+
+def test_multi_part_boards_repeat_in_order_on_the_next_lap():
+    h = Harness(keys=("threeup",), tile_width=16)
+    colors = row(h.at(0.0))
+    assert [colors[x] for x in (0, 16, 32, 48)] == [(0, 60, 0), (0, 120, 0), (0, 180, 0), (0, 60, 0)]
+
+
+def test_a_board_that_cannot_count_its_parts_is_treated_as_one_tile():
+    h = Harness(keys=("count_broken", "green"), tile_width=16)
+    colors = row(h.at(0.0))
+    assert colors[0] == BLUE and colors[16] == GREEN    # CountBrokenBoard renders the default colour
+    assert h.errors == []                               # a bad count is not worth quarantining the board for
 
 
 def test_narrow_tiles_put_several_boards_on_screen_at_once():

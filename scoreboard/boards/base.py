@@ -33,6 +33,7 @@ class BoardContext:
     elapsed: float         # seconds since this board was entered
     event: Event | None = None
     ticker: bool = False   # True when the board is a tile in the scrolling strip, not the whole panel
+    part: int = 0          # which of the board's parts this tile shows (see ``Board.parts``)
 
 
 @runtime_checkable
@@ -46,6 +47,10 @@ class Board(Protocol):
 
     def done(self, ctx: BoardContext, cfg: BaseModel) -> bool:
         """Self-terminating boards (tickers) return True when finished."""
+        ...
+
+    def parts(self, ctx: BoardContext, cfg: BaseModel) -> int:
+        """How many tiles this board is worth in ticker mode."""
         ...
 
 
@@ -64,6 +69,16 @@ class BaseBoard:
 
     def done(self, ctx: BoardContext, cfg: BaseModel) -> bool:
         return False
+
+    def parts(self, ctx: BoardContext, cfg: BaseModel) -> int:
+        """How many tiles this board wants in ticker mode; each is rendered with its own ``ctx.part``.
+
+        A board that cycles through items on its own clock — a score ticker running one game
+        after another — returns one per item, so the strip lays the games out side by side
+        instead of scrolling a single tile that cycles internally. Ignored outside ticker mode,
+        where ``done()`` still ends the board.
+        """
+        return 1
 
 
 class SequenceMixin:

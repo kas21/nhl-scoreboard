@@ -38,7 +38,9 @@ the playlist is laid out side by side and scrolled right-to-left at `speed` px/s
 its own clock, so entrances play as a tile arrives. Tiles are built a screen ahead — far enough that a
 1.5 s entrance is finished before the tile is visible — and dropped once they leave on the left, with the
 coordinates rebased on every prune. `duration` and `done()` are unused here; `speed` and `tile_width`
-replace them. Boot/error states, the UI override and event boards still take the panel full-screen, and
+replace them. A playlist entry expands into one tile per `board.parts(ctx, cfg)` (default 1), each
+rendered with its own `ctx.part` — so a score ticker becomes one tile per game rather than one tile
+cycling through them. Boot/error states, the UI override and event boards still take the panel full-screen, and
 the strip resumes where it left off. A tile as wide as the panel is only whole for an instant, so
 `tile_width` below `display.width` (which drops each board to the nearest smaller size profile) is what
 gives a true ticker.

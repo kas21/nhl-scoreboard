@@ -54,14 +54,21 @@ class TickerBoard(BaseBoard):
     def __init__(self) -> None:
         self._games: list[dict[str, Any]] = []
 
-    def enter(self, ctx: BoardContext, cfg: TickerConfig) -> None:
+    def _visible(self, ctx: BoardContext, cfg: TickerConfig) -> list[dict[str, Any]]:
         games = ctx.snapshot.get(self.scores_key) or []
         if cfg.skip_finished:
             games = [g for g in games if g["phase"] != "postgame"] or games
-        self._games = list(games)
+        return list(games)
+
+    def enter(self, ctx: BoardContext, cfg: TickerConfig) -> None:
+        self._games = self._visible(ctx, cfg)
 
     def done(self, ctx: BoardContext, cfg: TickerConfig) -> bool:
         return ctx.elapsed >= cfg.seconds_per_game * max(len(self._games), 1)
+
+    def parts(self, ctx: BoardContext, cfg: TickerConfig) -> int:
+        """One tile per game: in ticker mode the games sit side by side in the strip."""
+        return max(len(self._visible(ctx, cfg)), 1)
 
     def render(self, ctx: BoardContext, cfg: TickerConfig) -> Image.Image:
         if not self._games:
@@ -69,8 +76,11 @@ class TickerBoard(BaseBoard):
         w, h = ctx.width, ctx.height
         if not self._games:
             return render_tree(Text("NO GAMES TODAY", load_font("pl", 6), LIGHT), w, h)
-        idx = min(int(ctx.elapsed // cfg.seconds_per_game), len(self._games) - 1)
-        local = ctx.elapsed - idx * cfg.seconds_per_game
+        if ctx.ticker:
+            idx, local = min(ctx.part, len(self._games) - 1), ctx.elapsed   # one game per tile, own clock
+        else:
+            idx = min(int(ctx.elapsed // cfg.seconds_per_game), len(self._games) - 1)
+            local = ctx.elapsed - idx * cfg.seconds_per_game
         return render_tree(Absolute(self._card(self._games[idx], ctx, cfg)), w, h, t=local)
 
     def _date_label(self, g: dict[str, Any], ctx: BoardContext) -> str:

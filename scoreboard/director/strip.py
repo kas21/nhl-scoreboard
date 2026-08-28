@@ -25,6 +25,7 @@ log = logging.getLogger(__name__)
 MAX_STEP = 0.25         # seconds of travel per frame, clamped so a stalled loop can't teleport the strip
 LOOKAHEAD = 1.0         # build tiles this many screen-widths past the right edge
 MAX_TILES = 24          # backstop against a pathological tile width filling forever
+MAX_PARTS = 64          # cap on how many tiles one playlist entry may expand into
 MIN_TILE = 8            # narrowest tile we will ask a board to render into
 
 
@@ -37,6 +38,7 @@ class Tile:
     x: float                # left edge, in strip coordinates
     width: int
     entered_at: float       # monotonic time this tile's board clock started
+    part: int = 0           # which of the board's parts this tile shows
 
     @property
     def right(self) -> float:
@@ -54,8 +56,8 @@ class StripFrame:
     tile_width: int                                         # 0 = full panel width
     speed: float                                            # pixels per second
     gap: int                                                # blank pixels between tiles
-    make_board: Callable[[str], BaseBoard | None]           # key -> a fresh board instance
-    make_ctx: Callable[[float, int, int], BoardContext]     # (entered_at, w, h) -> context
+    make_board: Callable[[str], BaseBoard | None]                 # key -> a fresh board instance
+    make_ctx: Callable[[float, int, int, int], BoardContext]     # (entered_at, w, h, part) -> context
     board_cfg: Callable[[BaseBoard], BaseModel]
     on_error: Callable[[str], None]                         # board key -> quarantine it
 
@@ -67,7 +69,9 @@ class Strip:
         self._tiles: list[Tile] = []
         self._offset = 0.0              # strip coordinate of the viewport's left edge
         self._last_mono: float | None = None
-        self._next = 0                  # index into ``keys`` of the tile to build next
+        self._next = 0                  # index into ``keys`` of the entry to expand next
+        self._queue: list[tuple[str, int]] = []     # (key, part) still to be laid out
+        self._probe: tuple[str, BaseBoard] | None = None    # instance built to count parts, reused for part 0
         self._keys: tuple[str, ...] = ()
         self._layout: tuple[int, int, int, int] = (0, 0, 0, 0)   # width, height, tile width, gap
 
@@ -84,6 +88,8 @@ class Strip:
         self._offset = 0.0
         self._last_mono = None
         self._next = 0
+        self._queue = []
+        self._probe = None
 
     def frame(self, f: StripFrame) -> Image.Image:
         self._sync(f)
@@ -103,6 +109,8 @@ class Strip:
         if f.keys != self._keys:
             self._keys = f.keys
             self._next = 0
+            self._queue = []
+            self._probe = None
             self._tiles = [t for t in self._tiles if t.x < self._offset + f.width]   # keep what is on screen
 
     def _tile_width(self, f: StripFrame) -> int:
@@ -125,31 +133,62 @@ class Strip:
                 return
             if self._tiles and self._tiles[-1].right + f.gap >= target:
                 return
+            if not self._queue and not self._enqueue(f, failed):
+                return                      # nothing in the playlist can be laid out right now
+            key, part = self._queue.pop(0)
+            if key in failed:
+                continue
+            x = self._tiles[-1].right + f.gap if self._tiles else self._offset
+            tile = self._build(f, key, part, x, width)
+            if tile is None:
+                failed.add(key)
+                self._queue = [q for q in self._queue if q[0] != key]
+                continue
+            self._tiles.append(tile)
+
+    def _enqueue(self, f: StripFrame, failed: set[str]) -> bool:
+        """Expand the next playlist entry into one queued tile per part. False when none can be."""
+        for _ in range(len(self._keys)):
             key = self._keys[self._next % len(self._keys)]
             self._next += 1
             if key in failed:
                 continue
-            x = self._tiles[-1].right + f.gap if self._tiles else self._offset
-            tile = self._build(f, key, x, width)
-            if tile is None:
+            board = f.make_board(key)
+            if board is None:
                 failed.add(key)
-                if len(failed) >= len(self._keys):
-                    return
                 continue
-            self._tiles.append(tile)
+            self._probe = (key, board)      # reused as the tile for part 0 rather than thrown away
+            self._queue = [(key, part) for part in range(self._count(f, key, board, width=self._tile_width(f)))]
+            return True
+        return False
 
-    def _build(self, f: StripFrame, key: str, x: float, width: int) -> Tile | None:
-        board = f.make_board(key)
+    def _count(self, f: StripFrame, key: str, board: BaseBoard, width: int) -> int:
+        try:
+            parts = board.parts(f.make_ctx(f.mono, width, f.height, 0), f.board_cfg(board))
+        except Exception:
+            log.exception("board %s failed to count its ticker parts; treating it as one", key)
+            return 1
+        return max(min(int(parts), MAX_PARTS), 1)
+
+    def _build(self, f: StripFrame, key: str, part: int, x: float, width: int) -> Tile | None:
+        board = self._take_probe(key) or f.make_board(key)
         if board is None:
             return None
-        tile = Tile(key=key, board=board, x=x, width=width, entered_at=f.mono)
+        tile = Tile(key=key, board=board, x=x, width=width, entered_at=f.mono, part=part)
         try:
-            board.enter(f.make_ctx(tile.entered_at, width, f.height), f.board_cfg(board))
+            board.enter(f.make_ctx(tile.entered_at, width, f.height, part), f.board_cfg(board))
         except Exception:
             log.exception("board %s failed to enter the ticker; skipping it", key)
             f.on_error(key)
             return None
         return tile
+
+    def _take_probe(self, key: str) -> BaseBoard | None:
+        if self._probe and self._probe[0] == key:
+            board = self._probe[1]
+            self._probe = None
+            return board
+        return None
 
     def _prune(self) -> None:
         """Drop tiles that have left on the left, then rebase so the coordinates stay small."""
@@ -159,7 +198,7 @@ class Strip:
         shift = self._tiles[0].x
         if shift:
             self._offset -= shift
-            self._tiles = [Tile(t.key, t.board, t.x - shift, t.width, t.entered_at) for t in self._tiles]
+            self._tiles = [Tile(t.key, t.board, t.x - shift, t.width, t.entered_at, t.part) for t in self._tiles]
 
     def _compose(self, f: StripFrame) -> Image.Image:
         canvas = Image.new("RGB", (f.width, f.height))
@@ -167,7 +206,7 @@ class Strip:
             left = int(round(tile.x - self._offset))
             if left >= f.width or left + tile.width <= 0:
                 continue
-            ctx = f.make_ctx(tile.entered_at, tile.width, f.height)
+            ctx = f.make_ctx(tile.entered_at, tile.width, f.height, tile.part)
             try:
                 canvas.paste(tile.board.render(ctx, f.board_cfg(tile.board)), (left, 0))
             except Exception:
