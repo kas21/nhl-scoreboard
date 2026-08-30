@@ -77,7 +77,7 @@ const CATEGORIES = [
     note: 'Panel wiring and driver options. These take effect on the next driver restart — the Setup wizard has a button for it.' },
   { id: 'location', label: 'Location & time', keys: ['location'] },
   { id: 'brightness', label: 'Brightness', keys: ['brightness'] },
-  { id: 'appearance', label: 'Appearance', keys: ['transition', 'logos', 'sports'] },
+  { id: 'appearance', label: 'Appearance', keys: ['transition', 'ticker', 'logos', 'sports'] },
   { id: 'boards', label: 'Boards', plugin: 'boards' },
   { id: 'sources', label: 'Data sources', plugin: 'sources' },
   { id: 'system', label: 'System', keys: ['web', 'log_level'] },
