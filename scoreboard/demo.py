@@ -5,7 +5,6 @@ NHL games on (and no network). Enabled with ``scoreboard --demo``.
 """
 from __future__ import annotations
 
-import asyncio
 import json
 from pathlib import Path
 from typing import Any, ClassVar
@@ -49,7 +48,7 @@ class DemoSource:
                 if step is not None:
                     step = {**step, "sport": "nhl"}
                 ctx.publish_to("nhl.main_event", step)
-                await asyncio.sleep(cfg.seconds_per_step)
+                await ctx.sleep(cfg.seconds_per_step)
 
 
 def _script(final: dict[str, Any]) -> list[dict[str, Any]]:

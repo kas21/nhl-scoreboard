@@ -22,6 +22,7 @@ from .. import __version__
 from ..config import ConfigStore
 from ..config.schema import app_schema
 from ..data import SnapshotStore
+from ..data.health import SourceHealth
 from ..director import Director
 from ..output import PreviewHub
 from ..plugins import Registry
@@ -90,6 +91,7 @@ def create_app(
     logs: LogBuffer | None = None,
     system: SystemControl | None = None,
     updater: Updater | None = None,
+    health: SourceHealth | None = None,
 ) -> FastAPI:
     app = FastAPI(title="scoreboard", version=__version__)
     system = system or SystemControl()
@@ -107,6 +109,11 @@ def create_app(
             "sources": {k: snap.age(k) for k in snap.data},
             "setup_complete": config.get().setup_complete,
         }
+
+    @app.get("/api/sources")
+    def sources() -> list[dict[str, Any]]:
+        """Per-source fetch health for the diagnostics page."""
+        return health.to_list() if health is not None else []
 
     def effective(cfg) -> dict[str, Any]:
         """Config as the app sees it: plugin sections filled in with each model's defaults.

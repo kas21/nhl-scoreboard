@@ -43,7 +43,7 @@ class NflSource:
         while True:
             cfg: NflConfig = ctx.config  # type: ignore[assignment]
             if not cfg.enabled:
-                await asyncio.sleep(60)
+                await ctx.sleep(60)
                 continue
             main = None
             try:
@@ -63,13 +63,13 @@ class NflSource:
             except NflApiError as exc:
                 ctx.log.warning("NFL score poll failed: %s", exc)
             active = bool(main and main["phase"] in ("live", "intermission", "pregame") and main["date"] == _today(ctx))
-            await asyncio.sleep(cfg.live_interval if active else cfg.idle_interval)
+            await ctx.sleep(cfg.live_interval if active else cfg.idle_interval)
 
     async def _standings_loop(self, ctx: SourceContext, api: NflApi) -> None:
         while True:
             cfg: NflConfig = ctx.config  # type: ignore[assignment]
             if not cfg.enabled:
-                await asyncio.sleep(60)
+                await ctx.sleep(60)
                 continue
             try:
                 standings = normalize_standings(await api.standings())

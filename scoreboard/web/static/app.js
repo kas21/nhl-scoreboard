@@ -76,6 +76,64 @@ function Updater() {
   </div>`;
 }
 
+const STATUS_LABEL = { ok: 'OK', starting: 'Starting', degraded: 'Degraded', offline: 'Offline', crashed: 'Crashed', stopped: 'Stopped' };
+const fmtAgo = (s) => s == null ? '—' : s < 60 ? `${Math.round(s)}s ago` : s < 3600 ? `${Math.round(s / 60)}m ago` : `${(s / 3600).toFixed(1)}h ago`;
+const fmtIn = (s) => s == null ? '—' : s <= 0 ? 'now' : s < 60 ? `in ${Math.round(s)}s` : `in ${Math.round(s / 60)}m`;
+const fmtMs = (ms) => ms == null ? '—' : ms < 1000 ? `${Math.round(ms)} ms` : `${(ms / 1000).toFixed(1)} s`;
+
+function useSources(intervalMs = 3000) {
+  const [rows, setRows] = useState(null);
+  useEffect(() => {
+    const tick = () => api.get('/api/sources').then(setRows).catch(() => {});
+    tick(); const id = setInterval(tick, intervalMs); return () => clearInterval(id);
+  }, []);
+  return rows;
+}
+
+function SourceDot({ status }) {
+  return html`<span class=${'dot ' + status} title=${STATUS_LABEL[status] || status}></span>`;
+}
+
+function SourcesSummary() {
+  const rows = useSources();
+  if (!rows) return html`<p class="muted">Loading…</p>`;
+  if (!rows.length) return html`<p class="muted">No data sources loaded.</p>`;
+  return html`<div class="sources-summary">
+    ${rows.map(r => html`<a href="#diagnostics" class="source-chip" title=${r.last_error || ''}>
+      <${SourceDot} status=${r.status} />
+      <b>${r.key}</b>
+      <span class="muted">${r.status === 'ok' ? fmtAgo(r.last_ok_ago) : STATUS_LABEL[r.status] || r.status}</span>
+    </a>`)}
+  </div>`;
+}
+
+function SourcesTable() {
+  const rows = useSources();
+  const [open, setOpen] = useState(null);
+  if (!rows) return html`<p class="muted">Loading…</p>`;
+  if (!rows.length) return html`<p class="muted">No data sources loaded.</p>`;
+  return html`<div class="tablewrap"><table class="sources">
+    <thead><tr><th></th><th>Source</th><th>Last OK</th><th>Next poll</th><th>Fetches</th><th>Errors</th><th>Latency</th><th>Publishes</th><th>Restarts</th></tr></thead>
+    <tbody>${rows.map(r => html`
+      <tr class=${open === r.key ? 'open' : ''} onclick=${() => setOpen(open === r.key ? null : r.key)}>
+        <td><${SourceDot} status=${r.status} /></td>
+        <td><b>${r.key}</b><div class="muted small">${STATUS_LABEL[r.status] || r.status}${r.uptime != null ? ` · up ${fmtAgo(r.uptime).replace(' ago', '')}` : ''}</div></td>
+        <td>${fmtAgo(r.last_ok_ago)}</td>
+        <td>${fmtIn(r.next_poll_in)}</td>
+        <td>${r.fetches}</td>
+        <td class=${r.error_streak ? 'error' : ''}>${r.failures}${r.error_streak ? ` (${r.error_streak} in a row)` : ''}</td>
+        <td>${fmtMs(r.last_latency_ms)}</td>
+        <td>${r.publishes}<div class="muted small">${fmtAgo(r.last_publish_ago)}</div></td>
+        <td>${r.restarts}</td>
+      </tr>
+      ${open === r.key ? html`<tr class="detail"><td colspan="9">
+        <div><span class="muted">Publishes to:</span> ${r.keys.length ? r.keys.join(', ') : '—'}</div>
+        <div><span class="muted">Last request:</span> ${r.last_url || '—'}${r.last_fetch_ago != null ? html` <span class="muted">(${fmtAgo(r.last_fetch_ago)})</span>` : ''}</div>
+        <div><span class="muted">Last error:</span> ${r.last_error ? html`<span class="error">${r.last_error}</span> <span class="muted">(${fmtAgo(r.last_error_ago)})</span>` : '—'}</div>
+      </td></tr>` : ''}`)}
+    </tbody></table></div>`;
+}
+
 function Dashboard({ config, save }) {
   const [status, setStatus] = useState(null);
   useEffect(() => {
@@ -92,6 +150,7 @@ function Dashboard({ config, save }) {
         <div><span>Version</span>${status.version}</div>
       </div>` : html`<p class="muted">Loading…</p>`}
     </div>
+    <div class="card"><h2>Data sources</h2><${SourcesSummary} /></div>
     <${Updater} />
     <div class="card"><h2>Brightness</h2>
       <input type="range" min="1" max="100" value=${config.brightness.day}
@@ -127,7 +186,9 @@ function Playlists({ config, boards, save }) {
 function Diagnostics() {
   const [lines, setLines] = useState([]);
   useEffect(() => { const t = () => api.get('/api/logs').then(setLines); t(); const id = setInterval(t, 3000); return () => clearInterval(id); }, []);
-  return html`<div class="card"><h2>Logs</h2><pre>${lines.join('\n')}</pre></div>`;
+  return html`
+    <div class="card"><h2>Data sources</h2><p class="muted small">Background fetchers and their cadence. Click a row for details.</p><${SourcesTable} /></div>
+    <div class="card"><h2>Logs</h2><pre>${lines.join('\n')}</pre></div>`;
 }
 
 function UpdateBadge() {

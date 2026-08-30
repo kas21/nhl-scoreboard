@@ -99,7 +99,7 @@ class NhlSource:
                     ctx.publish_to("system", {"online": False, "failures": failures})
                 main = (ctx.snapshot().get("main_event") or None)      # keep polling cadence of last known state
             active = bool(main and main["state"] in ACTIVE_STATES)
-            await asyncio.sleep(cfg.live_interval if active else cfg.idle_interval)
+            await ctx.sleep(cfg.live_interval if active else cfg.idle_interval)
 
     async def _enrich(self, api: NhlApi, main: dict[str, Any], records: dict[str, str]) -> dict[str, Any]:
         """Add situation (power play / pulled goalie) and penalties from the landing feed."""

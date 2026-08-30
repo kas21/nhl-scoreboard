@@ -31,7 +31,8 @@ scoreboard/
   app.py            wiring: config -> sources (asyncio) -> snapshot -> director -> output; web server
   __main__.py       CLI (--config, --output auto|hardware|emulator|none, --demo)
   config/           pydantic AppConfig (+ plugin models), atomic ConfigStore w/ backups, salvage/migrate, JSON-schema export
-  data/             Snapshot store (immutable, versioned), DataSource contract, EventBus/detectors, MainEventArbiter
+  data/             Snapshot store (immutable, versioned), DataSource contract, SourceHealth (per-source fetch stats),
+                    EventBus/detectors, MainEventArbiter
   director/         AppState (boot/error/offseason/offday/pregame/live/intermission/postgame), playlists,
                     brightness schedule, board transitions, event interrupts, quarantine, override
   render/           Pillow layout engine (HBox/VBox/Stack/Anchor/Absolute), bitmap + TTF fonts, animated nodes

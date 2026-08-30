@@ -16,6 +16,7 @@ from .config import ConfigStore
 from .data import SnapshotStore
 from .data.arbiter import MainEventArbiter
 from .data.events import EventBus
+from .data.health import SourceHealth
 from .data.source import SourceContext, run_source_forever
 from .director import Director
 from .output import PreviewHub, create_output
@@ -36,6 +37,7 @@ class Application:
         self._apply_logos(self.config.get())
         self.config.subscribe(self._apply_logos)
         self.snapshots = SnapshotStore()
+        self.health = SourceHealth()
         self.events = EventBus()
         self.snapshots.subscribe(self.events.on_snapshot)
         self.arbiter = MainEventArbiter(self.snapshots, lambda: self.config.get().sports.priority)
@@ -105,7 +107,7 @@ class Application:
             web = self.config.get().web
             server = uvicorn.Server(uvicorn.Config(
                 create_app(self.config, self.snapshots, self.registry, self.director, self.preview, self.logs,
-                           system=SystemControl(self.request_restart), updater=self.updater),
+                           system=SystemControl(self.request_restart), updater=self.updater, health=self.health),
                 host=web.host, port=web.port, log_level="warning", loop="asyncio",
             ))
             server.install_signal_handlers = lambda: None  # we handle signals ourselves
@@ -158,7 +160,7 @@ class Application:
             except Exception:
                 log.warning("invalid config for source %s, using defaults", key)
                 return source.config_model()
-        ctx = SourceContext(key, self.snapshots, cfg_getter, http)
+        ctx = SourceContext(key, self.snapshots, cfg_getter, http, health=self.health)
         def apply_location(c) -> None:
             ctx.timezone = c.location.timezone
             ctx.location = (c.location.latitude, c.location.longitude) if c.location.latitude is not None and c.location.longitude is not None else None

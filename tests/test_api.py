@@ -132,3 +132,29 @@ def test_preview_hub_encodes_off_thread_and_drops_when_idle():
     assert (time.perf_counter() - t0) < 0.05          # render-thread cost is a copy, not an encode
     time.sleep(0.05)
     assert hub.latest() is not None and hub.latest()[:4] == b"\x89PNG"
+
+
+def test_sources_endpoint_reports_health(tmp_path):
+    from scoreboard.data.health import SourceHealth
+
+    config = ConfigStore(tmp_path / "config.json")
+    snapshots, events = SnapshotStore(), EventBus()
+    reg = Registry(boards={b.key: b for b in (ClockBoard(), SplashBoard())})
+    director = Director(config, snapshots, reg, events)
+    health = SourceHealth(clock=lambda: 1000.0)
+    health.register("nhl")
+    health.set_running("nhl", True)
+    health.record_fetch("nhl", ok=True, latency_ms=20.0)
+    health.record_publish("nhl", "nhl.scores")
+    c = TestClient(create_app(config, snapshots, reg, director, PreviewHub(), health=health))
+    rows = c.get("/api/sources").json()
+    assert [r["key"] for r in rows] == ["nhl"]
+    row = rows[0]
+    assert row["status"] == "ok" and row["running"] is True
+    assert row["fetches"] == 1 and row["publishes"] == 1 and row["keys"] == ["nhl.scores"]
+    assert "last_ok_ago" in row and "next_poll_in" in row
+
+
+def test_sources_endpoint_without_health_is_empty(tmp_path):
+    c, _ = client(tmp_path)
+    assert c.get("/api/sources").json() == []

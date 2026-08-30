@@ -7,7 +7,6 @@ Publishes:
 """
 from __future__ import annotations
 
-import asyncio
 import logging
 import math
 import time
@@ -148,7 +147,7 @@ class FlightsSource:
             if not cfg.enabled or loc is None:
                 if loc is None:
                     ctx.log.info("flights: no location configured; set latitude/longitude in Settings > Location")
-                await asyncio.sleep(60)
+                await ctx.sleep(60)
                 continue
             lat, lon = loc
             try:
@@ -167,7 +166,7 @@ class FlightsSource:
                 ctx.publish([a for a in aircraft if is_overhead(a, cfg)] if cfg.overhead_alert else [], subkey="overhead")
             except (httpx.HTTPError, ValueError) as exc:
                 ctx.log.warning("flight poll failed: %s", exc)
-            await asyncio.sleep(cfg.poll_seconds)
+            await ctx.sleep(cfg.poll_seconds)
 
     async def _get(self, http: httpx.AsyncClient, url: str, **kw) -> dict[str, Any]:
         resp = await http.get(url, follow_redirects=True, **kw)

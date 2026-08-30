@@ -7,7 +7,8 @@
         │                           │                    event interrupts, brightness
         │                     EventBus: detectors(prev,new) ─▶ events queue ─▶ event boards
         └── MainEventArbiter: <sport>.main_event ─▶ main_event (live first, then sports.priority)
- config.json ⇄ ConfigStore ⇄ FastAPI (/api/config, schema, status, override, system) ⇄ Preact UI
+ config.json ⇄ ConfigStore ⇄ FastAPI (/api/config, schema, status, sources, override, system) ⇄ Preact UI
+        └── SourceHealth: per-source fetch/publish/crash stats (fed by ctx.http, ctx.publish, the runner)
 ```
 
 ## Principles
@@ -15,7 +16,9 @@
    `elapsed`, optional event. No network, no wall-clock reads, no matrix access. Testable with fixtures.
 2. **Sources are the only fetchers.** Each `DataSource.run(ctx)` loops forever on its own cadence and
    `ctx.publish()`es JSON-shaped dicts. A slow API never stalls the screen; the render thread reads the
-   latest snapshot lock-free.
+   latest snapshot lock-free. Every request through `ctx.http`, every `ctx.publish()` and every crash/restart
+   is recorded in `SourceHealth` (`data/health.py`) and shown on the dashboard/diagnostics pages — plugins get
+   this for free; use `await ctx.sleep(s)` instead of `asyncio.sleep` so the UI can show the next poll time.
 3. **Schema is the UI.** All settings are pydantic models; `/api/schema` drives the forms.
 4. **Appliance robustness**: offline only after 3 consecutive failures (stale dot, keep last data); boards that
    raise are quarantined 60 s; render-thread death exits the process (systemd restarts); config salvage
@@ -43,7 +46,7 @@ Transitions: fade/slide/wipe/blinds between playlist boards (`config.transition`
 
 ## Web
 FastAPI on `web.port` (8080). Endpoints: `/api/config` (GET effective, PATCH deep-merge, PUT, reset),
-`/api/schema`, `/api/status`, `/api/boards`, `/api/snapshot`, `/api/logs`, `/api/override` (force a board),
+`/api/schema`, `/api/status`, `/api/sources` (per-source health), `/api/boards`, `/api/snapshot`, `/api/logs`, `/api/override` (force a board),
 `/api/system` (+ `/restart`, `/hostname`), `/api/geocode`, `/api/preview.png`, `/ws/preview` (PNG frames ~10 fps).
 UI is Preact + HTM served as static files (no build step); `wizard.js` is the first-run flow.
 

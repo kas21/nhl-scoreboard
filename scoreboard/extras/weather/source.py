@@ -4,7 +4,6 @@ Publishes ``weather.current`` and ``weather.daily`` (normalised, unit-converted)
 """
 from __future__ import annotations
 
-import asyncio
 import logging
 from typing import Any, ClassVar, Literal
 
@@ -102,7 +101,7 @@ class WeatherSource:
             if not cfg.enabled or loc is None:
                 if loc is None:
                     ctx.log.info("weather: no location configured; set latitude/longitude in Settings > Location")
-                await asyncio.sleep(60)
+                await ctx.sleep(60)
                 continue
             params = {"latitude": loc[0], "longitude": loc[1], "timezone": ctx.timezone or "auto",
                       "forecast_days": cfg.forecast_days + 1, **FIELDS}
@@ -114,4 +113,4 @@ class WeatherSource:
                 ctx.publish(daily, subkey="daily")
             except (httpx.HTTPError, ValueError) as exc:
                 ctx.log.warning("weather poll failed: %s", exc)
-            await asyncio.sleep(cfg.refresh_seconds)
+            await ctx.sleep(cfg.refresh_seconds)

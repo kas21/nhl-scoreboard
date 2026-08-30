@@ -87,4 +87,4 @@ class HolidaysSource:
             except Exception:
                 today = date.today()
             ctx.publish(await asyncio.to_thread(upcoming, cfg, today), subkey="upcoming")
-            await asyncio.sleep(cfg.refresh_seconds)
+            await ctx.sleep(cfg.refresh_seconds)

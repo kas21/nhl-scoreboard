@@ -20,6 +20,11 @@ class MySource:
             await asyncio.sleep(cfg.refresh_seconds)
 ```
 `ctx.timezone` (IANA) and `ctx.location` ((lat, lon) or None) come from the app config.
+Sleep between polls with `await ctx.sleep(seconds)` (not `asyncio.sleep`): it records when you will fetch next.
+Requests made through `ctx.http`, calls to `ctx.publish()` and crashes are counted per source automatically and
+shown under *Data sources* on the dashboard and diagnostics pages (`GET /api/sources`): status
+(starting / ok / degraded / offline after 3 consecutive failed requests / crashed), last OK, next poll, latency,
+last error, published keys. If a source runs several loops, only call `ctx.sleep` from the main one.
 Register: `[project.entry-points."scoreboard.sources"] my = "pkg.module:MySource"`.
 
 ## Board
