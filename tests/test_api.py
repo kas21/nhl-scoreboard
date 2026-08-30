@@ -158,3 +158,17 @@ def test_sources_endpoint_reports_health(tmp_path):
 def test_sources_endpoint_without_health_is_empty(tmp_path):
     c, _ = client(tmp_path)
     assert c.get("/api/sources").json() == []
+
+
+def test_ui_assets_must_revalidate(tmp_path):
+    """The UI is a git checkout the OTA updater rewrites under a running browser.
+
+    Without an explicit Cache-Control, heuristic caching serves a stale app.js from
+    disk with no revalidation, so an updated Pi renders the previous UI.
+    """
+    c, _ = client(tmp_path)
+    for path in ("/", "/static/app.js"):
+        r = c.get(path)
+        assert r.status_code == 200, path
+        assert r.headers["cache-control"] == "no-cache", path
+        assert r.headers.get("etag"), f"{path} still needs an ETag to make 304s cheap"

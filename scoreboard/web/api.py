@@ -17,6 +17,7 @@ from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
+from starlette.types import Scope
 
 from .. import __version__
 from ..config import ConfigStore
@@ -30,6 +31,22 @@ from .updater import Updater
 
 log = logging.getLogger(__name__)
 STATIC = Path(__file__).parent / "static"
+
+# The UI ships from the git checkout the OTA updater rewrites underneath an open
+# browser. With no Cache-Control, heuristic freshness lets a browser reuse app.js
+# from disk without revalidating, so an updated Pi renders the previous UI.
+# "no-cache" means "reuse the copy you have, but ask first" — the ETag still makes
+# that a cheap 304, so this costs a conditional request, not a re-download.
+NO_CACHE = "no-cache"
+
+
+class RevalidatingStatic(StaticFiles):
+    """Static assets that must be revalidated before reuse. See NO_CACHE."""
+
+    async def get_response(self, path: str, scope: Scope) -> Response:
+        response = await super().get_response(path, scope)
+        response.headers.setdefault("cache-control", NO_CACHE)
+        return response
 
 
 class SystemControl:
@@ -256,7 +273,7 @@ def create_app(
 
     @app.get("/")
     def index() -> FileResponse:
-        return FileResponse(STATIC / "index.html")
+        return FileResponse(STATIC / "index.html", headers={"cache-control": NO_CACHE})
 
-    app.mount("/static", StaticFiles(directory=STATIC), name="static")
+    app.mount("/static", RevalidatingStatic(directory=STATIC), name="static")
     return app
