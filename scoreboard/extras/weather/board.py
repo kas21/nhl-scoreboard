@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw
 from pydantic import BaseModel, ConfigDict, Field
 
 from ...boards.base import BaseBoard, BoardContext
-from ...render import Absolute, Img, Sheen, Slide, Text, load_font, render_tree
+from ...render import Absolute, Cycle, Img, Sheen, Slide, Text, load_font, render_tree
 from ...render.anim import quintic_out
 from ...render.text import text_size
 
@@ -19,6 +19,11 @@ HUMIDITY = (100, 150, 255)
 WIND = (100, 255, 150)
 DIVIDER = (60, 60, 60)
 HILO_GAP = 3          # px between today's hi/lo and the current temp beside it
+PRECIP_SWAP = 0.4     # seconds the forecast readout takes to roll between its two faces
+# Icons that draw falling weather. Open-Meteo's daily weather_code is the day's dominant
+# condition while pop comes from ensemble spread, so a drizzle code can carry a low chance
+# — a day drawn as wet reports its chance regardless of where the probability landed.
+PRECIP_ICONS = frozenset({"rain", "showers", "storm", "snow", "sleet"})
 ICON_COLORS = {"clear": (255, 220, 50), "night": (255, 220, 50), "partly": (200, 200, 200), "cloudy": (150, 150, 150),
                "rain": (80, 130, 255), "showers": (80, 130, 255), "storm": (180, 100, 255), "snow": (230, 230, 255),
                "sleet": (200, 210, 255), "fog": (120, 120, 120)}
@@ -30,6 +35,8 @@ class WeatherBoardConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid", title="Weather board")
     duration: float = Field(15.0, ge=3, le=60)
     show_forecast: bool = True
+    precip_threshold: int = Field(20, ge=0, le=100, description="Forecast days at or above this chance of precipitation (%) alternate between hi/lo and the chance. Days whose icon shows rain or snow always alternate, whatever this is set to")
+    precip_hold_seconds: float = Field(3.0, ge=1, le=15, description="How long the forecast shows each of hi/lo and the chance of precipitation")
 
 
 def temp_color(t: int | None, imperial: bool) -> tuple[int, int, int]:
@@ -127,9 +134,17 @@ class WeatherBoard(BaseBoard):
                 items.append((Slide(Text(name, f6, WHITE), 0.3, "down", delay=0.1 * i, easing=quintic_out), x + (col - nw) // 2, y0 + 3, nw, 6))
                 ic = icon_image(d.get("icon", "cloudy"), 12)
                 items.append((Slide(Img(ic), 0.3, "down", delay=0.1 * i + 0.05, easing=quintic_out), x + (col - ic.width) // 2, y0 + 10, ic.width, ic.height))
+                # A wet day carries two readouts in one slot; a dry one just shows hi/lo.
                 hilo = f"{d.get('hi', '--')}/{d.get('lo', '--')}"
-                hw = text_size(hilo, f6)[0]
-                items.append((Slide(Text(hilo, f6, GRAY), 0.3, "down", delay=0.1 * i + 0.1, easing=quintic_out), x + (col - hw) // 2, h - 8, hw, 6))
+                pop = d.get("pop")
+                wet = d.get("icon") in PRECIP_ICONS or (pop is not None and pop >= cfg.precip_threshold)
+                faces, hw = [Text(hilo, f6, GRAY)], text_size(hilo, f6)[0]
+                if wet and pop is not None:
+                    chance = f"{pop}%"
+                    faces.append(Text(chance, f6, HUMIDITY))
+                    hw = max(hw, text_size(chance, f6)[0])       # a fixed box, so neither face shifts
+                readout = Cycle(faces, period=cfg.precip_hold_seconds, swap=PRECIP_SWAP)
+                items.append((Slide(readout, 0.3, "down", delay=0.1 * i + 0.1, easing=quintic_out), x + (col - hw) // 2, h - 8, hw, 6))
         return render_tree(Absolute(items), w, h, t=ctx.elapsed)
 
     def _compact(self, cur: dict, w: int, h: int, unit_txt: str, ctx: BoardContext) -> Image.Image:

@@ -115,3 +115,38 @@ def test_longest_label_still_clears_todays_hilo():
     assert _lit(img, (x0 - 3, y0, x0, y1)) == 0             # label stops short of it
     assert _lit(img, (x1, y0, x1 + HILO_GAP, y1)) == 0      # and it stops short of the temp
 
+
+NOW = datetime(2026, 8, 26, 12, tzinfo=ZoneInfo("America/Toronto"))
+COL = 128 // 3
+
+
+def _cell(img, i):
+    """The hi/lo readout at the foot of forecast column ``i``."""
+    return img.crop((i * COL, 64 - 8, (i + 1) * COL, 64 - 2)).tobytes()
+
+
+def _flips(i, **overrides):
+    """Does column ``i`` show something different one hold later?"""
+    cfg = WeatherBoardConfig(**overrides)
+    settled = 1.5                                     # past the entrance slide
+    a = WeatherBoard().render(_weather_ctx(NOW, elapsed=settled), cfg)
+    b = WeatherBoard().render(_weather_ctx(NOW, elapsed=settled + cfg.precip_hold_seconds), cfg)
+    return _cell(a, i) != _cell(b, i)
+
+
+def test_days_that_look_wet_show_their_chance():
+    """The strip shows the 27th (showers, 32%), 28th (cloudy, 2%) and 29th (showers, 2%).
+
+    Open-Meteo's daily weather_code is the day's dominant condition while pop comes from
+    ensemble spread, so they disagree: a drizzle code can carry a low chance. A day the
+    board draws as wet must still report its chance.
+    """
+    assert _flips(0)                                 # wet icon and a high chance
+    assert not _flips(1)                             # neither
+    assert _flips(2)                                 # showers icon, low chance
+
+
+def test_icon_and_threshold_are_independent_triggers():
+    assert _flips(1, precip_threshold=0)             # a cloudy 2% day, forced by threshold
+    assert not _flips(1, precip_threshold=100)       # nothing is ever likely enough
+    assert _flips(2, precip_threshold=100)           # but a wet icon still speaks up

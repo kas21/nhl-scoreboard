@@ -1,5 +1,5 @@
 from .anim import Sequence, gif_frames
-from .animated import Blink, Fade, Marquee, Pulse, Sheen, Slide
+from .animated import Blink, Cycle, Fade, Marquee, Pulse, Sheen, Slide
 from .layout import (
     Absolute,
     Anchor,
@@ -21,6 +21,7 @@ __all__ = [
     "Anchor",
     "Blink",
     "Box",
+    "Cycle",
     "Fade",
     "HBox",
     "Img",

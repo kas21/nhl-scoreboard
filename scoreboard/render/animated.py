@@ -25,15 +25,20 @@ from .layout import Node, _cache_get, _cache_put, render_node
 Direction = Literal["left", "right", "up", "down"]
 
 
+def _align(h_align: str, v_align: str, x: int, y: int, w: int, h: int, img: Image.Image) -> tuple[int, int]:
+    """Where an image sits inside a box: start | center | end on each axis."""
+    ox = 0 if h_align == "start" else (w - img.width) if h_align == "end" else (w - img.width) // 2
+    oy = 0 if v_align == "start" else (h - img.height) if v_align == "end" else (h - img.height) // 2
+    return x + ox, y + oy
+
+
 class AnimatedNode(Node):
     child: Node
     h_align: str = "center"      # how the child's image sits inside the box: start | center | end
     v_align: str = field(default="center", kw_only=True)
 
     def _pos(self, x: int, y: int, w: int, h: int, img: Image.Image) -> tuple[int, int]:
-        ox = 0 if self.h_align == "start" else (w - img.width) if self.h_align == "end" else (w - img.width) // 2
-        oy = 0 if self.v_align == "start" else (h - img.height) if self.v_align == "end" else (h - img.height) // 2
-        return x + ox, y + oy
+        return _align(self.h_align, self.v_align, x, y, w, h, img)
 
     @property
     def is_static(self) -> bool:
@@ -268,3 +273,68 @@ class Fade(AnimatedNode):
         out = img.copy()
         out.putalpha(img.getchannel("A").point(lambda a: a * level // max(self.steps - 1, 1)))
         return out
+
+
+@dataclass
+class Cycle(Node):
+    """Show each child in turn: hold for ``period``, then roll to the next over ``swap``.
+
+    A box-local vertical roll — the outgoing child rises out of the top as the incoming
+    one enters from the bottom — so one slot can carry two readouts (a forecast cell
+    alternating temperature and chance of rain). A single child is static and passes
+    through untouched, so callers can build the list conditionally.
+    """
+
+    children: list[Node]
+    h_align: str = field(default="center", kw_only=True)
+    v_align: str = field(default="center", kw_only=True)
+    period: float = 3.0
+    swap: float = 0.4
+    easing: Easing = field(default=ease_out_cubic)
+
+    @property
+    def is_static(self) -> bool:
+        return len(self.children) < 2 or self.period <= 0
+
+    def cache_key(self) -> Hashable:
+        return None
+
+    def measure(self) -> tuple[int, int]:
+        sizes = [c.measure() for c in self.children] or [(0, 0)]
+        return max(w for w, _ in sizes), max(h for _, h in sizes)
+
+    def _image(self, child: Node, t: float) -> Image.Image:
+        """A child's image, cached by its structure the way AnimatedNode caches material."""
+        if not child.is_static:
+            return render_node(child, t)
+        ck = child.cache_key()
+        if ck is None:
+            return render_node(child)
+        img = _cache_get(("cycle", ck))
+        return img if img is not None else _cache_put(("cycle", ck), render_node(child))
+
+    def place(self, x, y, w, h, t=0.0):
+        if not self.children:
+            return
+        if self.is_static:
+            img = self._image(self.children[0], t)
+            yield (img, *_align(self.h_align, self.v_align, x, y, w, h, img))
+            return
+        n = len(self.children)
+        span = n * self.period
+        phase = t % span
+        idx = min(int(phase / self.period), n - 1)
+        local = phase - idx * self.period
+        img = self._image(self.children[idx], t)
+        first_pass = t < span and idx == 0        # nothing has been shown yet to roll away
+        if first_pass or local >= self.swap or self.swap <= 0:    # settled: draw it in place
+            yield (img, *_align(self.h_align, self.v_align, x, y, w, h, img))
+            return
+        # Rolling: the previous child leaves upward while this one arrives from below.
+        k = self.easing(local / self.swap)
+        prev = self._image(self.children[(idx - 1) % n], t)
+        box = Image.new("RGBA", (max(w, 1), max(h, 1)), (0, 0, 0, 0))
+        for image, dy in ((prev, -int(h * k)), (img, h - int(h * k))):
+            px, py = _align(self.h_align, self.v_align, 0, 0, w, h, image)
+            box.paste(image, (px, py + dy), image)                # paste clips out of bounds
+        yield (box, x, y)

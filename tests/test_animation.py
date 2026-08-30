@@ -5,6 +5,7 @@ from PIL import Image
 from scoreboard.render import (
     Blink,
     Box,
+    Cycle,
     Fade,
     HBox,
     Img,
@@ -114,3 +115,49 @@ def test_animated_child_inside_slide_keeps_animating():
     node = Slide(Sheen(badge, period=1.0, band=6, strength=1.0), duration=0.2, direction="left")
     fs = frames(node, 40, 12, [0.5, 0.7, 0.9])
     assert len(set(fs)) == 3
+
+
+def _cycle_text(a="AA", b="BB"):
+    f = load_font("pixel", 8)
+    return Cycle([Text(a, f), Text(b, f)], period=3.0, swap=0.4)
+
+
+def test_cycle_holds_each_child_then_rolls_to_the_next():
+    node = _cycle_text()
+    w, h = node.measure()
+    a_held, b_held = render_tree(node, w, h, t=1.5), render_tree(node, w, h, t=4.5)
+    assert a_held.tobytes() != b_held.tobytes()                       # different faces
+    assert render_tree(node, w, h, t=2.0).tobytes() == a_held.tobytes()   # steady inside a hold
+    assert render_tree(node, w, h, t=5.0).tobytes() == b_held.tobytes()
+    assert render_tree(node, w, h, t=6.5).tobytes() == a_held.tobytes()   # wraps around
+
+
+def test_cycle_transition_is_a_roll_not_a_cut():
+    node = _cycle_text()
+    w, h = node.measure()
+    mid = render_tree(node, w, h, t=3.0 + 0.2).tobytes()              # halfway through the swap
+    assert mid not in (render_tree(node, w, h, t=1.5).tobytes(), render_tree(node, w, h, t=4.5).tobytes())
+
+
+def test_cycle_of_one_is_static_and_passes_through():
+    f = load_font("pixel", 8)
+    single = Cycle([Text("AA", f)])
+    assert single.is_static
+    w, h = single.measure()
+    assert render_tree(single, w, h, t=0.0).tobytes() == render_tree(single, w, h, t=9.0).tobytes()
+
+
+def test_cycle_measures_the_widest_child():
+    f = load_font("pixel", 8)
+    assert Cycle([Text("A", f), Text("MMMM", f)]).measure()[0] == Text("MMMM", f).measure()[0]
+
+
+def test_cycle_starts_settled_on_its_first_child():
+    """There is nothing to roll out of on the first pass — a board must not open mid-swap."""
+    node = _cycle_text()
+    w, h = node.measure()
+    settled = render_tree(node, w, h, t=1.5).tobytes()
+    assert render_tree(node, w, h, t=0.0).tobytes() == settled
+    assert render_tree(node, w, h, t=0.2).tobytes() == settled
+    # but a wrap back round to the first child still rolls
+    assert render_tree(node, w, h, t=6.0 + 0.2).tobytes() != settled
