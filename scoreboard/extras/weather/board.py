@@ -18,6 +18,7 @@ DIM = (80, 80, 80)
 HUMIDITY = (100, 150, 255)
 WIND = (100, 255, 150)
 DIVIDER = (60, 60, 60)
+HILO_GAP = 3          # px between today's hi/lo and the current temp beside it
 ICON_COLORS = {"clear": (255, 220, 50), "night": (255, 220, 50), "partly": (200, 200, 200), "cloudy": (150, 150, 150),
                "rain": (80, 130, 255), "showers": (80, 130, 255), "storm": (180, 100, 255), "snow": (230, 230, 255),
                "sleet": (200, 210, 255), "fog": (120, 120, 120)}
@@ -42,6 +43,16 @@ def temp_color(t: int | None, imperial: bool) -> tuple[int, int, int]:
     if c <= 25:
         return (255, 255, 255)
     return (255, 150, 80)
+
+
+def today_entry(daily: list[dict], today: date) -> dict | None:
+    """Today's row from the daily forecast.
+
+    Open-Meteo starts ``daily`` at today, but match on the date rather than trusting
+    position — a stale payload held across midnight would otherwise report yesterday.
+    """
+    iso = today.isoformat()
+    return next((d for d in daily if d.get("date") == iso), None)
 
 
 def icon_image(key: str, size: int) -> Image.Image:
@@ -78,8 +89,16 @@ class WeatherBoard(BaseBoard):
         temp = f"{cur.get('temp', '--')}{unit_txt}"
         tnode = Sheen(Text(temp, big, temp_color(cur.get("temp"), imp)), period=3.0, band=10, strength=0.6, delay=1.0)
         tw = text_size(temp, big)[0]
-        items.append((Slide(Text(cur.get("label", "WEATHER")[:16].upper(), f6, WHITE), 0.3, "left", easing=quintic_out, h_align="start"), 1, 1, w - tw - 4, 6))
+        # Today's hi/lo caps the temperature column, on the label row so nothing else
+        # moves. The label gives up the width it takes, so the two cannot collide.
+        today = today_entry(daily, ctx.now.date())
+        hilo = f"{today.get('hi', '--')}/{today.get('lo', '--')}" if today else ""
+        hlw = text_size(hilo, f6)[0] if hilo else 0
+        label_w = w - tw - 4 - (hlw + HILO_GAP if hilo else 0)
+        items.append((Slide(Text(cur.get("label", "WEATHER")[:16].upper(), f6, WHITE), 0.3, "left", easing=quintic_out, h_align="start"), 1, 1, label_w, 6))
         items.append((tnode, w - 1 - tw, 0, tw, 12))
+        if hilo:
+            items.append((Slide(Text(hilo, f6, GRAY), 0.3, "left", delay=0.05, easing=quintic_out, h_align="end"), w - 1 - tw - HILO_GAP - hlw, 1, hlw, 6))
         icon = icon_image(cur.get("icon", "cloudy"), 14)
         items.append((Slide(Img(icon), 0.4, "left", easing=quintic_out, h_align="start"), 1, 9, icon.width, icon.height))
         desc = (cur.get("desc") or "")[:14 if w < 128 else 22]
