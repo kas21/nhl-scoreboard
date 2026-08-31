@@ -11,6 +11,11 @@ from scoreboard.director import Director
 from scoreboard.output import PreviewHub
 from scoreboard.plugins import Registry
 from scoreboard.web.api import create_app
+from scoreboard.web.guard import UI_HEADER, UI_TOKEN
+
+# The bundled UI is served same-origin and tags its requests; see web/guard.py. Tests
+# stand in for that UI, so they connect the way it does.
+UI = {"headers": {UI_HEADER: UI_TOKEN}, "base_url": "http://localhost"}
 
 
 def client(tmp_path):
@@ -18,7 +23,7 @@ def client(tmp_path):
     snapshots, events = SnapshotStore(), EventBus()
     reg = Registry(boards={b.key: b for b in (ClockBoard(), SplashBoard())})
     director = Director(config, snapshots, reg, events)
-    return TestClient(create_app(config, snapshots, reg, director, PreviewHub())), config
+    return TestClient(create_app(config, snapshots, reg, director, PreviewHub()), **UI), config
 
 
 def test_status_and_config_roundtrip(tmp_path):
@@ -68,7 +73,7 @@ def test_override_and_system_endpoints(tmp_path):
     reg = Registry(boards={b.key: b for b in (ClockBoard(), SplashBoard(), TestPatternBoard())})
     director = Director(config, snapshots, reg, events)
     restarted = []
-    c = TestClient(create_app(config, snapshots, reg, director, PreviewHub(), system=SystemControl(lambda: restarted.append(1))))
+    c = TestClient(create_app(config, snapshots, reg, director, PreviewHub(), system=SystemControl(lambda: restarted.append(1))), **UI)
     assert c.post("/api/override", json={"board": "nope"}).status_code == 404
     assert c.post("/api/override", json={"board": "test_pattern", "seconds": 30}).json() == {"override": "test_pattern"}
     director.frame(1000.0)
@@ -146,7 +151,7 @@ def test_sources_endpoint_reports_health(tmp_path):
     health.set_running("nhl", True)
     health.record_fetch("nhl", ok=True, latency_ms=20.0)
     health.record_publish("nhl", "nhl.scores")
-    c = TestClient(create_app(config, snapshots, reg, director, PreviewHub(), health=health))
+    c = TestClient(create_app(config, snapshots, reg, director, PreviewHub(), health=health), **UI)
     rows = c.get("/api/sources").json()
     assert [r["key"] for r in rows] == ["nhl"]
     row = rows[0]

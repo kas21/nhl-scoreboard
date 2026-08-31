@@ -3,11 +3,16 @@ import { html } from './htm-preact.js';
 import { Wizard } from './wizard.js';
 import { Settings } from './settings.js';
 
+// Every state-changing call carries this header. A page on another site cannot set it
+// without a preflight the scoreboard never answers, which is what stops a drive-by POST
+// to /api/system/update or /api/config/reset. See scoreboard/web/guard.py.
+const UI = { 'x-requested-with': 'scoreboard-ui' };
+
 const api = {
   get: (p) => fetch(p).then(r => r.json()),
-  patch: (p, body) => fetch(p, { method: 'PATCH', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
+  patch: (p, body) => fetch(p, { method: 'PATCH', headers: { ...UI, 'content-type': 'application/json' }, body: JSON.stringify(body) })
     .then(async r => { if (!r.ok) throw new Error(JSON.stringify((await r.json()).detail)); return r.json(); }),
-  post: (p) => fetch(p, { method: 'POST' }).then(r => r.json()),
+  post: (p) => fetch(p, { method: 'POST', headers: UI }).then(r => r.json()),
 };
 
 function Preview() {

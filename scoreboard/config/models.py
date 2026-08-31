@@ -146,6 +146,13 @@ class SportsConfig(FrozenModel):
 class WebConfig(FrozenModel):
     port: int = Field(8080, ge=1, le=65535)
     host: str = Field("0.0.0.0", json_schema_extra=ADVANCED)
+    allowed_hosts: list[str] = Field(
+        default_factory=list,
+        description="Extra hostnames the UI may be reached at. localhost, this machine's "
+                    "name, <name>.local and any IP address already work; add a name here only "
+                    "if you front the scoreboard with your own DNS entry",
+        json_schema_extra=ADVANCED,
+    )
     preview_fps: int = Field(30, ge=1, le=60, description="Browser preview frame rate (only costs CPU while someone is watching)")
     update_check_hours: int = Field(24, ge=0, le=168, description="How often to look for updates on GitHub (0 = never)")
 

@@ -8,8 +8,13 @@
 
 import { html, useState, useEffect, useMemo } from './htm-preact.js';
 
+// Every state-changing call carries this header. A page on another site cannot set it
+// without a preflight the scoreboard never answers, which is what stops a drive-by POST
+// to /api/system/update or /api/config/reset. See scoreboard/web/guard.py.
+const UI = { 'x-requested-with': 'scoreboard-ui' };
+
 const api = {
-  post: (p) => fetch(p, { method: 'POST' }).then(r => r.json()),
+  post: (p) => fetch(p, { method: 'POST', headers: UI }).then(r => r.json()),
 };
 
 // ---- schema helpers --------------------------------------------------------

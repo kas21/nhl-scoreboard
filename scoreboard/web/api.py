@@ -27,6 +27,7 @@ from ..data.health import SourceHealth
 from ..director import Director
 from ..output import PreviewHub
 from ..plugins import Registry
+from .guard import AccessGuard
 from .updater import Updater
 
 log = logging.getLogger(__name__)
@@ -276,4 +277,6 @@ def create_app(
         return FileResponse(STATIC / "index.html", headers={"cache-control": NO_CACHE})
 
     app.mount("/static", RevalidatingStatic(directory=STATIC), name="static")
+    # Outermost, so nothing is routed before the host and CSRF checks run. See web/guard.py.
+    app.add_middleware(AccessGuard, extra_hosts=lambda: list(config.get().web.allowed_hosts))
     return app
