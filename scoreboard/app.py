@@ -26,6 +26,13 @@ from .web.updater import Updater
 
 log = logging.getLogger(__name__)
 
+# The render loop absorbs a bad frame, because one board misbehaving should not take the
+# sign down. But absorbing *every* frame forever is a black panel on a service that still
+# looks healthy, and the watchdog in run_async only catches a thread that has died. After
+# this many failures in a row, stop and let the service manager restart us cleanly.
+MAX_CONSECUTIVE_RENDER_FAILURES = 300           # ~10s at the default 30fps
+RENDER_FAILURE_EXIT_CODE = 4
+
 
 class Application:
     def __init__(self, config_path: Path, output_mode: str = "auto", demo: bool = False) -> None:
@@ -79,6 +86,7 @@ class Application:
             raise
 
     def _render_loop(self) -> None:
+        failures = 0
         while not self._stop.is_set():
             started = time.monotonic()
             cfg = self.config.get()
@@ -87,8 +95,15 @@ class Application:
                 self.output.set_brightness(self.director.brightness())
                 self.output.show(frame)
                 self.preview.submit(frame)
+                failures = 0
             except Exception:
-                log.exception("render loop error")
+                failures += 1
+                log.exception("render loop error (%s in a row)", failures)
+                if failures >= MAX_CONSECUTIVE_RENDER_FAILURES:
+                    log.critical("render loop failed %s frames in a row; exiting so the "
+                                 "service manager restarts us", failures)
+                    self.exit_code = RENDER_FAILURE_EXIT_CODE
+                    break
             budget = 1.0 / cfg.display.fps
             time.sleep(max(budget - (time.monotonic() - started), 0.0))
         self.output.close()
