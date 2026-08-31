@@ -67,6 +67,14 @@ fi
 
 section "Service"
 mkdir -p "$CONFIG_DIR"
+
+# ProtectHome hides /home from the service, which is right for the /opt install but would
+# hide the checkout itself when someone runs from ~/scoreboard. Only ask for it when it
+# costs nothing.
+case "$APP_DIR" in
+    /home/*|/root/*) PROTECT_HOME=no ;;
+    *)               PROTECT_HOME=yes ;;
+esac
 cat > /etc/systemd/system/$SERVICE.service <<UNIT
 [Unit]
 Description=LED scoreboard
@@ -82,6 +90,21 @@ Environment=PYTHONUNBUFFERED=1
 Environment=SCOREBOARD_CACHE_DIR=/var/cache/scoreboard
 CacheDirectory=scoreboard
 WorkingDirectory=$APP_DIR
+
+# This has to be root — the matrix driver drives GPIO directly — so the point of these is
+# to bound what a bad update or a compromised dependency can reach, not to pretend it is
+# unprivileged. Anything the app legitimately writes stays writable: $CONFIG_DIR (config
+# and its backups), /var/cache/scoreboard (logo cache), and $APP_DIR (the OTA checkout
+# and its venv). /usr and /boot go read-only, /home and /root disappear.
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+ProtectHome=$PROTECT_HOME
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+ReadWritePaths=$CONFIG_DIR $APP_DIR
 
 [Install]
 WantedBy=multi-user.target
