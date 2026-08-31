@@ -63,7 +63,8 @@ class Application:
         self._stop = threading.Event()
         self.exit_code = 0
         self._restart_requested = threading.Event()
-        self.updater = Updater(restart=self.request_restart)
+        self.updater = Updater(restart=self.request_restart,
+                               allow_unowned=lambda: self.config.get().web.allow_unowned_checkout)
 
     @staticmethod
     def _apply_logos(cfg) -> None:

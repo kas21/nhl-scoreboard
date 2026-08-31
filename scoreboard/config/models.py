@@ -155,6 +155,13 @@ class WebConfig(FrozenModel):
     )
     preview_fps: int = Field(30, ge=1, le=60, description="Browser preview frame rate (only costs CPU while someone is watching)")
     update_check_hours: int = Field(24, ge=0, le=168, description="How often to look for updates on GitHub (0 = never)")
+    allow_unowned_checkout: bool = Field(
+        False,
+        description="Let the updater pull into a checkout owned by a different user than the "
+                    "service runs as. Updating runs 'pip install -e .', so that user can run code "
+                    "as this service — only turn this on for a box where you are that user",
+        json_schema_extra=ADVANCED,
+    )
 
 
 CONFIG_VERSION = 1

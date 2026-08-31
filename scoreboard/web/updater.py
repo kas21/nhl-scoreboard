@@ -6,7 +6,9 @@ worker thread; ``state()`` is what the UI polls.
 from __future__ import annotations
 
 import logging
+import os
 import shutil
+import stat
 import subprocess
 import sys
 import threading
@@ -20,11 +22,13 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class Updater:
-    def __init__(self, root: Path = ROOT, branch: str = "main", restart: Callable[[], None] | None = None, python: str | None = None) -> None:
+    def __init__(self, root: Path = ROOT, branch: str = "main", restart: Callable[[], None] | None = None,
+                 python: str | None = None, allow_unowned: Callable[[], bool] = lambda: False) -> None:
         self.root = Path(root)
         self.branch = branch
         self._restart = restart
         self._python = python or sys.executable
+        self._allow_unowned = allow_unowned
         self._lock = threading.Lock()
         self._state: dict[str, Any] = {"available": False, "checking": False, "updating": False, "behind": 0,
                                        "current": None, "latest": None, "latest_message": None, "checked_at": None,
@@ -40,6 +44,37 @@ class Updater:
     @property
     def is_checkout(self) -> bool:
         return shutil.which("git") is not None and (self.root / ".git").exists()
+
+    def unsafe_reason(self) -> str | None:
+        """Why this checkout must not be pulled from, or None if it is fine to proceed.
+
+        The service runs as root because the matrix driver needs GPIO, and updating means
+        `git merge` followed by `pip install -e .` — so anyone who can write this tree can
+        run code as root. The installer adds `safe.directory` to make root operate a
+        checkout owned by the login user, which is exactly the arrangement git refuses by
+        default; this puts the refusal back, on the operation that actually executes code
+        rather than on every git command.
+
+        The check covers `check()` too, not just `update()`: a repository's own config can
+        name commands (`core.pager`, `diff.external`, `core.fsmonitor`) that git runs for
+        *any* invocation, so a hostile tree is a foothold even when we only mean to fetch.
+        """
+        try:
+            info = os.stat(self.root)
+        except OSError as exc:
+            return f"cannot inspect {self.root}: {exc}"
+        euid = os.geteuid()
+        # allow_unowned waives *this* check only: the operator is saying they are that other
+        # user. It deliberately does not waive the writability check below, which is about
+        # anyone on the box rather than one known account.
+        if info.st_uid != euid and not self._allow_unowned():
+            return (f"refusing to update: {self.root} is owned by uid {info.st_uid} but the "
+                    f"service runs as uid {euid}, so that user could run code as this one. "
+                    f"Chown the checkout, or set web.allow_unowned_checkout if that user is you")
+        if info.st_mode & (stat.S_IWGRP | stat.S_IWOTH):
+            return (f"refusing to update: {self.root} is group- or world-writable, so anyone "
+                    f"on the box could run code as uid {euid}")
+        return None
 
     def _git(self, *args: str, timeout: int = 120) -> str:
         # the service may run as root over a checkout owned by the login user: tell git that's fine
@@ -68,6 +103,11 @@ class Updater:
         if not self.is_checkout:
             self._set(error="not a git checkout; reinstall with scripts/install.sh to enable updates")
             return self.state()
+        unsafe = self.unsafe_reason()
+        if unsafe:
+            log.error("%s", unsafe)
+            self._set(error=unsafe, available=False)
+            return self.state()
         self._set(checking=True, error=None)
         try:
             self._git("fetch", "--quiet", "origin", self.branch, timeout=60)
@@ -84,7 +124,16 @@ class Updater:
         return self.state()
 
     def update(self) -> bool:
-        """Start an update on a worker thread. Returns False if one is already running."""
+        """Start an update on a worker thread.
+
+        Returns False if one is already running, or if the checkout is not one this
+        process may safely execute from (see ``unsafe_reason``).
+        """
+        unsafe = self.unsafe_reason() if self.is_checkout else "not a git checkout"
+        if unsafe:
+            log.error("%s", unsafe)
+            self._set(error=unsafe, updating=False)
+            return False
         with self._lock:
             if self._state["updating"]:
                 return False
