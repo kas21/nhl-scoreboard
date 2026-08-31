@@ -18,11 +18,15 @@ uv run python tools/build_fonts.py                  # BDF -> .pil bitmap fonts
 ```
 
 Deploy to the bench Pi: push to `main`, then either click *Update* on the dashboard or
-`curl -s -X POST http://nhl-led-scoreboard-office.local:8080/api/system/update` (the Pi's `~/scoreboard` is a
+`curl -s -X POST -H 'X-Requested-With: scoreboard-ui' http://nhl-led-scoreboard-office.local:8080/api/system/update` (the Pi's `~/scoreboard` is a
 git checkout of this repo; the app fast-forwards, reinstalls if deps changed, restarts). rsync still works for
 uncommitted experiments but will make the checkout dirty — `git checkout .` on the Pi before the next update.
 Service: `scoreboard.service` (root, `--output hardware`), config at `/etc/scoreboard/config.json`,
 web UI http://nhl-led-scoreboard-office.local:8080, logs `journalctl -u scoreboard`.
+The API has no login but is not open to any page that can reach it: state-changing calls need
+`X-Requested-With: scoreboard-ui` and the `Host` must be a name the box answers to (see
+`web/guard.py`). The bench Pi's checkout is owned by the login user while the service runs as
+root, so it needs `web.allow_unowned_checkout: true` for OTA updates — `/opt` installs do not.
 
 ## Layout
 

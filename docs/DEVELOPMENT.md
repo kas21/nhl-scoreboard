@@ -12,7 +12,12 @@ Python ≥ 3.11 (Pi OS Bookworm ships 3.11, Trixie 3.13). No Node toolchain: the
 - Boards: render to PNG from fixtures and *look at them* (a contact-sheet script is quick to write with
   `BoardContext` + `SnapshotStore`); readability at 1:1 on LEDs differs from the emulator.
 - Every change: tests + ruff must pass; commit with `type: message`; push to `main`.
-- Deploy to the Pi: push, then Dashboard → *Update & restart* (or `POST /api/system/update`); check `/api/status` and the preview.
+- Deploy to the Pi: push, then Dashboard → *Update & restart* (or `POST /api/system/update`
+  with `X-Requested-With: scoreboard-ui` — see [HARDWARE.md](HARDWARE.md#security)); check `/api/status` and the preview.
+- `SCOREBOARD_CONTRACT_TEST=1 uv run pytest tests/test_nhl_contract.py` checks the *live* NHL feed still
+  carries every field `nhl/normalize.py` reads. The normal suite only checks that spec against the recorded
+  fixtures; run the live pass on a schedule, because the failure it catches is silent — a renamed field
+  makes the boards draw a plausible wrong scoreboard rather than crash.
 - Playlists on an existing install don't pick up new default entries — add new boards through the
   Boards page or a PATCH to `/api/config`.
 

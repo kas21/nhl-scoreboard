@@ -21,7 +21,33 @@ otherwise) and adds `isolcpus=3` (dedicated core for the refresh thread; removes
 ## Updates
 The dashboard checks GitHub daily (`web.update_check_hours`) and shows **Update available** with a one-click
 *Update & restart* (git fast-forward → reinstall if dependencies changed → restart). Requires the install to be a
-git checkout, which `install.sh` guarantees. API: `GET/POST /api/system/update`, `POST /api/system/update/check`.
+git checkout, which `install.sh` guarantees. API: `GET/POST /api/system/update`, `POST /api/system/update/check`
+(state-changing calls need the header below).
+
+Updating runs `pip install -e .`, so whoever can write the checkout can run code as the service —
+which is root. The updater therefore refuses a checkout owned by a *different* user than the service
+runs as, or one that is group/world-writable, and says so on the dashboard. A `/opt/scoreboard` install
+is root-owned and unaffected. If you run the service as root over a checkout in your own home
+directory, either `sudo chown -R root: <checkout>` or set `web.allow_unowned_checkout: true` to say
+you accept that that user can run code as root.
+
+## Security
+The scoreboard has no login, on purpose: it is an appliance for a network you control. **Put it on a
+network you trust and do not port-forward it** — anyone who can send HTTP to port 8080 has full control,
+including the ability to trigger a root-level update.
+
+Within that boundary, two browser-driven attacks are closed off (`scoreboard/web/guard.py`):
+
+- **Drive-by CSRF.** State-changing requests must carry `X-Requested-With: scoreboard-ui`. A page on
+  another site cannot set that header without a preflight the scoreboard never answers. Scripting the
+  API yourself just means adding it: `curl -X POST -H 'X-Requested-With: scoreboard-ui' …`.
+- **DNS rebinding.** The `Host` header must be a name the box answers to — `localhost`, its hostname,
+  `<hostname>.local`, or any literal IP address. If you front it with your own DNS name, add that name
+  to `web.allowed_hosts`.
+
+The systemd unit `install.sh` writes keeps root (the matrix driver needs GPIO) but adds
+`NoNewPrivileges`, `PrivateTmp`, `ProtectSystem=full`, `ProtectHome` and friends, so the writable
+surface is the config dir, the cache dir and the checkout.
 
 ## Display settings (Settings → Display, or the wizard)
 | Setting | Notes |
