@@ -197,3 +197,29 @@ def test_board_with_empty_required_data_is_skipped(tmp_path):
     snapshots.publish("things", [1])
     d.frame(t + 5.2); d.frame(t + 5.3)
     assert d.active_board == "needs"
+
+
+def test_a_missing_fallback_board_still_draws_something(tmp_path):
+    """`plugins._load` swallows a broken entry point, so the board everything falls back
+    to can simply be absent — and it was the one lookup that assumed it never would be.
+    A KeyError every frame is caught by the render loop, which means a black panel on a
+    service that still reports itself healthy. Draw an empty frame instead."""
+    config = ConfigStore(tmp_path / "config.json")
+    snapshots, events = SnapshotStore(), EventBus()
+    reg = Registry(boards={})                                   # nothing loaded at all
+    d = Director(config, snapshots, reg, events)
+    for t in (1000.0, 1000.0 + BOOT_SECONDS + 0.1):
+        frame = d.frame(t)
+        assert frame.size == (config.get().display.width, config.get().display.height)
+    snapshots.publish("system", {"online": False})              # drives the ERROR branch too
+    assert d.frame(1100.0).size == (128, 64)
+
+
+def test_a_board_that_only_the_error_state_needs_is_not_assumed(tmp_path):
+    """Same lookup, reached by the offline path rather than the empty-playlist path."""
+    config = ConfigStore(tmp_path / "config.json")
+    snapshots, events = SnapshotStore(), EventBus()
+    snapshots.publish("system", {"online": False})
+    d = Director(config, snapshots, Registry(boards={"splash": SplashBoard()}), events)
+    d.frame(1000.0)
+    assert d.frame(1000.0 + BOOT_SECONDS + 0.1).size == (128, 64)

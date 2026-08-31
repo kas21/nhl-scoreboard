@@ -26,6 +26,26 @@ from .transitions import transition
 
 log = logging.getLogger(__name__)
 
+
+class _DarkBoard(BaseBoard):
+    """Last resort when even the fallback board is missing.
+
+    `plugins._load` deliberately swallows a broken entry point so one bad plugin cannot
+    stop the app — which means `clock` and `splash` can be absent at runtime. The lookups
+    that assumed otherwise raised every frame, and because the render loop catches per
+    frame, that showed up as a black panel on a service still reporting itself healthy.
+    Better to draw the blank frame honestly and keep the loop's error count meaningful.
+    """
+
+    key = "unavailable"
+    title = "Unavailable"
+
+    def render(self, ctx: BoardContext, cfg: BaseModel) -> Image.Image:
+        return Image.new("RGB", (ctx.width, ctx.height), (0, 0, 0))
+
+
+DARK_BOARD = _DarkBoard()
+
 BOOT_BOARD = "splash"
 ERROR_BOARD = "clock"
 FALLBACK_BOARD = "clock"
@@ -131,8 +151,11 @@ class Director:
     # -- internals -----------------------------------------------------------
 
     def _on_config(self, _: AppConfig) -> None:
+        # Called on the web thread while the render thread reads the cache, so the dict is
+        # replaced rather than mutated: a reader either sees the whole old map or the whole
+        # new one, and never a `clear()` in progress. Same reason the snapshot is immutable.
         self._cfg_version += 1
-        self._board_cfg_cache.clear()
+        self._board_cfg_cache = {}
 
     def _now(self, cfg: AppConfig) -> datetime:
         try:
@@ -179,15 +202,24 @@ class Director:
                     return eb, eb.key, event
         state = self._cursor.state
         if state == AppState.BOOT:
-            return boards.get(BOOT_BOARD) or boards[FALLBACK_BOARD], BOOT_BOARD, None
+            return self._pinned(BOOT_BOARD)
         if state == AppState.ERROR:
-            return boards[ERROR_BOARD], ERROR_BOARD, None
+            return self._pinned(ERROR_BOARD)
         entries = self._entries(cfg, snap, state, usable)
         if not entries:
-            return boards[FALLBACK_BOARD], FALLBACK_BOARD, None
+            return self._pinned(FALLBACK_BOARD)
         self._cursor = clamp(self._cursor, len(entries))
         entry = entries[self._cursor.index]
         return boards[entry.board], entry.board, None
+
+    def _pinned(self, key: str) -> tuple[BaseBoard, str, Event | None]:
+        """A board the director shows by name rather than from a playlist, degrading to
+        FALLBACK_BOARD and then to a blank frame if neither ever loaded."""
+        boards = self._registry.boards
+        board = boards.get(key) or boards.get(FALLBACK_BOARD)
+        if board is not None:
+            return board, key if key in boards else FALLBACK_BOARD, None
+        return DARK_BOARD, DARK_BOARD.key, None
 
     def _after_render(self, board: BaseBoard, ctx: BoardContext, board_cfg: BaseModel, cfg: AppConfig, mono: float) -> None:
         if self._active_event:
@@ -223,8 +255,9 @@ class Director:
         return self._board_config_impl(cfg, board)
 
     def _board_config_impl(self, cfg: AppConfig, board: BaseBoard) -> BaseModel:
+        cache = self._board_cfg_cache
         cache_key = (board.key, self._cfg_version)
-        cached = self._board_cfg_cache.get(cache_key)
+        cached = cache.get(cache_key)
         if cached is not None:
             return cached
         raw = cfg.boards.get(board.key, {})
@@ -233,7 +266,7 @@ class Director:
         except ValidationError as exc:
             log.warning("invalid config for board %s, using defaults: %s", board.key, exc)
             model = board.config_model()
-        self._board_cfg_cache[cache_key] = model
+        self._board_cfg_cache = {**cache, cache_key: model}
         return model
 
 
