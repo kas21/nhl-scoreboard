@@ -73,7 +73,7 @@ class SeasonCountdownBoard(BaseBoard):
         if not picked:
             return Image.new("RGB", (w, h))
         sport, m = picked
-        big, small = load_font("pl", 12), load_font("pl", 6)
+        big, small = load_font("pl", 12), ctx.profile.label_font()
         items = []
         text_x, text_w = 0, w
         logo_img = self._logo(sport, ctx)

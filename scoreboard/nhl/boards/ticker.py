@@ -68,7 +68,7 @@ class TickerBoard(BaseBoard):
             self.enter(ctx, cfg)
         w, h = ctx.width, ctx.height
         if not self._games:
-            return render_tree(Text("NO GAMES TODAY", load_font("pl", 6), LIGHT), w, h)
+            return render_tree(Text("NO GAMES TODAY", ctx.profile.label_font(), LIGHT), w, h)
         idx = min(int(ctx.elapsed // cfg.seconds_per_game), len(self._games) - 1)
         local = ctx.elapsed - idx * cfg.seconds_per_game
         return render_tree(Absolute(self._card(self._games[idx], ctx, cfg)), w, h, t=local)
@@ -77,7 +77,7 @@ class TickerBoard(BaseBoard):
         return fmt_date(g["date"]).replace(" ", "")
 
     def _card(self, g: dict[str, Any], ctx: BoardContext, cfg: TickerConfig) -> list:
-        f7, f6 = load_font("camels", 7), load_font("pl", 6)
+        f7, f6 = load_font("camels", 7), ctx.profile.label_font()
         half = ctx.height // 2
         logo_w, win_h = 45, half - 1
         items = []

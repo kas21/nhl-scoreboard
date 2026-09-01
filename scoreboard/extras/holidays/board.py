@@ -68,7 +68,7 @@ class CountdownBoard(BaseBoard):
             self.enter(ctx, cfg)
         w, h = ctx.width, ctx.height
         if not self._items:
-            return render_tree(Text("NO UPCOMING HOLIDAYS", load_font("pl", 6), LABEL), w, h)
+            return render_tree(Text("NO UPCOMING HOLIDAYS", ctx.profile.label_font(), LABEL), w, h)
         idx = min(int(ctx.elapsed // cfg.seconds_per_holiday), len(self._items) - 1)
         local = ctx.elapsed - idx * cfg.seconds_per_holiday
         item = self._items[idx]
@@ -80,7 +80,7 @@ class CountdownBoard(BaseBoard):
             sep_x = img.width + 2
             items.append((Img(Image.new("RGBA", (1, h - 8), SEPARATOR)), sep_x, 4, 1, h - 8))
             text_x, text_w = sep_x + 3, w - sep_x - 3
-        big, small = load_font("pl", 12), load_font("pl", 6)
+        big, small = load_font("pl", 12), ctx.profile.label_font()
         today = item["days"] == 0
         if today:
             rows = [Text("TODAY IS", small, TODAY_LABEL)]

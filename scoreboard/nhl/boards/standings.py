@@ -8,7 +8,6 @@ from PIL import Image
 from pydantic import BaseModel, ConfigDict, Field
 
 from ...boards.base import BaseBoard, BoardContext
-from ...render import load_font
 from ...render.fx import chip
 from ...render.text import text_size
 from ..teams import logo, team
@@ -68,9 +67,10 @@ class StandingsBoard(BaseBoard):
         rows = standings.get("teams") or {}
         highlight = {h.upper() for h in cfg.highlight} or set(ctx.snapshot.get(self.summary_key) or {})
         self._size = (ctx.width, ctx.height)
-        self._header = self._header_row(ctx.width)
+        f6 = ctx.profile.label_font()
+        self._header = self._header_row(ctx.width, f6)
         banner = self._banner(ctx)
-        self._pages = [self._page(groups, rows, highlight, ctx.width, banner) for groups in self._grouped(standings, cfg)]
+        self._pages = [self._page(groups, rows, highlight, ctx.width, f6, banner) for groups in self._grouped(standings, cfg)]
         self._timeline = [self._page_seconds(p, ctx, cfg) for p in self._pages]
 
     def _grouped(self, standings: dict[str, Any], cfg: StandingsConfig) -> list[list[tuple[str, list[str], bool]]]:
@@ -86,8 +86,7 @@ class StandingsBoard(BaseBoard):
         divs = list((standings.get("division") or {}).items())
         return [[(n.upper(), t, False) for n, t in divs[i:i + 2]] for i in range(0, len(divs), 2)] or [[]]
 
-    def _header_row(self, width: int) -> Image.Image:
-        f6 = load_font("pl", 6)
+    def _header_row(self, width: int, f6) -> Image.Image:
         row = Image.new("RGBA", (width, ROW_H), (0, 0, 0, 255))
         for label, x in COLS.items():
             row.alpha_composite(chip(self.points_header if label == "PTS" else label, f6, WHITE, BLACK), (x, 0))
@@ -102,8 +101,7 @@ class StandingsBoard(BaseBoard):
             return f"FINAL {str(sid)[:4]}-{str(sid)[6:]}"
         return None
 
-    def _page(self, sections, rows, highlight, width, banner: str | None = None) -> tuple[Image.Image, list[tuple[int, bool]]]:
-        f6 = load_font("pl", 6)
+    def _page(self, sections, rows, highlight, width, f6, banner: str | None = None) -> tuple[Image.Image, list[tuple[int, bool]]]:
         strips: list[tuple[Image.Image, bool]] = []
         if banner:
             strips.append((chip(banner, f6, (0, 0, 0), (255, 200, 0), pad=(1, 1, width, 1)).crop((0, 0, width, ROW_H)), False))

@@ -56,7 +56,7 @@ class SplashBoard(BaseBoard):
             lx = lx_left
         ly = int(h * 0.46) - logo.height // 2
         items = [(Img(logo), lx, ly, logo.width, logo.height)]
-        f7, f6 = load_font("camels", 7), load_font("pl", 6)
+        f7, f6 = load_font("camels", 7), ctx.profile.label_font()
         words = cfg.words.split()
         if t >= 4.0 and words:
             tx = lx_left + logo.width + 3

@@ -117,7 +117,7 @@ class NflScoreBoard(SequenceMixin, EventBoard):
             p = ctx.profile
             rows = [Spacer(), Text(abbrev, load_font("block", p.font_medium), text_on(primary)),
                     Text(word, fit_font(word, "block", ctx.width - 2 * p.pad, p.font_large), WHITE),
-                    Text(payload.get("score", ""), load_font("pl", 6), text_on(primary)), Spacer()]
+                    Text(payload.get("score", ""), ctx.profile.label_font(), text_on(primary)), Spacer()]
             still = render_tree(VBox(rows, spacing=1), ctx.width, ctx.height, background=primary)
             seq.flash(primary, times=2, secs=0.4).slide_in("up", 0.3).hold(cfg.touchdown_seconds if kind == "nfl.touchdown" else cfg.other_seconds).fade_out(0.4)
             return seq.build(still)

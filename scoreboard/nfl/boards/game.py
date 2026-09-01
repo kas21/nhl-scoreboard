@@ -62,7 +62,7 @@ class NflGameBoard(NhlGameBoard):
             since = self._since(f"poss:{side}", poss == side, t)
             if since is not None:
                 label = "RED ZONE" if sit.get("red_zone") else "BALL"
-                node = self._chip(label, g, side)
+                node = self._chip(label, g, side, f6)
                 items.append((Slide(node, 0.6, "up", delay=since, easing=quartic_out, h_align=align), x, 0, 45, 7))
             to = g[side].get("timeouts")
             if to is not None:

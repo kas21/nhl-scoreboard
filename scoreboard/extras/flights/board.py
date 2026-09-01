@@ -66,7 +66,7 @@ def _fmt_dist(ac: dict[str, Any], metric: bool) -> str:
     return "" if v is None else f"{v:g}{'km' if metric else 'mi'} {ac.get('bearing_compass', '')}".strip()
 
 
-def _monogram_tile(ac: dict[str, Any], side: int) -> Image.Image:
+def _monogram_tile(ac: dict[str, Any], side: int, small: Any) -> Image.Image:
     """Fallback when no logo resolved: 2-3 letter operator code on a coloured tile."""
     code = (ac.get("airline_iata") or ac.get("airline_icao") or ac.get("callsign") or ac.get("ident") or "??")[:3]
     airline = bool(ac.get("airline"))
@@ -76,16 +76,16 @@ def _monogram_tile(ac: dict[str, Any], side: int) -> Image.Image:
     font = load_font("block", max(6, side // 3))
     w, h = text_size(code, font)
     if w > side - 2:
-        font = load_font("pl", 6)
+        font = small
         w, h = text_size(code, font)
     d.text(((side - w) // 2, (side - h) // 2), code, font=font, fill=TEXT)
     return tile
 
 
-def _logo_tile(ac: dict[str, Any], side: int) -> Image.Image:
+def _logo_tile(ac: dict[str, Any], side: int, small: Any) -> Image.Image:
     """The airline's logo when the source fetched one, else a monogram tile."""
     logo = cached_image(Path(ac["logo"]), side) if ac.get("logo") else None
-    return _monogram_tile(ac, side) if logo is None else fit_logo(logo, side, side)
+    return _monogram_tile(ac, side, small) if logo is None else fit_logo(logo, side, side)
 
 
 def _clip(text: str, font: Any, max_width: int) -> str:
@@ -126,13 +126,12 @@ def _info_rows(ac: dict[str, Any]) -> list[tuple[str, tuple[int, int, int]]]:
     return [(txt, color) for txt, color in rows if txt]
 
 
-def card(ac: dict[str, Any], width: int, height: int, metric: bool, header: str | None = None) -> list:
+def card(ac: dict[str, Any], width: int, height: int, metric: bool, f6: Any, header: str | None = None) -> list:
     """Flight-Wall layout as Absolute items: logo left, airline/route/type beside, telemetry under."""
-    f6 = load_font("pl", 6)
     items = []
     y0 = 0
     if header:
-        items.append((Img(_bar(header, width)), 0, 0, width, 7))
+        items.append((Img(_bar(header, width, f6)), 0, 0, width, 7))
         y0 = 8
     avail_h = height - y0
 
@@ -145,7 +144,7 @@ def card(ac: dict[str, Any], width: int, height: int, metric: bool, header: str 
     side = max(LOGO_MIN, min(LOGO_MAX, avail_h - tele_h - BLOCK_GAP - 2, width // 3))
     top_block_h = max(side, top_h)
     y = y0 + max(0, (avail_h - top_block_h - BLOCK_GAP - tele_h) // 2)
-    items.append((Slide(Img(_logo_tile(ac, side)), 0.4, "left", easing=quintic_out),
+    items.append((Slide(Img(_logo_tile(ac, side, f6)), 0.4, "left", easing=quintic_out),
                   MARGIN, y + (top_block_h - side) // 2, side, side))
 
     tx = MARGIN + side + 4
@@ -173,9 +172,8 @@ def card(ac: dict[str, Any], width: int, height: int, metric: bool, header: str 
     return items
 
 
-def compact_card(ac: dict[str, Any], width: int, height: int, metric: bool) -> list:
+def compact_card(ac: dict[str, Any], width: int, height: int, metric: bool, f6: Any) -> list:
     """Two-line card for 64x32: ident + distance, then route or alt/speed."""
-    f6 = load_font("pl", 6)
     ident = ac.get("ident") or ac.get("callsign") or "?"
     dist = _fmt_dist(ac, metric)
     line2 = ac.get("route") or " ".join(x for x in (_fmt_alt(ac, metric), _fmt_speed(ac, metric)) if x)
@@ -189,9 +187,9 @@ def compact_card(ac: dict[str, Any], width: int, height: int, metric: bool) -> l
     return items
 
 
-def _bar(text: str, width: int) -> Image.Image:
+def _bar(text: str, width: int, font: Any) -> Image.Image:
     from ...render.fx import chip
-    return chip(text, load_font("pl", 6), (0, 0, 0), ALERT, pad=(1, 1, width, 1)).crop((0, 0, width, 7))
+    return chip(text, font, (0, 0, 0), ALERT, pad=(1, 1, width, 1)).crop((0, 0, width, 7))
 
 
 class NearbyBoard(BaseBoard):
@@ -214,12 +212,12 @@ class NearbyBoard(BaseBoard):
             self.enter(ctx, cfg)
         w, h = ctx.width, ctx.height
         if not self._items:
-            return render_tree(Text("NO AIRCRAFT NEARBY", load_font("pl", 6), LABEL), w, h)
+            return render_tree(Text("NO AIRCRAFT NEARBY", ctx.profile.label_font(), LABEL), w, h)
         idx = min(int(ctx.elapsed // cfg.seconds_per_aircraft), len(self._items) - 1)
         local = ctx.elapsed - idx * cfg.seconds_per_aircraft
         metric = _metric(ctx)
         layout = compact_card if h <= 32 else card
-        return render_tree(Absolute(layout(self._items[idx], w, h, metric)), w, h, t=local)
+        return render_tree(Absolute(layout(self._items[idx], w, h, metric, ctx.profile.label_font())), w, h, t=local)
 
 
 class OverheadBoard(SequenceMixin, EventBoard):
@@ -233,7 +231,7 @@ class OverheadBoard(SequenceMixin, EventBoard):
 
     def build(self, ctx: BoardContext, cfg: OverheadConfig) -> Sequence:
         ac = (ctx.event.payload.get("aircraft") if ctx.event else None) or {}
-        frames = [render_tree(Absolute(card(ac, ctx.width, ctx.height, _metric(ctx), header="OVERHEAD")), ctx.width, ctx.height, t=i / ctx.fps)
+        frames = [render_tree(Absolute(card(ac, ctx.width, ctx.height, _metric(ctx), ctx.profile.label_font(), header="OVERHEAD")), ctx.width, ctx.height, t=i / ctx.fps)
                   for i in range(int(cfg.duration * ctx.fps))]
         return Sequence(ctx.fps).frames(frames).build(frames[0] if frames else Image.new("RGB", (ctx.width, ctx.height)))
 

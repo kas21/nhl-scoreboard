@@ -141,9 +141,9 @@ def _img(image: Image.Image):
     return Img(image)
 
 
-def goal_summary_frames(goal: dict[str, Any], abbrev: str, width: int, height: int, seconds: float, fps: int) -> list[Image.Image]:
+def goal_summary_frames(goal: dict[str, Any], abbrev: str, width: int, height: int, seconds: float, fps: int, f6) -> list[Image.Image]:
     t = team(abbrev)
-    f6, ari = load_font("pl", 6), load_font("ari", 11)
+    ari = load_font("ari", 11)
     header_txt = f"{abbrev} GOAL!  at {goal.get('time', '')}/{goal.get('period', '')}".rstrip("/ ")
     from ...render.fx import chip
     header = chip(header_txt, f6, t.text_on_primary, t.primary, pad=(1, 1, width, 1)).crop((0, 0, width, 7))
@@ -163,9 +163,9 @@ def goal_summary_frames(goal: dict[str, Any], abbrev: str, width: int, height: i
     return _card(rows, header, [(Anchor_start(n), x, y, w, h) for n, x, y, w, h in statics], width, height, seconds, fps)
 
 
-def penalty_summary_frames(pen: dict[str, Any], abbrev: str, width: int, height: int, seconds: float, fps: int) -> list[Image.Image]:
+def penalty_summary_frames(pen: dict[str, Any], abbrev: str, width: int, height: int, seconds: float, fps: int, f6) -> list[Image.Image]:
     t = team(abbrev)
-    f6, ari = load_font("pl", 6), load_font("ari", 11)
+    ari = load_font("ari", 11)
     from ...render.fx import chip
     header_txt = f"{abbrev} PENALTY!  at {pen.get('time', '')}/{pen.get('period', '')}".rstrip("/ ")
     header = chip(header_txt, f6, BLACK, PENALTY_YELLOW, pad=(1, 1, width, 1)).crop((0, 0, width, 7))
@@ -230,7 +230,7 @@ class GoalBoard(SequenceMixin, EventBoard):
         seq.frames(goal_frames(abbrev, ctx.width, ctx.height, cfg.duration, ctx.fps))
         goal = payload.get("goal")
         if cfg.summary and goal:
-            seq.frames(goal_summary_frames(goal, abbrev, ctx.width, ctx.height, cfg.summary_duration, ctx.fps))
+            seq.frames(goal_summary_frames(goal, abbrev, ctx.width, ctx.height, cfg.summary_duration, ctx.fps, ctx.profile.label_font()))
         return seq.build(Image.new("RGB", (ctx.width, ctx.height)))
 
 
@@ -249,5 +249,5 @@ class PenaltyBoard(SequenceMixin, EventBoard):
         abbrev = pen.get("team") or (ev.team if ev else "") or ""
         seq = Sequence(ctx.fps).frames(list(penalty_gif_frames(ctx.width, ctx.height)))
         if cfg.summary:
-            seq.frames(penalty_summary_frames(pen, abbrev, ctx.width, ctx.height, cfg.summary_duration, ctx.fps))
+            seq.frames(penalty_summary_frames(pen, abbrev, ctx.width, ctx.height, cfg.summary_duration, ctx.fps, ctx.profile.label_font()))
         return seq.build(Image.new("RGB", (ctx.width, ctx.height)))

@@ -81,9 +81,9 @@ class GameBoard(BaseBoard):
     def _score(value: int, align: str = "center") -> Slide:
         return Slide(Text(str(value), load_font("score", 15), WHITE), duration=1.0, direction="up", easing=elastic_out, h_align=align)
 
-    def _chip(self, text: str, g: dict[str, Any], side: str, font=None):
+    def _chip(self, text: str, g: dict[str, Any], side: str, font):
         primary, fg = self.side_colors(g, side)
-        return Chip(text, font or load_font("pl", 6), fg, primary)
+        return Chip(text, font, fg, primary)
 
     def _sog_row(self, g: dict[str, Any], f6) -> list:
         return [
@@ -114,8 +114,8 @@ class GameBoard(BaseBoard):
         tree = Absolute(items)
         return render_tree(tree, ctx.width, ctx.height, t=ctx.elapsed)
 
-    def _teams_info(self, g: dict[str, Any], cfg: GameConfig) -> list:
-        f6, f8 = load_font("pl", 6), load_font("block", 8)
+    def _teams_info(self, g: dict[str, Any], cfg: GameConfig, f6) -> list:
+        f8 = load_font("block", 8)
         stroke = (0, 0, 0, 220)
         (ap, af), (hp, hf) = self.side_colors(g, "away"), self.side_colors(g, "home")
         items = [
@@ -130,26 +130,26 @@ class GameBoard(BaseBoard):
         return items
 
     def _pregame(self, g, ctx, cfg) -> list:
-        f6 = load_font("pl", 6)
+        f6 = ctx.profile.label_font()
         start = local_time(g["start_time_utc"], ctx.now.tzinfo)
         date = fmt_date(g["date"]).replace(" ", "")
-        return self._teams_info(g, cfg) + self._pre_chip(g) + [
+        return self._teams_info(g, cfg, f6) + self._pre_chip(g, f6) + [
             (Chip(date, f6, BLACK, WHITE), 39, 14, 50, 7),
             (Text(fmt_time(start, cfg.time_24h).upper() or "TBD", f6, WHITE), 39, 22, 50, 5),
             (Text("VS", load_font("score", 15), WHITE), 39, 31, 50, 12),
         ]
 
     @staticmethod
-    def _pre_chip(g: dict[str, Any]) -> list:
+    def _pre_chip(g: dict[str, Any], font) -> list:
         """Small yellow PRE tag for preseason games (gameType 1)."""
         if g.get("type") != 1:
             return []
-        return [(Chip("PRE", load_font("pl", 6), (0, 0, 0), (255, 200, 0)), 54, 4, 20, 7)]
+        return [(Chip("PRE", font, (0, 0, 0), (255, 200, 0)), 54, 4, 20, 7)]
 
     def _final(self, g, ctx, cfg) -> list:
-        f6 = load_font("pl", 6)
+        f6 = ctx.profile.label_font()
         label = g["outcome"].replace("FINAL/", "FINAL/") if g["outcome"] else "FINAL"
-        items = self._teams_info(g, cfg) + [
+        items = self._teams_info(g, cfg, f6) + [
             (Chip(label, f6, WHITE, RED), 34, 14, 60, 7),
             (self._score(g["away"]["score"], "end"), SCORE_AWAY_X - 10, SCORE_Y, 18, 12),
             (Box(fill=(255, 255, 255, 255)), *HYPHEN),
@@ -159,11 +159,11 @@ class GameBoard(BaseBoard):
         return items
 
     def _live(self, g, ctx, cfg) -> list:
-        f6 = load_font("pl", 6)
+        f6 = ctx.profile.label_font()
         t = ctx.elapsed
         period = "INT" if g["in_intermission"] else g["period"].upper()
         strip = HBox([Chip(period, f6, BLACK, WHITE), Text(g["clock"], f6, WHITE)], spacing=1)
-        items = self._pre_chip(g) + [
+        items = self._pre_chip(g, f6) + [
             (strip, 34, 14, 60, 7),
             (self._score(g["away"]["score"], "end"), SCORE_AWAY_X - 10, SCORE_Y, 18, 12),
             (Box(fill=(255, 255, 255, 255)), *HYPHEN),
@@ -185,11 +185,11 @@ class GameBoard(BaseBoard):
             since = self._since(f"pp:{side}", pp_side == side, t)
             if since is not None:
                 label = f"PP {code[1]}-{code[2]}"
-                node = HBox([self._chip(label, g, side), Text(g["powerplay"]["clock"], f6, WHITE)], spacing=1)
+                node = HBox([self._chip(label, g, side, f6), Text(g["powerplay"]["clock"], f6, WHITE)], spacing=1)
                 items.append((Slide(node, 0.6, "up", delay=since, easing=quartic_out, h_align=align), x, 0, 45, 7))
             en = self._since(f"en:{side}", bool(g["pulled_goalie"] & (1 if side == "away" else 2)), t)
             if en is not None:
-                node = self._chip("EMPTY NET", g, side)
+                node = self._chip("EMPTY NET", g, side, f6)
                 items.append((Slide(node, 0.6, "down", delay=en, easing=quartic_out, h_align=align), x if side == "away" else 91, 57, 37, 7))
         inter = self._since("int", g["in_intermission"], t)
         if inter is not None:

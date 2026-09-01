@@ -86,7 +86,7 @@ class WeatherBoard(BaseBoard):
         cur = ctx.snapshot.get("weather.current") or {}
         daily = ctx.snapshot.get("weather.daily") or []
         w, h = ctx.width, ctx.height
-        f6, big = load_font("pl", 6), load_font("pl", 12)
+        f6, big = ctx.profile.label_font(), load_font("pl", 12)
         imp = cur.get("units", {}).get("temp") == "F"
         unit_txt = "F" if imp else "C"     # bitmap font has no degree sign
         items = []
@@ -149,7 +149,7 @@ class WeatherBoard(BaseBoard):
 
     def _compact(self, cur: dict, w: int, h: int, unit_txt: str, ctx: BoardContext) -> Image.Image:
         """64x32: label + temp, icon + description, humidity / wind."""
-        f6, big = load_font("pl", 6), load_font("pl", 12)
+        f6, big = ctx.profile.label_font(), load_font("pl", 12)
         imp = unit_txt == "F"
         temp = f"{cur.get('temp', '--')}{unit_txt}"
         tw = text_size(temp, big)[0]

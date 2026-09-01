@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw
 from pydantic import BaseModel, ConfigDict, Field
 
 from ...boards.base import BaseBoard, BoardContext
-from ...render import Img, Sheen, load_font, render_node
+from ...render import Img, Sheen, render_node
 from ...render.anim import quintic_out
 from ...render.fx import chip, fit_logo, reflected_gradient
 from ..teams import logo, team
@@ -82,7 +82,7 @@ class TeamSummaryBoard(BaseBoard):
     # -- content --------------------------------------------------------------------
 
     def _rows(self, s: dict[str, Any], ctx: BoardContext, cfg: TeamSummaryConfig) -> list[tuple[Image.Image, bool]]:
-        f6 = load_font("pl", 6)
+        f6 = ctx.profile.label_font()
         primary, fg = self.team_colors(s["abbrev"])
         w = ctx.width
         rec = s["record"]

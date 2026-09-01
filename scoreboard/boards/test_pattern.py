@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from PIL import Image, ImageDraw
 
-from ..render import load_font
 from .base import BaseBoard, BoardContext
 
 
@@ -20,7 +19,7 @@ class TestPatternBoard(BaseBoard):
         for i, c in enumerate(bars):
             d.rectangle((i * bw, h // 3, (i + 1) * bw - 1, h - 1), fill=c)
         d.rectangle((0, 0, w - 1, h - 1), outline=(255, 255, 0))
-        f = load_font("pl", 6)
+        f = ctx.profile.label_font()
         d.text((2, 2), "TOP LEFT", font=f, fill=(255, 255, 255))
         d.text((2, 9), "R  G  B  W", font=f, fill=(200, 200, 200))
         # blinking corner pixel bottom-right so a frozen panel is obvious

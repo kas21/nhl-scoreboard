@@ -8,7 +8,7 @@ from typing import Literal
 from PIL import Image, ImageFont
 from pydantic import BaseModel, Field
 
-from ..render import Absolute, Sheen, Text, load_font, render_tree
+from ..render import Absolute, Sheen, Text, load_font, profile_for, render_tree
 from ..render.text import text_size
 from .base import BaseBoard, BoardContext
 
@@ -28,20 +28,21 @@ class ClockConfig(BaseModel):
     date_color: tuple[int, int, int] = Field((255, 0, 255), description="Date/year colour (RGB)")
 
 
-def _date_font(clock_size: int) -> ImageFont.ImageFont:
-    """The old client's ``pl`` face, which ships only 6 px and 12 px — pick the nearer one."""
+def _date_font(clock_size: int, small: ImageFont.ImageFont) -> ImageFont.ImageFont:
+    """Date/year face scaled to the time. Below 9 px only the profile's label face is legible."""
     size = max(6, round(clock_size * DATE_RATIO))
     if size >= 15:
         return load_font("pixelbold", size)
-    return load_font("pl", 12 if size >= 9 else 6)
+    return load_font("pl", 12) if size >= 9 else small
 
 
 @lru_cache(maxsize=32)
 def _fonts(width: int, height: int, pad: int, show_date: bool, family: str) -> tuple[ImageFont.ImageFont, ImageFont.ImageFont]:
     """Largest face of ``family`` whose whole block (date / time / year) still fits the panel."""
+    small = profile_for(width, height).label_font()
     for size in range(height, MIN_CLOCK - 1, -1):
         clock = load_font(family, size)
-        date = _date_font(size)
+        date = _date_font(size, small)
         tw, th = text_size(WIDEST_TIME, clock)
         block_w, block_h = tw, th
         if show_date:
@@ -50,7 +51,7 @@ def _fonts(width: int, height: int, pad: int, show_date: bool, family: str) -> t
             block_w, block_h = max(tw, dw, yw), th + dh + yh + 2
         if block_w <= width - 2 * pad and block_h <= height - 2 * pad:
             return clock, date
-    return load_font(family, MIN_CLOCK), _date_font(MIN_CLOCK)
+    return load_font(family, MIN_CLOCK), _date_font(MIN_CLOCK, small)
 
 
 class ClockBoard(BaseBoard):
