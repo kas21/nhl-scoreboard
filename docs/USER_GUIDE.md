@@ -46,9 +46,11 @@ nothing needs a restart.
 ## Pages
 - **Dashboard** — live preview of exactly what the panel shows, state, brightness slider.
 - **Boards** — per-state playlists. States: *offseason*, *offday* (season on, no game today), *pregame*,
-  *live*, *intermission*, *postgame*. Reorder, enable/disable, set seconds. Leave the seconds blank for
-  "auto" — the board runs its own length, e.g. a ticker goes through every game once. The row then shows
-  what that works out to right now (`auto ≈ 24s`); it follows the data, so it moves as games come and go.
+  *live*, *intermission*, *postgame*. Reorder by dragging a row's grip (⠿) — the list reorders
+  under the pointer and saves when you let go, Esc cancels; the arrows still move one place at a
+  time. Enable/disable, set seconds. Leave the seconds blank for "auto" — the board runs its own
+  length, e.g. a ticker goes through every game once. The row then shows what that works out to
+  right now (`auto ≈ 24s`); it follows the data, so it moves as games come and go.
   A board with no length of its own says `auto · until the state changes` — it holds the screen until the
   state does (that is what the *live* game board wants), so give it seconds if you want the playlist to
   move on. Standings and team summary only know their length after they have run once (`auto · length not

@@ -174,8 +174,77 @@ function Dashboard({ config, save }) {
     </div>`;
 }
 
+// Immutable "take the item at `from`, put it at `to`".
+const moved = (list, from, to) => {
+  const l = [...list];
+  l.splice(to, 0, l.splice(from, 1)[0]);
+  return l;
+};
+
+function Playlist({ state, list, boards, autos, update }) {
+  // Reorder by dragging the grip. Pointer events rather than HTML5 drag-and-drop: they fire
+  // for touch as well as mouse, and a release anywhere still lands the row (a native drop is
+  // refused unless the last dragover happened to be at the release point). `drag` holds the
+  // row's original index and where it is hovering; the list renders already reordered, so you
+  // see the result before letting go, and nothing is saved until the release.
+  const [drag, setDrag] = useState(null);
+  const shown = drag ? moved(list, drag.from, drag.to) : list;
+  const edit = (i, patch) => update(state, shown.map((x, j) => j === i ? { ...x, ...patch } : x));
+  const move = (i, d) => update(state, moved(list, i, i + d));
+
+  const grab = (ev, from) => {
+    if (ev.button) return;              // left button / touch only
+    ev.preventDefault();                // no text selection, no touch scroll
+    const rows = ev.currentTarget.closest('ul');
+    let to = from;
+    setDrag({ from, to });
+    // Measured live: the rows have already shifted under the pointer by the next move.
+    const rowAt = (y) => {
+      const li = [...rows.children];
+      const hit = li.findIndex(el => y < el.getBoundingClientRect().bottom);
+      return hit === -1 ? li.length - 1 : hit;
+    };
+    const onMove = (e) => {
+      const at = rowAt(e.clientY);
+      if (at !== to) { to = at; setDrag({ from, to }); }
+    };
+    const finish = (keep) => {
+      removeEventListener('pointermove', onMove);
+      removeEventListener('pointerup', onUp);
+      removeEventListener('pointercancel', onCancel);
+      removeEventListener('keydown', onKey);
+      setDrag(null);
+      if (keep && to !== from) update(state, moved(list, from, to));
+    };
+    const onUp = () => finish(true);
+    const onCancel = () => finish(false);      // the browser took the gesture back (touch, mostly)
+    const onKey = (e) => { if (e.key === 'Escape') finish(false); };
+    addEventListener('pointermove', onMove);
+    addEventListener('pointerup', onUp);
+    addEventListener('pointercancel', onCancel);
+    addEventListener('keydown', onKey);
+  };
+
+  return html`<div class="card playlist"><h2>${state}</h2><ul>
+    ${shown.map((e, i) => html`<li class=${drag && drag.to === i ? 'dragging' : ''}>
+      <span class="grip" title="Drag to reorder" onpointerdown=${ev => grab(ev, i)}>⠿</span>
+      <input type="checkbox" checked=${e.enabled} onchange=${ev => edit(i, { enabled: ev.target.checked })} />
+      <select value=${e.board} onchange=${ev => edit(i, { board: ev.target.value })}>
+        ${boards.map(b => html`<option value=${b.key}>${b.title}</option>`)}
+      </select>
+      <input type="number" min="1" placeholder="auto" title=${AUTO_HINT} value=${e.duration ?? ''} style="width:80px"
+        onchange=${ev => edit(i, { duration: ev.target.value === '' ? null : +ev.target.value })} /> s
+      <span class="muted small auto" title=${AUTO_HINT}>${e.duration == null ? autoLabel(autos[e.board]) : ''}</span>
+      <button class="secondary" disabled=${i === 0} onclick=${() => move(i, -1)}>↑</button>
+      <button class="secondary" disabled=${i === list.length - 1} onclick=${() => move(i, 1)}>↓</button>
+      <button class="danger" onclick=${() => update(state, shown.filter((_, j) => j !== i))}>✕</button>
+    </li>`)}
+    </ul>
+    <button class="secondary" onclick=${() => update(state, [...list, { board: boards[0].key, duration: 15, enabled: true }])}>+ Add board</button>
+  </div>`;
+}
+
 function Playlists({ config, boards, save }) {
-  const states = Object.keys(config.playlists);
   const update = (state, list) => save({ playlists: { [state]: list } });
   // Re-fetched here rather than reused from the app-wide list: auto lengths move with the data.
   const [autos, setAutos] = useState({});
@@ -185,26 +254,8 @@ function Playlists({ config, boards, save }) {
       .catch(() => {});
     tick(); const id = setInterval(tick, 15000); return () => clearInterval(id);
   }, []);
-  return states.map(state => {
-    const list = config.playlists[state];
-    const move = (i, d) => { const l = [...list]; const [x] = l.splice(i, 1); l.splice(i + d, 0, x); update(state, l); };
-    return html`<div class="card playlist"><h2>${state}</h2><ul>
-      ${list.map((e, i) => html`<li>
-        <input type="checkbox" checked=${e.enabled} onchange=${ev => update(state, list.map((x, j) => j === i ? { ...x, enabled: ev.target.checked } : x))} />
-        <select value=${e.board} onchange=${ev => update(state, list.map((x, j) => j === i ? { ...x, board: ev.target.value } : x))}>
-          ${boards.map(b => html`<option value=${b.key}>${b.title}</option>`)}
-        </select>
-        <input type="number" min="1" placeholder="auto" title=${AUTO_HINT} value=${e.duration ?? ''} style="width:80px"
-          onchange=${ev => update(state, list.map((x, j) => j === i ? { ...x, duration: ev.target.value === '' ? null : +ev.target.value } : x))} /> s
-        <span class="muted small auto" title=${AUTO_HINT}>${e.duration == null ? autoLabel(autos[e.board]) : ''}</span>
-        <button class="secondary" disabled=${i === 0} onclick=${() => move(i, -1)}>↑</button>
-        <button class="secondary" disabled=${i === list.length - 1} onclick=${() => move(i, 1)}>↓</button>
-        <button class="danger" onclick=${() => update(state, list.filter((_, j) => j !== i))}>✕</button>
-      </li>`)}
-      </ul>
-      <button class="secondary" onclick=${() => update(state, [...list, { board: boards[0].key, duration: 15, enabled: true }])}>+ Add board</button>
-    </div>`;
-  });
+  return Object.keys(config.playlists).map(state => html`
+    <${Playlist} state=${state} list=${config.playlists[state]} boards=${boards} autos=${autos} update=${update} />`);
 }
 
 function Diagnostics() {
