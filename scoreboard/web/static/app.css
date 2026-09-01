@@ -105,3 +105,28 @@ table.sources tbody tr:not(.detail) { cursor:pointer; }
 table.sources tbody tr:not(.detail):hover, table.sources tr.open { background:#1d2430; }
 table.sources tr.detail td { background:#0e1116; font-size:12px; word-break:break-all; }
 table.sources tr.detail div { padding:2px 0; }
+
+/* ---- holidays page -------------------------------------------------------- */
+.crumb { margin:0 0 12px; }
+.crumb a { color:var(--muted); text-decoration:none; font-size:13px; }
+.crumb a:hover { color:var(--fg); }
+label.inline { display:flex; gap:6px; align-items:center; color:var(--muted); font-size:13px; white-space:nowrap; }
+.holidays ul { padding:0; margin:10px 0 0; }
+.holidays li { display:flex; gap:10px; align-items:center; padding:5px 0; list-style:none; border-bottom:1px solid #222a35; }
+.holidays li:last-child { border-bottom:0; }
+.holidays .grow { flex:1 1 auto; min-width:0; max-width:none; }
+.holidays input[type=search] { max-width:none; width:100%; }
+/* Fixed column so a row with a remove control still lines up with the rest. */
+.pic { display:flex; align-items:center; gap:2px; flex:0 0 54px; }
+.thumb { background:#0e1116; border:1px solid #2a3340; border-radius:6px; padding:0; width:40px; height:40px;
+         display:flex; align-items:center; justify-content:center; overflow:hidden; cursor:pointer; }
+.thumb:hover { border-color:var(--accent); }
+.thumb:disabled { cursor:default; opacity:.45; }
+.thumb img { width:100%; height:100%; object-fit:contain; image-rendering:pixelated; }
+.thumb .plus { color:var(--muted); font-size:20px; line-height:1; }
+.thumb.empty { border-style:dashed; }
+.pic .rm { color:var(--muted); cursor:pointer; font-size:11px; padding:0 2px; }
+.pic .rm:hover { color:var(--err); }
+.editor-link { color:var(--accent); text-decoration:none; }
+.editornote { margin:0 0 10px; }
+.editornote a { color:var(--accent); text-decoration:none; }

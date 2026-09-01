@@ -43,7 +43,8 @@ scoreboard/
                     (Marquee/Sheen/Pulse/Blink/Slide/Fade), Sequence (whole-frame timelines), fx helpers, size profiles
   boards/           Board contract + generic boards (clock, splash, blank, test_pattern, season_countdown)
   output/           matrix (rgbmatrix | RGBMatrixEmulator | null), PreviewHub (WebSocket PNG stream)
-  web/              FastAPI API + Preact/HTM UI (no build step): dashboard, boards/playlists, settings, wizard, diagnostics
+  web/              FastAPI API + Preact/HTM UI (no build step): dashboard, boards/playlists, settings, wizard,
+                    diagnostics, holidays (per-holiday list: hide, rename, upload a picture)
   nhl/              api-web.nhle.com client, normaliser, source, season phase, event detectors, boards (ported old designs)
   nfl/              ESPN site API, normaliser, source, detectors; boards subclass the NHL ones
   extras/           holidays, flights (adsb.lol + adsbdb + airline logos), weather (Open-Meteo) — same plugin contract

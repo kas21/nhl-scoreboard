@@ -99,6 +99,11 @@ def image_path(name: str, explicit: str = "") -> str | None:
     return None
 
 
+def uploaded(value: str) -> bool:
+    """True if an upload is standing at this slug — so a delete would actually do something."""
+    return bool(SLUG.fullmatch(value)) and (USER_IMAGES / f"{value}.png").exists()
+
+
 def save(value: str, data: bytes) -> Path:
     """Validate an upload and store it as a normalised PNG. Raises :class:`ImageError`.
 

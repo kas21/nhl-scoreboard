@@ -2,6 +2,7 @@ import { h, render, useState, useEffect } from './htm-preact.js';
 import { html } from './htm-preact.js';
 import { Wizard } from './wizard.js';
 import { Settings } from './settings.js';
+import { Holidays } from './holidays.js';
 
 // Every state-changing call carries this header. A page on another site cannot set it
 // without a preflight the scoreboard never answers, which is what stops a drive-by POST
@@ -300,6 +301,7 @@ function App() {
         : showWizard ? html`<${Wizard} config=${config} save=${save} Preview=${Preview} onDone=${() => { location.hash = '#dashboard'; }} />`
         : page === 'settings' ? html`<${Settings} config=${config} schema=${schema} boards=${boards} save=${save} />`
         : page === 'playlists' ? html`<${Playlists} config=${config} boards=${boards} save=${save} />`
+        : page === 'holidays' ? html`<${Holidays} />`
         : page === 'diagnostics' ? html`<${Diagnostics} />`
         : html`<${Dashboard} config=${config} save=${save} />`}
     </main>`;

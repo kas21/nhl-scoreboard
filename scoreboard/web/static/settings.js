@@ -98,13 +98,13 @@ const CATEGORIES = [
 function buildSections(schema, config, boardTitles, sports) {
   const sections = [];
 
-  const makeFields = (objSchema, root, value, path) =>
+  const makeFields = (objSchema, root, value, path, editor) =>
     Object.entries(objSchema.properties || {}).map(([name, sub]) => {
       const s = resolve(sub, root);
       const dflt = s.default;
       const v = value?.[name] !== undefined ? value[name] : dflt;
       return {
-        name, root, schema: s, path: path ? `${path}.${name}` : name,
+        name, root, schema: s, editor, path: path ? `${path}.${name}` : name,
         kind: kindOf(s, root),
         label: s.title || name,
         desc: s.description || '',
@@ -155,7 +155,8 @@ function buildSections(schema, config, boardTitles, sports) {
         title: boardTitles[key] || prettyTitle(sub.title, key),
         group, cat: cat.id, path: `${cat.plugin}.${key}`,
         // each plugin model is its own self-contained schema, so it is its own root
-        fields: makeFields(sub, sub, config[cat.plugin]?.[key] || {}, key),
+        fields: makeFields(sub, sub, config[cat.plugin]?.[key] || {}, key, sub.editor),
+        editor: sub.editor,
         save: (patch) => ({ [cat.plugin]: { [key]: patch } }),
       });
     }
@@ -180,7 +181,7 @@ function buildSections(schema, config, boardTitles, sports) {
 // ---- field editor ----------------------------------------------------------
 
 function Editor({ field, onChange }) {
-  const { schema: s, root, kind, value, path } = field;
+  const { schema: s, root, kind, value, path, editor } = field;
   const id = path.replace(/\./g, '-');
   switch (kind) {
     case 'enum':
@@ -231,9 +232,12 @@ function Editor({ field, onChange }) {
         </div></div>`;
     }
     default:
-      // No editor for this shape (e.g. a list of objects). Say so rather than
-      // dropping the setting silently, so it can still be found and explained.
-      return html`<span class="muted">Not editable here — edit <code>config.json</code>.</span>`;
+      // No editor for this shape (e.g. a list of objects). Say so rather than dropping
+      // the setting silently — and if the model named a page that *can* edit it, send
+      // people there instead of to a text editor.
+      return editor
+        ? html`<a class="editor-link" href=${'#' + editor.page}>${editor.label} →</a>`
+        : html`<span class="muted">Not editable here — edit <code>config.json</code>.</span>`;
   }
 }
 
@@ -358,6 +362,9 @@ export function Settings({ config, schema, boards, save }) {
             ${changed > 0 && html`<span class="chip">${changed} changed</span>`}
           </button>`}
           ${open && html`<div class="sect-body">
+            ${sec.editor && html`<p class="muted small editornote">
+              These have a page of their own, with the per-item list and pictures.${' '}
+              <a href=${'#' + sec.editor.page}>${sec.editor.label} →</a></p>`}
             <div class="fields">${sec.fields.map(f => html`<${Field} key=${f.path} field=${f}
               onChange=${v => save(sec.save({ [f.name]: v }))} />`)}</div>
             ${sec.hiddenAdvanced > 0 && html`<p class="muted hiddenadv">

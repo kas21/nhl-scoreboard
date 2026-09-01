@@ -178,7 +178,8 @@ def test_a_new_picture_shows_up_without_waiting_for_the_next_refresh(tmp_path, u
     """The source only recomputes hourly, so the endpoint has to republish itself."""
     c, config, snapshots = client(tmp_path)
     config.update({"sources": {"holidays": {"country": "US", "horizon_days": 365}}})
-    assert snapshots.get().get("holidays.upcoming") is None      # no source is running here
+    before = {i["name"]: i for i in snapshots.get().get("holidays.upcoming")}
+    assert before["Labor Day"]["image"] is None
 
     upload(c, "labor_day")
     after = {i["name"]: i for i in snapshots.get().get("holidays.upcoming")}
@@ -188,3 +189,66 @@ def test_a_new_picture_shows_up_without_waiting_for_the_next_refresh(tmp_path, u
     c.delete("/api/holidays/images/labor_day")
     reverted = {i["name"]: i for i in snapshots.get().get("holidays.upcoming")}
     assert reverted["Labor Day"]["image"] is None
+
+
+# -- settings ------------------------------------------------------------------
+
+
+def test_settings_roundtrip_fills_in_model_defaults(tmp_path):
+    c, _, _ = client(tmp_path)
+    assert c.get("/api/holidays/settings").json()["country"] == "US"
+    r = c.put("/api/holidays/settings", json={"country": "CA", "subdivision": "ON"})
+    assert r.status_code == 200
+    assert r.json()["horizon_days"] == 90                    # untouched fields come back defaulted
+    assert c.get("/api/holidays/settings").json()["country"] == "CA"
+
+
+def test_an_override_can_be_taken_back_out(tmp_path):
+    """PATCH /api/config deep-merges, so it can add a key here but never remove one."""
+    c, config, _ = client(tmp_path)
+    c.put("/api/holidays/settings", json={"overrides": {"Christmas Day": {"enabled": False},
+                                                        "Labor Day": {"display": "Long Weekend"}}})
+    assert set(config.get().sources["holidays"]["overrides"]) == {"Christmas Day", "Labor Day"}
+
+    c.put("/api/holidays/settings", json={"overrides": {"Labor Day": {"display": "Long Weekend"}}})
+    assert set(config.get().sources["holidays"]["overrides"]) == {"Labor Day"}
+
+
+def test_bad_settings_are_refused_rather_than_stored(tmp_path):
+    """The generic config API takes these without a murmur; this one must not."""
+    c, config, _ = client(tmp_path)
+    before = config.get().sources.get("holidays")
+    for bad in ({"country": "NOT A COUNTRY"}, {"horizon_days": 9999}, {"bogus_field": 1},
+                {"custom": [{"name": "x", "date": "nonsense"}]},
+                {"overrides": {"X": {"image": "../etc/passwd"}}}):
+        assert c.put("/api/holidays/settings", json=bad).status_code == 422, bad
+    assert config.get().sources.get("holidays") == before
+
+
+def test_saving_settings_leaves_the_rest_of_the_config_alone(tmp_path):
+    c, config, _ = client(tmp_path)
+    config.update({"brightness": {"day": 42}, "sources": {"weather": {"units": "metric"}}})
+    c.put("/api/holidays/settings", json={"country": "CA"})
+    assert config.get().brightness.day == 42
+    assert config.get().sources["weather"] == {"units": "metric"}
+
+
+def test_editing_settings_republishes_at_once(tmp_path):
+    """Hiding a holiday has to reach the panel and the board now, not in an hour."""
+    c, _, snapshots = client(tmp_path)
+    c.put("/api/holidays/settings", json={"country": "US", "horizon_days": 365})
+    assert "Labor Day" in {i["name"] for i in snapshots.get().get("holidays.upcoming")}
+
+    c.put("/api/holidays/settings", json={"country": "US", "horizon_days": 365,
+                                          "overrides": {"Labor Day": {"enabled": False}}})
+    assert "Labor Day" not in {i["name"] for i in snapshots.get().get("holidays.upcoming")}
+    hidden = next(i for i in snapshots.get().get("holidays.available") if i["name"] == "Labor Day")
+    assert hidden["enabled"] is False          # still listed, so you can turn it back on
+
+
+def test_an_unrelated_config_change_does_not_recompute(tmp_path):
+    c, config, snapshots = client(tmp_path)
+    c.put("/api/holidays/settings", json={"country": "US"})
+    version = snapshots.get().version
+    config.update({"brightness": {"day": 55}})
+    assert snapshots.get().version == version

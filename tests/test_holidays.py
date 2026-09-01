@@ -151,7 +151,8 @@ def test_available_lists_every_holiday_with_its_state():
     items = available(cfg, date(2026, 12, 1))
     by_name = {i["name"]: i for i in items}
     assert by_name["Christmas Day"] == {"name": "Christmas Day", "display": "Xmas", "enabled": False,
-                                        "custom": False, "image": XMAS}
+                                        "custom": False, "image": XMAS, "image_name": "christmas_day",
+                                        "image_slug": "christmas_day", "uploaded": False}
     assert by_name["Halloween"]["enabled"] is True             # not in overrides -> on
     assert by_name["Puck Drop"]["custom"] is True              # custom dates are listed too
     assert len(by_name) == len(items)                          # one row per name, no year duplicates
@@ -212,3 +213,39 @@ def test_board_survives_an_image_that_went_missing(tmp_path):
 def test_slug_is_filename_safe():
     for name in ("../../etc/passwd", "Bob & Alice's Day!", "  "):
         assert re.fullmatch(r"[a-z0-9_]*", slug(name)), name
+
+
+def test_available_says_where_an_upload_for_a_row_would_go(tmp_path, monkeypatch):
+    monkeypatch.setattr("scoreboard.extras.holidays.images.USER_IMAGES", tmp_path)
+    cfg = HolidaysConfig(country="US", overrides={"Halloween": HolidayOverride(image="pumpkins")},
+                         custom=[CustomHoliday(name="Lily's Birthday", date="04-23", image="birthday")])
+    by_name = {i["name"]: i for i in available(cfg, date(2026, 12, 1))}
+    assert by_name["Christmas Day"]["image_slug"] == "christmas_day"      # named after the holiday
+    assert by_name["Halloween"]["image_slug"] == "pumpkins"               # an override redirects it
+    assert by_name["Lily's Birthday"]["image_slug"] == "birthday"         # so does a custom date
+    assert all(not i["uploaded"] for i in by_name.values())
+
+    Image.new("RGBA", (8, 8)).save(tmp_path / "christmas_day.png")
+    refreshed = {i["name"]: i for i in available(cfg, date(2026, 12, 1))}
+    assert refreshed["Christmas Day"]["uploaded"] is True                 # a delete would now do something
+    assert refreshed["Halloween"]["uploaded"] is False
+
+
+def test_observed_days_can_be_given_their_own_picture():
+    """The row borrows independence_day.png but an upload lands under its own name.
+
+    Conflating the two showed a broken thumbnail: the panel asked for a picture at the
+    slug it would upload to, which is not the one on screen.
+    """
+    by_name = {i["name"]: i for i in available(HolidaysConfig(country="US"), date(2026, 7, 1))}
+    observed = by_name["Independence Day (observed)"]
+    assert Path(observed["image"]).name == "independence_day.png"
+    assert observed["image_name"] == "independence_day"              # what it shows
+    assert observed["image_slug"] == "independence_day_observed"     # where an upload goes
+
+
+def test_a_row_with_no_picture_has_nothing_to_show():
+    by_name = {i["name"]: i for i in available(HolidaysConfig(country="US"), date(2026, 12, 1))}
+    assert by_name["Columbus Day"]["image"] is None
+    assert by_name["Columbus Day"]["image_name"] is None
+    assert by_name["Columbus Day"]["image_slug"] == "columbus_day"   # but you can still add one

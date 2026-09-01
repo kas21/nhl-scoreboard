@@ -3,15 +3,17 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from collections.abc import Callable
 from datetime import date, datetime, timedelta
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, ClassVar
 from zoneinfo import ZoneInfo
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from ...config.models import ADVANCED
+from ...config.models import ADVANCED, edited_on
 from ...data.source import SourceContext
-from .images import IMAGES, base_name, image_path, slug  # noqa: F401  (re-exported)
+from .images import IMAGES, base_name, image_path, slug, uploaded  # noqa: F401  (re-exported)
 
 if TYPE_CHECKING:
     from ...config.models import AppConfig
@@ -49,7 +51,8 @@ class CustomHoliday(BaseModel):
 
 
 class HolidaysConfig(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid", title="Holidays")
+    model_config = ConfigDict(frozen=True, extra="forbid", title="Holidays",
+                              json_schema_extra=edited_on("holidays", "Open the Holidays page"))
     country: str = Field("US", min_length=2, max_length=2, description="ISO country code, e.g. US, CA, GB")
     subdivision: str = Field("", max_length=5, description="State / province code (optional, e.g. NY, ON)")
     horizon_days: int = Field(90, ge=1, le=365, description="How far ahead to look")
@@ -140,6 +143,7 @@ def available(cfg: HolidaysConfig, today: date) -> list[dict[str, Any]]:
     Unlike :func:`upcoming` this ignores the horizon and keeps disabled entries — you
     cannot re-enable a holiday that the list has hidden from you.
     """
+    own_image = {entry.name: entry.image for entry in cfg.custom}
     rows: dict[str, dict[str, Any]] = {}
     names = [(name, False) for name in calendar_names(cfg, _years(cfg, today))]
     names += [(entry.name, True) for entry in cfg.custom]
@@ -147,10 +151,18 @@ def available(cfg: HolidaysConfig, today: date) -> list[dict[str, Any]]:
         if name in rows:
             continue
         override = cfg.overrides.get(name)
-        explicit = next((e.image for e in cfg.custom if e.name == name and e.image), "") if custom else \
-            (override.image if override else "")
+        explicit = own_image.get(name, "") if custom else (override.image if override else "")
+        # Two different stems, and conflating them shows a broken thumbnail:
+        #   image_slug — where an upload for this row would be written
+        #   image_name — where the picture it shows right now actually comes from
+        # They differ whenever a row borrows another's art: "Independence Day (observed)"
+        # shows independence_day.png until you give the observed day one of its own.
+        stem = explicit or slug(name)
+        path = image_path(name, explicit)
         rows[name] = {"name": name, "display": _display(name, override), "custom": custom,
-                      "enabled": override.enabled if override else True, "image": image_path(name, explicit)}
+                      "enabled": override.enabled if override else True, "image": path,
+                      "image_name": Path(path).stem if path else None,
+                      "image_slug": stem, "uploaded": uploaded(stem)}
     return sorted(rows.values(), key=lambda r: r["display"])
 
 
@@ -183,6 +195,25 @@ class HolidaysSource:
                 if ctx.snapshot().get(f"{KEY}.{subkey}") != value:
                     ctx.publish(value, subkey=subkey)
             await ctx.sleep(cfg.refresh_seconds)
+
+
+def config_listener(snapshots: SnapshotStore) -> Callable[[AppConfig], None]:
+    """A ``ConfigStore`` listener that republishes when the holiday settings change.
+
+    Without it, hiding or renaming a holiday would not reach the panel until the source
+    next woke, an hour later. The listener fires for *every* config change, so it compares
+    the section first — the brightness slider must not trigger a calendar recompute.
+    """
+    previous: dict[str, Any] | None = None
+
+    def listen(app_config: AppConfig) -> None:
+        nonlocal previous
+        current = app_config.sources.get(KEY, {})
+        if current != previous:
+            previous = current
+            refresh(app_config, snapshots)
+
+    return listen
 
 
 def refresh(app_config: AppConfig, snapshots: SnapshotStore) -> None:

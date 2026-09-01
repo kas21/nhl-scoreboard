@@ -49,9 +49,13 @@ Transitions: fade/slide/wipe/blinds between playlist boards (`config.transition`
 FastAPI on `web.port` (8080). Endpoints: `/api/config` (GET effective, PATCH deep-merge, PUT, reset),
 `/api/schema`, `/api/status`, `/api/sources` (per-source health), `/api/boards`, `/api/snapshot`, `/api/logs`, `/api/override` (force a board),
 `/api/system` (+ `/restart`, `/hostname`), `/api/geocode`, `/api/preview.png`, `/ws/preview` (PNG frames ~10 fps),
-`/api/holidays/images/{slug}` (GET the picture, POST your own as the raw body, DELETE to put the bundled one back).
-That last one is the only plugin-specific route: a picture is a file, so it cannot ride on `/api/config` the way
-every other holiday setting does.
+`/api/holidays/images/{slug}` (GET the picture, POST your own as the raw body, DELETE to put the bundled one back)
+and `/api/holidays/settings` (GET / PUT). Those are the only plugin-specific routes, and each earns it: a picture is
+a file, so it cannot ride on `/api/config`; and `PATCH /api/config` deep-merges, so it can add a key to the
+`overrides` map but never take one out, and plugin sections are `dict[str, Any]` in `AppConfig` so nothing validates
+them on the way in. The `/settings` route validates against `HolidaysConfig` and replaces the section outright.
+A model can declare a page of its own with `edited_on()` (see `config/models.py`); the generated settings form then
+links to it instead of saying "edit config.json".
 UI is Preact + HTM served as static files (no build step); `wizard.js` is the first-run flow.
 
 ## Process model

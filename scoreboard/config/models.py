@@ -24,6 +24,17 @@ cadences — so the common fields aren't buried among them.
 """
 
 
+def edited_on(page: str, label: str) -> dict[str, Any]:
+    """Model marker: this plugin has a page of its own in the web UI.
+
+    Some settings are not scalars — a per-holiday row is a toggle, a rename and a picture
+    upload at once — so the generated form cannot edit them, and "edit config.json" is a
+    dead end once a real editor exists. A model carrying this gets a link to it; its
+    simple fields still appear in the generated form as usual.
+    """
+    return {"editor": {"page": page, "label": label}}
+
+
 class FrozenModel(BaseModel):
     """Immutable base: config objects are replaced, never mutated."""
 

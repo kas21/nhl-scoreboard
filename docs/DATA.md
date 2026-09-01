@@ -13,7 +13,7 @@ All snapshot values are plain JSON-shaped dicts/lists (immutable by convention: 
 | `nhl.season`, `nfl.season` | sources | `{sport, phase: offseason|preseason|regular|playoffs, …dates, days_to_*, standings_final, first_game, favorite}` |
 | `system` | NHL source | `{online: bool, failures: n}` |
 | `holidays.upcoming` | holidays | `[{name, display, date, days, image, custom}]` — `display` is the alternate name if one is set, `image` an absolute path or null |
-| `holidays.available` | holidays | `[{name, display, enabled, custom, image}]` — every holiday the calendar knows, on or off, for the web UI picker |
+| `holidays.available` | holidays | `[{name, display, enabled, custom, image, image_name, image_slug, uploaded}]` — every holiday the calendar knows, on or off, for the Holidays page. `image_name` is the stem of the picture it shows now; `image_slug` is where an upload for that row would go, and they differ whenever a row borrows another's art |
 | `flights.nearby`, `flights.overhead` | flights | `[aircraft]` sorted by distance |
 | `weather.current`, `weather.daily` | weather | current conditions dict; `[day]` |
 
