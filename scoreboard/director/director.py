@@ -98,6 +98,20 @@ class Director:
         self._override = None
         return None
 
+    def auto_seconds(self, board: BaseBoard) -> float | None:
+        """How long ``board`` runs on an "auto" playlist entry, for the web UI.
+
+        None means it never ends itself (or has not been built yet, so its length is not
+        knowable). Read-only: it builds a context but never enters or renders the board.
+        """
+        cfg = self._config.get()
+        try:
+            ctx = self._context(cfg, self._snapshots.get(), _time.monotonic(), None)
+            return board.auto_seconds(ctx, self._board_config(cfg, board))
+        except Exception:       # a board must never be able to break the settings page
+            log.debug("auto_seconds failed for board %s", board.key, exc_info=True)
+            return None
+
     def brightness(self, now: datetime | None = None) -> int:
         cfg = self._config.get()
         now = now or self._now(cfg)
@@ -239,7 +253,9 @@ class Director:
             self._cursor = advance(self._cursor, len(entries), mono)
 
     def _context(self, cfg: AppConfig, snap: Snapshot, mono: float, event: Event | None) -> BoardContext:
-        entered = self._active_event[2] if self._active_event else self._cursor.entered_at
+        # `mono` when nothing is on screen yet: the web UI asks for a context (auto_seconds)
+        # before the first frame has created the cursor.
+        entered = self._active_event[2] if self._active_event else (self._cursor.entered_at if self._cursor else mono)
         return BoardContext(
             snapshot=snap,
             profile=profile_for(cfg.display.width, cfg.display.height),

@@ -57,11 +57,17 @@ class CountdownBoard(BaseBoard):
     def __init__(self) -> None:
         self._items: list[dict] = []
 
+    def _item_list(self, ctx: BoardContext, cfg: CountdownConfig) -> list[dict]:
+        return list(ctx.snapshot.get("holidays.upcoming") or [])[: cfg.max_holidays]
+
     def enter(self, ctx: BoardContext, cfg: CountdownConfig) -> None:
-        self._items = list(ctx.snapshot.get("holidays.upcoming") or [])[: cfg.max_holidays]
+        self._items = self._item_list(ctx, cfg)
 
     def done(self, ctx: BoardContext, cfg: CountdownConfig) -> bool:
         return ctx.elapsed >= cfg.seconds_per_holiday * max(len(self._items), 1)
+
+    def auto_seconds(self, ctx: BoardContext, cfg: CountdownConfig) -> float:
+        return cfg.seconds_per_holiday * max(len(self._item_list(ctx, cfg)), 1)
 
     def render(self, ctx: BoardContext, cfg: CountdownConfig) -> Image.Image:
         if not self._items:

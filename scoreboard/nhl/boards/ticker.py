@@ -54,14 +54,20 @@ class TickerBoard(BaseBoard):
     def __init__(self) -> None:
         self._games: list[dict[str, Any]] = []
 
-    def enter(self, ctx: BoardContext, cfg: TickerConfig) -> None:
+    def _game_list(self, ctx: BoardContext, cfg: TickerConfig) -> list[dict[str, Any]]:
         games = ctx.snapshot.get(self.scores_key) or []
         if cfg.skip_finished:
             games = [g for g in games if g["phase"] != "postgame"] or games
-        self._games = list(games)
+        return list(games)
+
+    def enter(self, ctx: BoardContext, cfg: TickerConfig) -> None:
+        self._games = self._game_list(ctx, cfg)
 
     def done(self, ctx: BoardContext, cfg: TickerConfig) -> bool:
         return ctx.elapsed >= cfg.seconds_per_game * max(len(self._games), 1)
+
+    def auto_seconds(self, ctx: BoardContext, cfg: TickerConfig) -> float:
+        return cfg.seconds_per_game * max(len(self._game_list(ctx, cfg)), 1)
 
     def render(self, ctx: BoardContext, cfg: TickerConfig) -> Image.Image:
         if not self._games:

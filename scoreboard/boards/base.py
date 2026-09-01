@@ -47,6 +47,10 @@ class Board(Protocol):
         """Self-terminating boards (tickers) return True when finished."""
         ...
 
+    def auto_seconds(self, ctx: BoardContext, cfg: BaseModel) -> float | None:
+        """How long a run lasts when the playlist duration is "auto" (None = never ends itself)."""
+        ...
+
 
 class BaseBoard:
     key: ClassVar[str] = ""
@@ -63,6 +67,16 @@ class BaseBoard:
 
     def done(self, ctx: BoardContext, cfg: BaseModel) -> bool:
         return False
+
+    def auto_seconds(self, ctx: BoardContext, cfg: BaseModel) -> float | None:
+        """Seconds a run lasts when the playlist entry says "auto" — for the web UI, which
+        would otherwise only be able to say "auto" and leave the length a mystery.
+
+        None means the board never ends on its own: on "auto" the playlist stays on it
+        until the app state changes or an event interrupts. Boards that override ``done``
+        should override this too, with the same length ``done`` waits for.
+        """
+        return None
 
 
 class SequenceMixin:
@@ -88,6 +102,9 @@ class SequenceMixin:
 
     def done(self, ctx: BoardContext, cfg: BaseModel) -> bool:
         return self._seq is not None and self._seq.finished(ctx.elapsed)
+
+    def auto_seconds(self, ctx: BoardContext, cfg: BaseModel) -> float | None:
+        return self._seq.duration if self._seq is not None else None
 
 
 class EventBoard(BaseBoard):

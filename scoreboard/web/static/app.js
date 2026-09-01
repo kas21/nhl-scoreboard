@@ -86,6 +86,16 @@ const fmtAgo = (s) => s == null ? '—' : s < 60 ? `${Math.round(s)}s ago` : s <
 const fmtIn = (s) => s == null ? '—' : s <= 0 ? 'now' : s < 60 ? `in ${Math.round(s)}s` : `in ${Math.round(s / 60)}m`;
 const fmtMs = (ms) => ms == null ? '—' : ms < 1000 ? `${Math.round(ms)} ms` : `${(ms / 1000).toFixed(1)} s`;
 
+// A blank playlist duration means "auto": the board decides when it is finished. How long
+// that is depends on how much it has to show, so say what it works out to right now rather
+// than leaving the field reading "auto" with no number anywhere.
+const fmtSecs = (s) => s < 90 ? `${Math.round(s)}s` : `${Math.floor(s / 60)}m ${Math.round(s % 60)}s`;
+const autoLabel = (b) => !b ? ''
+  : b.auto_seconds == null ? (b.self_timed ? 'auto · length not known yet' : 'auto · until the state changes')
+  : b.auto_seconds < 0.5 ? 'auto · skipped, nothing to show'
+  : `auto ≈ ${fmtSecs(b.auto_seconds)}`;
+const AUTO_HINT = "Blank means auto: the board runs its own length instead of a fixed one. That length follows how much there is to show (games, pages, aircraft), so it moves with the data — and a board with no length of its own stays up until the state changes.";
+
 function useSources(intervalMs = 3000) {
   const [rows, setRows] = useState(null);
   useEffect(() => {
@@ -167,6 +177,14 @@ function Dashboard({ config, save }) {
 function Playlists({ config, boards, save }) {
   const states = Object.keys(config.playlists);
   const update = (state, list) => save({ playlists: { [state]: list } });
+  // Re-fetched here rather than reused from the app-wide list: auto lengths move with the data.
+  const [autos, setAutos] = useState({});
+  useEffect(() => {
+    const tick = () => api.get('/api/boards')
+      .then(bs => setAutos(Object.fromEntries(bs.map(b => [b.key, b]))))
+      .catch(() => {});
+    tick(); const id = setInterval(tick, 15000); return () => clearInterval(id);
+  }, []);
   return states.map(state => {
     const list = config.playlists[state];
     const move = (i, d) => { const l = [...list]; const [x] = l.splice(i, 1); l.splice(i + d, 0, x); update(state, l); };
@@ -176,8 +194,9 @@ function Playlists({ config, boards, save }) {
         <select value=${e.board} onchange=${ev => update(state, list.map((x, j) => j === i ? { ...x, board: ev.target.value } : x))}>
           ${boards.map(b => html`<option value=${b.key}>${b.title}</option>`)}
         </select>
-        <input type="number" min="1" placeholder="auto" value=${e.duration ?? ''} style="width:80px"
+        <input type="number" min="1" placeholder="auto" title=${AUTO_HINT} value=${e.duration ?? ''} style="width:80px"
           onchange=${ev => update(state, list.map((x, j) => j === i ? { ...x, duration: ev.target.value === '' ? null : +ev.target.value } : x))} /> s
+        <span class="muted small auto" title=${AUTO_HINT}>${e.duration == null ? autoLabel(autos[e.board]) : ''}</span>
         <button class="secondary" disabled=${i === 0} onclick=${() => move(i, -1)}>↑</button>
         <button class="secondary" disabled=${i === list.length - 1} onclick=${() => move(i, 1)}>↓</button>
         <button class="danger" onclick=${() => update(state, list.filter((_, j) => j !== i))}>✕</button>

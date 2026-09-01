@@ -32,7 +32,8 @@
 - BOOT for the first 4 s (splash).
 Per-state playlist (`config.playlists`). Entry is skipped if the board isn't loaded, is quarantined,
 its `requires` keys are missing/empty, or its `sport` ≠ `main_event.sport`. Events pre-empt (no transition
-in, transition out). `duration=None` → the board's `done()` decides. Board clock restarts on every switch.
+in, transition out). `duration=None` → the board's `done()` decides; `auto_seconds()` reports that same
+length to the web UI (None = the board never ends itself, or cannot know yet). Board clock restarts on every switch.
 Transitions: fade/slide/wipe/blinds between playlist boards (`config.transition`).
 
 ## Render engine (`render/`)

@@ -200,3 +200,6 @@ class TeamSummaryBoard(BaseBoard):
 
     def done(self, ctx: BoardContext, cfg: TeamSummaryConfig) -> bool:
         return bool(self._timeline) and ctx.elapsed >= sum(self._timeline)
+
+    def auto_seconds(self, ctx: BoardContext, cfg: TeamSummaryConfig) -> float | None:
+        return sum(self._timeline) if self._timeline else None      # known once the board has been built

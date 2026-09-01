@@ -20,6 +20,7 @@ from pydantic import ValidationError
 from starlette.types import Scope
 
 from .. import __version__
+from ..boards.base import BaseBoard
 from ..config import ConfigStore
 from ..config.schema import app_schema
 from ..data import SnapshotStore
@@ -180,7 +181,18 @@ def create_app(
     @app.get("/api/boards")
     def boards() -> list[dict[str, Any]]:
         return [
-            {"key": b.key, "title": b.title, "requires": sorted(b.requires), "event": hasattr(b, "event_kinds")}
+            {
+                "key": b.key,
+                "title": b.title,
+                "requires": sorted(b.requires),
+                "event": hasattr(b, "event_kinds"),
+                # What an "auto" playlist duration works out to, and whether the board ends
+                # itself at all. auto_seconds is null both for a board that never ends (the
+                # playlist holds it until the state changes) and for one whose length is only
+                # known once it has been built, so the UI needs both to word the hint.
+                "self_timed": type(b).done is not BaseBoard.done,
+                "auto_seconds": director.auto_seconds(b),
+            }
             for b in registry.boards.values()
         ]
 

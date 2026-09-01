@@ -116,6 +116,26 @@ def test_ticker_cycles_all_games_then_done(world):
     assert board.done(replace(ctx, elapsed=2 * n + 0.1), cfg)
 
 
+def test_ticker_auto_seconds_matches_when_it_finishes(world):
+    """The web UI prints this beside a blank "auto" duration, so it has to be the real length."""
+    board, cfg = TickerBoard(), TickerConfig(seconds_per_game=2)
+    ctx = make_ctx(world, 128, 64)
+    secs = board.auto_seconds(ctx, cfg)             # answered without entering the board first
+    board.render(ctx, cfg)
+    assert not board.done(replace(ctx, elapsed=secs - 0.1), cfg)
+    assert board.done(replace(ctx, elapsed=secs), cfg)
+
+
+def test_standings_auto_seconds_known_once_built(world):
+    board, cfg = StandingsBoard(), StandingsConfig(scroll_speed=40, hold_seconds=0)
+    ctx = make_ctx(world, 128, 64)
+    assert board.auto_seconds(ctx, cfg) is None      # nothing rendered yet: length not knowable
+    board.render(ctx, cfg)
+    secs = board.auto_seconds(ctx, cfg)
+    assert not board.done(replace(ctx, elapsed=secs - 0.1), cfg)
+    assert board.done(replace(ctx, elapsed=secs), cfg)
+
+
 def test_standings_scrolls_and_finishes(world):
     board, cfg = StandingsBoard(), StandingsConfig(scroll_speed=40, hold_seconds=0)
     ctx = make_ctx(world, 128, 64)

@@ -207,6 +207,10 @@ class NearbyBoard(BaseBoard):
     def done(self, ctx: BoardContext, cfg: NearbyConfig) -> bool:
         return ctx.elapsed >= cfg.seconds_per_aircraft * max(len(self._items), 1)
 
+    def auto_seconds(self, ctx: BoardContext, cfg: NearbyConfig) -> float:
+        nearby = ctx.snapshot.get("flights.nearby") or []
+        return cfg.seconds_per_aircraft * max(len(nearby), 1)
+
     def render(self, ctx: BoardContext, cfg: NearbyConfig) -> Image.Image:
         if not self._items:
             self.enter(ctx, cfg)

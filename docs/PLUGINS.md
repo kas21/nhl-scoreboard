@@ -38,6 +38,8 @@ class MyBoard(BaseBoard):
         return render_tree(tree, ctx.width, ctx.height, t=ctx.elapsed)
     def done(self, ctx, cfg) -> bool:       # optional: self-terminating boards (tickers/scrollers)
         return ctx.elapsed > 10
+    def auto_seconds(self, ctx, cfg):       # override alongside done: the same length, as a number
+        return 10.0                         # None = never ends itself; the web UI prints this next to "auto"
 ```
 Use `enter(ctx, cfg)` to pre-render once when the board becomes active. `SequenceMixin` turns a board
 into `build(ctx, cfg) -> Sequence` for timeline boards. Layout/animation vocabulary: `render/__init__.py`.

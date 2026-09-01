@@ -82,6 +82,9 @@ class WeatherBoard(BaseBoard):
     def done(self, ctx: BoardContext, cfg: WeatherBoardConfig) -> bool:
         return ctx.elapsed >= cfg.duration
 
+    def auto_seconds(self, ctx: BoardContext, cfg: WeatherBoardConfig) -> float:
+        return cfg.duration
+
     def render(self, ctx: BoardContext, cfg: WeatherBoardConfig) -> Image.Image:
         cur = ctx.snapshot.get("weather.current") or {}
         daily = ctx.snapshot.get("weather.daily") or []

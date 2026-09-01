@@ -67,6 +67,9 @@ class SeasonCountdownBoard(BaseBoard):
     def done(self, ctx: BoardContext, cfg: CountdownConfig) -> bool:
         return self._pick(ctx, cfg) is None      # nothing to count down to: skip immediately
 
+    def auto_seconds(self, ctx: BoardContext, cfg: CountdownConfig) -> float | None:
+        return 0.0 if self._pick(ctx, cfg) is None else None       # skipped, or held until the playlist moves on
+
     def render(self, ctx: BoardContext, cfg: CountdownConfig) -> Image.Image:
         w, h = ctx.width, ctx.height
         picked = self._pick(ctx, cfg)
