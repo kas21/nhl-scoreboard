@@ -12,7 +12,8 @@ All snapshot values are plain JSON-shaped dicts/lists (immutable by convention: 
 | `nhl.team_summary`, `nfl.team_summary` | sources | `{ABBR: {record:{wins,losses,otl,points,gp,l10,streak,division,division_rank,…}, prev_game, next_game}}` |
 | `nhl.season`, `nfl.season` | sources | `{sport, phase: offseason|preseason|regular|playoffs, …dates, days_to_*, standings_final, first_game, favorite}` |
 | `system` | NHL source | `{online: bool, failures: n}` |
-| `holidays.upcoming` | holidays | `[{name, date, days, image, custom}]` |
+| `holidays.upcoming` | holidays | `[{name, display, date, days, image, custom}]` — `display` is the alternate name if one is set, `image` an absolute path or null |
+| `holidays.available` | holidays | `[{name, display, enabled, custom, image}]` — every holiday the calendar knows, on or off, for the web UI picker |
 | `flights.nearby`, `flights.overhead` | flights | `[aircraft]` sorted by distance |
 | `weather.current`, `weather.daily` | weather | current conditions dict; `[day]` |
 
@@ -52,5 +53,8 @@ Event bursts collapse to the latest event per (kind, team).
 | `holidays` package | offline | hourly recompute |
 
 `SCOREBOARD_CACHE_DIR` defaults to `~/.scoreboard/cache`; the systemd unit sets it to `/var/cache/scoreboard`.
+`SCOREBOARD_DATA_DIR` (`~/.scoreboard/data`, `/var/lib/scoreboard` under systemd) holds what the *user*
+supplied and nothing can re-download — currently `holidays/<slug>.png`. Both live outside the checkout so
+an OTA update, which fast-forwards the working tree, cannot delete them.
 
 Fixtures under `tests/fixtures/` are real captures of each; tests never hit the network (respx).

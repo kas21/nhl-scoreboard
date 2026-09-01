@@ -70,18 +70,34 @@ def test_salvage_drops_only_bad_keys(tmp_path):
     assert json.loads(path.read_text())["display"].get("renamed_field") is None
 
 
-def test_migration_bumps_version(tmp_path):
+def test_migration_bumps_version(tmp_path, monkeypatch):
     from scoreboard.config import store as store_mod
-    store_mod.MIGRATIONS[1] = lambda d: {**d, "brightness": {"day": 55}}
-    store_mod.CONFIG_VERSION = 2
-    try:
-        path = tmp_path / "config.json"
-        path.write_text(json.dumps({"version": 1}))
-        cfg = ConfigStore(path).get()
-        assert cfg.brightness.day == 55
-    finally:
-        del store_mod.MIGRATIONS[1]
-        store_mod.CONFIG_VERSION = 1
+    monkeypatch.setitem(store_mod.MIGRATIONS, store_mod.CONFIG_VERSION,
+                        lambda d: {**d, "brightness": {"day": 55}})
+    monkeypatch.setattr(store_mod, "CONFIG_VERSION", store_mod.CONFIG_VERSION + 1)
+    path = tmp_path / "config.json"
+    path.write_text(json.dumps({"version": store_mod.CONFIG_VERSION - 1}))
+    cfg = ConfigStore(path).get()
+    assert cfg.brightness.day == 55
+
+
+def test_migration_folds_disabled_holidays_into_overrides(tmp_path):
+    path = tmp_path / "config.json"
+    path.write_text(json.dumps({"version": 1, "sources": {
+        "holidays": {"country": "CA", "disabled": ["Christmas Day", "Labor Day"]},
+        "weather": {"units": "metric"}}}))
+    holidays = ConfigStore(path).get().sources["holidays"]
+    assert holidays["overrides"] == {"Christmas Day": {"enabled": False}, "Labor Day": {"enabled": False}}
+    assert holidays["country"] == "CA"                        # siblings survive
+    assert "disabled" not in holidays
+    assert ConfigStore(path).get().sources["weather"] == {"units": "metric"}
+
+
+def test_migration_leaves_a_config_without_holidays_alone(tmp_path):
+    path = tmp_path / "config.json"
+    path.write_text(json.dumps({"version": 1, "brightness": {"day": 42}}))
+    cfg = ConfigStore(path).get()
+    assert cfg.brightness.day == 42 and cfg.sources == {}
 
 
 def test_log_level_changes_apply_without_a_restart(tmp_path):

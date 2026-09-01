@@ -104,14 +104,18 @@ Restart=always
 RestartSec=3
 Environment=PYTHONUNBUFFERED=1
 Environment=SCOREBOARD_CACHE_DIR=/var/cache/scoreboard
+Environment=SCOREBOARD_DATA_DIR=/var/lib/scoreboard
 CacheDirectory=scoreboard
+StateDirectory=scoreboard
 WorkingDirectory=$APP_DIR
 
 # This has to be root — the matrix driver drives GPIO directly — so the point of these is
 # to bound what a bad update or a compromised dependency can reach, not to pretend it is
 # unprivileged. Anything the app legitimately writes stays writable: $CONFIG_DIR (config
-# and its backups), /var/cache/scoreboard (logo cache), and $APP_DIR (the OTA checkout
-# and its venv). /usr and /boot go read-only, /home and /root disappear.
+# and its backups), /var/cache/scoreboard (logo cache), /var/lib/scoreboard (pictures you
+# uploaded, which nothing can re-download), and $APP_DIR (the OTA checkout and its venv).
+# /usr and /boot go read-only, /home and /root disappear — which is why neither directory
+# may fall back to the home-relative default.
 NoNewPrivileges=yes
 PrivateTmp=yes
 ProtectSystem=full

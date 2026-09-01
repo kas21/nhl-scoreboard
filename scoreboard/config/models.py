@@ -164,7 +164,7 @@ class WebConfig(FrozenModel):
     )
 
 
-CONFIG_VERSION = 1
+CONFIG_VERSION = 2
 
 
 class AppConfig(FrozenModel):

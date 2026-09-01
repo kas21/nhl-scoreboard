@@ -13,6 +13,9 @@ from pathlib import Path
 from PIL import Image
 
 CACHE_ROOT = Path(os.environ.get("SCOREBOARD_CACHE_DIR") or Path.home() / ".scoreboard" / "cache")
+# Files the *user* put here, which nothing can re-download: uploaded holiday pictures
+# and the like. Separate from CACHE_ROOT because clearing a cache must stay safe.
+DATA_ROOT = Path(os.environ.get("SCOREBOARD_DATA_DIR") or Path.home() / ".scoreboard" / "data")
 PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 MAX_PNG_BYTES = 1024 * 1024
 

@@ -127,8 +127,25 @@ class ConfigStore:
 
 # -- migration & salvage -------------------------------------------------------
 
+def _holiday_overrides(doc: dict[str, Any]) -> dict[str, Any]:
+    """1 -> 2: ``sources.holidays.disabled`` (a list of names) became an overrides map.
+
+    The map holds everything you can change about one holiday — hide it, rename it,
+    give it a different picture — so hiding is now ``{"enabled": false}``.
+    """
+    sources = doc.get("sources")
+    holidays = sources.get("holidays") if isinstance(sources, dict) else None
+    if not isinstance(holidays, dict) or "disabled" not in holidays:
+        return doc
+    kept = {k: v for k, v in holidays.items() if k != "disabled"}
+    overrides = dict(kept.get("overrides") or {})
+    for name in holidays.get("disabled") or []:
+        overrides[str(name)] = {**overrides.get(str(name), {}), "enabled": False}
+    return {**doc, "sources": {**sources, "holidays": {**kept, "overrides": overrides}}}
+
+
 MIGRATIONS: dict[int, Callable[[dict[str, Any]], dict[str, Any]]] = {
-    # 1 -> 2 example: lambda d: {**d, "display": {k: v for k, v in d["display"].items() if k != "old_key"}}
+    1: _holiday_overrides,
 }
 
 

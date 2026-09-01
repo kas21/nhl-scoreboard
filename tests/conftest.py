@@ -5,10 +5,11 @@ from pathlib import Path
 
 import pytest
 
-# Point the runtime image cache at a throwaway dir before anything imports it, so tests
-# see the same empty cache everywhere instead of whatever the developer's box happens
-# to have downloaded.
+# Point the runtime image cache and the user-data dir at throwaway dirs before anything
+# imports them, so tests see the same empty ones everywhere instead of whatever the
+# developer's box happens to have downloaded or uploaded.
 os.environ.setdefault("SCOREBOARD_CACHE_DIR", tempfile.mkdtemp(prefix="scoreboard-test-cache-"))
+os.environ.setdefault("SCOREBOARD_DATA_DIR", tempfile.mkdtemp(prefix="scoreboard-test-data-"))
 
 from scoreboard.boards.base import BoardContext
 from scoreboard.config import ConfigStore

@@ -59,7 +59,8 @@ docs/               USER_GUIDE, HARDWARE, ARCHITECTURE, DATA, PLUGINS, DEVELOPME
 - **Boards are pure**: `render(ctx, cfg) -> PIL.Image` from an immutable `Snapshot`; `ctx.elapsed` is the
   only clock; no I/O. Boards never fetch — sources do, in the background, on their own cadence.
 - **Snapshot keys** (docs/DATA.md): `<sport>.scores|standings|team_summary|season|main_event`, `main_event`
-  (arbitrated across sports), `system`, `holidays.upcoming`, `flights.nearby|overhead`, `weather.current|daily`.
+  (arbitrated across sports), `system`, `holidays.upcoming|available`, `flights.nearby|overhead`,
+  `weather.current|daily`.
 - **Events** are derived by diffing consecutive snapshots (goal, penalty, touchdown, flight overhead…);
   event boards pre-empt the playlist, then it resumes. Bursts collapse to the latest per kind/team.
 - **Config**: `config.json` stores only overrides; the API returns effective values (model defaults merged).
