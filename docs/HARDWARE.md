@@ -12,11 +12,15 @@
 curl -fsSL https://raw.githubusercontent.com/kas21/nhl-scoreboard/main/scripts/install.sh | bash
 sudo /opt/scoreboard/scripts/pi_tuning.sh && sudo reboot
 ```
-(From a checkout: `sudo ./scripts/install.sh` uses that checkout in place.)
 `install.sh`: apt deps → venv → `pip install -e .` → `rgbmatrix` (prebuilt wheel for this Python, else source
 build) → `scoreboard.service` (root, `--output hardware`, restart on failure) → starts it.
 `pi_tuning.sh`: blacklists `snd_bcm2835` (conflicts with the matrix PWM — the driver refuses to start
 otherwise) and adds `isolcpus=3` (dedicated core for the refresh thread; removes residual flicker).
+
+From a checkout, `sudo ./scripts/install.sh` uses that checkout in place — a *development* layout.
+The service still runs as root, so unless you cloned as root the one-click Update refuses it (see
+[Updates](#updates)) and the unit relaxes `ProtectHome` to reach the checkout. For a permanent install
+from a checkout, `SCOREBOARD_CLONE=1 ./scripts/install.sh` clones to `/opt/scoreboard` instead.
 
 ## Updates
 The dashboard checks GitHub daily (`web.update_check_hours`) and shows **Update available** with a one-click

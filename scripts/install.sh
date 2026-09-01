@@ -19,6 +19,7 @@ MATRIX_SRC=/opt/rpi-rgb-led-matrix
 section() { printf '\n\033[1;36m==> %s\033[0m\n' "$*"; }
 ok()      { printf '\033[1;32m    ✓ %s\033[0m\n' "$*"; }
 die()     { printf '\033[1;31m    ✗ %s\033[0m\n' "$*" >&2; exit 1; }
+warn()    { printf '\033[1;33m    ! %s\033[0m\n' "$*" >&2; }
 
 [ "$(id -u)" -eq 0 ] || exec sudo -E bash "$0" "$@"
 
@@ -35,6 +36,21 @@ elif [ -f "$(dirname "$0")/../pyproject.toml" ] && [ "$(cd "$(dirname "$0")/.." 
     # running from a checkout that isn't /opt/scoreboard: use it in place
     APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
     ok "using checkout at $APP_DIR"
+    # This is a development layout, so say what it costs. The service runs as root and
+    # updating runs `pip install -e .`, so the updater refuses a checkout root does not
+    # own -- which is this one, unless it was cloned as root.
+    OWNER_UID="$(stat -c %u "$APP_DIR")"
+    if [ "$OWNER_UID" -ne 0 ]; then
+        warn "this checkout is owned by uid $OWNER_UID and the service runs as root, so the"
+        warn "dashboard's one-click Update will refuse it (updating runs 'pip install -e .',"
+        warn "which would let that user run code as root). Fine for development."
+        warn "  permanent install instead:  SCOREBOARD_CLONE=1 $0"
+        warn "  or allow it:                web.allow_unowned_checkout (System > Advanced)"
+    fi
+    if [ -n "$(find "$APP_DIR" -maxdepth 0 -perm /022)" ]; then
+        warn "this checkout is group- or world-writable; the updater refuses that outright"
+        warn "and allow_unowned_checkout does not waive it. Fix: chmod g-w,o-w $APP_DIR"
+    fi
 else
     git clone -q --branch "$BRANCH" "$REPO_URL" "$APP_DIR"
     ok "cloned"
