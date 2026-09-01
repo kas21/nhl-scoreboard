@@ -54,7 +54,8 @@ Event bursts collapse to the latest event per (kind, team).
 
 `SCOREBOARD_CACHE_DIR` defaults to `~/.scoreboard/cache`; the systemd unit sets it to `/var/cache/scoreboard`.
 `SCOREBOARD_DATA_DIR` (`~/.scoreboard/data`, `/var/lib/scoreboard` under systemd) holds what the *user*
-supplied and nothing can re-download — currently `holidays/<slug>.png`. Both live outside the checkout so
+supplied and nothing can re-download — currently `holidays/<slug>.png`, written only through
+`POST /api/holidays/images/{slug}`, which re-encodes whatever you send to a PNG of at most 256px. Both live outside the checkout so
 an OTA update, which fast-forwards the working tree, cannot delete them.
 
 Fixtures under `tests/fixtures/` are real captures of each; tests never hit the network (respx).

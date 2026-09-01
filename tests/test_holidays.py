@@ -132,7 +132,7 @@ def test_a_custom_holiday_with_no_image_is_not_an_error():
 
 
 def test_user_images_win_over_the_bundled_ones(tmp_path, monkeypatch):
-    monkeypatch.setattr("scoreboard.extras.holidays.source.USER_IMAGES", tmp_path)
+    monkeypatch.setattr("scoreboard.extras.holidays.images.USER_IMAGES", tmp_path)
     Image.new("RGBA", (8, 8)).save(tmp_path / "christmas_day.png")
     xmas = named(upcoming(HolidaysConfig(country="US"), date(2026, 12, 1)), "Christmas Day")
     assert xmas["image"] == str(tmp_path / "christmas_day.png")

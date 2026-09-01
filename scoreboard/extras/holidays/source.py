@@ -3,25 +3,21 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import re
-import unicodedata
 from datetime import date, datetime, timedelta
-from pathlib import Path
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 from zoneinfo import ZoneInfo
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from ...config.models import ADVANCED
 from ...data.source import SourceContext
-from ...imagecache import DATA_ROOT
+from .images import IMAGES, base_name, image_path, slug  # noqa: F401  (re-exported)
+
+if TYPE_CHECKING:
+    from ...config.models import AppConfig
+    from ...data.store import SnapshotStore
 
 log = logging.getLogger(__name__)
-
-IMAGES = Path(__file__).parent.parent.parent / "assets" / "holidays"
-# Pictures the user uploaded. Kept outside the checkout so an OTA update, which
-# fast-forwards the working tree, cannot delete them.
-USER_IMAGES = DATA_ROOT / "holidays"
 
 # The library defaults to PUBLIC only, which is far narrower than what a scoreboard
 # wants to count down to: it omits Halloween, Groundhog Day and Mother's / Father's Day
@@ -30,9 +26,8 @@ USER_IMAGES = DATA_ROOT / "holidays"
 # country does not support are dropped rather than raising.
 CATEGORIES = ("public", "unofficial", "optional", "government")
 
-# A slug is used as a filename, so it may only ever be [a-z0-9_].
+# A picture name is a filename stem; see images.py for why it is this narrow.
 SLUG_PATTERN = r"^[a-z0-9_]*$"
-_PARENTHETICAL = re.compile(r"\s*\([^)]*\)\s*$")
 
 
 class HolidayOverride(BaseModel):
@@ -63,38 +58,6 @@ class HolidaysConfig(BaseModel):
         {}, description="Per-holiday changes, keyed by the official name: hide it, rename it, repicture it"
     )
     refresh_seconds: int = Field(3600, ge=300, le=86400, json_schema_extra=ADVANCED)
-
-
-def slug(name: str) -> str:
-    """Filename stem for a holiday name.
-
-    Apostrophes are dropped rather than treated as separators: they used to split the
-    word, so ``New Year's Day`` looked for ``new_year_s_day.png`` and never found the
-    ``new_years_day.png`` we ship. Accents fold to their base letter for the same
-    reason, so a French calendar does not ask for ``f_te_du_canada.png``.
-    """
-    folded = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode()
-    return re.sub(r"[^a-z0-9]+", "_", folded.lower().replace("'", "")).strip("_")
-
-
-def base_name(name: str) -> str:
-    """``Independence Day (observed)`` -> ``Independence Day``, so it borrows the same picture."""
-    return _PARENTHETICAL.sub("", name).strip() or name
-
-
-def image_path(name: str, explicit: str = "") -> str | None:
-    """The picture for a holiday, as an absolute path, or None if we have none.
-
-    An explicit slug wins, then the holiday's own name, then the name with any
-    ``(observed)`` suffix removed. At each step an uploaded picture beats the bundled
-    one, so replacing the shipped artwork is a matter of dropping a file in.
-    """
-    for stem in dict.fromkeys(s for s in (explicit, slug(name), slug(base_name(name))) if s):
-        for root in (USER_IMAGES, IMAGES):
-            path = root / f"{stem}.png"
-            if path.exists():
-                return str(path)
-    return None
 
 
 def calendar_names(cfg: HolidaysConfig, years: set[int]) -> list[str]:
@@ -191,23 +154,49 @@ def available(cfg: HolidaysConfig, today: date) -> list[dict[str, Any]]:
     return sorted(rows.values(), key=lambda r: r["display"])
 
 
+KEY = "holidays"
+
+
+def _today(timezone: str | None) -> date:
+    try:
+        return datetime.now(ZoneInfo(timezone)).date() if timezone else datetime.now().astimezone().date()
+    except Exception:
+        return date.today()
+
+
+def _compute(cfg: HolidaysConfig, today: date) -> dict[str, list[dict[str, Any]]]:
+    return {"upcoming": upcoming(cfg, today), "available": available(cfg, today)}
+
+
 class HolidaysSource:
-    key: ClassVar[str] = "holidays"
+    key: ClassVar[str] = KEY
     config_model: ClassVar[type[BaseModel]] = HolidaysConfig
 
     async def run(self, ctx: SourceContext) -> None:
         while True:
             cfg: HolidaysConfig = ctx.config  # type: ignore[assignment]
-            tz = ctx.timezone
-            try:
-                today = datetime.now(ZoneInfo(tz)).date() if tz else datetime.now().astimezone().date()
-            except Exception:
-                today = date.today()
-            counted, everything = await asyncio.to_thread(_compute, cfg, today)
-            ctx.publish(counted, subkey="upcoming")
-            ctx.publish(everything, subkey="available")
+            computed = await asyncio.to_thread(_compute, cfg, _today(ctx.timezone))
+            for subkey, value in computed.items():
+                # Nothing here is fetched, so most loops compute exactly what is already
+                # published. Publishing anyway would bump the snapshot version and wake
+                # every listener hourly for no reason.
+                if ctx.snapshot().get(f"{KEY}.{subkey}") != value:
+                    ctx.publish(value, subkey=subkey)
             await ctx.sleep(cfg.refresh_seconds)
 
 
-def _compute(cfg: HolidaysConfig, today: date) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    return upcoming(cfg, today), available(cfg, today)
+def refresh(app_config: AppConfig, snapshots: SnapshotStore) -> None:
+    """Recompute and publish right now, from whatever the config currently says.
+
+    The source only wakes hourly, which is fine for a calendar that never changes under
+    it — but not for the web UI, where uploading a picture has to show up at once. This
+    is the same computation, run on demand; both writers produce the same value from the
+    same config, so which one gets there first does not matter.
+    """
+    try:
+        cfg = HolidaysConfig.model_validate(app_config.sources.get(KEY, {}))
+    except ValidationError:
+        log.warning("holidays: config is not valid, not refreshing")
+        return
+    for subkey, value in _compute(cfg, _today(app_config.location.timezone)).items():
+        snapshots.publish(f"{KEY}.{subkey}", value)

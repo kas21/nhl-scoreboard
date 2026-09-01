@@ -29,6 +29,7 @@ from ..director import Director
 from ..output import PreviewHub
 from ..plugins import Registry
 from .guard import AccessGuard
+from .holidays import router as holidays_router
 from .updater import Updater
 
 log = logging.getLogger(__name__)
@@ -287,6 +288,10 @@ def create_app(
     @app.get("/")
     def index() -> FileResponse:
         return FileResponse(STATIC / "index.html", headers={"cache-control": NO_CACHE})
+
+    # The one plugin that needs routes of its own: uploading a picture is a file, not a
+    # config value, so it cannot ride on /api/config like every other holiday setting.
+    app.include_router(holidays_router(config, snapshots))
 
     app.mount("/static", RevalidatingStatic(directory=STATIC), name="static")
     # Outermost, so nothing is routed before the host and CSRF checks run. See web/guard.py.

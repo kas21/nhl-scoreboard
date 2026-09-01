@@ -48,7 +48,10 @@ Transitions: fade/slide/wipe/blinds between playlist boards (`config.transition`
 ## Web
 FastAPI on `web.port` (8080). Endpoints: `/api/config` (GET effective, PATCH deep-merge, PUT, reset),
 `/api/schema`, `/api/status`, `/api/sources` (per-source health), `/api/boards`, `/api/snapshot`, `/api/logs`, `/api/override` (force a board),
-`/api/system` (+ `/restart`, `/hostname`), `/api/geocode`, `/api/preview.png`, `/ws/preview` (PNG frames ~10 fps).
+`/api/system` (+ `/restart`, `/hostname`), `/api/geocode`, `/api/preview.png`, `/ws/preview` (PNG frames ~10 fps),
+`/api/holidays/images/{slug}` (GET the picture, POST your own as the raw body, DELETE to put the bundled one back).
+That last one is the only plugin-specific route: a picture is a file, so it cannot ride on `/api/config` the way
+every other holiday setting does.
 UI is Preact + HTM served as static files (no build step); `wizard.js` is the first-run flow.
 
 ## Process model
