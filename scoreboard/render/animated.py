@@ -19,10 +19,25 @@ from typing import Literal
 
 from PIL import Image, ImageChops, ImageEnhance
 
-from .anim import Easing, ease_out_cubic
+from .anim import Easing, ease_out_cubic, linear
 from .layout import Node, _cache_get, _cache_put, render_node
 
 Direction = Literal["left", "right", "up", "down"]
+
+_STEP_EPS = 1e-6      # swamps float error in a phase, far below a pixel
+
+
+def _steps(distance: int, k: float) -> int:
+    """``k`` of the way across ``distance``, in whole pixels.
+
+    Half-up, because these travels are only a few pixels and every pixel is a visible
+    step: int() truncates, which lags a pixel the whole way and ends the move a frame or
+    two early, and round() is banker's rounding, which bunches steps that land on .5.
+    EPS because they land there constantly — whenever the frame count divides the travel
+    every step falls exactly on a boundary, and the ~1e-15 error in a phase then flips
+    steps to either side, for a visibly uneven cadence.
+    """
+    return math.floor(distance * k + 0.5 + _STEP_EPS)
 
 
 def _align(h_align: str, v_align: str, x: int, y: int, w: int, h: int, img: Image.Image) -> tuple[int, int]:
@@ -231,15 +246,13 @@ class Slide(AnimatedNode):
         k = 1 - self.easing(p)
         if self.out:
             k = 1 - k
+        horizontal = self.direction in ("left", "right")
+        shift = _steps(w if horizontal else h, k)
         dx = dy = 0
-        if self.direction == "left":
-            dx = -int(w * k)
-        elif self.direction == "right":
-            dx = int(w * k)
-        elif self.direction == "up":
-            dy = -int(h * k)
+        if horizontal:
+            dx = -shift if self.direction == "left" else shift
         else:
-            dy = int(h * k)
+            dy = -shift if self.direction == "up" else shift
         if dx == 0 and dy == 0:
             yield (img, *self._pos(x, y, w, h, img))
             return
@@ -283,6 +296,12 @@ class Cycle(Node):
     one enters from the bottom — so one slot can carry two readouts (a forecast cell
     alternating temperature and chance of rain). A single child is static and passes
     through untouched, so callers can build the list conditionally.
+
+    The roll is *linear* by design. Travel is the box height, and these boxes are a text
+    line tall (~6px), so the whole move is six integer steps: an ease that spends its
+    budget up front lands five of them in the first 180ms and then holds a pixel short
+    for the rest of the swap, which reads as a stutter and a snap rather than a roll.
+    Linear spreads the six steps evenly over ``swap``. Pass ``easing`` for a taller box.
     """
 
     children: list[Node]
@@ -290,7 +309,7 @@ class Cycle(Node):
     v_align: str = field(default="center", kw_only=True)
     period: float = 3.0
     swap: float = 0.4
-    easing: Easing = field(default=ease_out_cubic)
+    easing: Easing = field(default=linear)
 
     @property
     def is_static(self) -> bool:
@@ -332,9 +351,10 @@ class Cycle(Node):
             return
         # Rolling: the previous child leaves upward while this one arrives from below.
         k = self.easing(local / self.swap)
+        shift = _steps(h, k)      # one shift for both children: they stay glued edge to edge
         prev = self._image(self.children[(idx - 1) % n], t)
         box = Image.new("RGBA", (max(w, 1), max(h, 1)), (0, 0, 0, 0))
-        for image, dy in ((prev, -int(h * k)), (img, h - int(h * k))):
+        for image, dy in ((prev, -shift), (img, h - shift)):
             px, py = _align(self.h_align, self.v_align, 0, 0, w, h, image)
             box.paste(image, (px, py + dy), image)                # paste clips out of bounds
         yield (box, x, y)

@@ -1,5 +1,7 @@
+import itertools
 import time
 
+import pytest
 from PIL import Image
 
 from scoreboard.render import (
@@ -20,6 +22,7 @@ from scoreboard.render import (
     load_font,
     render_tree,
 )
+from scoreboard.render.anim import linear
 from scoreboard.render.layout import _cache, clear_cache
 
 
@@ -72,6 +75,33 @@ def test_slide_and_fade_settle():
     fade = Fade(Text("GO", font), duration=0.5, start=0.0, end=1.0)
     f0, f1 = frames(fade, 32, 8, [0.0, 1.0])
     assert f0 != f1 and f1 == frames(Text("GO", font), 32, 8, [0])[0]
+
+
+@pytest.mark.parametrize("direction,axis,sign", [
+    ("left", 0, -1), ("right", 0, 1), ("up", 1, -1), ("down", 1, 1)])
+def test_slide_offsets_along_its_direction(direction, axis, sign):
+    """Each direction displaces the child the right way while the slide is still running."""
+    node = Slide(Text("GO", load_font("pixel", 8)), 0.4, direction, easing=linear)
+    settled = render_tree(node, 40, 24, t=9.0).getbbox()
+    mid = render_tree(node, 40, 24, t=0.36).getbbox()          # p=0.9: a few px still to go
+    assert sign * (mid[axis] - settled[axis]) > 0, f"{direction}: {mid} vs settled {settled}"
+    assert mid[1 - axis] == settled[1 - axis], f"{direction} drifted off its axis"
+
+
+def test_slide_travels_evenly_and_arrives_when_its_duration_says():
+    """A linear slide is constant speed, so its pixel steps are evenly spaced and the last
+    one lands on the final frame. int() truncation used to shave the last pixel off, so the
+    child arrived a frame early and the tail of ``duration`` was a dead hold."""
+    h, dur, fps = 6, 0.4, 30
+    node = Slide(Text("Sunny", load_font("pl", 6)), dur, "up", easing=linear, h_align="start")
+    n = int(dur * fps)
+    rendered = [render_tree(node, 40, h, t=i / fps).tobytes() for i in range(n + 1)]
+
+    moved = [i for i in range(1, len(rendered)) if rendered[i] != rendered[i - 1]]
+    gaps = [b - a for a, b in itertools.pairwise(moved)]
+    assert len(moved) == h, f"{len(moved)} moves for {h}px of travel"
+    assert max(gaps) - min(gaps) <= 1, f"uneven slide: moves {moved}, gaps {gaps}"
+    assert moved[-1] == n, f"slide arrived at frame {moved[-1]}, not {n} (its duration)"
 
 
 def test_sequence_durations_and_playback():
@@ -137,6 +167,36 @@ def test_cycle_transition_is_a_roll_not_a_cut():
     w, h = node.measure()
     mid = render_tree(node, w, h, t=3.0 + 0.2).tobytes()              # halfway through the swap
     assert mid not in (render_tree(node, w, h, t=1.5).tobytes(), render_tree(node, w, h, t=4.5).tobytes())
+
+
+@pytest.mark.parametrize("font,text_a,text_b", [("pixel", "AA", "BB"), ("pl", "81/64", "32%")])
+def test_cycle_roll_steps_evenly_and_never_stalls(font, text_a, text_b):
+    """The roll is only a text line tall, so its handful of integer steps must be spread
+    evenly over the swap. Two separate faults used to bunch them:
+
+    a front-loaded easing crammed five of six steps into the first 180ms of a 400ms swap
+    and then held a pixel short until the boundary (a stutter, then a snap); and once that
+    was linear, every step landed exactly on a rounding boundary, where ~1e-15 of float
+    error in the phase flipped steps either side into a double-step/pause cadence.
+
+    The second case is the weather board's forecast cell rolling hi/lo <-> chance of rain.
+    """
+    f = load_font(font, 8 if font == "pixel" else 6)
+    node = Cycle([Text(text_a, f), Text(text_b, f)], period=3.0, swap=0.4)
+    w, h = node.measure()
+    fps, swap = 30, 0.4
+    n = int(swap * fps)
+    settled = render_tree(node, w, h, t=4.5).tobytes()
+
+    for start in (3.0, 9.0, 15.0):                    # several cycles: differing float noise
+        rendered = [render_tree(node, w, h, t=start + i / fps).tobytes() for i in range(n + 1)]
+        moved = [i for i in range(1, len(rendered)) if rendered[i] != rendered[i - 1]]
+        gaps = [b - a for a, b in itertools.pairwise(moved)]
+        assert len(moved) == h, f"t0={start}: {len(moved)} moves for {h}px of travel"
+        # Even cadence, including the final step onto the settled frame — the old snap
+        # showed up here as a six-frame gap at the end.
+        assert max(gaps) - min(gaps) <= 1, f"t0={start}: uneven roll, moves {moved}, gaps {gaps}"
+        assert rendered[-1] == settled
 
 
 def test_cycle_of_one_is_static_and_passes_through():
