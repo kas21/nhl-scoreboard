@@ -16,12 +16,13 @@ NUMBER = (80, 200, 255)
 LABEL = (160, 170, 180)
 NAME = (255, 255, 255)
 SUB = (255, 220, 100)
-WORDS = {"nhl": ("PUCK DROP", "NHL"), "nfl": ("KICKOFF", "NFL")}
+WORDS = {"nhl": ("PUCK DROP", "PRESEASON"), "nfl": ("KICKOFF", "PRESEASON"), "mlb": ("OPENING DAY", "SPRING TRAINING")}
+SPORT_ORDER = ("nhl", "nfl", "mlb")
 
 
 class CountdownConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid", title="Season countdown")
-    sport: str = Field("auto", description="'auto' follows sports.priority; or nhl / nfl")
+    sport: str = Field("auto", description="'auto' follows sports.priority; or nhl / nfl / mlb")
 
 
 def milestone(season: dict[str, Any], today: date) -> dict[str, Any] | None:
@@ -39,7 +40,7 @@ def milestone(season: dict[str, Any], today: date) -> dict[str, Any] | None:
             vs = "VS" if first.get("home") else "AT"
             return {"days": days, "label": f"OPENER {vs} {first.get('opponent', '')}".strip(), "date": first["date"], "team": season.get("favorite")}
     if phase == "offseason" and season.get("days_to_preseason") is not None and season["days_to_preseason"] >= 0:
-        return {"days": season["days_to_preseason"], "label": "PRESEASON", "date": season.get("preseason_start")}
+        return {"days": season["days_to_preseason"], "label": WORDS.get(season.get("sport", ""), ("SEASON", "PRESEASON"))[1], "date": season.get("preseason_start")}
     if season.get("days_to_regular") is not None and season["days_to_regular"] >= 0:
         return {"days": season["days_to_regular"], "label": WORDS.get(season.get("sport", ""), ("SEASON", ""))[0], "date": season.get("regular_start")}
     if season.get("days_to_next") is not None:
@@ -57,7 +58,7 @@ class SeasonCountdownBoard(BaseBoard):
         if cfg.sport != "auto" and cfg.sport in seasons:
             order = [cfg.sport]
         else:
-            order = [s for s in ("nhl", "nfl") if s in seasons] + sorted(s for s in seasons if s not in ("nhl", "nfl"))
+            order = [s for s in SPORT_ORDER if s in seasons] + sorted(s for s in seasons if s not in SPORT_ORDER)
         for s in order:
             m = milestone(seasons[s], ctx.now.date())
             if m:
@@ -107,6 +108,9 @@ class SeasonCountdownBoard(BaseBoard):
             if sport == "nfl":
                 from ..nfl.teams import logo
                 return logo(fav or "NFL", 128)
+            if sport == "mlb":
+                from ..mlb.teams import logo
+                return logo(fav, 128) if fav else None
         except Exception:
             return None
         return None

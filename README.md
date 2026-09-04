@@ -1,7 +1,7 @@
 # nhl-scoreboard
 
 Standalone LED matrix scoreboard for Raspberry Pi. One process, one config
-file, configured from a browser — no broker, no SSH. NHL first; NFL, weather,
+file, configured from a browser — no broker, no SSH. NHL first; NFL, MLB, weather,
 flights and holiday countdowns are bundled extras.
 
 Docs: [User guide](docs/USER_GUIDE.md) · [Hardware & install](docs/HARDWARE.md) ·

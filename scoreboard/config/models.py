@@ -107,19 +107,26 @@ class Playlists(FrozenModel):
     pregame: tuple[PlaylistEntry, ...] = (
         PlaylistEntry(board="nhl.game", duration=15),
         PlaylistEntry(board="nfl.game", duration=15),
+        PlaylistEntry(board="mlb.game", duration=15),
         PlaylistEntry(board="nhl.ticker", duration=None),
         PlaylistEntry(board="clock", duration=10),
     )
-    live: tuple[PlaylistEntry, ...] = (PlaylistEntry(board="nhl.game", duration=None), PlaylistEntry(board="nfl.game", duration=None))
+    live: tuple[PlaylistEntry, ...] = (
+        PlaylistEntry(board="nhl.game", duration=None),
+        PlaylistEntry(board="nfl.game", duration=None),
+        PlaylistEntry(board="mlb.game", duration=None),
+    )
     intermission: tuple[PlaylistEntry, ...] = (
         PlaylistEntry(board="nhl.game", duration=15),
         PlaylistEntry(board="nfl.game", duration=15),
+        PlaylistEntry(board="mlb.game", duration=15),
         PlaylistEntry(board="nhl.ticker", duration=None),
         PlaylistEntry(board="nhl.standings", duration=None),
     )
     postgame: tuple[PlaylistEntry, ...] = (
         PlaylistEntry(board="nhl.game", duration=20),
         PlaylistEntry(board="nfl.game", duration=20),
+        PlaylistEntry(board="mlb.game", duration=20),
         PlaylistEntry(board="nhl.ticker", duration=None),
         PlaylistEntry(board="nhl.standings", duration=None),
         PlaylistEntry(board="clock", duration=10),
@@ -151,7 +158,7 @@ class LogosConfig(FrozenModel):
 
 
 class SportsConfig(FrozenModel):
-    priority: list[Literal["nhl", "nfl"]] = Field(["nhl", "nfl"], description="When two sports have a game, which wins the screen (live games always win)")
+    priority: list[Literal["nhl", "nfl", "mlb"]] = Field(["nhl", "nfl", "mlb"], description="When two sports have a game, which wins the screen (live games always win)")
 
 
 class WebConfig(FrozenModel):

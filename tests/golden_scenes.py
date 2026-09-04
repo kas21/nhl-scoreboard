@@ -32,6 +32,18 @@ from scoreboard.extras.holidays.images import IMAGES as HOLIDAY_IMAGES
 from scoreboard.extras.weather.board import WeatherBoard, WeatherBoardConfig
 from scoreboard.extras.weather.source import WeatherConfig
 from scoreboard.extras.weather.source import normalize as normalize_weather
+from scoreboard.mlb.boards.game import MlbGameBoard, MlbGameConfig
+from scoreboard.mlb.boards.others import (
+    MlbScoreBoard,
+    MlbStandingsBoard,
+    MlbTeamSummaryBoard,
+    MlbTickerBoard,
+)
+from scoreboard.mlb.boards.others import ScoreConfig as MlbScoreConfig
+from scoreboard.mlb.normalize import enrich_from_feed
+from scoreboard.mlb.normalize import normalize_schedule as mlb_schedule
+from scoreboard.mlb.normalize import normalize_standings as mlb_standings
+from scoreboard.mlb.normalize import team_summary as mlb_team_summary
 from scoreboard.nfl.boards.game import NflGameBoard, NflGameConfig
 from scoreboard.nfl.boards.others import (
     NflScoreBoard,
@@ -160,6 +172,48 @@ def nfl_scenes() -> list[Scene]:
     ]
 
 
+# -- MLB ------------------------------------------------------------------------
+
+
+def mlb_scenes() -> list[Scene]:
+    """Fixtures are generated in the Stats API's shape (tests/fixtures/mlb/README.md), the 2026-09-03 slate."""
+    games = mlb_schedule(_load("mlb", "schedule_2026-09-03.json"))
+    st = mlb_standings(_load("mlb", "standings_2026.json"))
+
+    def by_id(pk: int) -> dict[str, Any]:
+        return next(g for g in games if g["id"] == str(pk))
+
+    live = {**enrich_from_feed(by_id(776002), _load("mlb", "feed_live_776002.json")), "favorite_side": "away"}
+    final = {**enrich_from_feed(by_id(776001), _load("mlb", "feed_live_776001.json")), "favorite_side": "away"}
+    pregame = {**by_id(776003), "favorite_side": "away"}
+    inning_break = {**by_id(776006), "favorite_side": "home"}
+    store = SnapshotStore()
+    store.publish("mlb.scores", games)
+    store.publish("mlb.standings", st)
+    store.publish("mlb.season", {"sport": "mlb", "phase": "regular", "standings_final": False})
+    store.publish("mlb.team_summary",
+                  {"NYY": mlb_team_summary("NYY", st, _load("mlb", "schedule_NYY_2026-08-24_2026-09-17.json"), "2026-09-03")})
+
+    def with_game(game: dict[str, Any]) -> Snapshot:
+        return store.publish("main_event", game)
+
+    now = datetime(2026, 9, 3, 19, tzinfo=ZoneInfo("America/New_York"))
+    homer = Event("mlb.home_run", team="LAD", payload={"side": "away", "game": live, "score": "4-2", "runs": 2, "batter": "Shohei Ohtani"})
+    run = Event("mlb.run", team="SD", payload={"side": "home", "game": live, "score": "4-3", "runs": 1, "batter": "Manny Machado"})
+    return [
+        Scene("mlb.game/pregame", MlbGameBoard(), MlbGameConfig(), with_game(pregame), now, 2.0, sizes=ALL_SIZES),
+        Scene("mlb.game/live", MlbGameBoard(), MlbGameConfig(), with_game(live), now, 5.0, sizes=ALL_SIZES),
+        Scene("mlb.game/break", MlbGameBoard(), MlbGameConfig(), with_game(inning_break), now, 5.0, sizes=((128, 64),)),
+        Scene("mlb.game/final", MlbGameBoard(), MlbGameConfig(), with_game(final), now, 2.0, sizes=ALL_SIZES),
+        Scene("mlb.ticker/slate", MlbTickerBoard(), TickerConfig(), with_game(final), now, 2.0),
+        Scene("mlb.standings/division", MlbStandingsBoard(), StandingsConfig(), with_game(final), now, 3.0),
+        Scene("mlb.standings/wildcard", MlbStandingsBoard(), StandingsConfig(view="wildcard"), with_game(final), now, 3.0, sizes=((128, 64),)),
+        Scene("mlb.team_summary/nyy", MlbTeamSummaryBoard(), TeamSummaryConfig(), with_game(final), now, 2.0),
+        Scene("mlb.score/home_run", MlbScoreBoard(), MlbScoreConfig(), with_game(live), now, 1.0, event=homer),
+        Scene("mlb.score/run", MlbScoreBoard(), MlbScoreConfig(opponent_scores=True), with_game(live), now, 1.0, event=run, sizes=((128, 64),)),
+    ]
+
+
 # -- extras -----------------------------------------------------------------------
 
 
@@ -210,4 +264,4 @@ def generic_scenes() -> list[Scene]:
 
 
 def all_scenes() -> list[Scene]:
-    return [*generic_scenes(), *nhl_scenes(), *nfl_scenes(), *extras_scenes()]
+    return [*generic_scenes(), *nhl_scenes(), *nfl_scenes(), *mlb_scenes(), *extras_scenes()]

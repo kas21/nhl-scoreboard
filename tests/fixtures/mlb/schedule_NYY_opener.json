@@ -1,0 +1,167 @@
+{
+ "copyright": "...",
+ "totalItems": 1,
+ "totalEvents": 0,
+ "totalGames": 1,
+ "totalGamesInProgress": 0,
+ "dates": [
+  {
+   "date": "2026-03-26",
+   "totalItems": 1,
+   "totalEvents": 0,
+   "totalGames": 1,
+   "totalGamesInProgress": 0,
+   "games": [
+    {
+     "gamePk": 775001,
+     "gameGuid": "guid-775001",
+     "link": "/api/v1.1/game/775001/feed/live",
+     "gameType": "R",
+     "season": "2026",
+     "gameDate": "2026-03-26T23:05:00Z",
+     "officialDate": "2026-03-26",
+     "status": {
+      "abstractGameState": "Preview",
+      "codedGameState": "S",
+      "detailedState": "Scheduled",
+      "statusCode": "S",
+      "startTimeTBD": false,
+      "abstractGameCode": "P"
+     },
+     "teams": {
+      "away": {
+       "leagueRecord": {
+        "wins": 82,
+        "losses": 56,
+        "pct": ".594"
+       },
+       "team": {
+        "id": 147,
+        "name": "New York Yankees",
+        "link": "/api/v1/teams/147",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "nyy",
+        "fileCode": "nyy",
+        "abbreviation": "NYY",
+        "teamName": "Yankees",
+        "locationName": "Bronx",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Yankees",
+        "franchiseName": "Bronx",
+        "clubName": "Yankees",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45,
+       "probablePitcher": {
+        "id": 543037,
+        "fullName": "Gerrit Cole",
+        "link": "/api/v1/people/543037"
+       }
+      },
+      "home": {
+       "leagueRecord": {
+        "wins": 78,
+        "losses": 60,
+        "pct": ".565"
+       },
+       "team": {
+        "id": 141,
+        "name": "Toronto Blue Jays",
+        "link": "/api/v1/teams/141",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "tor",
+        "fileCode": "tor",
+        "abbreviation": "TOR",
+        "teamName": "Blue Jays",
+        "locationName": "Toronto",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Jays",
+        "franchiseName": "Toronto",
+        "clubName": "Blue Jays",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45
+      }
+     },
+     "venue": {
+      "id": 3313,
+      "name": "Ballpark",
+      "link": "/api/v1/venues/3313"
+     },
+     "content": {
+      "link": "/api/v1/game/775001/content"
+     },
+     "isTie": false,
+     "gameNumber": 1,
+     "publicFacing": true,
+     "doubleHeader": "N",
+     "gamedayType": "P",
+     "tiebreaker": "N",
+     "calendarEventID": "14-775001-2026-09-03",
+     "seasonDisplay": "2026",
+     "dayNight": "night",
+     "scheduledInnings": 9,
+     "reverseHomeAwayStatus": false,
+     "inningBreakLength": 120,
+     "gamesInSeries": 3,
+     "seriesGameNumber": 2,
+     "seriesDescription": "Regular Season",
+     "recordSource": "S",
+     "ifNecessary": "N",
+     "ifNecessaryDescription": "Normal Game",
+     "linescore": {
+      "scheduledInnings": 9,
+      "innings": [],
+      "teams": {
+       "home": {},
+       "away": {}
+      },
+      "defense": {},
+      "offense": {}
+     }
+    }
+   ],
+   "events": []
+  }
+ ]
+}

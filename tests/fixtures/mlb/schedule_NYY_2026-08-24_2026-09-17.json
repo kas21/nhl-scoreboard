@@ -1,0 +1,2624 @@
+{
+ "copyright": "Copyright 2026 MLB Advanced Media, L.P.",
+ "totalItems": 15,
+ "totalEvents": 0,
+ "totalGames": 15,
+ "totalGamesInProgress": 0,
+ "dates": [
+  {
+   "date": "2026-08-25",
+   "totalItems": 1,
+   "totalEvents": 0,
+   "totalGames": 1,
+   "totalGamesInProgress": 0,
+   "games": [
+    {
+     "gamePk": 775801,
+     "gameGuid": "guid-775801",
+     "link": "/api/v1.1/game/775801/feed/live",
+     "gameType": "R",
+     "season": "2026",
+     "gameDate": "2026-08-25T23:05:00Z",
+     "officialDate": "2026-08-25",
+     "status": {
+      "abstractGameState": "Final",
+      "codedGameState": "F",
+      "detailedState": "Final",
+      "statusCode": "F",
+      "startTimeTBD": false,
+      "abstractGameCode": "F"
+     },
+     "teams": {
+      "away": {
+       "leagueRecord": {
+        "wins": 82,
+        "losses": 56,
+        "pct": ".594"
+       },
+       "team": {
+        "id": 147,
+        "name": "New York Yankees",
+        "link": "/api/v1/teams/147",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "nyy",
+        "fileCode": "nyy",
+        "abbreviation": "NYY",
+        "teamName": "Yankees",
+        "locationName": "Bronx",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Yankees",
+        "franchiseName": "Bronx",
+        "clubName": "Yankees",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45,
+       "score": 4,
+       "isWinner": true
+      },
+      "home": {
+       "leagueRecord": {
+        "wins": 70,
+        "losses": 68,
+        "pct": ".507"
+       },
+       "team": {
+        "id": 139,
+        "name": "Tampa Bay Rays",
+        "link": "/api/v1/teams/139",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "tb",
+        "fileCode": "tb",
+        "abbreviation": "TB",
+        "teamName": "Rays",
+        "locationName": "St. Petersburg",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Rays",
+        "franchiseName": "St. Petersburg",
+        "clubName": "Rays",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45,
+       "score": 1,
+       "isWinner": false
+      }
+     },
+     "venue": {
+      "id": 3313,
+      "name": "Ballpark",
+      "link": "/api/v1/venues/3313"
+     },
+     "content": {
+      "link": "/api/v1/game/775801/content"
+     },
+     "isTie": false,
+     "gameNumber": 1,
+     "publicFacing": true,
+     "doubleHeader": "N",
+     "gamedayType": "P",
+     "tiebreaker": "N",
+     "calendarEventID": "14-775801-2026-09-03",
+     "seasonDisplay": "2026",
+     "dayNight": "night",
+     "scheduledInnings": 9,
+     "reverseHomeAwayStatus": false,
+     "inningBreakLength": 120,
+     "gamesInSeries": 3,
+     "seriesGameNumber": 2,
+     "seriesDescription": "Regular Season",
+     "recordSource": "S",
+     "ifNecessary": "N",
+     "ifNecessaryDescription": "Normal Game",
+     "linescore": {
+      "currentInning": 9,
+      "currentInningOrdinal": "9th",
+      "inningState": "Bottom",
+      "inningHalf": "Bottom",
+      "isTopInning": false,
+      "scheduledInnings": 9,
+      "innings": [],
+      "teams": {
+       "home": {
+        "runs": 1,
+        "hits": 4,
+        "errors": 0,
+        "leftOnBase": 4
+       },
+       "away": {
+        "runs": 4,
+        "hits": 7,
+        "errors": 0,
+        "leftOnBase": 5
+       }
+      }
+     }
+    }
+   ],
+   "events": []
+  },
+  {
+   "date": "2026-08-26",
+   "totalItems": 1,
+   "totalEvents": 0,
+   "totalGames": 1,
+   "totalGamesInProgress": 0,
+   "games": [
+    {
+     "gamePk": 775802,
+     "gameGuid": "guid-775802",
+     "link": "/api/v1.1/game/775802/feed/live",
+     "gameType": "R",
+     "season": "2026",
+     "gameDate": "2026-08-26T23:05:00Z",
+     "officialDate": "2026-08-26",
+     "status": {
+      "abstractGameState": "Final",
+      "codedGameState": "F",
+      "detailedState": "Final",
+      "statusCode": "F",
+      "startTimeTBD": false,
+      "abstractGameCode": "F"
+     },
+     "teams": {
+      "away": {
+       "leagueRecord": {
+        "wins": 82,
+        "losses": 56,
+        "pct": ".594"
+       },
+       "team": {
+        "id": 147,
+        "name": "New York Yankees",
+        "link": "/api/v1/teams/147",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "nyy",
+        "fileCode": "nyy",
+        "abbreviation": "NYY",
+        "teamName": "Yankees",
+        "locationName": "Bronx",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Yankees",
+        "franchiseName": "Bronx",
+        "clubName": "Yankees",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45,
+       "score": 2,
+       "isWinner": false
+      },
+      "home": {
+       "leagueRecord": {
+        "wins": 70,
+        "losses": 68,
+        "pct": ".507"
+       },
+       "team": {
+        "id": 139,
+        "name": "Tampa Bay Rays",
+        "link": "/api/v1/teams/139",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "tb",
+        "fileCode": "tb",
+        "abbreviation": "TB",
+        "teamName": "Rays",
+        "locationName": "St. Petersburg",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Rays",
+        "franchiseName": "St. Petersburg",
+        "clubName": "Rays",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45,
+       "score": 6,
+       "isWinner": true
+      }
+     },
+     "venue": {
+      "id": 3313,
+      "name": "Ballpark",
+      "link": "/api/v1/venues/3313"
+     },
+     "content": {
+      "link": "/api/v1/game/775802/content"
+     },
+     "isTie": false,
+     "gameNumber": 1,
+     "publicFacing": true,
+     "doubleHeader": "N",
+     "gamedayType": "P",
+     "tiebreaker": "N",
+     "calendarEventID": "14-775802-2026-09-03",
+     "seasonDisplay": "2026",
+     "dayNight": "night",
+     "scheduledInnings": 9,
+     "reverseHomeAwayStatus": false,
+     "inningBreakLength": 120,
+     "gamesInSeries": 3,
+     "seriesGameNumber": 2,
+     "seriesDescription": "Regular Season",
+     "recordSource": "S",
+     "ifNecessary": "N",
+     "ifNecessaryDescription": "Normal Game",
+     "linescore": {
+      "currentInning": 9,
+      "currentInningOrdinal": "9th",
+      "inningState": "Bottom",
+      "inningHalf": "Bottom",
+      "isTopInning": false,
+      "scheduledInnings": 9,
+      "innings": [],
+      "teams": {
+       "home": {
+        "runs": 6,
+        "hits": 9,
+        "errors": 0,
+        "leftOnBase": 4
+       },
+       "away": {
+        "runs": 2,
+        "hits": 5,
+        "errors": 0,
+        "leftOnBase": 5
+       }
+      }
+     }
+    }
+   ],
+   "events": []
+  },
+  {
+   "date": "2026-08-27",
+   "totalItems": 1,
+   "totalEvents": 0,
+   "totalGames": 1,
+   "totalGamesInProgress": 0,
+   "games": [
+    {
+     "gamePk": 775803,
+     "gameGuid": "guid-775803",
+     "link": "/api/v1.1/game/775803/feed/live",
+     "gameType": "R",
+     "season": "2026",
+     "gameDate": "2026-08-27T23:05:00Z",
+     "officialDate": "2026-08-27",
+     "status": {
+      "abstractGameState": "Final",
+      "codedGameState": "F",
+      "detailedState": "Final",
+      "statusCode": "F",
+      "startTimeTBD": false,
+      "abstractGameCode": "F"
+     },
+     "teams": {
+      "away": {
+       "leagueRecord": {
+        "wins": 82,
+        "losses": 56,
+        "pct": ".594"
+       },
+       "team": {
+        "id": 147,
+        "name": "New York Yankees",
+        "link": "/api/v1/teams/147",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "nyy",
+        "fileCode": "nyy",
+        "abbreviation": "NYY",
+        "teamName": "Yankees",
+        "locationName": "Bronx",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Yankees",
+        "franchiseName": "Bronx",
+        "clubName": "Yankees",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45,
+       "score": 7,
+       "isWinner": true
+      },
+      "home": {
+       "leagueRecord": {
+        "wins": 70,
+        "losses": 68,
+        "pct": ".507"
+       },
+       "team": {
+        "id": 139,
+        "name": "Tampa Bay Rays",
+        "link": "/api/v1/teams/139",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "tb",
+        "fileCode": "tb",
+        "abbreviation": "TB",
+        "teamName": "Rays",
+        "locationName": "St. Petersburg",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Rays",
+        "franchiseName": "St. Petersburg",
+        "clubName": "Rays",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45,
+       "score": 3,
+       "isWinner": false
+      }
+     },
+     "venue": {
+      "id": 3313,
+      "name": "Ballpark",
+      "link": "/api/v1/venues/3313"
+     },
+     "content": {
+      "link": "/api/v1/game/775803/content"
+     },
+     "isTie": false,
+     "gameNumber": 1,
+     "publicFacing": true,
+     "doubleHeader": "N",
+     "gamedayType": "P",
+     "tiebreaker": "N",
+     "calendarEventID": "14-775803-2026-09-03",
+     "seasonDisplay": "2026",
+     "dayNight": "night",
+     "scheduledInnings": 9,
+     "reverseHomeAwayStatus": false,
+     "inningBreakLength": 120,
+     "gamesInSeries": 3,
+     "seriesGameNumber": 2,
+     "seriesDescription": "Regular Season",
+     "recordSource": "S",
+     "ifNecessary": "N",
+     "ifNecessaryDescription": "Normal Game",
+     "linescore": {
+      "currentInning": 9,
+      "currentInningOrdinal": "9th",
+      "inningState": "Bottom",
+      "inningHalf": "Bottom",
+      "isTopInning": false,
+      "scheduledInnings": 9,
+      "innings": [],
+      "teams": {
+       "home": {
+        "runs": 3,
+        "hits": 6,
+        "errors": 0,
+        "leftOnBase": 4
+       },
+       "away": {
+        "runs": 7,
+        "hits": 10,
+        "errors": 0,
+        "leftOnBase": 5
+       }
+      }
+     }
+    }
+   ],
+   "events": []
+  },
+  {
+   "date": "2026-08-29",
+   "totalItems": 1,
+   "totalEvents": 0,
+   "totalGames": 1,
+   "totalGamesInProgress": 0,
+   "games": [
+    {
+     "gamePk": 775804,
+     "gameGuid": "guid-775804",
+     "link": "/api/v1.1/game/775804/feed/live",
+     "gameType": "R",
+     "season": "2026",
+     "gameDate": "2026-08-29T23:05:00Z",
+     "officialDate": "2026-08-29",
+     "status": {
+      "abstractGameState": "Final",
+      "codedGameState": "F",
+      "detailedState": "Final",
+      "statusCode": "F",
+      "startTimeTBD": false,
+      "abstractGameCode": "F"
+     },
+     "teams": {
+      "away": {
+       "leagueRecord": {
+        "wins": 60,
+        "losses": 78,
+        "pct": ".435"
+       },
+       "team": {
+        "id": 110,
+        "name": "Baltimore Orioles",
+        "link": "/api/v1/teams/110",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "bal",
+        "fileCode": "bal",
+        "abbreviation": "BAL",
+        "teamName": "Orioles",
+        "locationName": "Baltimore",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Orioles",
+        "franchiseName": "Baltimore",
+        "clubName": "Orioles",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45,
+       "score": 1,
+       "isWinner": false
+      },
+      "home": {
+       "leagueRecord": {
+        "wins": 82,
+        "losses": 56,
+        "pct": ".594"
+       },
+       "team": {
+        "id": 147,
+        "name": "New York Yankees",
+        "link": "/api/v1/teams/147",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "nyy",
+        "fileCode": "nyy",
+        "abbreviation": "NYY",
+        "teamName": "Yankees",
+        "locationName": "Bronx",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Yankees",
+        "franchiseName": "Bronx",
+        "clubName": "Yankees",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45,
+       "score": 5,
+       "isWinner": true
+      }
+     },
+     "venue": {
+      "id": 3313,
+      "name": "Ballpark",
+      "link": "/api/v1/venues/3313"
+     },
+     "content": {
+      "link": "/api/v1/game/775804/content"
+     },
+     "isTie": false,
+     "gameNumber": 1,
+     "publicFacing": true,
+     "doubleHeader": "N",
+     "gamedayType": "P",
+     "tiebreaker": "N",
+     "calendarEventID": "14-775804-2026-09-03",
+     "seasonDisplay": "2026",
+     "dayNight": "night",
+     "scheduledInnings": 9,
+     "reverseHomeAwayStatus": false,
+     "inningBreakLength": 120,
+     "gamesInSeries": 3,
+     "seriesGameNumber": 2,
+     "seriesDescription": "Regular Season",
+     "recordSource": "S",
+     "ifNecessary": "N",
+     "ifNecessaryDescription": "Normal Game",
+     "linescore": {
+      "currentInning": 9,
+      "currentInningOrdinal": "9th",
+      "inningState": "Bottom",
+      "inningHalf": "Bottom",
+      "isTopInning": false,
+      "scheduledInnings": 9,
+      "innings": [],
+      "teams": {
+       "home": {
+        "runs": 5,
+        "hits": 8,
+        "errors": 0,
+        "leftOnBase": 4
+       },
+       "away": {
+        "runs": 1,
+        "hits": 4,
+        "errors": 0,
+        "leftOnBase": 5
+       }
+      }
+     }
+    }
+   ],
+   "events": []
+  },
+  {
+   "date": "2026-08-30",
+   "totalItems": 1,
+   "totalEvents": 0,
+   "totalGames": 1,
+   "totalGamesInProgress": 0,
+   "games": [
+    {
+     "gamePk": 775805,
+     "gameGuid": "guid-775805",
+     "link": "/api/v1.1/game/775805/feed/live",
+     "gameType": "R",
+     "season": "2026",
+     "gameDate": "2026-08-30T23:05:00Z",
+     "officialDate": "2026-08-30",
+     "status": {
+      "abstractGameState": "Final",
+      "codedGameState": "F",
+      "detailedState": "Final",
+      "statusCode": "F",
+      "startTimeTBD": false,
+      "abstractGameCode": "F"
+     },
+     "teams": {
+      "away": {
+       "leagueRecord": {
+        "wins": 60,
+        "losses": 78,
+        "pct": ".435"
+       },
+       "team": {
+        "id": 110,
+        "name": "Baltimore Orioles",
+        "link": "/api/v1/teams/110",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "bal",
+        "fileCode": "bal",
+        "abbreviation": "BAL",
+        "teamName": "Orioles",
+        "locationName": "Baltimore",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Orioles",
+        "franchiseName": "Baltimore",
+        "clubName": "Orioles",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45,
+       "score": 3,
+       "isWinner": false
+      },
+      "home": {
+       "leagueRecord": {
+        "wins": 82,
+        "losses": 56,
+        "pct": ".594"
+       },
+       "team": {
+        "id": 147,
+        "name": "New York Yankees",
+        "link": "/api/v1/teams/147",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "nyy",
+        "fileCode": "nyy",
+        "abbreviation": "NYY",
+        "teamName": "Yankees",
+        "locationName": "Bronx",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Yankees",
+        "franchiseName": "Bronx",
+        "clubName": "Yankees",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45,
+       "score": 8,
+       "isWinner": true
+      }
+     },
+     "venue": {
+      "id": 3313,
+      "name": "Ballpark",
+      "link": "/api/v1/venues/3313"
+     },
+     "content": {
+      "link": "/api/v1/game/775805/content"
+     },
+     "isTie": false,
+     "gameNumber": 1,
+     "publicFacing": true,
+     "doubleHeader": "N",
+     "gamedayType": "P",
+     "tiebreaker": "N",
+     "calendarEventID": "14-775805-2026-09-03",
+     "seasonDisplay": "2026",
+     "dayNight": "night",
+     "scheduledInnings": 9,
+     "reverseHomeAwayStatus": false,
+     "inningBreakLength": 120,
+     "gamesInSeries": 3,
+     "seriesGameNumber": 2,
+     "seriesDescription": "Regular Season",
+     "recordSource": "S",
+     "ifNecessary": "N",
+     "ifNecessaryDescription": "Normal Game",
+     "linescore": {
+      "currentInning": 9,
+      "currentInningOrdinal": "9th",
+      "inningState": "Bottom",
+      "inningHalf": "Bottom",
+      "isTopInning": false,
+      "scheduledInnings": 9,
+      "innings": [],
+      "teams": {
+       "home": {
+        "runs": 8,
+        "hits": 11,
+        "errors": 0,
+        "leftOnBase": 4
+       },
+       "away": {
+        "runs": 3,
+        "hits": 6,
+        "errors": 0,
+        "leftOnBase": 5
+       }
+      }
+     }
+    }
+   ],
+   "events": []
+  },
+  {
+   "date": "2026-08-31",
+   "totalItems": 1,
+   "totalEvents": 0,
+   "totalGames": 1,
+   "totalGamesInProgress": 0,
+   "games": [
+    {
+     "gamePk": 775806,
+     "gameGuid": "guid-775806",
+     "link": "/api/v1.1/game/775806/feed/live",
+     "gameType": "R",
+     "season": "2026",
+     "gameDate": "2026-08-31T23:05:00Z",
+     "officialDate": "2026-08-31",
+     "status": {
+      "abstractGameState": "Final",
+      "codedGameState": "F",
+      "detailedState": "Final",
+      "statusCode": "F",
+      "startTimeTBD": false,
+      "abstractGameCode": "F"
+     },
+     "teams": {
+      "away": {
+       "leagueRecord": {
+        "wins": 60,
+        "losses": 78,
+        "pct": ".435"
+       },
+       "team": {
+        "id": 110,
+        "name": "Baltimore Orioles",
+        "link": "/api/v1/teams/110",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "bal",
+        "fileCode": "bal",
+        "abbreviation": "BAL",
+        "teamName": "Orioles",
+        "locationName": "Baltimore",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Orioles",
+        "franchiseName": "Baltimore",
+        "clubName": "Orioles",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45,
+       "score": 2,
+       "isWinner": false
+      },
+      "home": {
+       "leagueRecord": {
+        "wins": 82,
+        "losses": 56,
+        "pct": ".594"
+       },
+       "team": {
+        "id": 147,
+        "name": "New York Yankees",
+        "link": "/api/v1/teams/147",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "nyy",
+        "fileCode": "nyy",
+        "abbreviation": "NYY",
+        "teamName": "Yankees",
+        "locationName": "Bronx",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Yankees",
+        "franchiseName": "Bronx",
+        "clubName": "Yankees",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45,
+       "score": 4,
+       "isWinner": true
+      }
+     },
+     "venue": {
+      "id": 3313,
+      "name": "Ballpark",
+      "link": "/api/v1/venues/3313"
+     },
+     "content": {
+      "link": "/api/v1/game/775806/content"
+     },
+     "isTie": false,
+     "gameNumber": 1,
+     "publicFacing": true,
+     "doubleHeader": "N",
+     "gamedayType": "P",
+     "tiebreaker": "N",
+     "calendarEventID": "14-775806-2026-09-03",
+     "seasonDisplay": "2026",
+     "dayNight": "night",
+     "scheduledInnings": 9,
+     "reverseHomeAwayStatus": false,
+     "inningBreakLength": 120,
+     "gamesInSeries": 3,
+     "seriesGameNumber": 2,
+     "seriesDescription": "Regular Season",
+     "recordSource": "S",
+     "ifNecessary": "N",
+     "ifNecessaryDescription": "Normal Game",
+     "linescore": {
+      "currentInning": 9,
+      "currentInningOrdinal": "9th",
+      "inningState": "Bottom",
+      "inningHalf": "Bottom",
+      "isTopInning": false,
+      "scheduledInnings": 9,
+      "innings": [],
+      "teams": {
+       "home": {
+        "runs": 4,
+        "hits": 7,
+        "errors": 0,
+        "leftOnBase": 4
+       },
+       "away": {
+        "runs": 2,
+        "hits": 5,
+        "errors": 0,
+        "leftOnBase": 5
+       }
+      }
+     }
+    }
+   ],
+   "events": []
+  },
+  {
+   "date": "2026-09-01",
+   "totalItems": 1,
+   "totalEvents": 0,
+   "totalGames": 1,
+   "totalGamesInProgress": 0,
+   "games": [
+    {
+     "gamePk": 775807,
+     "gameGuid": "guid-775807",
+     "link": "/api/v1.1/game/775807/feed/live",
+     "gameType": "R",
+     "season": "2026",
+     "gameDate": "2026-09-01T23:05:00Z",
+     "officialDate": "2026-09-01",
+     "status": {
+      "abstractGameState": "Final",
+      "codedGameState": "F",
+      "detailedState": "Final",
+      "statusCode": "F",
+      "startTimeTBD": false,
+      "abstractGameCode": "F"
+     },
+     "teams": {
+      "away": {
+       "leagueRecord": {
+        "wins": 82,
+        "losses": 56,
+        "pct": ".594"
+       },
+       "team": {
+        "id": 147,
+        "name": "New York Yankees",
+        "link": "/api/v1/teams/147",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "nyy",
+        "fileCode": "nyy",
+        "abbreviation": "NYY",
+        "teamName": "Yankees",
+        "locationName": "Bronx",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Yankees",
+        "franchiseName": "Bronx",
+        "clubName": "Yankees",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45,
+       "score": 6,
+       "isWinner": true
+      },
+      "home": {
+       "leagueRecord": {
+        "wins": 75,
+        "losses": 63,
+        "pct": ".543"
+       },
+       "team": {
+        "id": 111,
+        "name": "Boston Red Sox",
+        "link": "/api/v1/teams/111",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "bos",
+        "fileCode": "bos",
+        "abbreviation": "BOS",
+        "teamName": "Red Sox",
+        "locationName": "Boston",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Sox",
+        "franchiseName": "Boston",
+        "clubName": "Red Sox",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45,
+       "score": 2,
+       "isWinner": false
+      }
+     },
+     "venue": {
+      "id": 3313,
+      "name": "Ballpark",
+      "link": "/api/v1/venues/3313"
+     },
+     "content": {
+      "link": "/api/v1/game/775807/content"
+     },
+     "isTie": false,
+     "gameNumber": 1,
+     "publicFacing": true,
+     "doubleHeader": "N",
+     "gamedayType": "P",
+     "tiebreaker": "N",
+     "calendarEventID": "14-775807-2026-09-03",
+     "seasonDisplay": "2026",
+     "dayNight": "night",
+     "scheduledInnings": 9,
+     "reverseHomeAwayStatus": false,
+     "inningBreakLength": 120,
+     "gamesInSeries": 3,
+     "seriesGameNumber": 2,
+     "seriesDescription": "Regular Season",
+     "recordSource": "S",
+     "ifNecessary": "N",
+     "ifNecessaryDescription": "Normal Game",
+     "linescore": {
+      "currentInning": 9,
+      "currentInningOrdinal": "9th",
+      "inningState": "Bottom",
+      "inningHalf": "Bottom",
+      "isTopInning": false,
+      "scheduledInnings": 9,
+      "innings": [],
+      "teams": {
+       "home": {
+        "runs": 2,
+        "hits": 5,
+        "errors": 0,
+        "leftOnBase": 4
+       },
+       "away": {
+        "runs": 6,
+        "hits": 9,
+        "errors": 0,
+        "leftOnBase": 5
+       }
+      }
+     }
+    }
+   ],
+   "events": []
+  },
+  {
+   "date": "2026-09-02",
+   "totalItems": 1,
+   "totalEvents": 0,
+   "totalGames": 1,
+   "totalGamesInProgress": 0,
+   "games": [
+    {
+     "gamePk": 775808,
+     "gameGuid": "guid-775808",
+     "link": "/api/v1.1/game/775808/feed/live",
+     "gameType": "R",
+     "season": "2026",
+     "gameDate": "2026-09-02T23:05:00Z",
+     "officialDate": "2026-09-02",
+     "status": {
+      "abstractGameState": "Final",
+      "codedGameState": "F",
+      "detailedState": "Final",
+      "statusCode": "F",
+      "startTimeTBD": false,
+      "abstractGameCode": "F"
+     },
+     "teams": {
+      "away": {
+       "leagueRecord": {
+        "wins": 82,
+        "losses": 56,
+        "pct": ".594"
+       },
+       "team": {
+        "id": 147,
+        "name": "New York Yankees",
+        "link": "/api/v1/teams/147",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "nyy",
+        "fileCode": "nyy",
+        "abbreviation": "NYY",
+        "teamName": "Yankees",
+        "locationName": "Bronx",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Yankees",
+        "franchiseName": "Bronx",
+        "clubName": "Yankees",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45,
+       "score": 3,
+       "isWinner": false
+      },
+      "home": {
+       "leagueRecord": {
+        "wins": 75,
+        "losses": 63,
+        "pct": ".543"
+       },
+       "team": {
+        "id": 111,
+        "name": "Boston Red Sox",
+        "link": "/api/v1/teams/111",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "bos",
+        "fileCode": "bos",
+        "abbreviation": "BOS",
+        "teamName": "Red Sox",
+        "locationName": "Boston",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Sox",
+        "franchiseName": "Boston",
+        "clubName": "Red Sox",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45,
+       "score": 5,
+       "isWinner": true
+      }
+     },
+     "venue": {
+      "id": 3313,
+      "name": "Ballpark",
+      "link": "/api/v1/venues/3313"
+     },
+     "content": {
+      "link": "/api/v1/game/775808/content"
+     },
+     "isTie": false,
+     "gameNumber": 1,
+     "publicFacing": true,
+     "doubleHeader": "N",
+     "gamedayType": "P",
+     "tiebreaker": "N",
+     "calendarEventID": "14-775808-2026-09-03",
+     "seasonDisplay": "2026",
+     "dayNight": "night",
+     "scheduledInnings": 9,
+     "reverseHomeAwayStatus": false,
+     "inningBreakLength": 120,
+     "gamesInSeries": 3,
+     "seriesGameNumber": 2,
+     "seriesDescription": "Regular Season",
+     "recordSource": "S",
+     "ifNecessary": "N",
+     "ifNecessaryDescription": "Normal Game",
+     "linescore": {
+      "currentInning": 9,
+      "currentInningOrdinal": "9th",
+      "inningState": "Bottom",
+      "inningHalf": "Bottom",
+      "isTopInning": false,
+      "scheduledInnings": 9,
+      "innings": [],
+      "teams": {
+       "home": {
+        "runs": 5,
+        "hits": 8,
+        "errors": 0,
+        "leftOnBase": 4
+       },
+       "away": {
+        "runs": 3,
+        "hits": 6,
+        "errors": 0,
+        "leftOnBase": 5
+       }
+      }
+     }
+    }
+   ],
+   "events": []
+  },
+  {
+   "date": "2026-09-03",
+   "totalItems": 1,
+   "totalEvents": 0,
+   "totalGames": 1,
+   "totalGamesInProgress": 0,
+   "games": [
+    {
+     "gamePk": 776001,
+     "gameGuid": "guid-776001",
+     "link": "/api/v1.1/game/776001/feed/live",
+     "gameType": "R",
+     "season": "2026",
+     "gameDate": "2026-09-03T17:10:00Z",
+     "officialDate": "2026-09-03",
+     "status": {
+      "abstractGameState": "Final",
+      "codedGameState": "F",
+      "detailedState": "Final",
+      "statusCode": "F",
+      "startTimeTBD": false,
+      "abstractGameCode": "F"
+     },
+     "teams": {
+      "away": {
+       "leagueRecord": {
+        "wins": 82,
+        "losses": 56,
+        "pct": ".594"
+       },
+       "team": {
+        "id": 147,
+        "name": "New York Yankees",
+        "link": "/api/v1/teams/147",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "nyy",
+        "fileCode": "nyy",
+        "abbreviation": "NYY",
+        "teamName": "Yankees",
+        "locationName": "Bronx",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Yankees",
+        "franchiseName": "Bronx",
+        "clubName": "Yankees",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45,
+       "score": 5,
+       "isWinner": true
+      },
+      "home": {
+       "leagueRecord": {
+        "wins": 75,
+        "losses": 63,
+        "pct": ".543"
+       },
+       "team": {
+        "id": 111,
+        "name": "Boston Red Sox",
+        "link": "/api/v1/teams/111",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "bos",
+        "fileCode": "bos",
+        "abbreviation": "BOS",
+        "teamName": "Red Sox",
+        "locationName": "Boston",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Sox",
+        "franchiseName": "Boston",
+        "clubName": "Red Sox",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45,
+       "score": 3,
+       "isWinner": false
+      }
+     },
+     "venue": {
+      "id": 3313,
+      "name": "Fenway Park",
+      "link": "/api/v1/venues/3313"
+     },
+     "content": {
+      "link": "/api/v1/game/776001/content"
+     },
+     "isTie": false,
+     "gameNumber": 1,
+     "publicFacing": true,
+     "doubleHeader": "N",
+     "gamedayType": "P",
+     "tiebreaker": "N",
+     "calendarEventID": "14-776001-2026-09-03",
+     "seasonDisplay": "2026",
+     "dayNight": "night",
+     "scheduledInnings": 9,
+     "reverseHomeAwayStatus": false,
+     "inningBreakLength": 120,
+     "gamesInSeries": 3,
+     "seriesGameNumber": 2,
+     "seriesDescription": "Regular Season",
+     "recordSource": "S",
+     "ifNecessary": "N",
+     "ifNecessaryDescription": "Normal Game",
+     "linescore": {
+      "currentInning": 9,
+      "currentInningOrdinal": "9th",
+      "inningState": "Bottom",
+      "inningHalf": "Bottom",
+      "isTopInning": false,
+      "scheduledInnings": 9,
+      "innings": [
+       {
+        "num": 1,
+        "ordinalNum": "1st",
+        "away": {
+         "runs": 0,
+         "hits": 0,
+         "errors": 0,
+         "leftOnBase": 1
+        },
+        "home": {
+         "runs": 1,
+         "hits": 1,
+         "errors": 0,
+         "leftOnBase": 1
+        }
+       },
+       {
+        "num": 2,
+        "ordinalNum": "2nd",
+        "away": {
+         "runs": 2,
+         "hits": 2,
+         "errors": 0,
+         "leftOnBase": 1
+        },
+        "home": {
+         "runs": 0,
+         "hits": 0,
+         "errors": 0,
+         "leftOnBase": 1
+        }
+       },
+       {
+        "num": 3,
+        "ordinalNum": "3rd",
+        "away": {
+         "runs": 0,
+         "hits": 0,
+         "errors": 0,
+         "leftOnBase": 1
+        },
+        "home": {
+         "runs": 0,
+         "hits": 0,
+         "errors": 0,
+         "leftOnBase": 1
+        }
+       },
+       {
+        "num": 4,
+        "ordinalNum": "4th",
+        "away": {
+         "runs": 0,
+         "hits": 0,
+         "errors": 0,
+         "leftOnBase": 1
+        },
+        "home": {
+         "runs": 2,
+         "hits": 2,
+         "errors": 0,
+         "leftOnBase": 1
+        }
+       },
+       {
+        "num": 5,
+        "ordinalNum": "5th",
+        "away": {
+         "runs": 1,
+         "hits": 1,
+         "errors": 0,
+         "leftOnBase": 1
+        },
+        "home": {
+         "runs": 0,
+         "hits": 0,
+         "errors": 0,
+         "leftOnBase": 1
+        }
+       },
+       {
+        "num": 6,
+        "ordinalNum": "6th",
+        "away": {
+         "runs": 0,
+         "hits": 0,
+         "errors": 0,
+         "leftOnBase": 1
+        },
+        "home": {
+         "runs": 0,
+         "hits": 0,
+         "errors": 0,
+         "leftOnBase": 1
+        }
+       },
+       {
+        "num": 7,
+        "ordinalNum": "7th",
+        "away": {
+         "runs": 2,
+         "hits": 2,
+         "errors": 0,
+         "leftOnBase": 1
+        },
+        "home": {
+         "runs": 0,
+         "hits": 0,
+         "errors": 0,
+         "leftOnBase": 1
+        }
+       },
+       {
+        "num": 8,
+        "ordinalNum": "8th",
+        "away": {
+         "runs": 0,
+         "hits": 0,
+         "errors": 0,
+         "leftOnBase": 1
+        },
+        "home": {
+         "runs": 0,
+         "hits": 0,
+         "errors": 0,
+         "leftOnBase": 1
+        }
+       },
+       {
+        "num": 9,
+        "ordinalNum": "9th",
+        "away": {
+         "runs": 0,
+         "hits": 0,
+         "errors": 0,
+         "leftOnBase": 1
+        },
+        "home": {
+         "runs": 0,
+         "hits": 0,
+         "errors": 0,
+         "leftOnBase": 1
+        }
+       }
+      ],
+      "teams": {
+       "home": {
+        "runs": 3,
+        "hits": 7,
+        "errors": 1,
+        "leftOnBase": 4
+       },
+       "away": {
+        "runs": 5,
+        "hits": 11,
+        "errors": 0,
+        "leftOnBase": 5
+       }
+      }
+     },
+     "decisions": {
+      "winner": {
+       "id": 608331,
+       "fullName": "Max Fried",
+       "link": "/api/v1/people/608331"
+      },
+      "loser": {
+       "id": 669022,
+       "fullName": "Tanner Houck",
+       "link": "/api/v1/people/669022"
+      },
+      "save": {
+       "id": 621242,
+       "fullName": "Devin Williams",
+       "link": "/api/v1/people/621242"
+      }
+     }
+    }
+   ],
+   "events": []
+  },
+  {
+   "date": "2026-09-05",
+   "totalItems": 1,
+   "totalEvents": 0,
+   "totalGames": 1,
+   "totalGamesInProgress": 0,
+   "games": [
+    {
+     "gamePk": 775811,
+     "gameGuid": "guid-775811",
+     "link": "/api/v1.1/game/775811/feed/live",
+     "gameType": "R",
+     "season": "2026",
+     "gameDate": "2026-09-05T23:05:00Z",
+     "officialDate": "2026-09-05",
+     "status": {
+      "abstractGameState": "Preview",
+      "codedGameState": "S",
+      "detailedState": "Scheduled",
+      "statusCode": "S",
+      "startTimeTBD": false,
+      "abstractGameCode": "P"
+     },
+     "teams": {
+      "away": {
+       "leagueRecord": {
+        "wins": 78,
+        "losses": 60,
+        "pct": ".565"
+       },
+       "team": {
+        "id": 141,
+        "name": "Toronto Blue Jays",
+        "link": "/api/v1/teams/141",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "tor",
+        "fileCode": "tor",
+        "abbreviation": "TOR",
+        "teamName": "Blue Jays",
+        "locationName": "Toronto",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Jays",
+        "franchiseName": "Toronto",
+        "clubName": "Blue Jays",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45
+      },
+      "home": {
+       "leagueRecord": {
+        "wins": 82,
+        "losses": 56,
+        "pct": ".594"
+       },
+       "team": {
+        "id": 147,
+        "name": "New York Yankees",
+        "link": "/api/v1/teams/147",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "nyy",
+        "fileCode": "nyy",
+        "abbreviation": "NYY",
+        "teamName": "Yankees",
+        "locationName": "Bronx",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Yankees",
+        "franchiseName": "Bronx",
+        "clubName": "Yankees",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45,
+       "probablePitcher": {
+        "id": 543037,
+        "fullName": "Gerrit Cole",
+        "link": "/api/v1/people/543037"
+       }
+      }
+     },
+     "venue": {
+      "id": 3313,
+      "name": "Ballpark",
+      "link": "/api/v1/venues/3313"
+     },
+     "content": {
+      "link": "/api/v1/game/775811/content"
+     },
+     "isTie": false,
+     "gameNumber": 1,
+     "publicFacing": true,
+     "doubleHeader": "N",
+     "gamedayType": "P",
+     "tiebreaker": "N",
+     "calendarEventID": "14-775811-2026-09-03",
+     "seasonDisplay": "2026",
+     "dayNight": "night",
+     "scheduledInnings": 9,
+     "reverseHomeAwayStatus": false,
+     "inningBreakLength": 120,
+     "gamesInSeries": 3,
+     "seriesGameNumber": 2,
+     "seriesDescription": "Regular Season",
+     "recordSource": "S",
+     "ifNecessary": "N",
+     "ifNecessaryDescription": "Normal Game",
+     "linescore": {
+      "scheduledInnings": 9,
+      "innings": [],
+      "teams": {
+       "home": {},
+       "away": {}
+      },
+      "defense": {},
+      "offense": {}
+     }
+    }
+   ],
+   "events": []
+  },
+  {
+   "date": "2026-09-06",
+   "totalItems": 1,
+   "totalEvents": 0,
+   "totalGames": 1,
+   "totalGamesInProgress": 0,
+   "games": [
+    {
+     "gamePk": 775812,
+     "gameGuid": "guid-775812",
+     "link": "/api/v1.1/game/775812/feed/live",
+     "gameType": "R",
+     "season": "2026",
+     "gameDate": "2026-09-06T23:05:00Z",
+     "officialDate": "2026-09-06",
+     "status": {
+      "abstractGameState": "Preview",
+      "codedGameState": "S",
+      "detailedState": "Scheduled",
+      "statusCode": "S",
+      "startTimeTBD": false,
+      "abstractGameCode": "P"
+     },
+     "teams": {
+      "away": {
+       "leagueRecord": {
+        "wins": 78,
+        "losses": 60,
+        "pct": ".565"
+       },
+       "team": {
+        "id": 141,
+        "name": "Toronto Blue Jays",
+        "link": "/api/v1/teams/141",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "tor",
+        "fileCode": "tor",
+        "abbreviation": "TOR",
+        "teamName": "Blue Jays",
+        "locationName": "Toronto",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Jays",
+        "franchiseName": "Toronto",
+        "clubName": "Blue Jays",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45
+      },
+      "home": {
+       "leagueRecord": {
+        "wins": 82,
+        "losses": 56,
+        "pct": ".594"
+       },
+       "team": {
+        "id": 147,
+        "name": "New York Yankees",
+        "link": "/api/v1/teams/147",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "nyy",
+        "fileCode": "nyy",
+        "abbreviation": "NYY",
+        "teamName": "Yankees",
+        "locationName": "Bronx",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Yankees",
+        "franchiseName": "Bronx",
+        "clubName": "Yankees",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45
+      }
+     },
+     "venue": {
+      "id": 3313,
+      "name": "Ballpark",
+      "link": "/api/v1/venues/3313"
+     },
+     "content": {
+      "link": "/api/v1/game/775812/content"
+     },
+     "isTie": false,
+     "gameNumber": 1,
+     "publicFacing": true,
+     "doubleHeader": "N",
+     "gamedayType": "P",
+     "tiebreaker": "N",
+     "calendarEventID": "14-775812-2026-09-03",
+     "seasonDisplay": "2026",
+     "dayNight": "night",
+     "scheduledInnings": 9,
+     "reverseHomeAwayStatus": false,
+     "inningBreakLength": 120,
+     "gamesInSeries": 3,
+     "seriesGameNumber": 2,
+     "seriesDescription": "Regular Season",
+     "recordSource": "S",
+     "ifNecessary": "N",
+     "ifNecessaryDescription": "Normal Game",
+     "linescore": {
+      "scheduledInnings": 9,
+      "innings": [],
+      "teams": {
+       "home": {},
+       "away": {}
+      },
+      "defense": {},
+      "offense": {}
+     }
+    }
+   ],
+   "events": []
+  },
+  {
+   "date": "2026-09-07",
+   "totalItems": 1,
+   "totalEvents": 0,
+   "totalGames": 1,
+   "totalGamesInProgress": 0,
+   "games": [
+    {
+     "gamePk": 775813,
+     "gameGuid": "guid-775813",
+     "link": "/api/v1.1/game/775813/feed/live",
+     "gameType": "R",
+     "season": "2026",
+     "gameDate": "2026-09-07T23:05:00Z",
+     "officialDate": "2026-09-07",
+     "status": {
+      "abstractGameState": "Preview",
+      "codedGameState": "S",
+      "detailedState": "Scheduled",
+      "statusCode": "S",
+      "startTimeTBD": false,
+      "abstractGameCode": "P"
+     },
+     "teams": {
+      "away": {
+       "leagueRecord": {
+        "wins": 78,
+        "losses": 60,
+        "pct": ".565"
+       },
+       "team": {
+        "id": 141,
+        "name": "Toronto Blue Jays",
+        "link": "/api/v1/teams/141",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "tor",
+        "fileCode": "tor",
+        "abbreviation": "TOR",
+        "teamName": "Blue Jays",
+        "locationName": "Toronto",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Jays",
+        "franchiseName": "Toronto",
+        "clubName": "Blue Jays",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45
+      },
+      "home": {
+       "leagueRecord": {
+        "wins": 82,
+        "losses": 56,
+        "pct": ".594"
+       },
+       "team": {
+        "id": 147,
+        "name": "New York Yankees",
+        "link": "/api/v1/teams/147",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "nyy",
+        "fileCode": "nyy",
+        "abbreviation": "NYY",
+        "teamName": "Yankees",
+        "locationName": "Bronx",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Yankees",
+        "franchiseName": "Bronx",
+        "clubName": "Yankees",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45
+      }
+     },
+     "venue": {
+      "id": 3313,
+      "name": "Ballpark",
+      "link": "/api/v1/venues/3313"
+     },
+     "content": {
+      "link": "/api/v1/game/775813/content"
+     },
+     "isTie": false,
+     "gameNumber": 1,
+     "publicFacing": true,
+     "doubleHeader": "N",
+     "gamedayType": "P",
+     "tiebreaker": "N",
+     "calendarEventID": "14-775813-2026-09-03",
+     "seasonDisplay": "2026",
+     "dayNight": "night",
+     "scheduledInnings": 9,
+     "reverseHomeAwayStatus": false,
+     "inningBreakLength": 120,
+     "gamesInSeries": 3,
+     "seriesGameNumber": 2,
+     "seriesDescription": "Regular Season",
+     "recordSource": "S",
+     "ifNecessary": "N",
+     "ifNecessaryDescription": "Normal Game",
+     "linescore": {
+      "scheduledInnings": 9,
+      "innings": [],
+      "teams": {
+       "home": {},
+       "away": {}
+      },
+      "defense": {},
+      "offense": {}
+     }
+    }
+   ],
+   "events": []
+  },
+  {
+   "date": "2026-09-09",
+   "totalItems": 1,
+   "totalEvents": 0,
+   "totalGames": 1,
+   "totalGamesInProgress": 0,
+   "games": [
+    {
+     "gamePk": 775814,
+     "gameGuid": "guid-775814",
+     "link": "/api/v1.1/game/775814/feed/live",
+     "gameType": "R",
+     "season": "2026",
+     "gameDate": "2026-09-09T23:05:00Z",
+     "officialDate": "2026-09-09",
+     "status": {
+      "abstractGameState": "Preview",
+      "codedGameState": "S",
+      "detailedState": "Scheduled",
+      "statusCode": "S",
+      "startTimeTBD": false,
+      "abstractGameCode": "P"
+     },
+     "teams": {
+      "away": {
+       "leagueRecord": {
+        "wins": 82,
+        "losses": 56,
+        "pct": ".594"
+       },
+       "team": {
+        "id": 147,
+        "name": "New York Yankees",
+        "link": "/api/v1/teams/147",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "nyy",
+        "fileCode": "nyy",
+        "abbreviation": "NYY",
+        "teamName": "Yankees",
+        "locationName": "Bronx",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Yankees",
+        "franchiseName": "Bronx",
+        "clubName": "Yankees",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45
+      },
+      "home": {
+       "leagueRecord": {
+        "wins": 84,
+        "losses": 54,
+        "pct": ".609"
+       },
+       "team": {
+        "id": 116,
+        "name": "Detroit Tigers",
+        "link": "/api/v1/teams/116",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "det",
+        "fileCode": "det",
+        "abbreviation": "DET",
+        "teamName": "Tigers",
+        "locationName": "Detroit",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 202,
+         "link": "/api/v1/divisions/202"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Tigers",
+        "franchiseName": "Detroit",
+        "clubName": "Tigers",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45
+      }
+     },
+     "venue": {
+      "id": 3313,
+      "name": "Ballpark",
+      "link": "/api/v1/venues/3313"
+     },
+     "content": {
+      "link": "/api/v1/game/775814/content"
+     },
+     "isTie": false,
+     "gameNumber": 1,
+     "publicFacing": true,
+     "doubleHeader": "N",
+     "gamedayType": "P",
+     "tiebreaker": "N",
+     "calendarEventID": "14-775814-2026-09-03",
+     "seasonDisplay": "2026",
+     "dayNight": "night",
+     "scheduledInnings": 9,
+     "reverseHomeAwayStatus": false,
+     "inningBreakLength": 120,
+     "gamesInSeries": 3,
+     "seriesGameNumber": 2,
+     "seriesDescription": "Regular Season",
+     "recordSource": "S",
+     "ifNecessary": "N",
+     "ifNecessaryDescription": "Normal Game",
+     "linescore": {
+      "scheduledInnings": 9,
+      "innings": [],
+      "teams": {
+       "home": {},
+       "away": {}
+      },
+      "defense": {},
+      "offense": {}
+     }
+    }
+   ],
+   "events": []
+  },
+  {
+   "date": "2026-09-10",
+   "totalItems": 1,
+   "totalEvents": 0,
+   "totalGames": 1,
+   "totalGamesInProgress": 0,
+   "games": [
+    {
+     "gamePk": 775815,
+     "gameGuid": "guid-775815",
+     "link": "/api/v1.1/game/775815/feed/live",
+     "gameType": "R",
+     "season": "2026",
+     "gameDate": "2026-09-10T23:05:00Z",
+     "officialDate": "2026-09-10",
+     "status": {
+      "abstractGameState": "Preview",
+      "codedGameState": "S",
+      "detailedState": "Scheduled",
+      "statusCode": "S",
+      "startTimeTBD": false,
+      "abstractGameCode": "P"
+     },
+     "teams": {
+      "away": {
+       "leagueRecord": {
+        "wins": 82,
+        "losses": 56,
+        "pct": ".594"
+       },
+       "team": {
+        "id": 147,
+        "name": "New York Yankees",
+        "link": "/api/v1/teams/147",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "nyy",
+        "fileCode": "nyy",
+        "abbreviation": "NYY",
+        "teamName": "Yankees",
+        "locationName": "Bronx",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Yankees",
+        "franchiseName": "Bronx",
+        "clubName": "Yankees",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45
+      },
+      "home": {
+       "leagueRecord": {
+        "wins": 84,
+        "losses": 54,
+        "pct": ".609"
+       },
+       "team": {
+        "id": 116,
+        "name": "Detroit Tigers",
+        "link": "/api/v1/teams/116",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "det",
+        "fileCode": "det",
+        "abbreviation": "DET",
+        "teamName": "Tigers",
+        "locationName": "Detroit",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 202,
+         "link": "/api/v1/divisions/202"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Tigers",
+        "franchiseName": "Detroit",
+        "clubName": "Tigers",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45
+      }
+     },
+     "venue": {
+      "id": 3313,
+      "name": "Ballpark",
+      "link": "/api/v1/venues/3313"
+     },
+     "content": {
+      "link": "/api/v1/game/775815/content"
+     },
+     "isTie": false,
+     "gameNumber": 1,
+     "publicFacing": true,
+     "doubleHeader": "N",
+     "gamedayType": "P",
+     "tiebreaker": "N",
+     "calendarEventID": "14-775815-2026-09-03",
+     "seasonDisplay": "2026",
+     "dayNight": "night",
+     "scheduledInnings": 9,
+     "reverseHomeAwayStatus": false,
+     "inningBreakLength": 120,
+     "gamesInSeries": 3,
+     "seriesGameNumber": 2,
+     "seriesDescription": "Regular Season",
+     "recordSource": "S",
+     "ifNecessary": "N",
+     "ifNecessaryDescription": "Normal Game",
+     "linescore": {
+      "scheduledInnings": 9,
+      "innings": [],
+      "teams": {
+       "home": {},
+       "away": {}
+      },
+      "defense": {},
+      "offense": {}
+     }
+    }
+   ],
+   "events": []
+  },
+  {
+   "date": "2026-09-11",
+   "totalItems": 1,
+   "totalEvents": 0,
+   "totalGames": 1,
+   "totalGamesInProgress": 0,
+   "games": [
+    {
+     "gamePk": 775816,
+     "gameGuid": "guid-775816",
+     "link": "/api/v1.1/game/775816/feed/live",
+     "gameType": "R",
+     "season": "2026",
+     "gameDate": "2026-09-11T23:05:00Z",
+     "officialDate": "2026-09-11",
+     "status": {
+      "abstractGameState": "Preview",
+      "codedGameState": "S",
+      "detailedState": "Scheduled",
+      "statusCode": "S",
+      "startTimeTBD": false,
+      "abstractGameCode": "P"
+     },
+     "teams": {
+      "away": {
+       "leagueRecord": {
+        "wins": 82,
+        "losses": 56,
+        "pct": ".594"
+       },
+       "team": {
+        "id": 147,
+        "name": "New York Yankees",
+        "link": "/api/v1/teams/147",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "nyy",
+        "fileCode": "nyy",
+        "abbreviation": "NYY",
+        "teamName": "Yankees",
+        "locationName": "Bronx",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 201,
+         "link": "/api/v1/divisions/201"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Yankees",
+        "franchiseName": "Bronx",
+        "clubName": "Yankees",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45
+      },
+      "home": {
+       "leagueRecord": {
+        "wins": 84,
+        "losses": 54,
+        "pct": ".609"
+       },
+       "team": {
+        "id": 116,
+        "name": "Detroit Tigers",
+        "link": "/api/v1/teams/116",
+        "season": 2026,
+        "venue": {
+         "id": 1,
+         "name": "Ballpark",
+         "link": "/api/v1/venues/1"
+        },
+        "teamCode": "det",
+        "fileCode": "det",
+        "abbreviation": "DET",
+        "teamName": "Tigers",
+        "locationName": "Detroit",
+        "firstYearOfPlay": "1901",
+        "league": {
+         "id": 103,
+         "name": "American League",
+         "link": "/api/v1/league/103"
+        },
+        "division": {
+         "id": 202,
+         "link": "/api/v1/divisions/202"
+        },
+        "sport": {
+         "id": 1,
+         "link": "/api/v1/sports/1",
+         "name": "Major League Baseball"
+        },
+        "shortName": "Tigers",
+        "franchiseName": "Detroit",
+        "clubName": "Tigers",
+        "active": true
+       },
+       "splitSquad": false,
+       "seriesNumber": 45
+      }
+     },
+     "venue": {
+      "id": 3313,
+      "name": "Ballpark",
+      "link": "/api/v1/venues/3313"
+     },
+     "content": {
+      "link": "/api/v1/game/775816/content"
+     },
+     "isTie": false,
+     "gameNumber": 1,
+     "publicFacing": true,
+     "doubleHeader": "N",
+     "gamedayType": "P",
+     "tiebreaker": "N",
+     "calendarEventID": "14-775816-2026-09-03",
+     "seasonDisplay": "2026",
+     "dayNight": "night",
+     "scheduledInnings": 9,
+     "reverseHomeAwayStatus": false,
+     "inningBreakLength": 120,
+     "gamesInSeries": 3,
+     "seriesGameNumber": 2,
+     "seriesDescription": "Regular Season",
+     "recordSource": "S",
+     "ifNecessary": "N",
+     "ifNecessaryDescription": "Normal Game",
+     "linescore": {
+      "scheduledInnings": 9,
+      "innings": [],
+      "teams": {
+       "home": {},
+       "away": {}
+      },
+      "defense": {},
+      "offense": {}
+     }
+    }
+   ],
+   "events": []
+  }
+ ]
+}
