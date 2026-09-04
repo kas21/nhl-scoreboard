@@ -15,7 +15,8 @@ All snapshot values are plain JSON-shaped dicts/lists (immutable by convention: 
 | `system` | NHL source | `{online: bool, failures: n}` |
 | `holidays.upcoming` | holidays | `[{name, display, date, days, image, custom}]` — `display` is the alternate name if one is set, `image` an absolute path or null |
 | `holidays.available` | holidays | `[{name, display, enabled, custom, image, image_name, image_slug, uploaded}]` — every holiday the calendar knows, on or off, for the Holidays page. `image_name` is the stem of the picture it shows now; `image_slug` is where an upload for that row would go, and they differ whenever a row borrows another's art |
-| `flights.nearby`, `flights.overhead` | flights | `[aircraft]` sorted by distance |
+| `flights.nearby`, `flights.overhead` | flights | `[aircraft]` sorted by distance; with `count_sightings` on, each carries `sightings` (visits by this airframe, this one included) and `first_seen` (epoch seconds) |
+| `flights.stats` | flights | `{airframes, sightings, today, since, regulars:[{hex, registration, type, operator, count, last_seen}]}` — the sighting log's totals. Keyed by ICAO hex; a visit is one appearance separated from the last by `visit_gap_minutes`. Persisted at `$SCOREBOARD_DATA_DIR/flights/sightings.json` |
 | `weather.current`, `weather.daily` | weather | current conditions dict; `[day]` |
 
 ## Game dict (shared by NHL, NFL and MLB boards)
@@ -63,7 +64,7 @@ Event bursts collapse to the latest event per (kind, team).
 
 `SCOREBOARD_CACHE_DIR` defaults to `~/.scoreboard/cache`; the systemd unit sets it to `/var/cache/scoreboard`.
 `SCOREBOARD_DATA_DIR` (`~/.scoreboard/data`, `/var/lib/scoreboard` under systemd) holds what the *user*
-supplied and nothing can re-download — currently `holidays/<slug>.png`, written only through
+supplied and nothing can re-download — `flights/sightings.json` (the airframe visit log) and `holidays/<slug>.png`, the latter written only through
 `POST /api/holidays/images/{slug}`, which re-encodes whatever you send to a PNG of at most 256px. Both live outside the checkout so
 an OTA update, which fast-forwards the working tree, cannot delete them.
 

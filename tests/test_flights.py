@@ -16,6 +16,7 @@ from scoreboard.data import Event, SnapshotStore
 from scoreboard.data.source import SourceContext
 from scoreboard.extras.flights.board import NearbyBoard, NearbyConfig, OverheadBoard, OverheadConfig
 from scoreboard.extras.flights.logos import LogoFetcher, codes_for, safe_code
+from scoreboard.extras.flights.sightings import SightingLog
 from scoreboard.extras.flights.source import (
     FlightsConfig,
     FlightsSource,
@@ -84,13 +85,18 @@ async def test_source_polls_and_enriches(tmp_path):
         mock.get(url__regex=LOGO_URL).mock(return_value=httpx.Response(200, content=png_bytes()))
         ctx = SourceContext("flights", store, lambda: cfg, http)
         ctx.location = (43.65, -79.38)
-        task = asyncio.create_task(FlightsSource(LogoFetcher(tmp_path)).run(ctx))
+        task = asyncio.create_task(FlightsSource(LogoFetcher(tmp_path), SightingLog(tmp_path / "sightings.json")).run(ctx))
         for _ in range(100):
             await asyncio.sleep(0.01)
-            if store.get().has("flights.nearby", "flights.overhead"):
+            if store.get().has("flights.nearby", "flights.overhead", "flights.stats"):
                 break
         task.cancel()
+        await asyncio.gather(task, return_exceptions=True)
     nearby = store.get().get("flights.nearby")
+    stats = store.get().get("flights.stats")
+    assert all(a["sightings"] == 1 for a in nearby)
+    assert stats["airframes"] > 3 and stats["today"] == stats["airframes"]        # everything in range is counted, not just the 3 shown
+    assert (tmp_path / "sightings.json").is_file()                                   # flushed on cancel
     assert 1 <= len(nearby) <= 3
     assert nearby == sorted(nearby, key=lambda a: a["distance_km"])
     assert any(a["route"] == "YYZ-YVR" for a in nearby if a["callsign"])
@@ -107,6 +113,10 @@ def test_boards_render():
         ctx = BoardContext(snapshot=snap, profile=profile_for(w, h), width=w, height=h, fps=30, now=now, elapsed=1.0)
         img = NearbyBoard().render(ctx, NearbyConfig())
         assert img.size == (w, h) and img.getbbox() is not None
+    seen = {**ac, "sightings": 4}
+    plain = NearbyBoard().render(BoardContext(snapshot=SnapshotStore().publish("flights.nearby", [seen]), profile=profile_for(128, 64), width=128, height=64, fps=30, now=now, elapsed=5.0), NearbyConfig())
+    with_seen = NearbyBoard().render(BoardContext(snapshot=SnapshotStore().publish("flights.nearby", [seen]), profile=profile_for(128, 64), width=128, height=64, fps=30, now=now, elapsed=5.0), NearbyConfig(show_sightings=True))
+    assert plain.tobytes() != with_seen.tobytes()                                     # the Seen: 4x pair only appears when asked
     ev = Event("flights.overhead", payload={"aircraft": ac})
     ctx = BoardContext(snapshot=snap, profile=profile_for(128, 64), width=128, height=64, fps=30, now=now, elapsed=0.5, event=ev)
     board = OverheadBoard()

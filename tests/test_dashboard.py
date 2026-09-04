@@ -36,6 +36,7 @@ def populated_store() -> SnapshotStore:
                                       "altitude_ft": 3000, "distance_km": 2.1, "bearing_compass": "NE", "route": "YYZ-YUL", "lat": 1, "lon": 2},
                                      {"hex": "b2", "ident": "C-GABC", "callsign": "", "altitude_ft": 30000, "distance_km": 20.0, "lat": 1, "lon": 2}])
     store.publish("flights.overhead", [{"hex": "a1"}])
+    store.publish("flights.stats", {"airframes": 2, "sightings": 5, "today": 1, "since": 1.0, "regulars": [{"hex": "a1", "count": 4}]})
     store.publish("holidays.upcoming", [{"name": "Easter", "display": "Easter", "date": "2026-04-05", "days": 3, "image": "/x.png", "custom": False}])
     store.publish("weather.current", {"label": "HOME", "temp": 12, "feels": 10, "short": "Cloudy", "icon": "cloud", "units": {"temp": "C"}, "wind": 5, "wind_dir": 90})
     store.publish("weather.daily", [{"date": TODAY, "hi": 15, "lo": 5, "pop": 20, "short": "Cloudy", "icon": "cloud", "sunrise": "x"}] * 6)
@@ -71,6 +72,7 @@ def test_summary_extras():
     assert [f["ident"] for f in out["flights"]] == ["ACA123", "C-GABC"]
     assert out["flights"][0]["overhead"] is True and out["flights"][1]["overhead"] is False
     assert "lat" not in out["flights"][0]
+    assert out["flight_stats"]["sightings"] == 5 and out["flight_stats"]["regulars"][0]["hex"] == "a1"
     assert out["holidays"] == [{"name": "Easter", "display": "Easter", "date": "2026-04-05", "days": 3}]
     assert out["weather"]["current"]["temp"] == 12 and len(out["weather"]["daily"]) == 4
     assert "sunrise" not in out["weather"]["daily"][0]
@@ -78,7 +80,7 @@ def test_summary_extras():
 
 def test_summary_when_nothing_is_published():
     out = dashboard_summary(SnapshotStore().get(), TODAY)
-    assert out == {"today": TODAY, "main_event": None, "sports": [], "flights": None, "holidays": None, "weather": None}
+    assert out == {"today": TODAY, "main_event": None, "sports": [], "flights": None, "flight_stats": None, "holidays": None, "weather": None}
 
 
 def test_endpoint(tmp_path):

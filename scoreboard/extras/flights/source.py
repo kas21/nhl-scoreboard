@@ -10,8 +10,9 @@ from __future__ import annotations
 import logging
 import math
 import time
-from datetime import date
+from datetime import date, datetime
 from typing import Any, ClassVar, Literal
+from zoneinfo import ZoneInfo
 
 import httpx
 from pydantic import BaseModel, ConfigDict, Field
@@ -19,7 +20,9 @@ from pydantic import BaseModel, ConfigDict, Field
 from ...config.models import ADVANCED
 from ...data import Event, Snapshot
 from ...data.source import SourceContext
+from ...imagecache import DATA_ROOT
 from .logos import LogoFetcher
+from .sightings import SightingLog
 
 log = logging.getLogger(__name__)
 
@@ -43,12 +46,22 @@ class FlightsConfig(BaseModel):
     airline_logos: bool = Field(True, description="Download airline logos (cached on disk; falls back to a lettered tile)")
     flightaware_api_key: str = Field("", description="Optional AeroAPI key for routes adsbdb doesn't know ($0.005/lookup)")
     flightaware_daily_budget: int = Field(30, ge=0, le=1000, description="Max paid lookups per day")
+    count_sightings: bool = Field(True, description="Remember every airframe seen and count its visits (kept on disk; shows on the dashboard)")
+    visit_gap_minutes: int = Field(30, ge=1, le=1440, description="An airframe seen again after this long counts as a new visit", json_schema_extra=ADVANCED)
     overhead_alert: bool = Field(True, description="Interrupt the rotation when an aircraft passes close overhead")
     overhead_km: float = Field(3.0, ge=0.5, le=30)
     overhead_max_alt_ft: int = Field(10000, ge=500, le=45000)
 
 
 # -- pure helpers -------------------------------------------------------------
+
+def _local_today(ctx: SourceContext) -> str:
+    tz = getattr(ctx, "timezone", None)
+    try:
+        return datetime.now(ZoneInfo(tz)).date().isoformat() if tz else datetime.now().astimezone().date().isoformat()
+    except Exception:
+        return datetime.now().astimezone().date().isoformat()
+
 
 def compass(bearing: float | None) -> str:
     return COMPASS[int(((bearing or 0) + 22.5) // 45) % 8] if bearing is not None else ""
@@ -134,13 +147,20 @@ class FlightsSource:
     key: ClassVar[str] = "flights"
     config_model: ClassVar[type[BaseModel]] = FlightsConfig
 
-    def __init__(self, logos: LogoFetcher | None = None) -> None:
+    def __init__(self, logos: LogoFetcher | None = None, sightings: SightingLog | None = None) -> None:
         self._cache: dict[str, tuple[float, dict[str, str] | None]] = {}   # callsign -> (expires, enrichment)
         self._logos = logos or LogoFetcher()
+        self._sightings = sightings or SightingLog(DATA_ROOT / "flights" / "sightings.json")
         self._paid_day: date | None = None
         self._paid_count = 0
 
     async def run(self, ctx: SourceContext) -> None:
+        try:
+            await self._poll_forever(ctx)
+        finally:
+            self._sightings.flush()                       # the debounced write must not lose the last visits on shutdown
+
+    async def _poll_forever(self, ctx: SourceContext) -> None:
         while True:
             cfg: FlightsConfig = ctx.config  # type: ignore[assignment]
             loc = ctx.location
@@ -155,6 +175,10 @@ class FlightsSource:
                 aircraft = [a for a in (normalize_aircraft(r) for r in payload.get("ac") or []) if a]
                 if not cfg.include_on_ground:
                     aircraft = [a for a in aircraft if not a["on_ground"]]
+                if cfg.count_sightings:                   # everything in range counts, not just the ones that fit the board
+                    today = _local_today(ctx)
+                    aircraft = self._sightings.record(aircraft, time.time(), today, cfg.visit_gap_minutes * 60)
+                    ctx.publish(self._sightings.stats(today), subkey="stats")
                 aircraft.sort(key=lambda a: a["distance_km"] if a["distance_km"] is not None else 1e9)
                 aircraft = aircraft[: cfg.max_aircraft]
                 if cfg.enrich_routes:

@@ -48,7 +48,10 @@ nothing needs a restart.
   *Games* lists every game for the next few days per sport (as far ahead as that sport's *show games within days*
   setting; MLB lists only today's games unless you turn off *schedule today only*, with your teams' records and next game,
   and the game the panel is following marked), and *Around you*
-  shows the weather, the planes nearby and the next holidays when those extras are on.
+  shows the weather, the planes nearby and the next holidays when those extras are on. The planes list also keeps
+  score: every airframe that comes into range is logged by tail number, and each row says how many visits it has
+  made, with the regulars summed up above the list. The flight boards can show the same count
+  (*show sightings*, off by default).
 - **Boards** — per-state playlists. States: *offseason*, *offday* (season on, no game today), *pregame*,
   *live*, *intermission*, *postgame*. Reorder by dragging a row's grip (⠿) — the list reorders
   under the pointer and saves when you let go, Esc cancels; the arrows still move one place at a

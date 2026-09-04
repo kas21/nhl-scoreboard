@@ -27,8 +27,8 @@ MAX_FORECAST_DAYS = 4
 
 TEAM_FIELDS = ("abbrev", "name", "score", "record")
 GAME_FIELDS = ("id", "sport", "type", "date", "start_time_utc", "phase", "period", "clock", "outcome", "series", "week")
-AIRCRAFT_FIELDS = ("hex", "ident", "callsign", "airline", "type", "type_name", "altitude_ft", "altitude_m", "distance_km", "distance_mi",
-                   "bearing_compass", "origin", "destination", "route", "on_ground")
+AIRCRAFT_FIELDS = ("hex", "ident", "callsign", "registration", "airline", "type", "type_name", "altitude_ft", "altitude_m", "distance_km",
+                   "distance_mi", "bearing_compass", "origin", "destination", "route", "on_ground", "sightings", "first_seen")
 HOLIDAY_FIELDS = ("name", "display", "date", "days")
 WEATHER_FIELDS = ("label", "temp", "feels", "humidity", "wind", "wind_dir", "precip", "is_day", "units", "short", "desc", "icon")
 FORECAST_FIELDS = ("date", "hi", "lo", "pop", "short", "icon")
@@ -121,6 +121,7 @@ def dashboard_summary(snap: Snapshot, today: str) -> dict[str, Any]:
         "main_event": {"sport": main.get("sport"), "id": main.get("id")} if main else None,
         "sports": [s for s in (sport_summary(snap, key, title, main) for key, title in SPORTS) if s],
         "flights": flights_summary(snap),
+        "flight_stats": snap.get("flights.stats"),
         "holidays": holidays_summary(snap),
         "weather": weather_summary(snap),
     }

@@ -115,10 +115,25 @@ export function GamesCard() {
 
 const alt = (ft) => (ft == null ? 'ground' : `${ft.toLocaleString()} ft`);
 
+const seenText = (n) => (n == null ? '' : n === 1 ? 'first visit' : `seen ${n}×`);
+const sinceText = (ts) => (ts ? new Date(ts * 1000).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) : '');
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
+function FlightStats({ stats }) {
+  if (!stats || !stats.airframes) return html`<p class="muted small">No visits logged yet. Every airframe that comes into range is counted from now on.</p>`;
+  const regulars = (stats.regulars || []).filter(r => r.count > 1);
+  return html`<div class="flight-stats">
+    <div>${plural(stats.airframes, 'airframe')} · ${plural(stats.sightings, 'visit')} · ${stats.today} today
+      ${stats.since ? html`<span class="muted"> · since ${sinceText(stats.since)}</span>` : ''}</div>
+    ${regulars.length ? html`<div class="muted small">Regulars: ${regulars.map(r => `${r.registration || r.hex}${r.type ? ' ' + r.type : ''} ×${r.count}`).join(', ')}</div>` : ''}
+  </div>`;
+}
+
 function Flights({ rows }) {
   if (!rows.length) return html`<p class="muted small">No aircraft nearby right now.</p>`;
   return html`<table class="games flights"><tbody>${rows.map(a => html`<tr class=${a.overhead ? 'main' : ''}>
-    <td><b>${a.ident || a.callsign || a.hex}</b>${a.overhead ? html` <span class="chip">overhead</span>` : ''}</td>
+    <td><b>${a.ident || a.callsign || a.hex}</b>${a.overhead ? html` <span class="chip">overhead</span>` : ''}
+      ${a.sightings != null ? html`<div class="muted small" title=${a.first_seen ? 'first seen ' + sinceText(a.first_seen) : ''}>${seenText(a.sightings)}</div>` : ''}</td>
     <td class="muted">${a.airline || a.type_name || a.type || ''}</td>
     <td>${a.route || [a.origin, a.destination].filter(Boolean).join('→') || ''}</td>
     <td class="state">${a.on_ground ? 'on ground' : alt(a.altitude_ft)}${a.distance_km != null ? ` · ${a.distance_km} km ${a.bearing_compass || ''}` : ''}</td>
@@ -149,7 +164,7 @@ export function AroundCard() {
   if (!data) return html`<div class="card"><h2>Around you</h2><p class="muted">Loading…</p></div>`;
   const sections = [];
   if (data.weather) sections.push(html`<div class="section"><h3>Weather</h3><${Weather} w=${data.weather} /></div>`);
-  if (data.flights) sections.push(html`<div class="section"><h3>Planes nearby</h3><${Flights} rows=${data.flights} /></div>`);
+  if (data.flights) sections.push(html`<div class="section"><h3>Planes nearby</h3><${FlightStats} stats=${data.flight_stats} /><${Flights} rows=${data.flights} /></div>`);
   if (data.holidays) sections.push(html`<div class="section"><h3>Holidays</h3><${Holidays} rows=${data.holidays} today=${data.today} /></div>`);
   return html`<div class="card"><h2>Around you</h2>
     ${sections.length ? sections : html`<p class="muted">Turn on weather, flights or holidays in <a href="#settings">Settings</a> to see them here.</p>`}

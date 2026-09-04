@@ -28,15 +28,20 @@ LOGO_MAX, LOGO_MIN = 40, 16      # the old Flight-Wall card's logo block
 LINE_H, MARGIN, GAP, BLOCK_GAP = 6, 2, 3, 4
 
 
+SIGHTINGS_HELP = "Add how many times this airframe has been seen to the telemetry (needs count_sightings on the flights source; 128x64 only)"
+
+
 class NearbyConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid", title="Flights nearby")
     seconds_per_aircraft: float = Field(6.0, ge=2, le=30)
+    show_sightings: bool = Field(False, description=SIGHTINGS_HELP)
 
 
 class OverheadConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid", title="Flight overhead alert")
     enabled: bool = True
     duration: float = Field(8.0, ge=2, le=30)
+    show_sightings: bool = Field(False, description=SIGHTINGS_HELP)
 
 
 def _fmt_alt(ac: dict[str, Any], metric: bool) -> str:
@@ -95,14 +100,15 @@ def _clip(text: str, font: Any, max_width: int) -> str:
     return text
 
 
-def _telemetry_rows(ac: dict[str, Any], metric: bool, font: Any, width: int) -> list[list[tuple[str, str, int, int]]]:
+def _telemetry_rows(ac: dict[str, Any], metric: bool, font: Any, width: int, sightings: bool = False) -> list[list[tuple[str, str, int, int]]]:
     """Label/value pairs flowed into rows that fit ``width`` (Alt/Spd, then Hdg/VS as the old client did)."""
     rows: list[list[tuple[str, str, int, int]]] = []
     row: list[tuple[str, str, int, int]] = []
     x = MARGIN
+    seen = f"{ac['sightings']}x" if sightings and ac.get("sightings") else ""
     for label, value in (("Alt", _fmt_alt(ac, metric)), ("Spd", _fmt_speed(ac, metric)),
                          ("Hdg", f"{ac['heading']:03d}" if ac.get("heading") is not None else ""),
-                         ("VS", _fmt_vs(ac, metric))):
+                         ("VS", _fmt_vs(ac, metric)), ("Seen", seen)):
         if not value:
             continue
         lw, vw = text_size(f"{label}:", font)[0], text_size(value, font)[0]
@@ -126,7 +132,7 @@ def _info_rows(ac: dict[str, Any]) -> list[tuple[str, tuple[int, int, int]]]:
     return [(txt, color) for txt, color in rows if txt]
 
 
-def card(ac: dict[str, Any], width: int, height: int, metric: bool, f6: Any, header: str | None = None) -> list:
+def card(ac: dict[str, Any], width: int, height: int, metric: bool, f6: Any, header: str | None = None, sightings: bool = False) -> list:
     """Flight-Wall layout as Absolute items: logo left, airline/route/type beside, telemetry under."""
     items = []
     y0 = 0
@@ -137,7 +143,7 @@ def card(ac: dict[str, Any], width: int, height: int, metric: bool, f6: Any, hea
 
     rows = _info_rows(ac)
     top_h = len(rows) * LINE_H + GAP * (len(rows) - 1)
-    tele = _telemetry_rows(ac, metric, f6, width)
+    tele = _telemetry_rows(ac, metric, f6, width, sightings)
     tele = tele[: max(1, (avail_h - LOGO_MIN - BLOCK_GAP) // (LINE_H + GAP))]
     tele_h = len(tele) * LINE_H + GAP * (len(tele) - 1)
     # Logo block, square, as large as the space beside the text and above the telemetry allows
@@ -220,8 +226,9 @@ class NearbyBoard(BaseBoard):
         idx = min(int(ctx.elapsed // cfg.seconds_per_aircraft), len(self._items) - 1)
         local = ctx.elapsed - idx * cfg.seconds_per_aircraft
         metric = _metric(ctx)
-        layout = compact_card if h <= 32 else card
-        return render_tree(Absolute(layout(self._items[idx], w, h, metric, ctx.profile.label_font())), w, h, t=local)
+        if h <= 32:
+            return render_tree(Absolute(compact_card(self._items[idx], w, h, metric, ctx.profile.label_font())), w, h, t=local)
+        return render_tree(Absolute(card(self._items[idx], w, h, metric, ctx.profile.label_font(), sightings=cfg.show_sightings)), w, h, t=local)
 
 
 class OverheadBoard(SequenceMixin, EventBoard):
@@ -235,7 +242,8 @@ class OverheadBoard(SequenceMixin, EventBoard):
 
     def build(self, ctx: BoardContext, cfg: OverheadConfig) -> Sequence:
         ac = (ctx.event.payload.get("aircraft") if ctx.event else None) or {}
-        frames = [render_tree(Absolute(card(ac, ctx.width, ctx.height, _metric(ctx), ctx.profile.label_font(), header="OVERHEAD")), ctx.width, ctx.height, t=i / ctx.fps)
+        frames = [render_tree(Absolute(card(ac, ctx.width, ctx.height, _metric(ctx), ctx.profile.label_font(), header="OVERHEAD",
+                                            sightings=cfg.show_sightings)), ctx.width, ctx.height, t=i / ctx.fps)
                   for i in range(int(cfg.duration * ctx.fps))]
         return Sequence(ctx.fps).frames(frames).build(frames[0] if frames else Image.new("RGB", (ctx.width, ctx.height)))
 
