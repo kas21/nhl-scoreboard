@@ -1,0 +1,2147 @@
+{
+ "copyright": "Copyright 2026 MLB Advanced Media, L.P.",
+ "records": [
+  {
+   "standingsType": "regularSeason",
+   "league": {
+    "id": 103,
+    "link": "/api/v1/league/103"
+   },
+   "division": {
+    "id": 201,
+    "link": "/api/v1/divisions/201"
+   },
+   "sport": {
+    "id": 1,
+    "link": "/api/v1/sports/1"
+   },
+   "lastUpdated": "2026-09-03T23:59:00Z",
+   "teamRecords": [
+    {
+     "team": {
+      "id": 147,
+      "name": "New York Yankees",
+      "link": "/api/v1/teams/147",
+      "abbreviation": "NYY"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 3,
+      "streakCode": "W3"
+     },
+     "divisionRank": "1",
+     "sportRank": "5",
+     "leagueRank": "2",
+     "gamesPlayed": 138,
+     "gamesBack": "-",
+     "wildCardGamesBack": "-",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 82,
+      "losses": 56,
+      "ties": 0,
+      "pct": ".594"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 41,
+        "losses": 28,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 41,
+        "losses": 28,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 7,
+        "losses": 3,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 578,
+     "divisionChamp": false,
+     "divisionLeader": true,
+     "hasWildcard": false,
+     "clinched": false,
+     "eliminationNumber": "25",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "12",
+     "wins": 82,
+     "losses": 56,
+     "runDifferential": 78,
+     "winningPercentage": ".594"
+    },
+    {
+     "team": {
+      "id": 141,
+      "name": "Toronto Blue Jays",
+      "link": "/api/v1/teams/141",
+      "abbreviation": "TOR"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "2",
+     "sportRank": "9",
+     "leagueRank": "4",
+     "wildCardRank": "1",
+     "gamesPlayed": 138,
+     "gamesBack": "4.0",
+     "wildCardGamesBack": "-",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 78,
+      "losses": 60,
+      "ties": 0,
+      "pct": ".565"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 39,
+        "losses": 30,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 39,
+        "losses": 30,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 554,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "21",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 78,
+     "losses": 60,
+     "runDifferential": 54,
+     "winningPercentage": ".565"
+    },
+    {
+     "team": {
+      "id": 111,
+      "name": "Boston Red Sox",
+      "link": "/api/v1/teams/111",
+      "abbreviation": "BOS"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "3",
+     "sportRank": "12",
+     "leagueRank": "6",
+     "wildCardRank": "3",
+     "gamesPlayed": 138,
+     "gamesBack": "7.0",
+     "wildCardGamesBack": "-",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 75,
+      "losses": 63,
+      "ties": 0,
+      "pct": ".543"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 37,
+        "losses": 31,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 38,
+        "losses": 32,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 536,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "18",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 75,
+     "losses": 63,
+     "runDifferential": 36,
+     "winningPercentage": ".543"
+    },
+    {
+     "team": {
+      "id": 139,
+      "name": "Tampa Bay Rays",
+      "link": "/api/v1/teams/139",
+      "abbreviation": "TB"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "4",
+     "sportRank": "17",
+     "leagueRank": "10",
+     "wildCardRank": "7",
+     "gamesPlayed": 138,
+     "gamesBack": "12.0",
+     "wildCardGamesBack": "5.0",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 70,
+      "losses": 68,
+      "ties": 0,
+      "pct": ".507"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 35,
+        "losses": 34,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 35,
+        "losses": 34,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 506,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "13",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 70,
+     "losses": 68,
+     "runDifferential": 6,
+     "winningPercentage": ".507"
+    },
+    {
+     "team": {
+      "id": 110,
+      "name": "Baltimore Orioles",
+      "link": "/api/v1/teams/110",
+      "abbreviation": "BAL"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "5",
+     "sportRank": "25",
+     "leagueRank": "13",
+     "wildCardRank": "10",
+     "gamesPlayed": 138,
+     "gamesBack": "22.0",
+     "wildCardGamesBack": "15.0",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 60,
+      "losses": 78,
+      "ties": 0,
+      "pct": ".435"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 30,
+        "losses": 39,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 30,
+        "losses": 39,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 446,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "3",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 60,
+     "losses": 78,
+     "runDifferential": -54,
+     "winningPercentage": ".435"
+    }
+   ]
+  },
+  {
+   "standingsType": "regularSeason",
+   "league": {
+    "id": 103,
+    "link": "/api/v1/league/103"
+   },
+   "division": {
+    "id": 202,
+    "link": "/api/v1/divisions/202"
+   },
+   "sport": {
+    "id": 1,
+    "link": "/api/v1/sports/1"
+   },
+   "lastUpdated": "2026-09-03T23:59:00Z",
+   "teamRecords": [
+    {
+     "team": {
+      "id": 116,
+      "name": "Detroit Tigers",
+      "link": "/api/v1/teams/116",
+      "abbreviation": "DET"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "1",
+     "sportRank": "3",
+     "leagueRank": "1",
+     "gamesPlayed": 138,
+     "gamesBack": "-",
+     "wildCardGamesBack": "-",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 84,
+      "losses": 54,
+      "ties": 0,
+      "pct": ".609"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 42,
+        "losses": 27,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 42,
+        "losses": 27,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 590,
+     "divisionChamp": false,
+     "divisionLeader": true,
+     "hasWildcard": false,
+     "clinched": false,
+     "eliminationNumber": "25",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "12",
+     "wins": 84,
+     "losses": 54,
+     "runDifferential": 90,
+     "winningPercentage": ".609"
+    },
+    {
+     "team": {
+      "id": 114,
+      "name": "Cleveland Guardians",
+      "link": "/api/v1/teams/114",
+      "abbreviation": "CLE"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "2",
+     "sportRank": "13",
+     "leagueRank": "7",
+     "wildCardRank": "4",
+     "gamesPlayed": 138,
+     "gamesBack": "10.0",
+     "wildCardGamesBack": "1.0",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 74,
+      "losses": 64,
+      "ties": 0,
+      "pct": ".536"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 37,
+        "losses": 32,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 37,
+        "losses": 32,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 530,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "15",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 74,
+     "losses": 64,
+     "runDifferential": 30,
+     "winningPercentage": ".536"
+    },
+    {
+     "team": {
+      "id": 118,
+      "name": "Kansas City Royals",
+      "link": "/api/v1/teams/118",
+      "abbreviation": "KC"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "3",
+     "sportRank": "14",
+     "leagueRank": "8",
+     "wildCardRank": "5",
+     "gamesPlayed": 138,
+     "gamesBack": "12.0",
+     "wildCardGamesBack": "3.0",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 72,
+      "losses": 66,
+      "ties": 0,
+      "pct": ".522"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 36,
+        "losses": 33,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 36,
+        "losses": 33,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 518,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "13",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 72,
+     "losses": 66,
+     "runDifferential": 18,
+     "winningPercentage": ".522"
+    },
+    {
+     "team": {
+      "id": 142,
+      "name": "Minnesota Twins",
+      "link": "/api/v1/teams/142",
+      "abbreviation": "MIN"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "4",
+     "sportRank": "22",
+     "leagueRank": "11",
+     "wildCardRank": "8",
+     "gamesPlayed": 138,
+     "gamesBack": "18.0",
+     "wildCardGamesBack": "9.0",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 66,
+      "losses": 72,
+      "ties": 0,
+      "pct": ".478"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 33,
+        "losses": 36,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 33,
+        "losses": 36,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 482,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "7",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 66,
+     "losses": 72,
+     "runDifferential": -18,
+     "winningPercentage": ".478"
+    },
+    {
+     "team": {
+      "id": 145,
+      "name": "Chicago White Sox",
+      "link": "/api/v1/teams/145",
+      "abbreviation": "CWS"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "5",
+     "sportRank": "29",
+     "leagueRank": "15",
+     "wildCardRank": "12",
+     "gamesPlayed": 138,
+     "gamesBack": "36.0",
+     "wildCardGamesBack": "27.0",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 48,
+      "losses": 90,
+      "ties": 0,
+      "pct": ".348"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 24,
+        "losses": 45,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 24,
+        "losses": 45,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 374,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "E",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 48,
+     "losses": 90,
+     "runDifferential": -126,
+     "winningPercentage": ".348"
+    }
+   ]
+  },
+  {
+   "standingsType": "regularSeason",
+   "league": {
+    "id": 103,
+    "link": "/api/v1/league/103"
+   },
+   "division": {
+    "id": 200,
+    "link": "/api/v1/divisions/200"
+   },
+   "sport": {
+    "id": 1,
+    "link": "/api/v1/sports/1"
+   },
+   "lastUpdated": "2026-09-03T23:59:00Z",
+   "teamRecords": [
+    {
+     "team": {
+      "id": 117,
+      "name": "Houston Astros",
+      "link": "/api/v1/teams/117",
+      "abbreviation": "HOU"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "1",
+     "sportRank": "6",
+     "leagueRank": "3",
+     "gamesPlayed": 138,
+     "gamesBack": "-",
+     "wildCardGamesBack": "-",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 80,
+      "losses": 58,
+      "ties": 0,
+      "pct": ".580"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 40,
+        "losses": 29,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 40,
+        "losses": 29,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 566,
+     "divisionChamp": false,
+     "divisionLeader": true,
+     "hasWildcard": false,
+     "clinched": false,
+     "eliminationNumber": "25",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "12",
+     "wins": 80,
+     "losses": 58,
+     "runDifferential": 66,
+     "winningPercentage": ".580"
+    },
+    {
+     "team": {
+      "id": 136,
+      "name": "Seattle Mariners",
+      "link": "/api/v1/teams/136",
+      "abbreviation": "SEA"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "2",
+     "sportRank": "10",
+     "leagueRank": "5",
+     "wildCardRank": "2",
+     "gamesPlayed": 138,
+     "gamesBack": "3.0",
+     "wildCardGamesBack": "-",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 77,
+      "losses": 61,
+      "ties": 0,
+      "pct": ".558"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 38,
+        "losses": 30,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 39,
+        "losses": 31,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 548,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "22",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 77,
+     "losses": 61,
+     "runDifferential": 48,
+     "winningPercentage": ".558"
+    },
+    {
+     "team": {
+      "id": 140,
+      "name": "Texas Rangers",
+      "link": "/api/v1/teams/140",
+      "abbreviation": "TEX"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "3",
+     "sportRank": "16",
+     "leagueRank": "9",
+     "wildCardRank": "6",
+     "gamesPlayed": 138,
+     "gamesBack": "9.0",
+     "wildCardGamesBack": "4.0",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 71,
+      "losses": 67,
+      "ties": 0,
+      "pct": ".514"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 35,
+        "losses": 33,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 36,
+        "losses": 34,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 512,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "16",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 71,
+     "losses": 67,
+     "runDifferential": 12,
+     "winningPercentage": ".514"
+    },
+    {
+     "team": {
+      "id": 133,
+      "name": "Athletics",
+      "link": "/api/v1/teams/133",
+      "abbreviation": "ATH"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "4",
+     "sportRank": "23",
+     "leagueRank": "12",
+     "wildCardRank": "9",
+     "gamesPlayed": 138,
+     "gamesBack": "18.0",
+     "wildCardGamesBack": "13.0",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 62,
+      "losses": 76,
+      "ties": 0,
+      "pct": ".449"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 31,
+        "losses": 38,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 31,
+        "losses": 38,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 458,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "7",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 62,
+     "losses": 76,
+     "runDifferential": -42,
+     "winningPercentage": ".449"
+    },
+    {
+     "team": {
+      "id": 108,
+      "name": "Los Angeles Angels",
+      "link": "/api/v1/teams/108",
+      "abbreviation": "LAA"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "5",
+     "sportRank": "26",
+     "leagueRank": "14",
+     "wildCardRank": "11",
+     "gamesPlayed": 138,
+     "gamesBack": "22.0",
+     "wildCardGamesBack": "17.0",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 58,
+      "losses": 80,
+      "ties": 0,
+      "pct": ".420"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 29,
+        "losses": 40,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 29,
+        "losses": 40,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 434,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "3",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 58,
+     "losses": 80,
+     "runDifferential": -66,
+     "winningPercentage": ".420"
+    }
+   ]
+  },
+  {
+   "standingsType": "regularSeason",
+   "league": {
+    "id": 104,
+    "link": "/api/v1/league/104"
+   },
+   "division": {
+    "id": 204,
+    "link": "/api/v1/divisions/204"
+   },
+   "sport": {
+    "id": 1,
+    "link": "/api/v1/sports/1"
+   },
+   "lastUpdated": "2026-09-03T23:59:00Z",
+   "teamRecords": [
+    {
+     "team": {
+      "id": 143,
+      "name": "Philadelphia Phillies",
+      "link": "/api/v1/teams/143",
+      "abbreviation": "PHI"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "1",
+     "sportRank": "4",
+     "leagueRank": "3",
+     "gamesPlayed": 138,
+     "gamesBack": "-",
+     "wildCardGamesBack": "-",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 83,
+      "losses": 55,
+      "ties": 0,
+      "pct": ".601"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 41,
+        "losses": 27,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 42,
+        "losses": 28,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 584,
+     "divisionChamp": false,
+     "divisionLeader": true,
+     "hasWildcard": false,
+     "clinched": false,
+     "eliminationNumber": "25",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "12",
+     "wins": 83,
+     "losses": 55,
+     "runDifferential": 84,
+     "winningPercentage": ".601"
+    },
+    {
+     "team": {
+      "id": 121,
+      "name": "New York Mets",
+      "link": "/api/v1/teams/121",
+      "abbreviation": "NYM"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "2",
+     "sportRank": "11",
+     "leagueRank": "6",
+     "wildCardRank": "3",
+     "gamesPlayed": 138,
+     "gamesBack": "7.0",
+     "wildCardGamesBack": "-",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 76,
+      "losses": 62,
+      "ties": 0,
+      "pct": ".551"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 38,
+        "losses": 31,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 38,
+        "losses": 31,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 542,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "18",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 76,
+     "losses": 62,
+     "runDifferential": 42,
+     "winningPercentage": ".551"
+    },
+    {
+     "team": {
+      "id": 144,
+      "name": "Atlanta Braves",
+      "link": "/api/v1/teams/144",
+      "abbreviation": "ATL"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "3",
+     "sportRank": "18",
+     "leagueRank": "8",
+     "wildCardRank": "5",
+     "gamesPlayed": 138,
+     "gamesBack": "13.0",
+     "wildCardGamesBack": "6.0",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 70,
+      "losses": 68,
+      "ties": 0,
+      "pct": ".507"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 35,
+        "losses": 34,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 35,
+        "losses": 34,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 506,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "12",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 70,
+     "losses": 68,
+     "runDifferential": 6,
+     "winningPercentage": ".507"
+    },
+    {
+     "team": {
+      "id": 146,
+      "name": "Miami Marlins",
+      "link": "/api/v1/teams/146",
+      "abbreviation": "MIA"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "4",
+     "sportRank": "24",
+     "leagueRank": "12",
+     "wildCardRank": "9",
+     "gamesPlayed": 138,
+     "gamesBack": "22.0",
+     "wildCardGamesBack": "15.0",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 61,
+      "losses": 77,
+      "ties": 0,
+      "pct": ".442"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 30,
+        "losses": 38,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 31,
+        "losses": 39,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 452,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "3",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 61,
+     "losses": 77,
+     "runDifferential": -48,
+     "winningPercentage": ".442"
+    },
+    {
+     "team": {
+      "id": 120,
+      "name": "Washington Nationals",
+      "link": "/api/v1/teams/120",
+      "abbreviation": "WSH"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "5",
+     "sportRank": "28",
+     "leagueRank": "14",
+     "wildCardRank": "11",
+     "gamesPlayed": 138,
+     "gamesBack": "28.0",
+     "wildCardGamesBack": "21.0",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 55,
+      "losses": 83,
+      "ties": 0,
+      "pct": ".399"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 27,
+        "losses": 41,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 28,
+        "losses": 42,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 416,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "E",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 55,
+     "losses": 83,
+     "runDifferential": -84,
+     "winningPercentage": ".399"
+    }
+   ]
+  },
+  {
+   "standingsType": "regularSeason",
+   "league": {
+    "id": 104,
+    "link": "/api/v1/league/104"
+   },
+   "division": {
+    "id": 205,
+    "link": "/api/v1/divisions/205"
+   },
+   "sport": {
+    "id": 1,
+    "link": "/api/v1/sports/1"
+   },
+   "lastUpdated": "2026-09-03T23:59:00Z",
+   "teamRecords": [
+    {
+     "team": {
+      "id": 158,
+      "name": "Milwaukee Brewers",
+      "link": "/api/v1/teams/158",
+      "abbreviation": "MIL"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "1",
+     "sportRank": "1",
+     "leagueRank": "1",
+     "gamesPlayed": 138,
+     "gamesBack": "-",
+     "wildCardGamesBack": "-",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 86,
+      "losses": 52,
+      "ties": 0,
+      "pct": ".623"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 43,
+        "losses": 26,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 43,
+        "losses": 26,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 7,
+        "losses": 3,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 602,
+     "divisionChamp": false,
+     "divisionLeader": true,
+     "hasWildcard": false,
+     "clinched": false,
+     "eliminationNumber": "25",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "12",
+     "wins": 86,
+     "losses": 52,
+     "runDifferential": 102,
+     "winningPercentage": ".623"
+    },
+    {
+     "team": {
+      "id": 112,
+      "name": "Chicago Cubs",
+      "link": "/api/v1/teams/112",
+      "abbreviation": "CHC"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "2",
+     "sportRank": "8",
+     "leagueRank": "5",
+     "wildCardRank": "2",
+     "gamesPlayed": 138,
+     "gamesBack": "7.0",
+     "wildCardGamesBack": "-",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 79,
+      "losses": 59,
+      "ties": 0,
+      "pct": ".572"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 39,
+        "losses": 29,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 40,
+        "losses": 30,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 560,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "18",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 79,
+     "losses": 59,
+     "runDifferential": 60,
+     "winningPercentage": ".572"
+    },
+    {
+     "team": {
+      "id": 138,
+      "name": "St. Louis Cardinals",
+      "link": "/api/v1/teams/138",
+      "abbreviation": "STL"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "3",
+     "sportRank": "19",
+     "leagueRank": "9",
+     "wildCardRank": "6",
+     "gamesPlayed": 138,
+     "gamesBack": "16.0",
+     "wildCardGamesBack": "6.0",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 70,
+      "losses": 68,
+      "ties": 0,
+      "pct": ".507"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 35,
+        "losses": 34,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 35,
+        "losses": 34,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 506,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "9",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 70,
+     "losses": 68,
+     "runDifferential": 6,
+     "winningPercentage": ".507"
+    },
+    {
+     "team": {
+      "id": 113,
+      "name": "Cincinnati Reds",
+      "link": "/api/v1/teams/113",
+      "abbreviation": "CIN"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "4",
+     "sportRank": "20",
+     "leagueRank": "10",
+     "wildCardRank": "7",
+     "gamesPlayed": 138,
+     "gamesBack": "17.0",
+     "wildCardGamesBack": "7.0",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 69,
+      "losses": 69,
+      "ties": 0,
+      "pct": ".500"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 34,
+        "losses": 34,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 35,
+        "losses": 35,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 500,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "8",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 69,
+     "losses": 69,
+     "runDifferential": 0,
+     "winningPercentage": ".500"
+    },
+    {
+     "team": {
+      "id": 134,
+      "name": "Pittsburgh Pirates",
+      "link": "/api/v1/teams/134",
+      "abbreviation": "PIT"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "5",
+     "sportRank": "27",
+     "leagueRank": "13",
+     "wildCardRank": "10",
+     "gamesPlayed": 138,
+     "gamesBack": "29.0",
+     "wildCardGamesBack": "19.0",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 57,
+      "losses": 81,
+      "ties": 0,
+      "pct": ".413"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 28,
+        "losses": 40,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 29,
+        "losses": 41,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 428,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "1",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 57,
+     "losses": 81,
+     "runDifferential": -72,
+     "winningPercentage": ".413"
+    }
+   ]
+  },
+  {
+   "standingsType": "regularSeason",
+   "league": {
+    "id": 104,
+    "link": "/api/v1/league/104"
+   },
+   "division": {
+    "id": 203,
+    "link": "/api/v1/divisions/203"
+   },
+   "sport": {
+    "id": 1,
+    "link": "/api/v1/sports/1"
+   },
+   "lastUpdated": "2026-09-03T23:59:00Z",
+   "teamRecords": [
+    {
+     "team": {
+      "id": 119,
+      "name": "Los Angeles Dodgers",
+      "link": "/api/v1/teams/119",
+      "abbreviation": "LAD"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "1",
+     "sportRank": "2",
+     "leagueRank": "2",
+     "gamesPlayed": 138,
+     "gamesBack": "-",
+     "wildCardGamesBack": "-",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 85,
+      "losses": 53,
+      "ties": 0,
+      "pct": ".616"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 42,
+        "losses": 26,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 43,
+        "losses": 27,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 7,
+        "losses": 3,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 596,
+     "divisionChamp": false,
+     "divisionLeader": true,
+     "hasWildcard": false,
+     "clinched": false,
+     "eliminationNumber": "25",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "12",
+     "wins": 85,
+     "losses": 53,
+     "runDifferential": 96,
+     "winningPercentage": ".616"
+    },
+    {
+     "team": {
+      "id": 135,
+      "name": "San Diego Padres",
+      "link": "/api/v1/teams/135",
+      "abbreviation": "SD"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "losses",
+      "streakNumber": 2,
+      "streakCode": "L2"
+     },
+     "divisionRank": "2",
+     "sportRank": "7",
+     "leagueRank": "4",
+     "wildCardRank": "1",
+     "gamesPlayed": 138,
+     "gamesBack": "5.0",
+     "wildCardGamesBack": "-",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 80,
+      "losses": 58,
+      "ties": 0,
+      "pct": ".580"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 40,
+        "losses": 29,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 40,
+        "losses": 29,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 566,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "20",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 80,
+     "losses": 58,
+     "runDifferential": 66,
+     "winningPercentage": ".580"
+    },
+    {
+     "team": {
+      "id": 137,
+      "name": "San Francisco Giants",
+      "link": "/api/v1/teams/137",
+      "abbreviation": "SF"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "3",
+     "sportRank": "15",
+     "leagueRank": "7",
+     "wildCardRank": "4",
+     "gamesPlayed": 138,
+     "gamesBack": "13.0",
+     "wildCardGamesBack": "4.0",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 72,
+      "losses": 66,
+      "ties": 0,
+      "pct": ".522"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 36,
+        "losses": 33,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 36,
+        "losses": 33,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 518,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "12",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 72,
+     "losses": 66,
+     "runDifferential": 18,
+     "winningPercentage": ".522"
+    },
+    {
+     "team": {
+      "id": 109,
+      "name": "Arizona Diamondbacks",
+      "link": "/api/v1/teams/109",
+      "abbreviation": "AZ"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "wins",
+      "streakNumber": 1,
+      "streakCode": "W1"
+     },
+     "divisionRank": "4",
+     "sportRank": "21",
+     "leagueRank": "11",
+     "wildCardRank": "8",
+     "gamesPlayed": 138,
+     "gamesBack": "17.0",
+     "wildCardGamesBack": "8.0",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 68,
+      "losses": 70,
+      "ties": 0,
+      "pct": ".493"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 34,
+        "losses": 35,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 34,
+        "losses": 35,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 494,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "8",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 68,
+     "losses": 70,
+     "runDifferential": -6,
+     "winningPercentage": ".493"
+    },
+    {
+     "team": {
+      "id": 115,
+      "name": "Colorado Rockies",
+      "link": "/api/v1/teams/115",
+      "abbreviation": "COL"
+     },
+     "season": "2026",
+     "streak": {
+      "streakType": "losses",
+      "streakNumber": 7,
+      "streakCode": "L7"
+     },
+     "divisionRank": "5",
+     "sportRank": "30",
+     "leagueRank": "15",
+     "wildCardRank": "12",
+     "gamesPlayed": 138,
+     "gamesBack": "45.0",
+     "wildCardGamesBack": "36.0",
+     "leagueGamesBack": "-",
+     "springLeagueGamesBack": "-",
+     "sportGamesBack": "-",
+     "divisionGamesBack": "-",
+     "conferenceGamesBack": "-",
+     "leagueRecord": {
+      "wins": 40,
+      "losses": 98,
+      "ties": 0,
+      "pct": ".290"
+     },
+     "lastUpdated": "2026-09-03T23:59:00Z",
+     "records": {
+      "splitRecords": [
+       {
+        "wins": 20,
+        "losses": 49,
+        "type": "home",
+        "pct": ".500"
+       },
+       {
+        "wins": 20,
+        "losses": 49,
+        "type": "away",
+        "pct": ".500"
+       },
+       {
+        "wins": 5,
+        "losses": 5,
+        "type": "lastTen",
+        "pct": ".500"
+       }
+      ]
+     },
+     "runsAllowed": 500,
+     "runsScored": 326,
+     "divisionChamp": false,
+     "divisionLeader": false,
+     "hasWildcard": true,
+     "clinched": false,
+     "eliminationNumber": "E",
+     "wildCardEliminationNumber": "20",
+     "magicNumber": "",
+     "wins": 40,
+     "losses": 98,
+     "runDifferential": -174,
+     "winningPercentage": ".290"
+    }
+   ]
+  }
+ ]
+}

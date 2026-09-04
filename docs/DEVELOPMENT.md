@@ -40,7 +40,7 @@ Python ≥ 3.11 (Pi OS Bookworm ships 3.11, Trixie 3.13). No Node toolchain: the
 3. pi-gen image.
 
 ## Backlog
-OTA/installer (needs public repo) · own rgbmatrix wheels · 64x32 design pass · MLB (reuse the NFL
-pattern) · "preview this board" button (override API exists) · per-board "in every rotation" toggle ·
+OTA/installer (needs public repo) · own rgbmatrix wheels · 64x32 design pass · MLB fixtures from real
+captures (the shipped ones are generated) · "preview this board" button (override API exists) · per-board "in every rotation" toggle ·
 sheen-speed settings on more boards · previous-season LAST game in the off-season · MQTT/webhook publisher.
 

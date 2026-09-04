@@ -40,6 +40,7 @@ class StandingsBoard(BaseBoard):
     standings_key = "nhl.standings"
     summary_key = "nhl.team_summary"
     points_header = "PTS"
+    wildcard_cutoff = 2             # playoff line drawn after this wildcard rank
 
     def logo_image(self, abbrev: str) -> Image.Image:
         return logo(abbrev, 128)
@@ -119,7 +120,7 @@ class StandingsBoard(BaseBoard):
                 pts = self._points(r)
                 self._text(row, pts, f6, color, PTS_RIGHT - text_size(pts, f6)[0], 1)
                 strips.append((row, True))
-                if cutoff and r.get("wildcard_rank") == 2:
+                if cutoff and r.get("wildcard_rank") == self.wildcard_cutoff:
                     line = Image.new("RGBA", (width, 3), (0, 0, 0, 255))
                     for x in range(2, width - 2):
                         line.putpixel((x, 1), (100, 100, 100, 200))

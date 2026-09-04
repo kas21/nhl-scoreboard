@@ -1,7 +1,7 @@
 [project]
 name = "nhl-scoreboard"
 version = "0.1.0"
-description = "Standalone LED matrix scoreboard for Raspberry Pi — NHL first, pluggable for more"
+description = "Standalone LED matrix scoreboard for Raspberry Pi — NHL first, NFL and MLB bundled, pluggable for more"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
@@ -44,6 +44,11 @@ test_pattern = "scoreboard.boards.test_pattern:TestPatternBoard"
 "nfl.standings" = "scoreboard.nfl.boards.others:NflStandingsBoard"
 "nfl.team_summary" = "scoreboard.nfl.boards.others:NflTeamSummaryBoard"
 "nfl.score" = "scoreboard.nfl.boards.others:NflScoreBoard"
+"mlb.game" = "scoreboard.mlb.boards.game:MlbGameBoard"
+"mlb.ticker" = "scoreboard.mlb.boards.others:MlbTickerBoard"
+"mlb.standings" = "scoreboard.mlb.boards.others:MlbStandingsBoard"
+"mlb.team_summary" = "scoreboard.mlb.boards.others:MlbTeamSummaryBoard"
+"mlb.score" = "scoreboard.mlb.boards.others:MlbScoreBoard"
 
 [project.entry-points."scoreboard.sources"]
 nhl = "scoreboard.nhl.source:NhlSource"
@@ -51,11 +56,13 @@ holidays = "scoreboard.extras.holidays.source:HolidaysSource"
 flights = "scoreboard.extras.flights.source:FlightsSource"
 weather = "scoreboard.extras.weather.source:WeatherSource"
 nfl = "scoreboard.nfl.source:NflSource"
+mlb = "scoreboard.mlb.source:MlbSource"
 
 [project.entry-points."scoreboard.detectors"]
 nhl = "scoreboard.nhl.events:detect_main_event"
 flights = "scoreboard.extras.flights.source:detect_overhead"
 nfl = "scoreboard.nfl.events:detect_nfl"
+mlb = "scoreboard.mlb.events:detect_mlb"
 
 [build-system]
 requires = ["hatchling"]

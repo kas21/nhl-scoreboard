@@ -1,0 +1,134 @@
+{
+ "gamePk": 776002,
+ "gameData": {
+  "status": {
+   "abstractGameState": "Live",
+   "codedGameState": "I",
+   "detailedState": "In Progress",
+   "statusCode": "I",
+   "startTimeTBD": false,
+   "abstractGameCode": "L"
+  },
+  "flags": {
+   "noHitter": false,
+   "perfectGame": false
+  }
+ },
+ "liveData": {
+  "plays": {
+   "currentPlay": {
+    "result": {
+     "type": "atBat",
+     "event": "Home Run",
+     "eventType": "home_run",
+     "description": "Shohei Ohtani homers (47) on a fly ball to right center field.   Teoscar Hernandez scores.",
+     "rbi": 2,
+     "awayScore": 4,
+     "homeScore": 2
+    },
+    "about": {
+     "atBatIndex": 52,
+     "halfInning": "top",
+     "isTopInning": true,
+     "inning": 7,
+     "isComplete": true,
+     "isScoringPlay": true
+    },
+    "playEvents": [
+     {
+      "details": {
+       "call": {
+        "code": "B",
+        "description": "Ball"
+       },
+       "description": "Ball",
+       "code": "B",
+       "isInPlay": false,
+       "type": {
+        "code": "SL",
+        "description": "Slider"
+       }
+      },
+      "pitchData": {
+       "startSpeed": 84.1
+      },
+      "isPitch": true,
+      "type": "pitch"
+     },
+     {
+      "details": {
+       "call": {
+        "code": "E",
+        "description": "In play, run(s)"
+       },
+       "description": "In play, run(s)",
+       "code": "E",
+       "isInPlay": true,
+       "type": {
+        "code": "FF",
+        "description": "Four-Seam Fastball"
+       }
+      },
+      "pitchData": {
+       "startSpeed": 96.4
+      },
+      "isPitch": true,
+      "type": "pitch"
+     }
+    ]
+   }
+  },
+  "linescore": {
+   "defense": {
+    "pitcher": {
+     "id": 506433,
+     "fullName": "Yu Darvish",
+     "link": "/api/v1/people/506433"
+    }
+   }
+  },
+  "boxscore": {
+   "teams": {
+    "away": {
+     "players": {
+      "ID477132": {
+       "stats": {
+        "pitching": {
+         "numberOfPitches": 71
+        }
+       },
+       "seasonStats": {
+        "pitching": {
+         "wins": 9,
+         "losses": 4,
+         "saves": 0,
+         "era": "3.12"
+        }
+       }
+      }
+     }
+    },
+    "home": {
+     "players": {
+      "ID506433": {
+       "stats": {
+        "pitching": {
+         "numberOfPitches": 88
+        }
+       },
+       "seasonStats": {
+        "pitching": {
+         "wins": 7,
+         "losses": 6,
+         "saves": 0,
+         "era": "3.88"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "decisions": {}
+ }
+}

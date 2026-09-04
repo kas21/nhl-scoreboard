@@ -1,0 +1,144 @@
+{
+ "gamePk": 776001,
+ "gameData": {
+  "status": {
+   "abstractGameState": "Final",
+   "codedGameState": "F",
+   "detailedState": "Final",
+   "statusCode": "F",
+   "startTimeTBD": false,
+   "abstractGameCode": "F"
+  },
+  "flags": {
+   "noHitter": false,
+   "perfectGame": false
+  }
+ },
+ "liveData": {
+  "plays": {
+   "currentPlay": {
+    "result": {
+     "type": "atBat",
+     "event": "Strikeout",
+     "eventType": "strikeout",
+     "description": "Rafael Devers strikes out swinging.",
+     "rbi": 0,
+     "awayScore": 5,
+     "homeScore": 3
+    },
+    "about": {
+     "atBatIndex": 78,
+     "halfInning": "bottom",
+     "isTopInning": false,
+     "inning": 9,
+     "isComplete": true,
+     "isScoringPlay": false
+    },
+    "playEvents": [
+     {
+      "details": {
+       "call": {
+        "code": "S",
+        "description": "Swinging Strike"
+       },
+       "code": "S",
+       "isInPlay": false,
+       "type": {
+        "code": "CH",
+        "description": "Changeup"
+       }
+      },
+      "pitchData": {
+       "startSpeed": 88.7
+      },
+      "isPitch": true,
+      "type": "pitch"
+     }
+    ]
+   }
+  },
+  "linescore": {
+   "defense": {
+    "pitcher": {
+     "id": 621242,
+     "fullName": "Devin Williams",
+     "link": "/api/v1/people/621242"
+    }
+   }
+  },
+  "boxscore": {
+   "teams": {
+    "away": {
+     "players": {
+      "ID608331": {
+       "stats": {
+        "pitching": {
+         "numberOfPitches": 98
+        }
+       },
+       "seasonStats": {
+        "pitching": {
+         "wins": 14,
+         "losses": 4,
+         "saves": 0,
+         "era": "2.61"
+        }
+       }
+      },
+      "ID621242": {
+       "stats": {
+        "pitching": {
+         "numberOfPitches": 14
+        }
+       },
+       "seasonStats": {
+        "pitching": {
+         "wins": 2,
+         "losses": 1,
+         "saves": 31,
+         "era": "2.05"
+        }
+       }
+      }
+     }
+    },
+    "home": {
+     "players": {
+      "ID669022": {
+       "stats": {
+        "pitching": {
+         "numberOfPitches": 90
+        }
+       },
+       "seasonStats": {
+        "pitching": {
+         "wins": 8,
+         "losses": 9,
+         "saves": 0,
+         "era": "4.21"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "decisions": {
+   "winner": {
+    "id": 608331,
+    "fullName": "Max Fried",
+    "link": "/api/v1/people/608331"
+   },
+   "loser": {
+    "id": 669022,
+    "fullName": "Tanner Houck",
+    "link": "/api/v1/people/669022"
+   },
+   "save": {
+    "id": 621242,
+    "fullName": "Devin Williams",
+    "link": "/api/v1/people/621242"
+   }
+  }
+ }
+}

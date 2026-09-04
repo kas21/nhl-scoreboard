@@ -27,16 +27,18 @@ CDN = "https://a.espncdn.com/i/teamlogos/{sport}/500/{code}.png"
 CDN_DARK = "https://a.espncdn.com/i/teamlogos/{sport}/500-dark/{code}.png"
 TEAMS_API = "https://site.api.espn.com/apis/site/v2/sports/{path}/teams?limit=50"
 
-LEAGUE_PATHS = {"nhl": "hockey/nhl", "nfl": "football/nfl"}
+LEAGUE_PATHS = {"nhl": "hockey/nhl", "nfl": "football/nfl", "mlb": "baseball/mlb"}
 LOGO_DIR = CACHE_ROOT / "logos"
 CONCURRENCY = 4
 FETCH_TIMEOUT = 20.0
 STORE_EDGE = 500        # ESPN's GUID art is 4096px; decoding that on a Pi costs ~67MB
 WATCH_INTERVAL = 10.0
 # ESPN's path segment is the lowercased abbreviation, bar a handful of legacy short codes
-ESPN_CODES: dict[str, dict[str, str]] = {"nhl": {"LAK": "la", "SJS": "sj", "TBL": "tb"}}
+ESPN_CODES: dict[str, dict[str, str]] = {"nhl": {"LAK": "la", "SJS": "sj", "TBL": "tb"},
+                                         "mlb": {"AZ": "ari", "CWS": "chw"}}     # MLB codes are the Stats API's, ESPN's differ for two
 # ...and its *team API* disagrees with the CDN for two more, so variant lookups need their own map
-API_ABBREVS: dict[str, dict[str, str]] = {"nhl": {"LAK": "LA", "SJS": "SJ", "TBL": "TB", "NJD": "NJ", "UTA": "UTAH"}}
+API_ABBREVS: dict[str, dict[str, str]] = {"nhl": {"LAK": "LA", "SJS": "SJ", "TBL": "TB", "NJD": "NJ", "UTA": "UTAH"},
+                                          "mlb": {"AZ": "ARI", "CWS": "CHW"}}
 
 _preferences: dict[str, str] = {}       # "nhl:WSH" -> variant
 _use_curated = True

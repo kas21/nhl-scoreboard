@@ -4,7 +4,7 @@
 A small LED panel on your Pi that follows your team: a live scoreboard with goal and penalty alerts
 during games, and a rotation of useful boards the rest of the time (scores around the league,
 standings, your team's record and next game, clock, weather, holiday countdown, aircraft overhead).
-NHL is the main event; NFL works the same way. Everything is set up from a web page — no files to edit.
+NHL is the main event; NFL and MLB work the same way. Everything is set up from a web page — no files to edit.
 
 ## First run
 1. Flash Raspberry Pi OS (64-bit), set Wi-Fi + hostname + user in Raspberry Pi Imager.
@@ -35,8 +35,8 @@ picks between them:
 - **Use curated defaults** (on): the audited picks for the six NHL teams whose default genuinely
   fails — Colorado, Los Angeles, Tampa Bay, Toronto, Vancouver and Washington. Every other team is
   untouched.
-- **Overrides**: your own choice for any team, keyed `<sport>:<ABBREV>` (e.g. `nhl:CHI`), since NHL
-  and NFL both have a `WSH`. An override always beats the curated pick.
+- **Overrides**: your own choice for any team, keyed `<sport>:<ABBREV>` (e.g. `nhl:CHI`), since NHL,
+  NFL and MLB all have a `WSH`. An override always beats the curated pick.
 
 Variants are `default`, `dark`, and the primary/secondary mark in several treatments —
 `secondary_on_black` is usually the one you want for an alternate mark on a dark panel. The new
@@ -62,19 +62,21 @@ nothing needs a restart.
 ## Boards
 | Board | Shows | Needs |
 |---|---|---|
-| NHL game / NFL game | your team's game: pregame matchup, live score with period/clock, PP / empty net (NHL) or possession, down & distance, red zone, timeouts (NFL), final | a favourite with a game today |
-| Goal / Touchdown | full-screen celebration + scorer card (NHL) | live game |
+| NHL game / NFL game / MLB game | your team's game: pregame matchup, live score with period/clock, PP / empty net (NHL) or possession, down & distance, red zone, timeouts (NFL) or inning + half, bases, count, outs, pitcher / batter, due up, last pitch (MLB), final (with hits and W/L/S pitchers for MLB) | a favourite with a game today |
+| Goal / Touchdown / Home run | full-screen celebration + scorer card (NHL); runs that are not homers get a short card (MLB, off for the other team by default) | live game |
 | Penalty | referee animation + details card | live game |
 | Ticker | every game on today's slate | slate within `show_games_within_days` |
-| Standings | division / wildcard / league; "FINAL yyyy-yy" banner in the off-season | — |
+| Standings | division / wildcard / league (GB column for MLB); "FINAL yyyy-yy" banner in the off-season | — |
 | Team summary | record, streak, last result, next game | favourites |
-| Season countdown | days until your team's opener / preseason / kickoff | off-season & preseason |
+| Season countdown | days until your team's opener / preseason (spring training) / kickoff / opening day | off-season & preseason |
 | Clock, Weather, Holiday countdown, Flights nearby / overhead | — | location for weather & flights |
 
 ## Alerts
-Goals/penalties/touchdowns come from the same data the score uses (polled every 5 s NHL / 20 s NFL while
-your team plays), so nothing is missed if a poll fails. A short flash for the other team's goals can be
-turned off per board. `delay_seconds` (NHL source) holds updates back to match a TV broadcast.
+Goals/penalties/touchdowns/runs come from the same data the score uses (polled every 5 s NHL / 20 s NFL /
+10 s MLB while your team plays), so nothing is missed if a poll fails. A short flash for the other team's
+goals can be turned off per board. `delay_seconds` (NHL and MLB sources) holds updates back to match a TV
+broadcast. MLB inning breaks stay in the *live* state (the board shows MID/END and who is due up) rather
+than switching to the intermission playlist seventeen times a game.
 
 ## Off-season behaviour
 Standings from a finished season carry a FINAL banner; far-off game days don't show as "tonight";
