@@ -6,3 +6,4 @@ config.json.*
 .pytest_cache/
 dist/
 *.egg-info/
+tests/golden/_failed/

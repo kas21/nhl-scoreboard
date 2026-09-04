@@ -9,8 +9,12 @@ uv run pytest -q && uv run ruff check scoreboard tests
 Python ≥ 3.11 (Pi OS Bookworm ships 3.11, Trixie 3.13). No Node toolchain: the UI is plain ES modules.
 
 ## Workflow
-- Boards: render to PNG from fixtures and *look at them* (a contact-sheet script is quick to write with
-  `BoardContext` + `SnapshotStore`); readability at 1:1 on LEDs differs from the emulator.
+- Boards are pinned pixel-for-pixel by `tests/test_golden.py`: every board, in its key states, rendered from
+  the fixtures and compared with the PNGs under `tests/golden/`. A failure writes `expected | actual | diff`
+  sheets to `tests/golden/_failed/` — look at them, and if the new frame is the one you meant, accept it with
+  `SCOREBOARD_UPDATE_GOLDENS=1 uv run pytest tests/test_golden.py` and commit the PNGs with the change.
+  New boards must be added to `tests/golden_scenes.py` (a guard test says so). `uv run python tools/golden_sheet.py`
+  tiles the goldens into one gallery; readability at 1:1 on LEDs still differs from the emulator, so check there too.
 - Every change: tests + ruff must pass; commit with `type: message`; push to `main`.
 - Deploy to the Pi: push, then Dashboard → *Update & restart* (or `POST /api/system/update`
   with `X-Requested-With: scoreboard-ui` — see [HARDWARE.md](HARDWARE.md#security)); check `/api/status` and the preview.

@@ -12,7 +12,8 @@ uv sync --extra dev --extra emulator                 # dev install (emulator + f
 uv run scoreboard --emulator                        # emulator window (:8888) + web UI (:8080)
 uv run scoreboard --demo --emulator                 # replay a recorded NHL game (works in the off-season)
 uv run scoreboard --output none                     # headless: browser preview only
-uv run pytest -q                                    # ~115 tests, <1s
+uv run pytest -q                                    # ~350 tests, ~5s
+SCOREBOARD_UPDATE_GOLDENS=1 uv run pytest tests/test_golden.py   # accept changed board frames (look at tests/golden/_failed first)
 uv run ruff check --fix scoreboard tests            # lint (rules pinned in pyproject)
 uv run python tools/build_fonts.py                  # BDF -> .pil bitmap fonts
 ```
@@ -50,7 +51,8 @@ scoreboard/
   extras/           holidays, flights (adsb.lol + adsbdb + airline logos), weather (Open-Meteo) — same plugin contract
   imagecache.py logos.py  runtime image cache ($SCOREBOARD_CACHE_DIR) + team logos fetched from ESPN's CDN
   assets/           fonts under render/fonts, holiday images, penalty gif (team logos are fetched at runtime)
-tests/              pytest; fixtures/ are real API captures (NHL 2026-04-11 game day, ESPN, adsb.lol, Open-Meteo)
+tests/              pytest; fixtures/ are real API captures (NHL 2026-04-11 game day, ESPN, adsb.lol, Open-Meteo);
+                    golden/ holds the pinned board frames (test_golden.py + golden_scenes.py), one PNG per board/state/size
 tools/ scripts/     build steps; Pi install.sh + pi_tuning.sh
 docs/               USER_GUIDE, HARDWARE, ARCHITECTURE, DATA, PLUGINS, DEVELOPMENT
 ```
@@ -79,4 +81,6 @@ docs/               USER_GUIDE, HARDWARE, ARCHITECTURE, DATA, PLUGINS, DEVELOPME
 - Old-design fidelity matters to Kevin: the 128x64 boards are pixel ports of the old Qt client
   (spec captured in the git history of `nhl/boards/game.py`). Keep that look; 64x32 is best-effort.
 - Pi panel: `rgb_sequence=RGB`, `slowdown_gpio=2`, `isolcpus=3`, `snd_bcm2835` blacklisted.
+- Any change to how a board looks fails `tests/test_golden.py` by design. Check the diff sheet, then regenerate
+  the goldens and commit the PNGs alongside the code; never loosen the comparison.
 - Lint gate: `ruff check` must pass before commit (the CI/commit chains use `&&`; don't pipe through tail).
