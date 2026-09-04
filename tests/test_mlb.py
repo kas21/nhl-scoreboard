@@ -169,6 +169,18 @@ def test_season_phases_and_opener():
 # -- selection --------------------------------------------------------------------
 
 
+def test_schedule_window_is_today_only_unless_asked():
+    from scoreboard.mlb.source import _schedule_window
+    todays = normalize_schedule(load("schedule_2026-09-03.json"))
+    tomorrow = [{**g, "id": f"{g['id']}x", "date": "2026-09-04", "start_time_utc": "2026-09-04T23:05:00Z"} for g in todays[:2]]
+    games = [*tomorrow, *todays]
+    today_only = _schedule_window(games, TODAY, MlbConfig())
+    assert today_only and all(g["date"] == TODAY for g in today_only)
+    whole = _schedule_window(games, TODAY, MlbConfig(schedule_today_only=False))
+    assert len(whole) == len(games) and [g["date"] for g in whole] == sorted(g["date"] for g in whole)
+    assert _schedule_window(games, "2030-01-01", MlbConfig()) == []                # off day: scores carries the next slate
+
+
 def test_slate_and_main_event_selection():
     games = normalize_schedule(load("schedule_2026-09-03.json"))
     assert _slate(games, TODAY) == games
@@ -376,7 +388,7 @@ async def test_source_publishes_everything(monkeypatch):
         task.cancel()
         snap = store.get()
     assert len(snap.get("mlb.scores")) == 7
-    assert len(snap.get("mlb.schedule")) >= 7 and snap.get("mlb.schedule")[0]["date"] == TODAY     # the whole fetched window
+    assert len(snap.get("mlb.schedule")) >= 7 and all(g["date"] == TODAY for g in snap.get("mlb.schedule"))   # today only by default
     main = snap.get("mlb.main_event")
     assert main["id"] == "776002" and main["favorite_side"] == "away" and main["situation"]["last_play"]["type"] == "home_run"
     assert snap.get("main_event")["sport"] == "mlb" if snap.get("main_event") else True

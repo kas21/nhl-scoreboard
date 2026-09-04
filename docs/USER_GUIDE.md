@@ -46,7 +46,8 @@ nothing needs a restart.
 ## Pages
 - **Dashboard** — live preview of exactly what the panel shows, state, brightness slider, plus two info cards:
   *Games* lists every game for the next few days per sport (as far ahead as that sport's *show games within days*
-  setting, with your teams' records and next game, and the game the panel is following marked), and *Around you*
+  setting; MLB lists only today's games unless you turn off *schedule today only*, with your teams' records and next game,
+  and the game the panel is following marked), and *Around you*
   shows the weather, the planes nearby and the next holidays when those extras are on.
 - **Boards** — per-state playlists. States: *offseason*, *offday* (season on, no game today), *pregame*,
   *live*, *intermission*, *postgame*. Reorder by dragging a row's grip (⠿) — the list reorders

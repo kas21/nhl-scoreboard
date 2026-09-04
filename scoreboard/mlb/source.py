@@ -38,6 +38,7 @@ class MlbConfig(BaseModel):
     standings_interval: float = Field(3600.0, ge=300, description="Seconds between standings refreshes", json_schema_extra=ADVANCED)
     delay_seconds: float = Field(0.0, ge=0, le=120, description="Delay live updates to match your TV broadcast")
     show_games_within_days: int = Field(1, ge=0, le=30, description="On an off day, show the next slate only when it is this close")
+    schedule_today_only: bool = Field(True, description="Dashboard lists only today's games (15 a day adds up); off = list every day within the look-ahead")
     follow_spring_training: bool = Field(True, description="Treat your team's spring training games like any other game")
 
 
@@ -66,7 +67,7 @@ class MlbSource:
                 games = normalize_schedule(await api.schedule(today, end))
                 if not cfg.follow_spring_training:
                     games = [g for g in games if g["game_type"] != "S"]
-                ctx.publish(sorted(games, key=lambda g: (g["date"], g["start_time_utc"])), subkey="schedule")   # the whole window
+                ctx.publish(_schedule_window(games, today, cfg), subkey="schedule")
                 games = _slate(games, today)
                 main = select_main_event(games, cfg.favorites, today=today)
                 if main and main["state"] == "LIVE":
@@ -155,6 +156,16 @@ class MlbSource:
             if opener:
                 info = season_info(payload, date.fromisoformat(today), opener, fav, standings_year)
         ctx.publish({**info, "favorite": fav}, subkey="season")
+
+
+def _schedule_window(games: list[dict[str, Any]], today: str, cfg: MlbConfig) -> list[dict[str, Any]]:
+    """What the dashboard lists: today's games, or the whole fetched look-ahead window.
+
+    On an off day this is empty either way; the dashboard also merges ``scores``, which
+    then holds the next slate, so the next day's games still show.
+    """
+    keep = [g for g in games if g["date"] == today] if cfg.schedule_today_only else games
+    return sorted(keep, key=lambda g: (g["date"], g["start_time_utc"]))
 
 
 def _slate(games: list[dict[str, Any]], today: str) -> list[dict[str, Any]]:
