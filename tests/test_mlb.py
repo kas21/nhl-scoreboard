@@ -376,6 +376,7 @@ async def test_source_publishes_everything(monkeypatch):
         task.cancel()
         snap = store.get()
     assert len(snap.get("mlb.scores")) == 7
+    assert len(snap.get("mlb.schedule")) >= 7 and snap.get("mlb.schedule")[0]["date"] == TODAY     # the whole fetched window
     main = snap.get("mlb.main_event")
     assert main["id"] == "776002" and main["favorite_side"] == "away" and main["situation"]["last_play"]["type"] == "home_run"
     assert snap.get("main_event")["sport"] == "mlb" if snap.get("main_event") else True

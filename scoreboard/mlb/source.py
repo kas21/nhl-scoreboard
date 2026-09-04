@@ -66,6 +66,7 @@ class MlbSource:
                 games = normalize_schedule(await api.schedule(today, end))
                 if not cfg.follow_spring_training:
                     games = [g for g in games if g["game_type"] != "S"]
+                ctx.publish(sorted(games, key=lambda g: (g["date"], g["start_time_utc"])), subkey="schedule")   # the whole window
                 games = _slate(games, today)
                 main = select_main_event(games, cfg.favorites, today=today)
                 if main and main["state"] == "LIVE":

@@ -3,6 +3,7 @@ import { html } from './htm-preact.js';
 import { Wizard } from './wizard.js';
 import { Settings } from './settings.js';
 import { Holidays } from './holidays.js';
+import { GamesCard, AroundCard } from './dashboard.js';
 
 // Every state-changing call carries this header. A page on another site cannot set it
 // without a preflight the scoreboard never answers, which is what stops a drive-by POST
@@ -166,6 +167,8 @@ function Dashboard({ config, save }) {
         <div><span>Version</span>${status.version}</div>
       </div>` : html`<p class="muted">Loading…</p>`}
     </div>
+    <${GamesCard} />
+    <${AroundCard} />
     <div class="card"><h2>Data sources</h2><${SourcesSummary} /></div>
     <${Updater} />
     <div class="card"><h2>Brightness</h2>

@@ -27,6 +27,7 @@ from .normalize import (
     records_from_standings,
     team_summary,
 )
+from .schedule import fetch_weeks, schedule_games
 from .season import season_info
 from .select import favorite_side, select_main_event
 from .teams import NHL_TEAMS
@@ -150,6 +151,9 @@ class NhlSource:
                     st_season = next((int(r.get("seasonId")) for r in raw_standings.get("standings") or [] if r.get("seasonId")), None)
                     fav = cfg.favorites[0] if cfg.favorites else None
                     ctx.publish({**season_info(sched_now, date.fromisoformat(today), st_season, schedules.get(fav), fav), "favorite": fav}, subkey="season")
+                    weeks = await fetch_weeks(api, sched_now, today, cfg.show_games_within_days)
+                    ctx.publish(schedule_games(weeks, records_from_standings(standings), today, cfg.show_games_within_days, cfg.follow_preseason),
+                                subkey="schedule")
                 except (NhlApiError, ValueError) as exc:
                     ctx.log.warning("season info failed: %s", exc)
             except NhlApiError as exc:

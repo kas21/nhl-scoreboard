@@ -34,6 +34,10 @@ class NhlApi:
     async def schedule_now(self) -> dict[str, Any]:
         return await self._get("/schedule/now")
 
+    async def schedule(self, start: str) -> dict[str, Any]:
+        """The game week starting on ``start`` (YYYY-MM-DD); ``nextStartDate`` links to the following one."""
+        return await self._get(f"/schedule/{start}")
+
     async def club_schedule_season(self, team: str) -> dict[str, Any]:
         return await self._get(f"/club-schedule-season/{team.upper()}/now")
 

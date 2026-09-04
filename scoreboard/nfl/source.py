@@ -51,6 +51,7 @@ class NflSource:
                 today = _today(ctx)
                 games = sorted(games, key=lambda g: g["start_time_utc"])
                 ctx.publish(_season(games, today), subkey="season")
+                ctx.publish([g for g in games if 0 <= _days(today, g["date"]) <= cfg.show_games_within_days], subkey="schedule")
                 upcoming = [g for g in games if g["phase"] != "postgame"]
                 nearest = min((g["date"] for g in upcoming), default=None)
                 if nearest and _days(today, nearest) > cfg.show_games_within_days and not any(g["phase"] in ("live", "intermission") for g in games):

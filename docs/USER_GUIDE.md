@@ -44,7 +44,10 @@ art downloads within a few seconds of saving; until it lands the team keeps its 
 nothing needs a restart.
 
 ## Pages
-- **Dashboard** — live preview of exactly what the panel shows, state, brightness slider.
+- **Dashboard** — live preview of exactly what the panel shows, state, brightness slider, plus two info cards:
+  *Games* lists every game for the next few days per sport (as far ahead as that sport's *show games within days*
+  setting, with your teams' records and next game, and the game the panel is following marked), and *Around you*
+  shows the weather, the planes nearby and the next holidays when those extras are on.
 - **Boards** — per-state playlists. States: *offseason*, *offday* (season on, no game today), *pregame*,
   *live*, *intermission*, *postgame*. Reorder by dragging a row's grip (⠿) — the list reorders
   under the pointer and saves when you let go, Esc cancels; the arrows still move one place at a

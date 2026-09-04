@@ -8,6 +8,7 @@ All snapshot values are plain JSON-shaped dicts/lists (immutable by convention: 
 | `main_event` | MainEventArbiter | the chosen game dict (below) with `sport`, `favorite_side`; or None |
 | `nhl.main_event`, `nfl.main_event`, `mlb.main_event` | sport sources | that sport's candidate |
 | `nhl.scores`, `nfl.scores`, `mlb.scores` | sources | list of game dicts for the slate (empty when beyond `show_games_within_days`) |
+| `nhl.schedule`, `nfl.schedule`, `mlb.schedule` | sources | list of game dicts dated today .. today + `show_games_within_days` (the dashboard's games list; NHL walks `/schedule/{date}` weeks hourly, MLB and NFL come from the slate fetch) |
 | `nhl.standings`, `nfl.standings`, `mlb.standings` | sources | `{teams:{ABBR:row}, division:{name:[ABBR]}, wildcard:{conf:{group:[ABBR]}}, league:[ABBR]}` (MLB rows add `games_back`, `wildcard_games_back`, `win_pct`, `eliminated`) |
 | `nhl.team_summary`, `nfl.team_summary`, `mlb.team_summary` | sources | `{ABBR: {record:{wins,losses,otl,points,gp,l10,streak,division,division_rank,…}, prev_game, next_game}}` |
 | `nhl.season`, `nfl.season`, `mlb.season` | sources | `{sport, phase: offseason|preseason|regular|playoffs, …dates, days_to_*, standings_final, first_game, favorite}` |

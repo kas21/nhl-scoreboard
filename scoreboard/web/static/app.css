@@ -130,3 +130,26 @@ label.inline { display:flex; gap:6px; align-items:center; color:var(--muted); fo
 .editor-link { color:var(--accent); text-decoration:none; }
 .editornote { margin:0 0 10px; }
 .editornote a { color:var(--accent); text-decoration:none; }
+
+/* dashboard info cards */
+.sport + .sport, .section + .section { margin-top:14px; padding-top:12px; border-top:1px solid #222a35; }
+.sport h3, .section h3 { margin:0 0 6px; font-size:14px; }
+.teams { margin-bottom:6px; }
+.team-line { font-size:13px; padding:2px 0; }
+.day { margin-top:8px; }
+.daylabel { font-size:13px; font-weight:600; margin-bottom:2px; }
+table.games { border-collapse:collapse; font-size:13px; width:100%; }
+table.games td { padding:3px 8px 3px 0; border-bottom:1px solid #1d2430; white-space:nowrap; }
+table.games td.team { width:1%; }
+table.games td.at { width:1%; color:var(--muted); }
+table.games td.state { text-align:right; color:var(--muted); }
+table.games tr.fav td.team { color:var(--fg); font-weight:600; }
+table.games tr.live td.state, table.games tr.intermission td.state { color:#5fd28a; }
+table.games tr.main td:first-child { box-shadow:inset 3px 0 0 var(--accent); padding-left:8px; }
+table.flights td { white-space:normal; }
+.weather .now { font-size:15px; }
+.weather .now b { font-size:22px; margin-right:6px; }
+.forecast { display:flex; gap:14px; margin-top:8px; flex-wrap:wrap; }
+.forecast > div { text-align:center; min-width:52px; font-size:13px; }
+.holidays { margin:0; padding:0; list-style:none; }
+.holidays li { display:flex; gap:10px; padding:3px 0; font-size:13px; }
