@@ -1,4 +1,8 @@
-"""NFL data source (ESPN). Publishes nfl.scores, nfl.main_event, nfl.standings, nfl.team_summary."""
+"""NFL data source (ESPN). Publishes nfl.scores, nfl.main_event, nfl.standings, nfl.team_summary.
+
+The loops are written against class-level hooks (``sport``, ``teams``, the normalisers and
+``_slate``) so another ESPN football league — college — is a subclass, not a copy.
+"""
 from __future__ import annotations
 
 import asyncio
@@ -33,10 +37,36 @@ class NflConfig(BaseModel):
 class NflSource:
     key: ClassVar[str] = "nfl"
     config_model: ClassVar[type[BaseModel]] = NflConfig
+    sport: ClassVar[str] = "nfl"
+    label: ClassVar[str] = "NFL"
+    teams: ClassVar[tuple[str, ...]] = NFL_TEAMS
+
+    # -- hooks a sibling league overrides ------------------------------------
+
+    def _api(self, ctx: SourceContext) -> NflApi:
+        return NflApi(ctx.http)
+
+    def _scoreboard(self, payload: dict[str, Any]) -> list[dict[str, Any]]:
+        return normalize_scoreboard(payload)
+
+    def _standings(self, payload: dict[str, Any]) -> dict[str, Any]:
+        return normalize_standings(payload)
+
+    def _summary(self, abbrev: str, standings: dict[str, Any], schedule: dict[str, Any] | None, today: str) -> dict[str, Any]:
+        return team_summary(abbrev, standings, schedule, today)
+
+    def _slate(self, games: list[dict[str, Any]], cfg: BaseModel) -> list[dict[str, Any]]:
+        """The games worth showing on the ticker and dashboard (the main event is picked from all of them)."""
+        return games
+
+    def _check_teams(self, ctx: SourceContext, listed: dict[str, str]) -> None:
+        """Called with ESPN's abbreviation -> id map once per standings refresh."""
+
+    # -- loops ----------------------------------------------------------------
 
     async def run(self, ctx: SourceContext) -> None:
-        api = NflApi(ctx.http)
-        await asyncio.gather(watch_logos(ctx.http, "nfl", NFL_TEAMS, ctx.log),
+        api = self._api(ctx)
+        await asyncio.gather(watch_logos(ctx.http, self.sport, self.teams, ctx.log),
                              self._scores_loop(ctx, api), self._standings_loop(ctx, api))
 
     async def _scores_loop(self, ctx: SourceContext, api: NflApi) -> None:
@@ -47,22 +77,23 @@ class NflSource:
                 continue
             main = None
             try:
-                games = normalize_scoreboard(await api.scoreboard())      # current week
+                games = self._scoreboard(await api.scoreboard())      # current week
                 today = _today(ctx)
                 games = sorted(games, key=lambda g: g["start_time_utc"])
-                ctx.publish(_season(games, today), subkey="season")
-                ctx.publish([g for g in games if 0 <= _days(today, g["date"]) <= cfg.show_games_within_days], subkey="schedule")
+                ctx.publish(_season(games, today, self.sport), subkey="season")
+                slate = self._slate(games, cfg)
+                ctx.publish([g for g in slate if 0 <= _days(today, g["date"]) <= cfg.show_games_within_days], subkey="schedule")
                 upcoming = [g for g in games if g["phase"] != "postgame"]
                 nearest = min((g["date"] for g in upcoming), default=None)
                 if nearest and _days(today, nearest) > cfg.show_games_within_days and not any(g["phase"] in ("live", "intermission") for g in games):
-                    games = [g for g in games if g["phase"] == "postgame"]        # keep results, hide far-off games
+                    slate = [g for g in slate if g["phase"] == "postgame"]        # keep results, hide far-off games
                 main = select_main_event(games, cfg.favorites, today=today)
                 if main:
                     main = {**main, "favorite_side": favorite_side(main, cfg.favorites)}
-                ctx.publish(games, subkey="scores")
-                ctx.publish_to("nfl.main_event", main)
+                ctx.publish(slate, subkey="scores")
+                ctx.publish_to(f"{self.sport}.main_event", main)
             except NflApiError as exc:
-                ctx.log.warning("NFL score poll failed: %s", exc)
+                ctx.log.warning("%s score poll failed: %s", self.label, exc)
             active = bool(main and main["phase"] in ("live", "intermission", "pregame") and main["date"] == _today(ctx))
             await ctx.sleep(cfg.live_interval if active else cfg.idle_interval)
 
@@ -73,10 +104,11 @@ class NflSource:
                 await ctx.sleep(60)
                 continue
             try:
-                standings = normalize_standings(await api.standings())
+                standings = self._standings(await api.standings())
                 ctx.publish(standings, subkey="standings")
                 teams = (await api.teams())["sports"][0]["leagues"][0]["teams"]
                 ids = {t["team"]["abbreviation"]: t["team"]["id"] for t in teams}
+                self._check_teams(ctx, ids)
                 summaries: dict[str, Any] = {}
                 for abbrev in cfg.favorites:
                     schedule = None
@@ -84,11 +116,11 @@ class NflSource:
                         try:
                             schedule = await api.team_schedule(ids[abbrev])
                         except NflApiError as exc:
-                            ctx.log.warning("NFL schedule fetch failed for %s: %s", abbrev, exc)
-                    summaries[abbrev] = team_summary(abbrev, standings, schedule, _today(ctx))
+                            ctx.log.warning("%s schedule fetch failed for %s: %s", self.label, abbrev, exc)
+                    summaries[abbrev] = self._summary(abbrev, standings, schedule, _today(ctx))
                 ctx.publish(summaries, subkey="team_summary")
             except (NflApiError, KeyError, IndexError) as exc:
-                ctx.log.warning("NFL standings poll failed: %s", exc)
+                ctx.log.warning("%s standings poll failed: %s", self.label, exc)
             await asyncio.sleep(cfg.standings_interval)
 
 
@@ -107,12 +139,12 @@ def _days(today: str, other: str) -> int:
         return 0
 
 
-def _season(games: list, today: str) -> dict:
+def _season(games: list, today: str, sport: str = "nfl") -> dict:
     """Phase from the slate ESPN hands us: no games = offseason; season.type 1/2/3 = pre/regular/playoffs."""
     if not games:
-        return {"sport": "nfl", "phase": "offseason", "week": None, "next_game_date": None, "days_to_next": None}
+        return {"sport": sport, "phase": "offseason", "week": None, "next_game_date": None, "days_to_next": None}
     types = {g["type"] for g in games}
     phase = "playoffs" if 3 in types else "regular" if 2 in types else "preseason"
     nxt = min((g for g in games if g["phase"] != "postgame"), key=lambda g: g["start_time_utc"], default=None)
-    return {"sport": "nfl", "phase": phase, "week": games[0].get("week"),
+    return {"sport": sport, "phase": phase, "week": games[0].get("week"),
             "next_game_date": nxt["date"] if nxt else None, "days_to_next": _days(today, nxt["date"]) if nxt else None}

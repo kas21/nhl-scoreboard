@@ -1,6 +1,6 @@
 # Writing a board or data source
 
-Everything — NHL, NFL, MLB, weather, flights, holidays — uses the same three contracts and is registered
+Everything — NHL, NFL, college football, MLB, weather, flights, holidays — uses the same three contracts and is registered
 with entry points in `pyproject.toml`. Third-party packages do exactly the same.
 
 ## Data source
@@ -58,7 +58,9 @@ under `scoreboard.detectors`. Diff the two snapshots; never keep state in the de
 ## Sport packages
 Publish a normalised game dict (docs/DATA.md) under `<sport>.main_event`, set `sport` on boards that only
 apply to that sport, and reuse `nhl.select.select_main_event` / the NHL boards as base classes
-(`nfl/` is the worked example: ~600 lines for a whole league; `mlb/` shows a sport whose live board needs
+(`nfl/` is the worked example: ~600 lines for a whole league; `ncaaf/` shows how little a sibling league on the
+same API costs — it subclasses the NFL source, client and boards and only owns its team registry, conference
+standings and the rank/slate touches; `mlb/` shows a sport whose live board needs
 its own centre column — override `_live` / `_live_stats_row` / `_indicators` on the NHL `GameBoard` and keep the rest).
 
 ## Testing

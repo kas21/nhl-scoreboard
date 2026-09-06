@@ -1,0 +1,2558 @@
+{
+ "timestamp": "2026-09-05T15:00Z",
+ "status": "success",
+ "season": {
+  "year": 2026,
+  "type": 2,
+  "name": "Regular Season",
+  "displayName": "2026"
+ },
+ "team": {
+  "id": "130",
+  "uid": "s:20~l:23~t:130",
+  "location": "Michigan",
+  "name": "Wolverines",
+  "abbreviation": "MICH",
+  "displayName": "Michigan Wolverines",
+  "shortDisplayName": "Michigan",
+  "color": "00274c",
+  "alternateColor": "ffcb05",
+  "isActive": true,
+  "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+  "conferenceId": "5",
+  "logos": [
+   {
+    "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+    "width": 500,
+    "height": 500,
+    "alt": "",
+    "rel": [
+     "full",
+     "default"
+    ]
+   },
+   {
+    "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/130.png",
+    "width": 500,
+    "height": 500,
+    "alt": "",
+    "rel": [
+     "full",
+     "dark"
+    ]
+   }
+  ]
+ },
+ "events": [
+  {
+   "id": "401755900",
+   "uid": "s:20~l:23~e:401755900",
+   "date": "2026-08-29T19:30Z",
+   "name": "New Mexico State Aggies at Michigan Wolverines",
+   "shortName": "NMSU @ MICH",
+   "week": {
+    "number": 1,
+    "text": "Week 1"
+   },
+   "competitions": [
+    {
+     "id": "401755900",
+     "uid": "s:20~l:23~e:401755900~c:401755900",
+     "date": "2026-08-29T19:30Z",
+     "attendance": 0,
+     "timeValid": true,
+     "neutralSite": false,
+     "conferenceCompetition": false,
+     "competitors": [
+      {
+       "id": "130",
+       "uid": "s:20~l:23~t:130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "uid": "s:20~l:23~t:130",
+        "location": "Michigan",
+        "name": "Wolverines",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan",
+        "color": "00274c",
+        "alternateColor": "ffcb05",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 8
+       },
+       "score": {
+        "value": 45.0,
+        "displayValue": "45"
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "1-0"
+        },
+        {
+         "name": "Home",
+         "type": "home",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      },
+      {
+       "id": "9074",
+       "uid": "s:20~l:23~t:9074",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "9074",
+        "uid": "s:20~l:23~t:9074",
+        "location": "New Mexico State",
+        "name": "Aggies",
+        "abbreviation": "NMSU",
+        "displayName": "New Mexico State Aggies",
+        "shortDisplayName": "New Mexico State",
+        "color": "861f41",
+        "alternateColor": "ffffff",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9074.png",
+        "conferenceId": "12",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/9074.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/9074.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 99
+       },
+       "score": {
+        "value": 7.0,
+        "displayValue": "7"
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-1"
+        },
+        {
+         "name": "Road",
+         "type": "road",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 4,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 4,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   },
+   "season": {
+    "year": 2026,
+    "displayName": "2026"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   }
+  },
+  {
+   "id": "401755901",
+   "uid": "s:20~l:23~e:401755901",
+   "date": "2026-09-05T16:00Z",
+   "name": "Michigan Wolverines at Oklahoma Sooners",
+   "shortName": "MICH @ OU",
+   "week": {
+    "number": 2,
+    "text": "Week 2"
+   },
+   "competitions": [
+    {
+     "id": "401755901",
+     "uid": "s:20~l:23~e:401755901~c:401755901",
+     "date": "2026-09-05T16:00Z",
+     "attendance": 0,
+     "timeValid": true,
+     "neutralSite": false,
+     "conferenceCompetition": false,
+     "competitors": [
+      {
+       "id": "201",
+       "uid": "s:20~l:23~t:201",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "201",
+        "uid": "s:20~l:23~t:201",
+        "location": "Oklahoma",
+        "name": "Sooners",
+        "abbreviation": "OU",
+        "displayName": "Oklahoma Sooners",
+        "shortDisplayName": "Oklahoma",
+        "color": "841617",
+        "alternateColor": "fdf9d8",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/201.png",
+        "conferenceId": "8",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/201.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/201.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 20
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "1-0"
+        },
+        {
+         "name": "Home",
+         "type": "home",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      },
+      {
+       "id": "130",
+       "uid": "s:20~l:23~t:130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "uid": "s:20~l:23~t:130",
+        "location": "Michigan",
+        "name": "Wolverines",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan",
+        "color": "00274c",
+        "alternateColor": "ffcb05",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 8
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "1-0"
+        },
+        {
+         "name": "Road",
+         "type": "road",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Scheduled",
+       "shortDetail": "Scheduled"
+      }
+     }
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Scheduled",
+     "shortDetail": "Scheduled"
+    }
+   },
+   "season": {
+    "year": 2026,
+    "displayName": "2026"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   }
+  },
+  {
+   "id": "401755902",
+   "uid": "s:20~l:23~e:401755902",
+   "date": "2026-09-12T16:00Z",
+   "name": "Central Michigan Chippewas at Michigan Wolverines",
+   "shortName": "CMU @ MICH",
+   "week": {
+    "number": 3,
+    "text": "Week 3"
+   },
+   "competitions": [
+    {
+     "id": "401755902",
+     "uid": "s:20~l:23~e:401755902~c:401755902",
+     "date": "2026-09-12T16:00Z",
+     "attendance": 0,
+     "timeValid": true,
+     "neutralSite": false,
+     "conferenceCompetition": false,
+     "competitors": [
+      {
+       "id": "130",
+       "uid": "s:20~l:23~t:130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "uid": "s:20~l:23~t:130",
+        "location": "Michigan",
+        "name": "Wolverines",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan",
+        "color": "00274c",
+        "alternateColor": "ffcb05",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 8
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Home",
+         "type": "home",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      },
+      {
+       "id": "9022",
+       "uid": "s:20~l:23~t:9022",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "9022",
+        "uid": "s:20~l:23~t:9022",
+        "location": "Central Michigan",
+        "name": "Chippewas",
+        "abbreviation": "CMU",
+        "displayName": "Central Michigan Chippewas",
+        "shortDisplayName": "Central Michigan",
+        "color": "6a0032",
+        "alternateColor": "ffc82e",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9022.png",
+        "conferenceId": "15",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/9022.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/9022.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 99
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Road",
+         "type": "road",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Scheduled",
+       "shortDetail": "Scheduled"
+      }
+     }
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Scheduled",
+     "shortDetail": "Scheduled"
+    }
+   },
+   "season": {
+    "year": 2026,
+    "displayName": "2026"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   }
+  },
+  {
+   "id": "401755903",
+   "uid": "s:20~l:23~e:401755903",
+   "date": "2026-09-19T19:30Z",
+   "name": "Michigan Wolverines at Nebraska Cornhuskers",
+   "shortName": "MICH @ NEB",
+   "week": {
+    "number": 4,
+    "text": "Week 4"
+   },
+   "competitions": [
+    {
+     "id": "401755903",
+     "uid": "s:20~l:23~e:401755903~c:401755903",
+     "date": "2026-09-19T19:30Z",
+     "attendance": 0,
+     "timeValid": true,
+     "neutralSite": false,
+     "conferenceCompetition": true,
+     "competitors": [
+      {
+       "id": "158",
+       "uid": "s:20~l:23~t:158",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "158",
+        "uid": "s:20~l:23~t:158",
+        "location": "Nebraska",
+        "name": "Cornhuskers",
+        "abbreviation": "NEB",
+        "displayName": "Nebraska Cornhuskers",
+        "shortDisplayName": "Nebraska",
+        "color": "e41c38",
+        "alternateColor": "ffffff",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/158.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/158.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/158.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 99
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Home",
+         "type": "home",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      },
+      {
+       "id": "130",
+       "uid": "s:20~l:23~t:130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "uid": "s:20~l:23~t:130",
+        "location": "Michigan",
+        "name": "Wolverines",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan",
+        "color": "00274c",
+        "alternateColor": "ffcb05",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 8
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Road",
+         "type": "road",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Scheduled",
+       "shortDetail": "Scheduled"
+      }
+     }
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Scheduled",
+     "shortDetail": "Scheduled"
+    }
+   },
+   "season": {
+    "year": 2026,
+    "displayName": "2026"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   }
+  },
+  {
+   "id": "401755904",
+   "uid": "s:20~l:23~e:401755904",
+   "date": "2026-09-26T16:00Z",
+   "name": "Wisconsin Badgers at Michigan Wolverines",
+   "shortName": "WIS @ MICH",
+   "week": {
+    "number": 5,
+    "text": "Week 5"
+   },
+   "competitions": [
+    {
+     "id": "401755904",
+     "uid": "s:20~l:23~e:401755904~c:401755904",
+     "date": "2026-09-26T16:00Z",
+     "attendance": 0,
+     "timeValid": true,
+     "neutralSite": false,
+     "conferenceCompetition": true,
+     "competitors": [
+      {
+       "id": "130",
+       "uid": "s:20~l:23~t:130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "uid": "s:20~l:23~t:130",
+        "location": "Michigan",
+        "name": "Wolverines",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan",
+        "color": "00274c",
+        "alternateColor": "ffcb05",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 8
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Home",
+         "type": "home",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      },
+      {
+       "id": "275",
+       "uid": "s:20~l:23~t:275",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "275",
+        "uid": "s:20~l:23~t:275",
+        "location": "Wisconsin",
+        "name": "Badgers",
+        "abbreviation": "WIS",
+        "displayName": "Wisconsin Badgers",
+        "shortDisplayName": "Wisconsin",
+        "color": "c5050c",
+        "alternateColor": "ffffff",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/275.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/275.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/275.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 99
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Road",
+         "type": "road",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Scheduled",
+       "shortDetail": "Scheduled"
+      }
+     }
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Scheduled",
+     "shortDetail": "Scheduled"
+    }
+   },
+   "season": {
+    "year": 2026,
+    "displayName": "2026"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   }
+  },
+  {
+   "id": "401755905",
+   "uid": "s:20~l:23~e:401755905",
+   "date": "2026-10-03T16:00Z",
+   "name": "Michigan Wolverines at USC Trojans",
+   "shortName": "MICH @ USC",
+   "week": {
+    "number": 6,
+    "text": "Week 6"
+   },
+   "competitions": [
+    {
+     "id": "401755905",
+     "uid": "s:20~l:23~e:401755905~c:401755905",
+     "date": "2026-10-03T16:00Z",
+     "attendance": 0,
+     "timeValid": true,
+     "neutralSite": false,
+     "conferenceCompetition": true,
+     "competitors": [
+      {
+       "id": "30",
+       "uid": "s:20~l:23~t:30",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "30",
+        "uid": "s:20~l:23~t:30",
+        "location": "USC",
+        "name": "Trojans",
+        "abbreviation": "USC",
+        "displayName": "USC Trojans",
+        "shortDisplayName": "USC",
+        "color": "990000",
+        "alternateColor": "ffc72c",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/30.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/30.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/30.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 21
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Home",
+         "type": "home",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      },
+      {
+       "id": "130",
+       "uid": "s:20~l:23~t:130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "uid": "s:20~l:23~t:130",
+        "location": "Michigan",
+        "name": "Wolverines",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan",
+        "color": "00274c",
+        "alternateColor": "ffcb05",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 8
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Road",
+         "type": "road",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Scheduled",
+       "shortDetail": "Scheduled"
+      }
+     }
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Scheduled",
+     "shortDetail": "Scheduled"
+    }
+   },
+   "season": {
+    "year": 2026,
+    "displayName": "2026"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   }
+  },
+  {
+   "id": "401755906",
+   "uid": "s:20~l:23~e:401755906",
+   "date": "2026-10-17T16:00Z",
+   "name": "Washington Huskies at Michigan Wolverines",
+   "shortName": "WASH @ MICH",
+   "week": {
+    "number": 8,
+    "text": "Week 8"
+   },
+   "competitions": [
+    {
+     "id": "401755906",
+     "uid": "s:20~l:23~e:401755906~c:401755906",
+     "date": "2026-10-17T16:00Z",
+     "attendance": 0,
+     "timeValid": true,
+     "neutralSite": false,
+     "conferenceCompetition": true,
+     "competitors": [
+      {
+       "id": "130",
+       "uid": "s:20~l:23~t:130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "uid": "s:20~l:23~t:130",
+        "location": "Michigan",
+        "name": "Wolverines",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan",
+        "color": "00274c",
+        "alternateColor": "ffcb05",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 8
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Home",
+         "type": "home",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      },
+      {
+       "id": "264",
+       "uid": "s:20~l:23~t:264",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "264",
+        "uid": "s:20~l:23~t:264",
+        "location": "Washington",
+        "name": "Huskies",
+        "abbreviation": "WASH",
+        "displayName": "Washington Huskies",
+        "shortDisplayName": "Washington",
+        "color": "4b2e83",
+        "alternateColor": "b7a57a",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/264.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/264.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/264.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 99
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Road",
+         "type": "road",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Scheduled",
+       "shortDetail": "Scheduled"
+      }
+     }
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Scheduled",
+     "shortDetail": "Scheduled"
+    }
+   },
+   "season": {
+    "year": 2026,
+    "displayName": "2026"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   }
+  },
+  {
+   "id": "401755907",
+   "uid": "s:20~l:23~e:401755907",
+   "date": "2026-10-24T23:30Z",
+   "name": "Michigan Wolverines at Michigan State Spartans",
+   "shortName": "MICH @ MSU",
+   "week": {
+    "number": 9,
+    "text": "Week 9"
+   },
+   "competitions": [
+    {
+     "id": "401755907",
+     "uid": "s:20~l:23~e:401755907~c:401755907",
+     "date": "2026-10-24T23:30Z",
+     "attendance": 0,
+     "timeValid": true,
+     "neutralSite": false,
+     "conferenceCompetition": true,
+     "competitors": [
+      {
+       "id": "127",
+       "uid": "s:20~l:23~t:127",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "127",
+        "uid": "s:20~l:23~t:127",
+        "location": "Michigan State",
+        "name": "Spartans",
+        "abbreviation": "MSU",
+        "displayName": "Michigan State Spartans",
+        "shortDisplayName": "Michigan State",
+        "color": "18453b",
+        "alternateColor": "ffffff",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/127.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/127.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/127.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 99
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Home",
+         "type": "home",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      },
+      {
+       "id": "130",
+       "uid": "s:20~l:23~t:130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "uid": "s:20~l:23~t:130",
+        "location": "Michigan",
+        "name": "Wolverines",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan",
+        "color": "00274c",
+        "alternateColor": "ffcb05",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 8
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Road",
+         "type": "road",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Scheduled",
+       "shortDetail": "Scheduled"
+      }
+     }
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Scheduled",
+     "shortDetail": "Scheduled"
+    }
+   },
+   "season": {
+    "year": 2026,
+    "displayName": "2026"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   }
+  },
+  {
+   "id": "401755908",
+   "uid": "s:20~l:23~e:401755908",
+   "date": "2026-11-01T00:00Z",
+   "name": "Purdue Boilermakers at Michigan Wolverines",
+   "shortName": "PUR @ MICH",
+   "week": {
+    "number": 10,
+    "text": "Week 10"
+   },
+   "competitions": [
+    {
+     "id": "401755908",
+     "uid": "s:20~l:23~e:401755908~c:401755908",
+     "date": "2026-11-01T00:00Z",
+     "attendance": 0,
+     "timeValid": true,
+     "neutralSite": false,
+     "conferenceCompetition": true,
+     "competitors": [
+      {
+       "id": "130",
+       "uid": "s:20~l:23~t:130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "uid": "s:20~l:23~t:130",
+        "location": "Michigan",
+        "name": "Wolverines",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan",
+        "color": "00274c",
+        "alternateColor": "ffcb05",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 8
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Home",
+         "type": "home",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      },
+      {
+       "id": "9085",
+       "uid": "s:20~l:23~t:9085",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "9085",
+        "uid": "s:20~l:23~t:9085",
+        "location": "Purdue",
+        "name": "Boilermakers",
+        "abbreviation": "PUR",
+        "displayName": "Purdue Boilermakers",
+        "shortDisplayName": "Purdue",
+        "color": "cfb991",
+        "alternateColor": "000000",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9085.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/9085.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/9085.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 99
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Road",
+         "type": "road",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Scheduled",
+       "shortDetail": "Scheduled"
+      }
+     }
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Scheduled",
+     "shortDetail": "Scheduled"
+    }
+   },
+   "season": {
+    "year": 2026,
+    "displayName": "2026"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   }
+  },
+  {
+   "id": "401755909",
+   "uid": "s:20~l:23~e:401755909",
+   "date": "2026-11-07T17:00Z",
+   "name": "Michigan Wolverines at Northwestern Wildcats",
+   "shortName": "MICH @ NW",
+   "week": {
+    "number": 11,
+    "text": "Week 11"
+   },
+   "competitions": [
+    {
+     "id": "401755909",
+     "uid": "s:20~l:23~e:401755909~c:401755909",
+     "date": "2026-11-07T17:00Z",
+     "attendance": 0,
+     "timeValid": true,
+     "neutralSite": false,
+     "conferenceCompetition": true,
+     "competitors": [
+      {
+       "id": "9075",
+       "uid": "s:20~l:23~t:9075",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "9075",
+        "uid": "s:20~l:23~t:9075",
+        "location": "Northwestern",
+        "name": "Wildcats",
+        "abbreviation": "NW",
+        "displayName": "Northwestern Wildcats",
+        "shortDisplayName": "Northwestern",
+        "color": "4e2a84",
+        "alternateColor": "ffffff",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9075.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/9075.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/9075.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 99
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Home",
+         "type": "home",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      },
+      {
+       "id": "130",
+       "uid": "s:20~l:23~t:130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "uid": "s:20~l:23~t:130",
+        "location": "Michigan",
+        "name": "Wolverines",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan",
+        "color": "00274c",
+        "alternateColor": "ffcb05",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 8
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Road",
+         "type": "road",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Scheduled",
+       "shortDetail": "Scheduled"
+      }
+     }
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Scheduled",
+     "shortDetail": "Scheduled"
+    }
+   },
+   "season": {
+    "year": 2026,
+    "displayName": "2026"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   }
+  },
+  {
+   "id": "401755910",
+   "uid": "s:20~l:23~e:401755910",
+   "date": "2026-11-14T17:00Z",
+   "name": "Maryland Terrapins at Michigan Wolverines",
+   "shortName": "MD @ MICH",
+   "week": {
+    "number": 12,
+    "text": "Week 12"
+   },
+   "competitions": [
+    {
+     "id": "401755910",
+     "uid": "s:20~l:23~e:401755910~c:401755910",
+     "date": "2026-11-14T17:00Z",
+     "attendance": 0,
+     "timeValid": true,
+     "neutralSite": false,
+     "conferenceCompetition": true,
+     "competitors": [
+      {
+       "id": "130",
+       "uid": "s:20~l:23~t:130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "uid": "s:20~l:23~t:130",
+        "location": "Michigan",
+        "name": "Wolverines",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan",
+        "color": "00274c",
+        "alternateColor": "ffcb05",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 8
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Home",
+         "type": "home",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      },
+      {
+       "id": "9056",
+       "uid": "s:20~l:23~t:9056",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "9056",
+        "uid": "s:20~l:23~t:9056",
+        "location": "Maryland",
+        "name": "Terrapins",
+        "abbreviation": "MD",
+        "displayName": "Maryland Terrapins",
+        "shortDisplayName": "Maryland",
+        "color": "e03a3e",
+        "alternateColor": "ffd520",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9056.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/9056.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/9056.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 99
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Road",
+         "type": "road",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Scheduled",
+       "shortDetail": "Scheduled"
+      }
+     }
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Scheduled",
+     "shortDetail": "Scheduled"
+    }
+   },
+   "season": {
+    "year": 2026,
+    "displayName": "2026"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   }
+  },
+  {
+   "id": "401755911",
+   "uid": "s:20~l:23~e:401755911",
+   "date": "2026-11-21T20:30Z",
+   "name": "Michigan Wolverines at Penn State Nittany Lions",
+   "shortName": "MICH @ PSU",
+   "week": {
+    "number": 13,
+    "text": "Week 13"
+   },
+   "competitions": [
+    {
+     "id": "401755911",
+     "uid": "s:20~l:23~e:401755911~c:401755911",
+     "date": "2026-11-21T20:30Z",
+     "attendance": 0,
+     "timeValid": true,
+     "neutralSite": false,
+     "conferenceCompetition": true,
+     "competitors": [
+      {
+       "id": "213",
+       "uid": "s:20~l:23~t:213",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "213",
+        "uid": "s:20~l:23~t:213",
+        "location": "Penn State",
+        "name": "Nittany Lions",
+        "abbreviation": "PSU",
+        "displayName": "Penn State Nittany Lions",
+        "shortDisplayName": "Penn State",
+        "color": "041e42",
+        "alternateColor": "ffffff",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/213.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/213.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/213.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 5
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Home",
+         "type": "home",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      },
+      {
+       "id": "130",
+       "uid": "s:20~l:23~t:130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "uid": "s:20~l:23~t:130",
+        "location": "Michigan",
+        "name": "Wolverines",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan",
+        "color": "00274c",
+        "alternateColor": "ffcb05",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 8
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Road",
+         "type": "road",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Scheduled",
+       "shortDetail": "Scheduled"
+      }
+     }
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Scheduled",
+     "shortDetail": "Scheduled"
+    }
+   },
+   "season": {
+    "year": 2026,
+    "displayName": "2026"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   }
+  },
+  {
+   "id": "401755912",
+   "uid": "s:20~l:23~e:401755912",
+   "date": "2026-11-28T17:00Z",
+   "name": "Ohio State Buckeyes at Michigan Wolverines",
+   "shortName": "OSU @ MICH",
+   "week": {
+    "number": 14,
+    "text": "Week 14"
+   },
+   "competitions": [
+    {
+     "id": "401755912",
+     "uid": "s:20~l:23~e:401755912~c:401755912",
+     "date": "2026-11-28T17:00Z",
+     "attendance": 0,
+     "timeValid": true,
+     "neutralSite": false,
+     "conferenceCompetition": true,
+     "competitors": [
+      {
+       "id": "130",
+       "uid": "s:20~l:23~t:130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "uid": "s:20~l:23~t:130",
+        "location": "Michigan",
+        "name": "Wolverines",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan",
+        "color": "00274c",
+        "alternateColor": "ffcb05",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/130.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 8
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Home",
+         "type": "home",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      },
+      {
+       "id": "194",
+       "uid": "s:20~l:23~t:194",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "194",
+        "uid": "s:20~l:23~t:194",
+        "location": "Ohio State",
+        "name": "Buckeyes",
+        "abbreviation": "OSU",
+        "displayName": "Ohio State Buckeyes",
+        "shortDisplayName": "Ohio State",
+        "color": "bb0000",
+        "alternateColor": "666666",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/194.png",
+        "conferenceId": "5",
+        "logos": [
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/194.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "default"
+          ]
+         },
+         {
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/194.png",
+          "width": 500,
+          "height": 500,
+          "alt": "",
+          "rel": [
+           "full",
+           "dark"
+          ]
+         }
+        ]
+       },
+       "curatedRank": {
+        "current": 2
+       },
+       "record": [
+        {
+         "name": "overall",
+         "abbreviation": "Game",
+         "type": "total",
+         "summary": "0-0"
+        },
+        {
+         "name": "Road",
+         "type": "road",
+         "summary": "0-0"
+        },
+        {
+         "name": "vs. Conf.",
+         "type": "vsconf",
+         "summary": "0-0"
+        }
+       ]
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Scheduled",
+       "shortDetail": "Scheduled"
+      }
+     }
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Scheduled",
+     "shortDetail": "Scheduled"
+    }
+   },
+   "season": {
+    "year": 2026,
+    "displayName": "2026"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   }
+  }
+ ],
+ "requestedSeason": {
+  "year": 2026,
+  "type": 2,
+  "name": "Regular Season",
+  "displayName": "2026"
+ }
+}

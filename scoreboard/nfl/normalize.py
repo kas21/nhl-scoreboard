@@ -1,12 +1,22 @@
-"""ESPN NFL payloads -> the same flat game dict shape the NHL boards use, plus NFL situation fields."""
+"""ESPN NFL payloads -> the same flat game dict shape the NHL boards use, plus NFL situation fields.
+
+The game normaliser is shared with the college plugin: ESPN's football scoreboard is one
+shape across leagues, so ``normalize_game`` takes the sport key and the colour registry
+(each league keeps its own — the NFL and FBS both have a ``MIA``). ``school_names``
+labels a side with the school (``shortDisplayName``) rather than the nickname, so a
+ticker says ALABAMA rather than CRIMSON TIDE.
+"""
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from types import ModuleType
 from typing import Any
 
-from .teams import DIVISION_OF, colors, learn_colors
+from . import teams as nfl_teams
+from .teams import DIVISION_OF
 
 PERIOD_LABELS = {1: "1st", 2: "2nd", 3: "3rd", 4: "4th"}
+UNRANKED = 99           # ESPN's ``curatedRank.current`` outside the top 25
 
 
 def _record(competitor: dict[str, Any]) -> str:
@@ -26,14 +36,21 @@ def _score(v: Any) -> int:
         return 0
 
 
-def _side(c: dict[str, Any]) -> dict[str, Any]:
+def _rank(c: dict[str, Any]) -> int | None:
+    rank = (c.get("curatedRank") or {}).get("current")
+    return int(rank) if isinstance(rank, (int, float)) and 0 < rank < UNRANKED else None
+
+
+def _side(c: dict[str, Any], teams: ModuleType, school_names: bool) -> dict[str, Any]:
     t = c.get("team") or {}
-    learn_colors(t.get("abbreviation", ""), t.get("color"), t.get("alternateColor"))
-    primary, alt = colors(t.get("abbreviation", ""))
+    abbrev = t.get("abbreviation", "")
+    teams.learn_colors(abbrev, t.get("color"), t.get("alternateColor"))
+    primary, alt = teams.colors(abbrev)
+    name = (t.get("shortDisplayName") or t.get("location") or t.get("name", "")) if school_names else t.get("name", "")
     return {
-        "id": str(t.get("id", "")), "abbrev": t.get("abbreviation", ""), "name": t.get("name", ""),
+        "id": str(t.get("id", "")), "abbrev": abbrev, "name": name,
         "city": t.get("location", ""), "score": _score(c.get("score")), "sog": 0, "record": _record(c),
-        "color": primary, "accent": alt, "timeouts": None,
+        "color": primary, "accent": alt, "timeouts": None, "rank": _rank(c),
     }
 
 
@@ -45,7 +62,8 @@ def period_label(period: int, state: str, status_name: str) -> str:
     return PERIOD_LABELS.get(period, "")
 
 
-def normalize_game(event: dict[str, Any]) -> dict[str, Any] | None:
+def normalize_game(event: dict[str, Any], *, sport: str = "nfl", teams: ModuleType = nfl_teams,
+                   school_names: bool = False) -> dict[str, Any] | None:
     comps = event.get("competitions") or []
     if not comps:
         return None
@@ -57,7 +75,7 @@ def normalize_game(event: dict[str, Any]) -> dict[str, Any] | None:
     competitors = comp.get("competitors") or []
     away = next((c for c in competitors if c.get("homeAway") == "away"), competitors[0] if competitors else {})
     home = next((c for c in competitors if c.get("homeAway") == "home"), competitors[-1] if competitors else {})
-    a, h = _side(away), _side(home)
+    a, h = _side(away, teams, school_names), _side(home, teams, school_names)
     period = int(status.get("period") or 0)
     halftime = name == "STATUS_HALFTIME"
     phase = {"pre": "pregame", "in": "intermission" if halftime else "live", "post": "postgame"}.get(state, "pregame")
@@ -74,7 +92,7 @@ def normalize_game(event: dict[str, Any]) -> dict[str, Any] | None:
     if state == "post":
         outcome = "FINAL/OT" if period > 4 else "FINAL"
     return {
-        "id": str(event.get("id", "")), "sport": "nfl", "type": _season_type(event),
+        "id": str(event.get("id", "")), "sport": sport, "type": _season_type(event),
         "week": ((event.get("week") or {}).get("number")),
         "state": state.upper() if state != "in" else ("HALF" if halftime else "LIVE"),
         "phase": phase, "date": local_date, "start_time_utc": start,
@@ -103,8 +121,8 @@ def _season_type(event: dict[str, Any]) -> int:
         return 2
 
 
-def normalize_scoreboard(payload: dict[str, Any]) -> list[dict[str, Any]]:
-    games = [normalize_game(e) for e in payload.get("events") or []]
+def normalize_scoreboard(payload: dict[str, Any], **kw: Any) -> list[dict[str, Any]]:
+    games = [normalize_game(e, **kw) for e in payload.get("events") or []]
     return [g for g in games if g]
 
 
@@ -157,27 +175,35 @@ def records_from_standings(standings: dict[str, Any] | None) -> dict[str, str]:
     return out
 
 
-def team_summary(abbrev: str, standings: dict[str, Any] | None, schedule: dict[str, Any] | None, today: str) -> dict[str, Any]:
-    row = ((standings or {}).get("teams") or {}).get(abbrev) or {}
-    games = [normalize_game(e) for e in (schedule or {}).get("events") or []]
-    games = sorted((g for g in games if g), key=lambda g: g["start_time_utc"])
+def schedule_games(schedule: dict[str, Any] | None, **kw: Any) -> list[dict[str, Any]]:
+    games = [normalize_game(e, **kw) for e in (schedule or {}).get("events") or []]
+    return sorted((g for g in games if g), key=lambda g: g["start_time_utc"])
+
+
+def prev_and_next(games: list[dict[str, Any]], today: str) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
     prev = next_game = None
     for g in games:
         if g["phase"] == "postgame":
             prev = g
         elif next_game is None and g["date"] >= today:
             next_game = g
+    return prev, next_game
+
+
+def team_summary(abbrev: str, standings: dict[str, Any] | None, schedule: dict[str, Any] | None, today: str) -> dict[str, Any]:
+    row = ((standings or {}).get("teams") or {}).get(abbrev) or {}
+    prev, next_game = prev_and_next(schedule_games(schedule), today)
     bye = (schedule or {}).get("byeWeek")
     return {
         "abbrev": abbrev, "sport": "nfl",
         "record": {"gp": row.get("gp", 0), "points": row.get("points", 0), "wins": row.get("wins", 0), "losses": row.get("losses", 0),
                    "otl": row.get("otl", 0), "l10": [], "streak": row.get("streak", ""), "division": row.get("division", ""),
                    "division_rank": row.get("division_rank", 0), "win_pct": row.get("win_pct", ""), "bye_week": bye},
-        "prev_game": _sched(prev, abbrev), "next_game": _sched(next_game, abbrev),
+        "prev_game": sched_entry(prev, abbrev), "next_game": sched_entry(next_game, abbrev),
     }
 
 
-def _sched(g: dict[str, Any] | None, abbrev: str) -> dict[str, Any] | None:
+def sched_entry(g: dict[str, Any] | None, abbrev: str) -> dict[str, Any] | None:
     if not g:
         return None
     is_home = g["home"]["abbrev"] == abbrev

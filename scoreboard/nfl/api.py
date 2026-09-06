@@ -1,9 +1,9 @@
-"""ESPN public site API for the NFL (no key)."""
+"""ESPN public site API for the NFL (no key). Subclass and swap the URLs for another football league."""
 from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Any
+from typing import Any, ClassVar
 
 import httpx
 
@@ -20,20 +20,27 @@ class NflApiError(Exception):
 
 
 class NflApi:
+    site: str = SITE
+    standings_url: str = STANDINGS
+    scoreboard_params: ClassVar[dict[str, Any]] = {}          # e.g. the FBS group filter for college
+    standings_params: ClassVar[dict[str, Any]] = {}
+    teams_params: ClassVar[dict[str, Any]] = {}
+
     def __init__(self, http: httpx.AsyncClient) -> None:
         self._http = http
 
     async def scoreboard(self, dates: str | None = None) -> dict[str, Any]:
-        return await self._get(f"{SITE}/scoreboard", params={"dates": dates} if dates else None)
+        params = {**self.scoreboard_params, **({"dates": dates} if dates else {})}
+        return await self._get(f"{self.site}/scoreboard", params=params or None)
 
     async def standings(self) -> dict[str, Any]:
-        return await self._get(STANDINGS)
+        return await self._get(self.standings_url, params=self.standings_params or None)
 
     async def teams(self) -> dict[str, Any]:
-        return await self._get(f"{SITE}/teams")
+        return await self._get(f"{self.site}/teams", params=self.teams_params or None)
 
     async def team_schedule(self, team_id: str) -> dict[str, Any]:
-        return await self._get(f"{SITE}/teams/{team_id}/schedule")
+        return await self._get(f"{self.site}/teams/{team_id}/schedule")
 
     async def _get(self, url: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
         last: Exception | None = None

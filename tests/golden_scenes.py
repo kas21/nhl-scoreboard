@@ -44,6 +44,18 @@ from scoreboard.mlb.normalize import enrich_from_feed
 from scoreboard.mlb.normalize import normalize_schedule as mlb_schedule
 from scoreboard.mlb.normalize import normalize_standings as mlb_standings
 from scoreboard.mlb.normalize import team_summary as mlb_team_summary
+from scoreboard.ncaaf.boards.game import NcaafGameBoard, NcaafGameConfig
+from scoreboard.ncaaf.boards.others import (
+    NcaafScoreBoard,
+    NcaafScoreConfig,
+    NcaafStandingsBoard,
+    NcaafStandingsConfig,
+    NcaafTeamSummaryBoard,
+    NcaafTickerBoard,
+)
+from scoreboard.ncaaf.normalize import normalize_scoreboard as ncaaf_scoreboard
+from scoreboard.ncaaf.normalize import normalize_standings as ncaaf_standings
+from scoreboard.ncaaf.normalize import team_summary as ncaaf_team_summary
 from scoreboard.nfl.boards.game import NflGameBoard, NflGameConfig
 from scoreboard.nfl.boards.others import (
     NflScoreBoard,
@@ -172,6 +184,31 @@ def nfl_scenes() -> list[Scene]:
     ]
 
 
+# -- College football -------------------------------------------------------------
+
+
+def ncaaf_scenes() -> list[Scene]:
+    games = ncaaf_scoreboard(_load("ncaaf", "espn_scoreboard.json"))
+    st = ncaaf_standings(_load("ncaaf", "espn_standings.json"))
+    live = {**games[2], "favorite_side": "away"}                      # #8 MICH @ #20 OU, 3rd quarter, red zone
+    store = SnapshotStore()
+    store.publish("ncaaf.scores", games)
+    store.publish("ncaaf.standings", st)
+    store.publish("ncaaf.team_summary", {"MICH": ncaaf_team_summary("MICH", st, _load("ncaaf", "espn_schedule_MICH.json"), "2026-09-05")})
+    snap = store.publish("main_event", live)
+    now = datetime(2026, 9, 5, 12, tzinfo=TORONTO)
+    td = Event("ncaaf.touchdown", team="MICH", payload={"side": "away", "game": live, "score": "21-10", "points": 7})
+    fg = Event("ncaaf.field_goal", team="OU", payload={"side": "home", "game": live, "score": "21-13", "points": 3})
+    return [
+        Scene("ncaaf.game/live", NcaafGameBoard(), NcaafGameConfig(), snap, now, 2.0, sizes=ALL_SIZES),
+        Scene("ncaaf.ticker/live", NcaafTickerBoard(), TickerConfig(), snap, now, 2.0),
+        Scene("ncaaf.standings/live", NcaafStandingsBoard(), NcaafStandingsConfig(), snap, now, 2.0),
+        Scene("ncaaf.team_summary/live", NcaafTeamSummaryBoard(), TeamSummaryConfig(), snap, now, 2.0),
+        Scene("ncaaf.score/touchdown", NcaafScoreBoard(), NcaafScoreConfig(), snap, now, 1.0, event=td),
+        Scene("ncaaf.score/field_goal", NcaafScoreBoard(), NcaafScoreConfig(), snap, now, 1.0, event=fg, sizes=((128, 64),)),
+    ]
+
+
 # -- MLB ------------------------------------------------------------------------
 
 
@@ -264,4 +301,4 @@ def generic_scenes() -> list[Scene]:
 
 
 def all_scenes() -> list[Scene]:
-    return [*generic_scenes(), *nhl_scenes(), *nfl_scenes(), *mlb_scenes(), *extras_scenes()]
+    return [*generic_scenes(), *nhl_scenes(), *nfl_scenes(), *ncaaf_scenes(), *mlb_scenes(), *extras_scenes()]

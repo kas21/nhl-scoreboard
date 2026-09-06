@@ -16,13 +16,14 @@ NUMBER = (80, 200, 255)
 LABEL = (160, 170, 180)
 NAME = (255, 255, 255)
 SUB = (255, 220, 100)
-WORDS = {"nhl": ("PUCK DROP", "PRESEASON"), "nfl": ("KICKOFF", "PRESEASON"), "mlb": ("OPENING DAY", "SPRING TRAINING")}
-SPORT_ORDER = ("nhl", "nfl", "mlb")
+WORDS = {"nhl": ("PUCK DROP", "PRESEASON"), "nfl": ("KICKOFF", "PRESEASON"), "ncaaf": ("KICKOFF", "PRESEASON"),
+         "mlb": ("OPENING DAY", "SPRING TRAINING")}
+SPORT_ORDER = ("nhl", "nfl", "ncaaf", "mlb")
 
 
 class CountdownConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid", title="Season countdown")
-    sport: str = Field("auto", description="'auto' follows sports.priority; or nhl / nfl / mlb")
+    sport: str = Field("auto", description="'auto' follows sports.priority; or nhl / nfl / ncaaf / mlb")
 
 
 def milestone(season: dict[str, Any], today: date) -> dict[str, Any] | None:
@@ -108,6 +109,9 @@ class SeasonCountdownBoard(BaseBoard):
             if sport == "nfl":
                 from ..nfl.teams import logo
                 return logo(fav or "NFL", 128)
+            if sport == "ncaaf":
+                from ..ncaaf.teams import logo
+                return logo(fav, 128) if fav else None
             if sport == "mlb":
                 from ..mlb.teams import logo
                 return logo(fav, 128) if fav else None

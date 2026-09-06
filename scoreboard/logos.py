@@ -25,9 +25,14 @@ from .logovariants import DEFAULT_VARIANT, FLAT_VARIANTS, VARIANTS, curated, is_
 
 CDN = "https://a.espncdn.com/i/teamlogos/{sport}/500/{code}.png"
 CDN_DARK = "https://a.espncdn.com/i/teamlogos/{sport}/500-dark/{code}.png"
-TEAMS_API = "https://site.api.espn.com/apis/site/v2/sports/{path}/teams?limit=50"
+TEAMS_API = "https://site.api.espn.com/apis/site/v2/sports/{path}/teams?{query}"
 
-LEAGUE_PATHS = {"nhl": "hockey/nhl", "nfl": "football/nfl", "mlb": "baseball/mlb"}
+LEAGUE_PATHS = {"nhl": "hockey/nhl", "nfl": "football/nfl", "mlb": "baseball/mlb", "ncaaf": "football/college-football"}
+TEAMS_QUERY = {"ncaaf": "groups=80&limit=200"}       # FBS only, and all of it; the others fit the default page
+DEFAULT_TEAMS_QUERY = "limit=50"
+# Leagues whose flat CDN path is keyed by ESPN's numeric team id rather than the abbreviation:
+# every URL, the default art included, has to come from the team API's ``logos`` list.
+INDEXED_SPORTS = frozenset({"ncaaf"})
 LOGO_DIR = CACHE_ROOT / "logos"
 CONCURRENCY = 4
 FETCH_TIMEOUT = 20.0
@@ -130,8 +135,11 @@ async def prefetch(http: httpx.AsyncClient, sport: str, abbrevs: tuple[str, ...]
         return 0
 
     index: dict[str, dict[str, str]] = {}
-    if any(v not in FLAT_VARIANTS for _, v in missing):
+    if sport in INDEXED_SPORTS or any(v not in FLAT_VARIANTS for _, v in missing):
         index = await _discover(http, sport, log)
+        if sport in INDEXED_SPORTS and not index:
+            log.warning("no %s team index, so no logos this time (%d missing)", sport, len(missing))
+            return 0
 
     log.info("fetching %d %s team logos (one time, then cached in %s)", len(missing), sport, LOGO_DIR / sport)
     limit = asyncio.Semaphore(CONCURRENCY)
@@ -154,8 +162,8 @@ async def _discover(http: httpx.AsyncClient, sport: str, log) -> dict[str, dict[
     if league is None:
         return {}
     try:
-        resp = await http.get(TEAMS_API.format(path=league), timeout=FETCH_TIMEOUT, follow_redirects=True,
-                              headers=ESPN_HEADERS)
+        url = TEAMS_API.format(path=league, query=TEAMS_QUERY.get(sport, DEFAULT_TEAMS_QUERY))
+        resp = await http.get(url, timeout=FETCH_TIMEOUT, follow_redirects=True, headers=ESPN_HEADERS)
         resp.raise_for_status()
         leagues = resp.json()["sports"][0]["leagues"][0]["teams"]
     except (httpx.HTTPError, KeyError, IndexError, TypeError, ValueError) as exc:
@@ -172,10 +180,11 @@ async def _discover(http: httpx.AsyncClient, sport: str, log) -> dict[str, dict[
 
 
 def _url(sport: str, abbrev: str, variant: str, index: Mapping[str, Mapping[str, str]]) -> str | None:
-    if variant == DEFAULT_VARIANT:
-        return CDN.format(sport=sport, code=espn_code(sport, abbrev))
-    if variant == "dark":
-        return CDN_DARK.format(sport=sport, code=espn_code(sport, abbrev))
+    if sport not in INDEXED_SPORTS:
+        if variant == DEFAULT_VARIANT:
+            return CDN.format(sport=sport, code=espn_code(sport, abbrev))
+        if variant == "dark":
+            return CDN_DARK.format(sport=sport, code=espn_code(sport, abbrev))
     rel = VARIANTS.get(variant)
     return (index.get(api_abbrev(sport, abbrev)) or {}).get(rel or "") or None
 
