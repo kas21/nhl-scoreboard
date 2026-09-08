@@ -28,7 +28,9 @@ CDN_DARK = "https://a.espncdn.com/i/teamlogos/{sport}/500-dark/{code}.png"
 TEAMS_API = "https://site.api.espn.com/apis/site/v2/sports/{path}/teams?{query}"
 
 LEAGUE_PATHS = {"nhl": "hockey/nhl", "nfl": "football/nfl", "mlb": "baseball/mlb", "ncaaf": "football/college-football"}
-TEAMS_QUERY = {"ncaaf": "groups=80&limit=200"}       # FBS only, and all of it; the others fit the default page
+# The college teams endpoint ignores ``groups`` and lists every school it knows (~760, D3 included), so ask
+# for all of them and pick out ours; the others fit the default page.
+TEAMS_QUERY = {"ncaaf": "limit=1000"}
 DEFAULT_TEAMS_QUERY = "limit=50"
 # Leagues whose flat CDN path is keyed by ESPN's numeric team id rather than the abbreviation:
 # every URL, the default art included, has to come from the team API's ``logos`` list.
@@ -43,7 +45,8 @@ ESPN_CODES: dict[str, dict[str, str]] = {"nhl": {"LAK": "la", "SJS": "sj", "TBL"
                                          "mlb": {"AZ": "ari", "CWS": "chw"}}     # MLB codes are the Stats API's, ESPN's differ for two
 # ...and its *team API* disagrees with the CDN for two more, so variant lookups need their own map
 API_ABBREVS: dict[str, dict[str, str]] = {"nhl": {"LAK": "LA", "SJS": "SJ", "TBL": "TB", "NJD": "NJ", "UTA": "UTAH"},
-                                          "mlb": {"AZ": "ARI", "CWS": "CHW"}}
+                                          "mlb": {"AZ": "ARI", "CWS": "CHW"},
+                                          "ncaaf": {"AFA": "AF", "BUFF": "BUF", "JVST": "JXST"}}   # scoreboard/standings code -> team API code
 
 _preferences: dict[str, str] = {}       # "nhl:WSH" -> variant
 _use_curated = True
@@ -170,13 +173,23 @@ async def _discover(http: httpx.AsyncClient, sport: str, log) -> dict[str, dict[
         log.warning("could not list %s teams for logo variants: %s", sport, exc)
         return {}
     index: dict[str, dict[str, str]] = {}
+    ids: dict[str, str] = {}
     for entry in leagues:
         team = entry.get("team") or {}
         abbrev = str(team.get("abbreviation") or "").upper()
-        if not abbrev:
-            continue
+        tid = str(team.get("id") or "")
+        if not abbrev or (abbrev in ids and not id_before(tid, ids[abbrev])):
+            continue                     # a satellite campus sharing the main school's code (Ohio State Newark is OSU too)
+        ids[abbrev] = tid
         index[abbrev] = {"/".join(item.get("rel", [])): item.get("href", "") for item in team.get("logos") or []}
     return index
+
+
+def id_before(a: str, b: str) -> bool:
+    """ESPN numbered the main programs first; a later-added campus that shares the code has a higher id."""
+    def order(s: str) -> tuple[int, str]:
+        return (int(s), "") if s.isdigit() else (10**9, s)
+    return order(a) < order(b)
 
 
 def _url(sport: str, abbrev: str, variant: str, index: Mapping[str, Mapping[str, str]]) -> str | None:

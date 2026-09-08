@@ -14,8 +14,8 @@ from ..config.models import ADVANCED
 from ..data.source import SourceContext
 from ..nfl.source import NflSource
 from .api import NcaafApi
-from .normalize import normalize_scoreboard, normalize_standings, team_summary
-from .teams import CONFERENCE_OF, NCAAF_TEAMS
+from .normalize import fbs_abbrevs, normalize_scoreboard, normalize_standings, team_summary
+from .teams import CONFERENCE_OF, NCAAF_TEAMS, REGISTRY_ABBREVS
 
 TeamAbbrev = Literal[NCAAF_TEAMS]  # type: ignore[valid-type]
 
@@ -59,6 +59,7 @@ class NcaafSource(NflSource):
 
     def __init__(self) -> None:
         self._checked = False
+        self._fbs: frozenset[str] = frozenset()
 
     def _api(self, ctx: SourceContext) -> NcaafApi:
         return NcaafApi(ctx.http)
@@ -67,7 +68,11 @@ class NcaafSource(NflSource):
         return normalize_scoreboard(payload)
 
     def _standings(self, payload: dict[str, Any]) -> dict[str, Any]:
+        self._fbs = fbs_abbrevs(payload) or self._fbs
         return normalize_standings(payload)
+
+    def _registry_abbrev(self, api_abbrev: str) -> str:
+        return REGISTRY_ABBREVS.get(api_abbrev, api_abbrev)
 
     def _summary(self, abbrev: str, standings: dict[str, Any], schedule: dict[str, Any] | None, today: str) -> dict[str, Any]:
         return team_summary(abbrev, standings, schedule, today)
@@ -76,13 +81,20 @@ class NcaafSource(NflSource):
         return slate(games, cfg)  # type: ignore[arg-type]
 
     def _check_teams(self, ctx: SourceContext, listed: dict[str, str]) -> None:
-        """Realignment guard: say once which registry entries ESPN no longer knows, and vice versa."""
-        if self._checked or not listed:
+        """Realignment guard, once: the registry against ESPN's FBS standings (the team API lists every
+        college programme, so it cannot say what is FBS), and every FBS entry against the team API,
+        which supplies ids, logos and colours under codes of its own for a few schools."""
+        if self._checked or not self._fbs or not listed:
             return
         self._checked = True
-        stale = sorted(set(NCAAF_TEAMS) - set(listed))
-        unknown = sorted(set(listed) - set(NCAAF_TEAMS))
+        registry = set(NCAAF_TEAMS)
+        stale = sorted(registry - self._fbs)
+        unknown = sorted(self._fbs - registry)
+        unmapped = sorted((registry & self._fbs) - set(listed))
         if stale:
-            ctx.log.warning("College football: ESPN lists no FBS team for %s — update scoreboard/ncaaf/teams.py", ", ".join(stale))
+            ctx.log.warning("College football: ESPN's FBS standings do not list %s — update scoreboard/ncaaf/teams.py", ", ".join(stale))
         if unknown:
             ctx.log.info("College football: FBS teams not in the registry (cannot be favourites yet): %s", ", ".join(unknown))
+        if unmapped:
+            ctx.log.warning("College football: ESPN's team API has no entry for %s (no logo, colours or schedule) — "
+                            "it may spell them differently; add the alias to logos.API_ABBREVS['ncaaf']", ", ".join(unmapped))

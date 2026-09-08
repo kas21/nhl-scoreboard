@@ -685,15 +685,15 @@
        ]
       },
       {
-       "id": "9043",
-       "uid": "s:20~l:23~t:9043",
+       "id": "9042",
+       "uid": "s:20~l:23~t:9042",
        "type": "team",
        "order": 1,
        "homeAway": "away",
        "winner": false,
        "team": {
-        "id": "9043",
-        "uid": "s:20~l:23~t:9043",
+        "id": "9042",
+        "uid": "s:20~l:23~t:9042",
         "location": "Iowa State",
         "name": "Cyclones",
         "abbreviation": "ISU",
@@ -702,7 +702,7 @@
         "color": "c8102e",
         "alternateColor": "f1be48",
         "isActive": true,
-        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9043.png",
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9042.png",
         "conferenceId": "4"
        },
        "curatedRank": {
@@ -1253,15 +1253,15 @@
        ]
       },
       {
-       "id": "9102",
-       "uid": "s:20~l:23~t:9102",
+       "id": "9104",
+       "uid": "s:20~l:23~t:9104",
        "type": "team",
        "order": 1,
        "homeAway": "away",
        "winner": false,
        "team": {
-        "id": "9102",
-        "uid": "s:20~l:23~t:9102",
+        "id": "9104",
+        "uid": "s:20~l:23~t:9104",
         "location": "Troy",
         "name": "Trojans",
         "abbreviation": "TROY",
@@ -1270,7 +1270,7 @@
         "color": "8a2432",
         "alternateColor": "b0b7bc",
         "isActive": true,
-        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9102.png",
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9104.png",
         "conferenceId": "37"
        },
        "curatedRank": {
@@ -1395,15 +1395,15 @@
        ]
       },
       {
-       "id": "9076",
-       "uid": "s:20~l:23~t:9076",
+       "id": "9077",
+       "uid": "s:20~l:23~t:9077",
        "type": "team",
        "order": 1,
        "homeAway": "away",
        "winner": false,
        "team": {
-        "id": "9076",
-        "uid": "s:20~l:23~t:9076",
+        "id": "9077",
+        "uid": "s:20~l:23~t:9077",
         "location": "Old Dominion",
         "name": "Monarchs",
         "abbreviation": "ODU",
@@ -1412,7 +1412,7 @@
         "color": "003057",
         "alternateColor": "7c878e",
         "isActive": true,
-        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9076.png",
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9077.png",
         "conferenceId": "37"
        },
        "curatedRank": {
@@ -1537,15 +1537,15 @@
        ]
       },
       {
-       "id": "9073",
-       "uid": "s:20~l:23~t:9073",
+       "id": "9074",
+       "uid": "s:20~l:23~t:9074",
        "type": "team",
        "order": 1,
        "homeAway": "away",
        "winner": false,
        "team": {
-        "id": "9073",
-        "uid": "s:20~l:23~t:9073",
+        "id": "9074",
+        "uid": "s:20~l:23~t:9074",
         "location": "Northern Illinois",
         "name": "Huskies",
         "abbreviation": "NIU",
@@ -1554,7 +1554,7 @@
         "color": "c8102e",
         "alternateColor": "000000",
         "isActive": true,
-        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9073.png",
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9074.png",
         "conferenceId": "17"
        },
        "curatedRank": {
@@ -1621,7 +1621,7 @@
    "uid": "s:20~l:23~e:401756012",
    "date": "2026-09-06T02:30Z",
    "name": "UNLV Rebels at Boise State Broncos",
-   "shortName": "UNLV @ BSU",
+   "shortName": "UNLV @ BOIS",
    "week": {
     "number": 2
    },
@@ -1647,7 +1647,7 @@
         "uid": "s:20~l:23~t:68",
         "location": "Boise State",
         "name": "Broncos",
-        "abbreviation": "BSU",
+        "abbreviation": "BOIS",
         "displayName": "Boise State Broncos",
         "shortDisplayName": "Boise State",
         "color": "0033a0",
@@ -1679,15 +1679,15 @@
        ]
       },
       {
-       "id": "9114",
-       "uid": "s:20~l:23~t:9114",
+       "id": "9116",
+       "uid": "s:20~l:23~t:9116",
        "type": "team",
        "order": 1,
        "homeAway": "away",
        "winner": false,
        "team": {
-        "id": "9114",
-        "uid": "s:20~l:23~t:9114",
+        "id": "9116",
+        "uid": "s:20~l:23~t:9116",
         "location": "UNLV",
         "name": "Rebels",
         "abbreviation": "UNLV",
@@ -1696,7 +1696,7 @@
         "color": "cf0a2c",
         "alternateColor": "000000",
         "isActive": true,
-        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9114.png",
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9116.png",
         "conferenceId": "17"
        },
        "curatedRank": {

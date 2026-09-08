@@ -24,12 +24,19 @@ from scoreboard.ncaaf.boards.others import (
 )
 from scoreboard.ncaaf.events import detect_ncaaf
 from scoreboard.ncaaf.normalize import (
+    fbs_abbrevs,
     normalize_scoreboard,
     normalize_standings,
     team_summary,
 )
 from scoreboard.ncaaf.source import NcaafConfig, NcaafSource, slate
-from scoreboard.ncaaf.teams import CONFERENCE_OF, CONFERENCES, NCAAF_TEAMS
+from scoreboard.ncaaf.teams import (
+    API_ABBREVS,
+    CONFERENCE_OF,
+    CONFERENCES,
+    NCAAF_TEAMS,
+    REGISTRY_ABBREVS,
+)
 from scoreboard.nhl.boards.team_summary import TeamSummaryConfig
 from scoreboard.nhl.boards.ticker import TickerConfig
 from scoreboard.render.profiles import profile_for
@@ -44,10 +51,22 @@ def load(n):
 
 
 def test_registry_is_the_2026_fbs():
-    assert len(NCAAF_TEAMS) == 136 and len(CONFERENCES) == 11
+    assert len(NCAAF_TEAMS) == 138 and len(CONFERENCES) == 11
     assert CONFERENCE_OF["MICH"] == "Big Ten" and CONFERENCE_OF["TXST"] == "Pac-12" and CONFERENCE_OF["ND"] == "Independents"
-    listed = {t["team"]["abbreviation"] for t in load("espn_teams.json")["sports"][0]["leagues"][0]["teams"]}
-    assert listed == set(NCAAF_TEAMS)
+    assert CONFERENCE_OF["SAC"] == "MAC" and CONFERENCE_OF["NDSU"] == "Mountain West"          # 2026 newcomers
+    assert {"IU", "NCSU", "NU", "UL", "BOIS"} <= set(NCAAF_TEAMS)                                # the scoreboard's codes, not the schools' own
+    assert set(NCAAF_TEAMS) == fbs_abbrevs(load("espn_standings.json"))                          # the standings are the FBS list
+    # The team API spells three of them its own way; the alias map bridges it.
+    listed = {REGISTRY_ABBREVS.get(t["team"]["abbreviation"], t["team"]["abbreviation"]) for t in load("espn_teams.json")["sports"][0]["leagues"][0]["teams"]}
+    assert listed == set(NCAAF_TEAMS) and API_ABBREVS == {"AFA": "AF", "BUFF": "BUF", "JVST": "JXST"}
+
+
+def test_team_ids_follow_our_codes_and_the_main_campus():
+    teams = load("espn_teams.json")["sports"][0]["leagues"][0]["teams"]
+    ids = NcaafSource()._team_ids(teams)
+    assert ids["AFA"] == "2005" and ids["JVST"] == "55" and "AF" not in ids       # the team API's AF is our AFA
+    assert ids["OSU"] == "194"                                                     # not Ohio State Newark (3161)
+    assert set(NCAAF_TEAMS) <= set(ids)
 
 
 def test_normalize_scoreboard_ranks_and_school_names():
@@ -69,7 +88,7 @@ def test_normalize_scoreboard_ranks_and_school_names():
 
 def test_normalize_standings_by_conference_with_nested_divisions():
     st = normalize_standings(load("espn_standings.json"))
-    assert len(st["teams"]) == 136 and len(st["league"]) == 136
+    assert len(st["teams"]) == 138 and len(st["league"]) == 138
     assert set(st["division"]) == {"ACC", "Big 12", "Big Ten", "SEC", "American", "CUSA", "MAC", "MWC", "Pac-12", "Sun Belt", "Ind"}
     assert len(st["division"]["Big Ten"]) == 18 and len(st["division"]["Sun Belt"]) == 14
     assert set(st["wildcard"]) == {"Sun Belt"} and set(st["wildcard"]["Sun Belt"]) == {"East", "West"}
@@ -221,9 +240,9 @@ async def test_source_publishes_every_key(caplog):
     assert published["ncaaf.season"]["phase"] == "regular" and published["ncaaf.season"]["week"] == 2
     assert published["ncaaf.main_event"]["id"] == "401756003" and published["ncaaf.main_event"]["favorite_side"] == "away"
     assert 0 < len(published["ncaaf.scores"]) < 12 and all(g["sport"] == "ncaaf" for g in published["ncaaf.scores"])
-    assert len(published["ncaaf.standings"]["teams"]) == 136
+    assert len(published["ncaaf.standings"]["teams"]) == 138
     assert list(published["ncaaf.team_summary"]) == ["MICH"] and published["ncaaf.team_summary"]["MICH"]["record"]["rank"] == 8
-    assert not [r for r in caplog.records if "ESPN lists no FBS team" in r.getMessage()]
+    assert not [r for r in caplog.records if "College football:" in r.getMessage()]   # registry, standings and team API all agree
 
 
 async def _one_pass(coro):
@@ -249,10 +268,13 @@ def test_registry_check_warns_about_stale_entries(caplog):
         log = logging.getLogger("ncaaf-test")
 
     with caplog.at_level(logging.INFO, logger="ncaaf-test"):
-        src._check_teams(Ctx(), {a: "1" for a in NCAAF_TEAMS if a != "CONN"} | {"UCONN": "41"})
-        src._check_teams(Ctx(), {})                       # only reported once
+        src._check_teams(Ctx(), {a: "1" for a in NCAAF_TEAMS})          # standings not seen yet: nothing to compare against
+        src._standings({**load("espn_standings.json")})
+        src._fbs = (src._fbs - {"CONN"}) | {"UCONN"}                     # ESPN renamed one
+        src._check_teams(Ctx(), {a: "1" for a in NCAAF_TEAMS if a != "AFA"})   # ...and its team API lost another
+        src._check_teams(Ctx(), {})                                      # only reported once
     msgs = [r.getMessage() for r in caplog.records]
-    assert len(msgs) == 2 and "CONN" in msgs[0] and "UCONN" in msgs[1]
+    assert len(msgs) == 3 and "CONN" in msgs[0] and "UCONN" in msgs[1] and "AFA" in msgs[2] and "alias" in msgs[2]
 
 
 def test_logo_urls_for_college_come_from_the_team_index():
@@ -262,7 +284,18 @@ def test_logo_urls_for_college_come_from_the_team_index():
     assert logos._url("ncaaf", "MICH", "dark", index) == "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/130.png"
     assert logos._url("ncaaf", "OSU", "default", index) is None          # not indexed: no guessing an id
     assert logos._url("nfl", "BUF", "default", {}) == "https://a.espncdn.com/i/teamlogos/nfl/500/buf.png"
-    assert "groups=80" in logos.TEAMS_API.format(path=logos.LEAGUE_PATHS["ncaaf"], query=logos.TEAMS_QUERY["ncaaf"])
+    assert "limit=1000" in logos.TEAMS_API.format(path=logos.LEAGUE_PATHS["ncaaf"], query=logos.TEAMS_QUERY["ncaaf"])   # groups is ignored there
+    aliased = {"AF": {"full/default": "https://a.espncdn.com/i/teamlogos/ncaa/500/2005.png"}}
+    assert logos._url("ncaaf", "AFA", "default", aliased) == "https://a.espncdn.com/i/teamlogos/ncaa/500/2005.png"
+
+
+@pytest.mark.asyncio
+async def test_logo_index_keeps_the_main_campus():
+    async with httpx.AsyncClient() as http, respx.mock() as mock:
+        mock.get(url__regex=r".*/college-football/teams\?.*").mock(return_value=httpx.Response(200, json=load("espn_teams.json")))
+        index = await logos._discover(http, "ncaaf", logging.getLogger("ncaaf-test"))
+    assert index["OSU"]["full/default"].endswith("/194.png")            # Ohio State, not Ohio State Newark (3161)
+    assert "JXST" in index and "JVST" not in index                        # raw team-API codes; _url maps ours onto them
 
 
 def test_wired_into_config_and_dashboard():

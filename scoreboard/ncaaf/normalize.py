@@ -66,6 +66,12 @@ def _conf_record(stats: dict[str, dict[str, Any]]) -> tuple[int, int]:
     return 0, 0
 
 
+def fbs_abbrevs(payload: dict[str, Any]) -> frozenset[str]:
+    """Every team in the FBS standings: the one ESPN feed that really is FBS-only."""
+    return frozenset(str((e.get("team") or {}).get("abbreviation") or "")
+                     for _, _, entries in _groups(payload) for e in entries) - {""}
+
+
 def normalize_standings(payload: dict[str, Any]) -> dict[str, Any]:
     rows: dict[str, dict[str, Any]] = {}
     members: dict[str, list[str]] = {}

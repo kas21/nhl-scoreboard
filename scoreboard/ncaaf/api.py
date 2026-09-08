@@ -1,7 +1,9 @@
 """ESPN public site API for college football (no key): the NFL client with the FBS URLs.
 
 Without the ``groups=80`` (FBS) filter ESPN's college scoreboard only lists games that
-involve a ranked team, and the default page size hides most of a Saturday slate.
+involve a ranked team, and the default page size hides most of a Saturday slate. The teams
+endpoint ignores ``groups`` altogether and knows every college programme (~760), so it is
+asked for all of them; the source keeps the FBS ones.
 """
 from __future__ import annotations
 
@@ -20,4 +22,4 @@ class NcaafApi(NflApi):
     standings_url = STANDINGS
     scoreboard_params: ClassVar[dict[str, Any]] = {"groups": FBS_GROUP, "limit": 200}
     standings_params: ClassVar[dict[str, Any]] = {"group": FBS_GROUP}
-    teams_params: ClassVar[dict[str, Any]] = {"groups": FBS_GROUP, "limit": 200}
+    teams_params: ClassVar[dict[str, Any]] = {"limit": 1000}

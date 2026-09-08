@@ -14,6 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from ..config.models import ADVANCED
 from ..data.source import SourceContext
+from ..logos import id_before
 from ..logos import watch as watch_logos
 from ..nhl.select import favorite_side, select_main_event
 from .api import NflApi, NflApiError
@@ -62,6 +63,22 @@ class NflSource:
     def _check_teams(self, ctx: SourceContext, listed: dict[str, str]) -> None:
         """Called with ESPN's abbreviation -> id map once per standings refresh."""
 
+    def _registry_abbrev(self, api_abbrev: str) -> str:
+        """Our code for an abbreviation from ESPN's team API (they differ for a few college schools)."""
+        return api_abbrev
+
+    def _team_ids(self, teams: list[dict[str, Any]]) -> dict[str, str]:
+        """abbreviation -> ESPN id, keyed by our codes. Where a satellite campus shares the main school's
+        code (college), the lower id is the main programme."""
+        ids: dict[str, str] = {}
+        for entry in teams:
+            team = entry.get("team") or {}
+            abbrev = self._registry_abbrev(str(team.get("abbreviation") or "").upper())
+            tid = str(team.get("id") or "")
+            if abbrev and tid and (abbrev not in ids or id_before(tid, ids[abbrev])):
+                ids = {**ids, abbrev: tid}
+        return ids
+
     # -- loops ----------------------------------------------------------------
 
     async def run(self, ctx: SourceContext) -> None:
@@ -106,8 +123,7 @@ class NflSource:
             try:
                 standings = self._standings(await api.standings())
                 ctx.publish(standings, subkey="standings")
-                teams = (await api.teams())["sports"][0]["leagues"][0]["teams"]
-                ids = {t["team"]["abbreviation"]: t["team"]["id"] for t in teams}
+                ids = self._team_ids((await api.teams())["sports"][0]["leagues"][0]["teams"])
                 self._check_teams(ctx, ids)
                 summaries: dict[str, Any] = {}
                 for abbrev in cfg.favorites:

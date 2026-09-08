@@ -134,15 +134,15 @@
        ]
       },
       {
-       "id": "9074",
-       "uid": "s:20~l:23~t:9074",
+       "id": "9075",
+       "uid": "s:20~l:23~t:9075",
        "type": "team",
        "order": 1,
        "homeAway": "away",
        "winner": false,
        "team": {
-        "id": "9074",
-        "uid": "s:20~l:23~t:9074",
+        "id": "9075",
+        "uid": "s:20~l:23~t:9075",
         "location": "New Mexico State",
         "name": "Aggies",
         "abbreviation": "NMSU",
@@ -151,11 +151,11 @@
         "color": "861f41",
         "alternateColor": "ffffff",
         "isActive": true,
-        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9074.png",
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9075.png",
         "conferenceId": "12",
         "logos": [
          {
-          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/9074.png",
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/9075.png",
           "width": 500,
           "height": 500,
           "alt": "",
@@ -165,7 +165,7 @@
           ]
          },
          {
-          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/9074.png",
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/9075.png",
           "width": 500,
           "height": 500,
           "alt": "",
@@ -1674,15 +1674,15 @@
        ]
       },
       {
-       "id": "9085",
-       "uid": "s:20~l:23~t:9085",
+       "id": "9086",
+       "uid": "s:20~l:23~t:9086",
        "type": "team",
        "order": 1,
        "homeAway": "away",
        "winner": false,
        "team": {
-        "id": "9085",
-        "uid": "s:20~l:23~t:9085",
+        "id": "9086",
+        "uid": "s:20~l:23~t:9086",
         "location": "Purdue",
         "name": "Boilermakers",
         "abbreviation": "PUR",
@@ -1691,11 +1691,11 @@
         "color": "cfb991",
         "alternateColor": "000000",
         "isActive": true,
-        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9085.png",
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9086.png",
         "conferenceId": "5",
         "logos": [
          {
-          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/9085.png",
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/9086.png",
           "width": 500,
           "height": 500,
           "alt": "",
@@ -1705,7 +1705,7 @@
           ]
          },
          {
-          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/9085.png",
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/9086.png",
           "width": 500,
           "height": 500,
           "alt": "",
@@ -1785,7 +1785,7 @@
    "uid": "s:20~l:23~e:401755909",
    "date": "2026-11-07T17:00Z",
    "name": "Michigan Wolverines at Northwestern Wildcats",
-   "shortName": "MICH @ NW",
+   "shortName": "MICH @ NU",
    "week": {
     "number": 11,
     "text": "Week 11"
@@ -1801,28 +1801,28 @@
      "conferenceCompetition": true,
      "competitors": [
       {
-       "id": "9075",
-       "uid": "s:20~l:23~t:9075",
+       "id": "77",
+       "uid": "s:20~l:23~t:77",
        "type": "team",
        "order": 0,
        "homeAway": "home",
        "winner": false,
        "team": {
-        "id": "9075",
-        "uid": "s:20~l:23~t:9075",
+        "id": "77",
+        "uid": "s:20~l:23~t:77",
         "location": "Northwestern",
         "name": "Wildcats",
-        "abbreviation": "NW",
+        "abbreviation": "NU",
         "displayName": "Northwestern Wildcats",
         "shortDisplayName": "Northwestern",
         "color": "4e2a84",
         "alternateColor": "ffffff",
         "isActive": true,
-        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9075.png",
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/77.png",
         "conferenceId": "5",
         "logos": [
          {
-          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/9075.png",
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500/77.png",
           "width": 500,
           "height": 500,
           "alt": "",
@@ -1832,7 +1832,7 @@
           ]
          },
          {
-          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/9075.png",
+          "href": "https://a.espncdn.com/i/teamlogos/ncaa/500-dark/77.png",
           "width": 500,
           "height": 500,
           "alt": "",

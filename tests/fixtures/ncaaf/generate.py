@@ -20,7 +20,7 @@ TEAMS: dict[str, tuple[str, str, str, str]] = {
     "CLEM": ("Clemson", "Tigers", "f66733", "522d80"), "DUKE": ("Duke", "Blue Devils", "003087", "ffffff"),
     "FSU": ("Florida State", "Seminoles", "782f40", "ceb888"), "GT": ("Georgia Tech", "Yellow Jackets", "b3a369", "003057"),
     "LOU": ("Louisville", "Cardinals", "ad0000", "000000"), "MIA": ("Miami", "Hurricanes", "f47321", "005030"),
-    "NCST": ("NC State", "Wolfpack", "cc0000", "000000"), "PITT": ("Pittsburgh", "Panthers", "003594", "ffb81c"),
+    "NCSU": ("NC State", "Wolfpack", "cc0000", "000000"), "PITT": ("Pittsburgh", "Panthers", "003594", "ffb81c"),
     "SMU": ("SMU", "Mustangs", "0033a0", "c8102e"), "STAN": ("Stanford", "Cardinal", "8c1515", "ffffff"),
     "SYR": ("Syracuse", "Orange", "f76900", "000e54"), "UNC": ("North Carolina", "Tar Heels", "7bafd4", "ffffff"),
     "UVA": ("Virginia", "Cavaliers", "232d4b", "f84c1e"), "VT": ("Virginia Tech", "Hokies", "630031", "cf4420"),
@@ -35,11 +35,11 @@ TEAMS: dict[str, tuple[str, str, str, str]] = {
     "TTU": ("Texas Tech", "Red Raiders", "cc0000", "000000"), "UCF": ("UCF", "Knights", "000000", "ffc904"),
     "UTAH": ("Utah", "Utes", "cc0000", "ffffff"), "WVU": ("West Virginia", "Mountaineers", "002855", "eaaa00"),
     # Big Ten
-    "ILL": ("Illinois", "Fighting Illini", "e84a27", "13294b"), "IND": ("Indiana", "Hoosiers", "990000", "eeedeb"),
+    "ILL": ("Illinois", "Fighting Illini", "e84a27", "13294b"), "IU": ("Indiana", "Hoosiers", "990000", "eeedeb"),
     "IOWA": ("Iowa", "Hawkeyes", "000000", "ffcd00"), "MD": ("Maryland", "Terrapins", "e03a3e", "ffd520"),
     "MICH": ("Michigan", "Wolverines", "00274c", "ffcb05"), "MINN": ("Minnesota", "Golden Gophers", "7a0019", "ffcc33"),
     "MSU": ("Michigan State", "Spartans", "18453b", "ffffff"), "NEB": ("Nebraska", "Cornhuskers", "e41c38", "ffffff"),
-    "NW": ("Northwestern", "Wildcats", "4e2a84", "ffffff"), "ORE": ("Oregon", "Ducks", "154733", "fee123"),
+    "NU": ("Northwestern", "Wildcats", "4e2a84", "ffffff"), "ORE": ("Oregon", "Ducks", "154733", "fee123"),
     "OSU": ("Ohio State", "Buckeyes", "bb0000", "666666"), "PSU": ("Penn State", "Nittany Lions", "041e42", "ffffff"),
     "PUR": ("Purdue", "Boilermakers", "cfb991", "000000"), "RUTG": ("Rutgers", "Scarlet Knights", "cc0033", "ffffff"),
     "UCLA": ("UCLA", "Bruins", "2d68c4", "f2a900"), "USC": ("USC", "Trojans", "990000", "ffc72c"),
@@ -68,6 +68,7 @@ TEAMS: dict[str, tuple[str, str, str, str]] = {
     "MTSU": ("Middle Tennessee", "Blue Raiders", "0066cc", "ffffff"), "NMSU": ("New Mexico State", "Aggies", "861f41", "ffffff"),
     "SHSU": ("Sam Houston", "Bearkats", "f26622", "1a3668"), "WKU": ("Western Kentucky", "Hilltoppers", "c60000", "ffffff"),
     # MAC
+    "SAC": ("Sacramento State", "Hornets", "043927", "c4b581"),
     "AKR": ("Akron", "Zips", "041e42", "a89968"), "BALL": ("Ball State", "Cardinals", "ba0c2f", "ffffff"),
     "BGSU": ("Bowling Green", "Falcons", "fe5000", "4f2c1d"), "BUFF": ("Buffalo", "Bulls", "005bbb", "ffffff"),
     "CMU": ("Central Michigan", "Chippewas", "6a0032", "ffc82e"), "EMU": ("Eastern Michigan", "Eagles", "006633", "ffffff"),
@@ -75,13 +76,14 @@ TEAMS: dict[str, tuple[str, str, str, str]] = {
     "MASS": ("UMass", "Minutemen", "881c1c", "000000"), "OHIO": ("Ohio", "Bobcats", "00694e", "ffffff"),
     "TOL": ("Toledo", "Rockets", "15397f", "ffd100"), "WMU": ("Western Michigan", "Broncos", "6c4023", "b5a167"),
     # Mountain West
+    "NDSU": ("North Dakota State", "Bison", "0a5640", "ffc82e"),
     "AFA": ("Air Force", "Falcons", "003087", "8a8d8f"), "HAW": ("Hawai'i", "Rainbow Warriors", "024731", "c8c8c8"),
     "NEV": ("Nevada", "Wolf Pack", "003366", "807f84"), "NIU": ("Northern Illinois", "Huskies", "c8102e", "000000"),
     "SJSU": ("San José State", "Spartans", "0055a2", "e5a823"), "UNLV": ("UNLV", "Rebels", "cf0a2c", "000000"),
     "UNM": ("New Mexico", "Lobos", "ba0c2f", "a7a8aa"), "UTEP": ("UTEP", "Miners", "041e42", "ff8200"),
     "WYO": ("Wyoming", "Cowboys", "492f24", "ffc425"),
     # Pac-12
-    "BSU": ("Boise State", "Broncos", "0033a0", "d64309"), "CSU": ("Colorado State", "Rams", "1e4d2b", "c8c372"),
+    "BOIS": ("Boise State", "Broncos", "0033a0", "d64309"), "CSU": ("Colorado State", "Rams", "1e4d2b", "c8c372"),
     "FRES": ("Fresno State", "Bulldogs", "db0032", "002e6d"), "ORST": ("Oregon State", "Beavers", "dc4405", "000000"),
     "SDSU": ("San Diego State", "Aztecs", "a6192e", "000000"), "TXST": ("Texas State", "Bobcats", "501214", "b5a36a"),
     "USU": ("Utah State", "Aggies", "0f2439", "ffffff"), "WSU": ("Washington State", "Cougars", "981e32", "5e6a71"),
@@ -91,35 +93,37 @@ TEAMS: dict[str, tuple[str, str, str, str]] = {
     "GAST": ("Georgia State", "Panthers", "0039a6", "c60c30"), "JMU": ("James Madison", "Dukes", "450084", "cbb677"),
     "LT": ("Louisiana Tech", "Bulldogs", "002f8b", "e31b23"), "MRSH": ("Marshall", "Thundering Herd", "00b140", "000000"),
     "ODU": ("Old Dominion", "Monarchs", "003057", "7c878e"), "TROY": ("Troy", "Trojans", "8a2432", "b0b7bc"),
-    "ULL": ("Louisiana", "Ragin' Cajuns", "ce181e", "0a0203"), "ULM": ("UL Monroe", "Warhawks", "800029", "cfb87c"),
+    "UL": ("Louisiana", "Ragin' Cajuns", "ce181e", "0a0203"), "ULM": ("UL Monroe", "Warhawks", "800029", "cfb87c"),
     "USA": ("South Alabama", "Jaguars", "00205b", "bf0d3e"), "USM": ("Southern Miss", "Golden Eagles", "ffab00", "000000"),
     # Independents
     "CONN": ("UConn", "Huskies", "000e2f", "ffffff"), "ND": ("Notre Dame", "Fighting Irish", "0c2340", "c99700"),
 }
 CONFERENCES = {
-    "ACC": ("Atlantic Coast Conference", 1, ["BC", "CAL", "CLEM", "DUKE", "FSU", "GT", "LOU", "MIA", "NCST", "PITT", "SMU", "STAN", "SYR", "UNC", "UVA", "VT", "WAKE"]),
+    "ACC": ("Atlantic Coast Conference", 1, ["BC", "CAL", "CLEM", "DUKE", "FSU", "GT", "LOU", "MIA", "NCSU", "PITT", "SMU", "STAN", "SYR", "UNC", "UVA", "VT", "WAKE"]),
     "Big 12": ("Big 12 Conference", 4, ["ARIZ", "ASU", "BAY", "BYU", "CIN", "COLO", "HOU", "ISU", "KSU", "KU", "OKST", "TCU", "TTU", "UCF", "UTAH", "WVU"]),
-    "Big Ten": ("Big Ten Conference", 5, ["ILL", "IND", "IOWA", "MD", "MICH", "MINN", "MSU", "NEB", "NW", "ORE", "OSU", "PSU", "PUR", "RUTG", "UCLA", "USC", "WASH", "WIS"]),
+    "Big Ten": ("Big Ten Conference", 5, ["ILL", "IU", "IOWA", "MD", "MICH", "MINN", "MSU", "NEB", "NU", "ORE", "OSU", "PSU", "PUR", "RUTG", "UCLA", "USC", "WASH", "WIS"]),
     "SEC": ("Southeastern Conference", 8, ["ALA", "ARK", "AUB", "FLA", "LSU", "MISS", "MIZ", "MSST", "OU", "SC", "TA&M", "TENN", "TEX", "UGA", "UK", "VAN"]),
     "American": ("American Athletic Conference", 151, ["ARMY", "CLT", "ECU", "FAU", "MEM", "NAVY", "RICE", "TEM", "TLSA", "TULN", "UAB", "UNT", "USF", "UTSA"]),
     "CUSA": ("Conference USA", 12, ["DEL", "FIU", "JVST", "KENN", "LIB", "MOST", "MTSU", "NMSU", "SHSU", "WKU"]),
-    "MAC": ("Mid-American Conference", 15, ["AKR", "BALL", "BGSU", "BUFF", "CMU", "EMU", "KENT", "M-OH", "MASS", "OHIO", "TOL", "WMU"]),
-    "MWC": ("Mountain West Conference", 17, ["AFA", "HAW", "NEV", "NIU", "SJSU", "UNLV", "UNM", "UTEP", "WYO"]),
-    "Pac-12": ("Pac-12 Conference", 9, ["BSU", "CSU", "FRES", "ORST", "SDSU", "TXST", "USU", "WSU"]),
-    "Sun Belt": ("Sun Belt Conference", 37, ["APP", "ARST", "CCU", "GASO", "GAST", "JMU", "LT", "MRSH", "ODU", "TROY", "ULL", "ULM", "USA", "USM"]),
+    "MAC": ("Mid-American Conference", 15, ["AKR", "BALL", "BGSU", "BUFF", "CMU", "EMU", "KENT", "M-OH", "MASS", "OHIO", "SAC", "TOL", "WMU"]),
+    "MWC": ("Mountain West Conference", 17, ["AFA", "HAW", "NDSU", "NEV", "NIU", "SJSU", "UNLV", "UNM", "UTEP", "WYO"]),
+    "Pac-12": ("Pac-12 Conference", 9, ["BOIS", "CSU", "FRES", "ORST", "SDSU", "TXST", "USU", "WSU"]),
+    "Sun Belt": ("Sun Belt Conference", 37, ["APP", "ARST", "CCU", "GASO", "GAST", "JMU", "LT", "MRSH", "ODU", "TROY", "UL", "ULM", "USA", "USM"]),
     "Ind": ("FBS Independents", 18, ["CONN", "ND"]),
 }
 # The Sun Belt still plays divisions: exercises the nested standings walk.
 DIVISIONS = {"Sun Belt": {"Sun Belt - East": ["APP", "CCU", "GASO", "GAST", "JMU", "MRSH", "ODU"],
-                          "Sun Belt - West": ["ARST", "LT", "TROY", "ULL", "ULM", "USA", "USM"]}}
+                          "Sun Belt - West": ["ARST", "LT", "TROY", "UL", "ULM", "USA", "USM"]}}
 KNOWN_IDS = {"MICH": 130, "OSU": 194, "UGA": 61, "ALA": 333, "TEX": 251, "ND": 87, "ORE": 2483, "PSU": 213, "LSU": 99,
              "CLEM": 228, "USC": 30, "OU": 201, "TENN": 2633, "MIA": 2390, "IOWA": 2294, "NEB": 158, "WIS": 275, "FSU": 52,
              "AUB": 2, "FLA": 57, "TA&M": 245, "UTAH": 254, "WASH": 264, "MISS": 145, "MIZ": 142, "COLO": 38, "ASU": 9,
-             "BSU": 68, "BYU": 252, "IND": 84, "SMU": 2567, "ARMY": 349, "NAVY": 2426, "UCLA": 26, "MSU": 127, "ILL": 356}
-RANKS = ["TEX", "OSU", "UGA", "ORE", "PSU", "ND", "ALA", "MICH", "CLEM", "LSU", "MIA", "TENN", "SMU", "ISU", "BSU", "ARIZ",
-         "IND", "ILL", "KSU", "OU", "USC", "TA&M", "MISS", "IOWA", "UTAH"]
+             "BOIS": 68, "BYU": 252, "IU": 84, "NCSU": 152, "NU": 77, "UL": 309, "SAC": 16, "NDSU": 2449, "AFA": 2005, "BUFF": 2084, "JVST": 55, "SMU": 2567, "ARMY": 349, "NAVY": 2426, "UCLA": 26, "MSU": 127, "ILL": 356}
+RANKS = ["TEX", "OSU", "UGA", "ORE", "PSU", "ND", "ALA", "MICH", "CLEM", "LSU", "MIA", "TENN", "SMU", "ISU", "BOIS", "ARIZ",
+         "IU", "ILL", "KSU", "OU", "USC", "TA&M", "MISS", "IOWA", "UTAH"]
 RANK_OF = {a: i + 1 for i, a in enumerate(RANKS)}
 CONF_OF = {t: conf for conf, (_, _, ts) in CONFERENCES.items() for t in ts}
+# ESPN's team API spells these three differently from its scoreboard and standings.
+API_ABBREVS = {"AFA": "AF", "BUFF": "BUF", "JVST": "JXST"}
 CONF_ID = {conf: cid for conf, (_, cid, _) in CONFERENCES.items()}
 
 
@@ -204,7 +208,7 @@ def scoreboard() -> dict:
         event(401756009, "2026-09-05T20:00Z", "TROY", "APP", "pre", None, ("1-0", "1-0")),
         event(401756010, "2026-09-05T21:00Z", "ODU", "JMU", "pre", None, ("0-1", "1-0")),
         event(401756011, "2026-09-05T23:00Z", "NIU", "MASS", "pre", None, ("1-0", "0-1")),
-        event(401756012, "2026-09-06T02:30Z", "UNLV", "BSU", "pre", None, ("1-0", "1-0")),
+        event(401756012, "2026-09-06T02:30Z", "UNLV", "BOIS", "pre", None, ("1-0", "1-0")),
     ]
     return {"leagues": [{"id": "23", "uid": "s:20~l:23", "name": "NCAA - Football", "abbreviation": "NCAAF", "slug": "college-football",
                          "season": {"year": SEASON, "startDate": f"{SEASON}-08-01T07:00Z", "endDate": f"{SEASON + 1}-01-20T07:59Z",
@@ -253,7 +257,9 @@ def standings() -> dict:
 def teams_list() -> dict:
     return {"sports": [{"id": "20", "uid": "s:20", "name": "Football", "slug": "football",
                         "leagues": [{"id": "23", "uid": "s:20~l:23", "name": "NCAA - Football", "abbreviation": "NCAAF", "shortName": "NCAAF", "slug": "college-football",
-                                     "teams": [{"team": team(a)} for a in sorted(TEAMS)]}]}]}
+                                     "teams": [{"team": {**team(a), "abbreviation": API_ABBREVS.get(a, a)}} for a in sorted(TEAMS)]
+                                              + [{"team": {**team("OSU"), "id": "3161", "uid": "s:20~l:23~t:3161", "location": "Ohio State Newark",
+                                                           "name": "Titans", "displayName": "Ohio State Newark Titans", "shortDisplayName": "Ohio St Newark"}}]}]}]}
 
 
 def schedule_mich() -> dict:
@@ -266,7 +272,7 @@ def schedule_mich() -> dict:
              ("2026-10-17T16:00Z", "WASH", "MICH", None, ("0-0", "0-0"), 8),
              ("2026-10-24T23:30Z", "MICH", "MSU", None, ("0-0", "0-0"), 9),
              ("2026-11-01T00:00Z", "PUR", "MICH", None, ("0-0", "0-0"), 10),
-             ("2026-11-07T17:00Z", "MICH", "NW", None, ("0-0", "0-0"), 11),
+             ("2026-11-07T17:00Z", "MICH", "NU", None, ("0-0", "0-0"), 11),
              ("2026-11-14T17:00Z", "MD", "MICH", None, ("0-0", "0-0"), 12),
              ("2026-11-21T20:30Z", "MICH", "PSU", None, ("0-0", "0-0"), 13),
              ("2026-11-28T17:00Z", "OSU", "MICH", None, ("0-0", "0-0"), 14)]
