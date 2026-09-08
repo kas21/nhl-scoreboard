@@ -234,7 +234,7 @@ function Playlist({ state, list, boards, autos, update }) {
       <span class="grip" title="Drag to reorder" onpointerdown=${ev => grab(ev, i)}>⠿</span>
       <input type="checkbox" checked=${e.enabled} onchange=${ev => edit(i, { enabled: ev.target.checked })} />
       <select value=${e.board} onchange=${ev => edit(i, { board: ev.target.value })}>
-        ${boards.map(b => html`<option value=${b.key}>${b.title}</option>`)}
+        ${boards.filter(b => !b.event || b.key === e.board).map(b => html`<option value=${b.key}>${b.title}</option>`)}
       </select>
       <input type="number" min="1" placeholder="auto" title=${AUTO_HINT} value=${e.duration ?? ''} style="width:80px"
         onchange=${ev => edit(i, { duration: ev.target.value === '' ? null : +ev.target.value })} /> s
