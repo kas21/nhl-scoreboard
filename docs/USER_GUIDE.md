@@ -4,7 +4,7 @@
 A small LED panel on your Pi that follows your team: a live scoreboard with goal and penalty alerts
 during games, and a rotation of useful boards the rest of the time (scores around the league,
 standings, your team's record and next game, clock, weather, holiday countdown, aircraft overhead).
-NHL is the main event; NFL and MLB work the same way. Everything is set up from a web page — no files to edit.
+NHL is the main event; NFL, college football (FBS) and MLB work the same way. Everything is set up from a web page — no files to edit.
 
 ## First run
 1. Flash Raspberry Pi OS (64-bit), set Wi-Fi + hostname + user in Raspberry Pi Imager.
@@ -69,18 +69,18 @@ nothing needs a restart.
 ## Boards
 | Board | Shows | Needs |
 |---|---|---|
-| NHL game / NFL game / MLB game | your team's game: pregame matchup, live score with period/clock, PP / empty net (NHL) or possession, down & distance, red zone, timeouts (NFL) or inning + half, bases, count, outs, pitcher / batter, due up, last pitch (MLB), final (with hits and W/L/S pitchers for MLB) | a favourite with a game today |
+| NHL game / NFL game / College football game / MLB game | your team's game: pregame matchup, live score with period/clock, PP / empty net (NHL) or possession, down & distance, red zone, timeouts (NFL and college, which also puts the poll rank in front of a ranked team's record) or inning + half, bases, count, outs, pitcher / batter, due up, last pitch (MLB), final (with hits and W/L/S pitchers for MLB) | a favourite with a game today |
 | Goal / Touchdown / Home run | full-screen celebration + scorer card (NHL); runs that are not homers get a short card (MLB, off for the other team by default) | live game |
 | Penalty | referee animation + details card | live game |
-| Ticker | every game on today's slate | slate within `show_games_within_days` |
-| Standings | division / wildcard / league (GB column for MLB); "FINAL yyyy-yy" banner in the off-season | — |
-| Team summary | record, streak, last result, next game | favourites |
+| Ticker | every game on today's slate (college: the games the source's `slate` setting keeps — ranked teams by default, or your conferences, or all sixty-odd; your favourites' games always) | slate within `show_games_within_days` |
+| Standings | division / wildcard / league (GB column for MLB; college shows one conference per page with a CONF record column, your favourites' conferences only unless you turn `favorite_conferences_only` off, and `wildcard` means the divisions of conferences that still have them); "FINAL yyyy-yy" banner in the off-season | — |
+| Team summary | record, streak, last result, next game (college: rank, conference record and place) | favourites |
 | Season countdown | days until your team's opener / preseason (spring training) / kickoff / opening day | off-season & preseason |
 | Clock, Weather, Holiday countdown, Flights nearby / overhead | — | location for weather & flights |
 
 ## Alerts
-Goals/penalties/touchdowns/runs come from the same data the score uses (polled every 5 s NHL / 20 s NFL /
-10 s MLB while your team plays), so nothing is missed if a poll fails. A short flash for the other team's
+Goals/penalties/touchdowns/runs come from the same data the score uses (polled every 5 s NHL / 20 s NFL and
+college / 10 s MLB while your team plays), so nothing is missed if a poll fails. A short flash for the other team's
 goals can be turned off per board. `delay_seconds` (NHL and MLB sources) holds updates back to match a TV
 broadcast. MLB inning breaks stay in the *live* state (the board shows MID/END and who is due up) rather
 than switching to the intermission playlist seventeen times a game.

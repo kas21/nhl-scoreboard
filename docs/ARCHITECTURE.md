@@ -2,7 +2,7 @@
 
 ```
  sources (asyncio tasks)          store              director (render thread, 30 fps)          output
- nhl / nfl / mlb /        ──▶  Snapshot (immutable, ──▶  state ← main_event/season          ──▶ matrix
+ nhl / nfl / ncaaf / mlb  ──▶  Snapshot (immutable, ──▶  state ← main_event/season          ──▶ matrix
  holidays / flights / weather   versioned dict)          playlist cursor, transitions,           preview ws
         │                           │                    event interrupts, brightness
         │                     EventBus: detectors(prev,new) ─▶ events queue ─▶ event boards

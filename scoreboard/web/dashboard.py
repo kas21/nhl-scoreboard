@@ -20,7 +20,7 @@ from ..config import ConfigStore
 from ..data import SnapshotStore
 from ..data.store import Snapshot
 
-SPORTS = (("nhl", "NHL"), ("nfl", "NFL"), ("mlb", "MLB"))
+SPORTS = (("nhl", "NHL"), ("nfl", "NFL"), ("ncaaf", "College football"), ("mlb", "MLB"))
 MAX_FLIGHTS = 8
 MAX_HOLIDAYS = 5
 MAX_FORECAST_DAYS = 4

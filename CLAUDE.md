@@ -1,7 +1,7 @@
 # CLAUDE.md — nhl-scoreboard
 
 Standalone LED-matrix scoreboard for Raspberry Pi. One Python process, one `config.json`,
-configured from a browser. NHL first; NFL, MLB, weather, flights and holidays are bundled extras.
+configured from a browser. NHL first; NFL, college football, MLB, weather, flights and holidays are bundled extras.
 This is the clean-slate successor to `nhl-led-scoreboard-v2` + the Tape-to-Tape hub (kept only
 as reference for board *designs*; the old code is not used).
 
@@ -48,13 +48,15 @@ scoreboard/
                     diagnostics, holidays (per-holiday list: hide, rename, upload a picture)
   nhl/              api-web.nhle.com client, normaliser, source, season phase, event detectors, boards (ported old designs)
   nfl/              ESPN site API, normaliser, source, detectors; boards subclass the NHL ones
+  ncaaf/            college football (FBS) on the same ESPN API: subclasses the NFL source/client/boards; owns the
+                    136-team registry (teams.py, ESPN abbrevs by conference), conference standings, ranks, slate filter
   mlb/              MLB Stats API (statsapi.mlb.com), normaliser, source, detectors; boards subclass the NHL ones
                     with a baseball centre column (inning arrow, bases, count, outs, pitcher/batter strip)
   extras/           holidays, flights (adsb.lol + adsbdb + airline logos), weather (Open-Meteo) — same plugin contract
   imagecache.py logos.py  runtime image cache ($SCOREBOARD_CACHE_DIR) + team logos fetched from ESPN's CDN
   assets/           fonts under render/fonts, holiday images, penalty gif (team logos are fetched at runtime)
 tests/              pytest; fixtures/ are real API captures (NHL 2026-04-11 game day, ESPN, adsb.lol, Open-Meteo);
-                    fixtures/mlb are statsapi-shaped but generated (see its README) — replace with captures when you can;
+                    fixtures/mlb and fixtures/ncaaf are API-shaped but generated (see their READMEs) — replace with captures when you can;
                     golden/ holds the pinned board frames (test_golden.py + golden_scenes.py), one PNG per board/state/size
 tools/ scripts/     build steps; Pi install.sh + pi_tuning.sh
 docs/               USER_GUIDE, HARDWARE, ARCHITECTURE, DATA, PLUGINS, DEVELOPMENT
@@ -64,7 +66,7 @@ docs/               USER_GUIDE, HARDWARE, ARCHITECTURE, DATA, PLUGINS, DEVELOPME
 
 - **Boards are pure**: `render(ctx, cfg) -> PIL.Image` from an immutable `Snapshot`; `ctx.elapsed` is the
   only clock; no I/O. Boards never fetch — sources do, in the background, on their own cadence.
-- **Snapshot keys** (docs/DATA.md): `<sport>.scores|standings|team_summary|season|main_event` (sport = nhl / nfl / mlb),
+- **Snapshot keys** (docs/DATA.md): `<sport>.scores|standings|team_summary|season|main_event` (sport = nhl / nfl / ncaaf / mlb),
   `main_event` (arbitrated across sports), `system`, `holidays.upcoming|available`, `flights.nearby|overhead`,
   `weather.current|daily`.
 - **Events** are derived by diffing consecutive snapshots (goal, penalty, touchdown, run / home run, flight overhead…);

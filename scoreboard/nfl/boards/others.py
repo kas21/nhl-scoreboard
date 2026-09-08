@@ -88,11 +88,20 @@ class ScoreConfig(BaseModel):
     opponent_scores: bool = Field(True, description="Also alert (briefly) when the other team scores")
 
 
+WORDS = {"touchdown": "TOUCHDOWN", "field_goal": "FIELD GOAL", "safety": "SAFETY"}
+
+
 class NflScoreBoard(SequenceMixin, EventBoard):
     key = "nfl.score"
     title = "NFL scoring alert"
     config_model = ScoreConfig
     event_kinds = frozenset({"nfl.touchdown", "nfl.field_goal", "nfl.safety", "nfl.score"})
+
+    def logo_image(self, abbrev: str) -> Image.Image:
+        return logo(abbrev, 128)
+
+    def team_colors(self, abbrev: str):
+        return colors(abbrev)
 
     def matches(self, event: Event, cfg: ScoreConfig) -> bool:
         if not cfg.enabled or event.kind not in self.event_kinds:
@@ -106,19 +115,19 @@ class NflScoreBoard(SequenceMixin, EventBoard):
         game = payload.get("game") or {}
         side = payload.get("side", "away")
         abbrev = game.get(side, {}).get("abbrev", ev.team if ev else "")
-        primary = tuple(game.get(side, {}).get("color") or colors(abbrev)[0])
+        primary = tuple(game.get(side, {}).get("color") or self.team_colors(abbrev)[0])
         seq = Sequence(ctx.fps)
         is_fav = game.get("favorite_side") == side
-        kind = ev.kind if ev else "nfl.score"
-        if kind == "nfl.touchdown" and is_fav:
-            seq.frames(celebration_frames("TOUCHDOWN!", logo(abbrev, 128), primary, ctx.width, ctx.height, cfg.touchdown_seconds, ctx.fps))
+        kind = (ev.kind if ev else "score").rsplit(".", 1)[-1]
+        if kind == "touchdown" and is_fav:
+            seq.frames(celebration_frames("TOUCHDOWN!", self.logo_image(abbrev), primary, ctx.width, ctx.height, cfg.touchdown_seconds, ctx.fps))
         else:
-            word = {"nfl.touchdown": "TOUCHDOWN", "nfl.field_goal": "FIELD GOAL", "nfl.safety": "SAFETY"}.get(kind, "SCORE")
+            word = WORDS.get(kind, "SCORE")
             p = ctx.profile
             rows = [Spacer(), Text(abbrev, load_font("block", p.font_medium), text_on(primary)),
                     Text(word, fit_font(word, "block", ctx.width - 2 * p.pad, p.font_large), WHITE),
                     Text(payload.get("score", ""), ctx.profile.label_font(), text_on(primary)), Spacer()]
             still = render_tree(VBox(rows, spacing=1), ctx.width, ctx.height, background=primary)
-            seq.flash(primary, times=2, secs=0.4).slide_in("up", 0.3).hold(cfg.touchdown_seconds if kind == "nfl.touchdown" else cfg.other_seconds).fade_out(0.4)
+            seq.flash(primary, times=2, secs=0.4).slide_in("up", 0.3).hold(cfg.touchdown_seconds if kind == "touchdown" else cfg.other_seconds).fade_out(0.4)
             return seq.build(still)
         return seq.build(Image.new("RGB", (ctx.width, ctx.height)))
