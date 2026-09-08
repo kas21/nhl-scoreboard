@@ -40,6 +40,9 @@ def populated_store() -> SnapshotStore:
     store.publish("holidays.upcoming", [{"name": "Easter", "display": "Easter", "date": "2026-04-05", "days": 3, "image": "/x.png", "custom": False}])
     store.publish("weather.current", {"label": "HOME", "temp": 12, "feels": 10, "short": "Cloudy", "icon": "cloud", "units": {"temp": "C"}, "wind": 5, "wind_dir": 90})
     store.publish("weather.daily", [{"date": TODAY, "hi": 15, "lo": 5, "pop": 20, "short": "Cloudy", "icon": "cloud", "sunrise": "x"}] * 6)
+    store.publish("weather.alerts", [{"id": "x", "key": "tornado warning|erie", "event": "Tornado Warning", "name": "Tornado", "level": "warning",
+                                      "severity": "Extreme", "headline": "TORNADO WARNING UNTIL 445 PM", "summary": "long text", "area": "Erie, NY",
+                                      "expires": "2026-04-09T16:45:00-04:00", "sender": "NWS Buffalo NY", "provider": "nws"}])
     return store
 
 
@@ -76,11 +79,13 @@ def test_summary_extras():
     assert out["holidays"] == [{"name": "Easter", "display": "Easter", "date": "2026-04-05", "days": 3}]
     assert out["weather"]["current"]["temp"] == 12 and len(out["weather"]["daily"]) == 4
     assert "sunrise" not in out["weather"]["daily"][0]
+    assert out["alerts"] == [{"event": "Tornado Warning", "level": "warning", "severity": "Extreme", "headline": "TORNADO WARNING UNTIL 445 PM",
+                              "area": "Erie, NY", "expires": "2026-04-09T16:45:00-04:00", "sender": "NWS Buffalo NY"}]
 
 
 def test_summary_when_nothing_is_published():
     out = dashboard_summary(SnapshotStore().get(), TODAY)
-    assert out == {"today": TODAY, "main_event": None, "sports": [], "flights": None, "flight_stats": None, "holidays": None, "weather": None}
+    assert out == {"today": TODAY, "main_event": None, "sports": [], "flights": None, "flight_stats": None, "holidays": None, "weather": None, "alerts": None}
 
 
 def test_endpoint(tmp_path):

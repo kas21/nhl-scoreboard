@@ -76,6 +76,7 @@ nothing needs a restart.
 | Standings | division / wildcard / league (GB column for MLB; college shows one conference per page with a CONF record column, your favourites' conferences only unless you turn `favorite_conferences_only` off, and `wildcard` means the divisions of conferences that still have them); "FINAL yyyy-yy" banner in the off-season | — |
 | Team summary | record, streak, last result, next game (college: rank, conference record and place) | favourites |
 | Season countdown | days until your team's opener / preseason (spring training) / kickoff / opening day | off-season & preseason |
+| Weather alerts | the watches, warnings and advisories in force at your location (red / orange / yellow bar, the hazard, until when, where, and the agency's description paged underneath on 128x64); only appears while one is in force | location (US via the National Weather Service, Canada via Environment Canada) |
 | Clock, Weather, Holiday countdown, Flights nearby / overhead | — | location for weather & flights |
 
 ## Alerts
@@ -84,6 +85,14 @@ college / 10 s MLB while your team plays), so nothing is missed if a poll fails.
 goals can be turned off per board. `delay_seconds` (NHL and MLB sources) holds updates back to match a TV
 broadcast. MLB inning breaks stay in the *live* state (the board shows MID/END and who is due up) rather
 than switching to the intermission playlist seventeen times a game.
+
+Weather alerts interrupt the rotation once per new alert — a flash of the level's colour, then the card
+for `duration` seconds. Warnings only by default (`min_level` on the *Weather alert interrupt* board), and
+they do interrupt a live game unless you turn `interrupt_live_game` off; watches and advisories still show
+on the alerts board between periods either way. The *Weather alerts* source decides what exists at all:
+`min_level` (advisories and up by default; statements are mostly noise) and an `ignore` word list that
+drops marine alerts unless you live on the water. Note the NWS answers by county zone, so a warning for
+the far end of your county shows too.
 
 ## Off-season behaviour
 Standings from a finished season carry a FINAL banner; far-off game days don't show as "tonight";

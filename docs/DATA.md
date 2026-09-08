@@ -18,6 +18,7 @@ All snapshot values are plain JSON-shaped dicts/lists (immutable by convention: 
 | `flights.nearby`, `flights.overhead` | flights | `[aircraft]` sorted by distance; with `count_sightings` on, each carries `sightings` (visits by this airframe, this one included) and `first_seen` (epoch seconds) |
 | `flights.stats` | flights | `{airframes, sightings, today, since, regulars:[{hex, registration, type, operator, count, last_seen}]}` — the sighting log's totals. Keyed by ICAO hex; a visit is one appearance separated from the last by `visit_gap_minutes`. Persisted at `$SCOREBOARD_DATA_DIR/flights/sightings.json` |
 | `weather.current`, `weather.daily` | weather | current conditions dict; `[day]` |
+| `weather.alerts` | weather_alerts | `[{id, key, provider, event, name, level, severity, urgency, headline, summary, area, onset, expires, sender}]` in force at the location, most serious first, already filtered by the source's `min_level` / `ignore`; `level` is warning / watch / advisory / statement / other from the event name (`other` — Air Quality Alert, Civil Emergency Message — ranks with advisories), `key` is the event name: the NWS re-issues a warning under a new id and a trimmed county list every update, so that is what the detector and the one-card-per-kind dedupe key on. Empty when nothing is in force |
 
 ## Game dict (shared by NHL, NFL and MLB boards)
 ```
@@ -46,6 +47,7 @@ game_type (S/R/F/D/L/W), series ('SPRING' | 'WILD CARD' | 'NLDS GM2' | …), dec
 | `mlb.home_run` / `mlb.run` | `mlb/events.py` | side, runs, score, inning, half, batter, text, game (a homer only when the live feed's current play says so) |
 | `mlb.state_change`, `mlb.inning_change` | " | old/new; inning, half |
 | `flights.overhead` | `extras/flights` | aircraft |
+| `weather.alert` | `extras/weather/alerts` | alert, live_game (a game is live or in intermission); one per alert new to `weather.alerts`, least serious emitted first so the collapse keeps the top one |
 Event bursts collapse to the latest event per (kind, team).
 
 ## External APIs (all keyless)
@@ -62,6 +64,8 @@ Event bursts collapse to the latest event per (kind, team).
 | ESPN CDN | `i/teamlogos/{nhl,nfl,mlb}/500/{code}.png` — team logos, none shipped in the repo (MLB codes are the Stats API's; `AZ`→`ari`, `CWS`→`chw`). College art lives at `i/teamlogos/ncaa/500/{espn team id}.png`, so its URLs are read off the `…/teams` index rather than built from the abbreviation | once per team on first run; cached under `$SCOREBOARD_CACHE_DIR/logos` |
 | ESPN CDN | `guid/{team-guid}/logos/{variant}.png` — alternate marks (secondary, light treatments) | only for teams set to a variant; URL comes from `…/teams`, art downscaled to 500px on store |
 | Open-Meteo | `v1/forecast` (+ geocoding for the wizard) | 10 min |
+| NWS `api.weather.gov` | `alerts/active?point=lat,lon` (CAP alerts whose zones cover the point; four decimals max; a point outside the US is a 400 "out of bounds", which `provider: auto` takes as the cue to switch) | 5 min |
+| Environment Canada GeoMet `api.weather.gc.ca` | `collections/weather-alerts/items?bbox=…&lang=en` (one feature per forecast-region polygon; `status_en: ended` rows are still listed and are dropped) | 5 min |
 | `holidays` package | offline | hourly recompute |
 
 `SCOREBOARD_CACHE_DIR` defaults to `~/.scoreboard/cache`; the systemd unit sets it to `/var/cache/scoreboard`.

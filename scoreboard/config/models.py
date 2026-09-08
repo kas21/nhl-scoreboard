@@ -90,6 +90,7 @@ class Playlists(FrozenModel):
     """What to show in each application state, in order."""
 
     offseason: tuple[PlaylistEntry, ...] = (
+        PlaylistEntry(board="weather.alerts", duration=None),
         PlaylistEntry(board="season.countdown", duration=12),
         PlaylistEntry(board="clock", duration=10),
         PlaylistEntry(board="weather.current", duration=None),
@@ -98,6 +99,7 @@ class Playlists(FrozenModel):
         PlaylistEntry(board="nhl.team_summary", duration=10),
     )
     offday: tuple[PlaylistEntry, ...] = (
+        PlaylistEntry(board="weather.alerts", duration=None),
         PlaylistEntry(board="nhl.team_summary", duration=10),
         PlaylistEntry(board="clock", duration=10),
         PlaylistEntry(board="nhl.ticker", duration=None),
@@ -105,6 +107,7 @@ class Playlists(FrozenModel):
         PlaylistEntry(board="holidays.countdown", duration=None),
     )
     pregame: tuple[PlaylistEntry, ...] = (
+        PlaylistEntry(board="weather.alerts", duration=None),
         PlaylistEntry(board="nhl.game", duration=15),
         PlaylistEntry(board="nfl.game", duration=15),
         PlaylistEntry(board="ncaaf.game", duration=15),
@@ -119,6 +122,7 @@ class Playlists(FrozenModel):
         PlaylistEntry(board="mlb.game", duration=None),
     )
     intermission: tuple[PlaylistEntry, ...] = (
+        PlaylistEntry(board="weather.alerts", duration=None),
         PlaylistEntry(board="nhl.game", duration=15),
         PlaylistEntry(board="nfl.game", duration=15),
         PlaylistEntry(board="ncaaf.game", duration=15),
@@ -127,6 +131,7 @@ class Playlists(FrozenModel):
         PlaylistEntry(board="nhl.standings", duration=None),
     )
     postgame: tuple[PlaylistEntry, ...] = (
+        PlaylistEntry(board="weather.alerts", duration=None),
         PlaylistEntry(board="nhl.game", duration=20),
         PlaylistEntry(board="nfl.game", duration=20),
         PlaylistEntry(board="ncaaf.game", duration=20),

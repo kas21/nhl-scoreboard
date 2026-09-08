@@ -153,6 +153,15 @@ function Weather({ w }) {
   </div>`;
 }
 
+const untilText = (iso) => { const d = new Date(iso); return Number.isNaN(d.getTime()) ? '' : d.toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' }); };
+
+function Alerts({ rows }) {
+  if (!rows.length) return html`<p class="muted small">No watches or warnings in effect.</p>`;
+  return html`<ul class="alerts">${rows.map(a => html`<li><span class=${`chip level-${a.level}`}>${a.level}</span>
+    <div><b>${a.event}</b> <span class="muted">${a.area || ''}${a.expires ? ` · until ${untilText(a.expires)}` : ''}</span>
+      ${a.headline ? html`<div class="muted small">${a.headline}</div>` : ''}</div></li>`)}</ul>`;
+}
+
 function Holidays({ rows, today }) {
   if (!rows.length) return html`<p class="muted small">No holidays coming up.</p>`;
   return html`<ul class="holidays">${rows.map(h => html`<li><b>${h.display || h.name}</b>
@@ -163,10 +172,11 @@ export function AroundCard() {
   const [data] = useDashboard();
   if (!data) return html`<div class="card"><h2>Around you</h2><p class="muted">Loading…</p></div>`;
   const sections = [];
+  if (data.alerts) sections.push(html`<div class="section"><h3>Weather alerts</h3><${Alerts} rows=${data.alerts} /></div>`);
   if (data.weather) sections.push(html`<div class="section"><h3>Weather</h3><${Weather} w=${data.weather} /></div>`);
   if (data.flights) sections.push(html`<div class="section"><h3>Planes nearby</h3><${FlightStats} stats=${data.flight_stats} /><${Flights} rows=${data.flights} /></div>`);
   if (data.holidays) sections.push(html`<div class="section"><h3>Holidays</h3><${Holidays} rows=${data.holidays} today=${data.today} /></div>`);
   return html`<div class="card"><h2>Around you</h2>
-    ${sections.length ? sections : html`<p class="muted">Turn on weather, flights or holidays in <a href="#settings">Settings</a> to see them here.</p>`}
+    ${sections.length ? sections : html`<p class="muted">Turn on weather, weather alerts, flights or holidays in <a href="#settings">Settings</a> to see them here.</p>`}
   </div>`;
 }

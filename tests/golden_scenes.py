@@ -29,6 +29,13 @@ from scoreboard.extras.flights.source import normalize_aircraft, parse_adsbdb
 from scoreboard.extras.holidays.board import CountdownBoard as HolidayBoard
 from scoreboard.extras.holidays.board import CountdownConfig as HolidayConfig
 from scoreboard.extras.holidays.images import IMAGES as HOLIDAY_IMAGES
+from scoreboard.extras.weather.alerts.board import (
+    AlertBoard,
+    AlertBoardConfig,
+    AlertsBoard,
+    AlertsBoardConfig,
+)
+from scoreboard.extras.weather.alerts.model import make_alert
 from scoreboard.extras.weather.board import WeatherBoard, WeatherBoardConfig
 from scoreboard.extras.weather.source import WeatherConfig
 from scoreboard.extras.weather.source import normalize as normalize_weather
@@ -270,10 +277,25 @@ def extras_scenes() -> list[Scene]:
          "image": str(HOLIDAY_IMAGES / "christmas_day.png"), "custom": False},
         {"name": "Game Day", "display": "Game Day", "date": "2026-12-01", "days": 0, "image": None, "custom": True},
     ])
+    tornado = make_alert(id="t1", provider="nws", event="Tornado Warning", severity="Extreme", urgency="Immediate",
+                         headline="TORNADO WARNING IN EFFECT UNTIL 445 PM EDT", area="Erie, NY; Niagara, NY",
+                         summary="At 412 PM EDT, a severe thunderstorm capable of producing a tornado was located near Buffalo, "
+                                 "moving northeast at 40 mph. HAZARD...Tornado and quarter size hail. SOURCE...Radar indicated rotation.",
+                         onset="2026-09-08T16:12:00-04:00", expires="2026-09-08T16:45:00-04:00", sender="NWS Buffalo NY")
+    winter = make_alert(id="w1", provider="nws", event="Winter Storm Watch", severity="Severe", urgency="Future",
+                        headline="WINTER STORM WATCH IN EFFECT FROM WEDNESDAY EVENING THROUGH THURSDAY AFTERNOON",
+                        area="Northern Erie", summary="Heavy snow possible. Total snow accumulations of 8 to 14 inches possible.",
+                        onset="2026-09-09T19:00:00-04:00", expires="2026-09-10T16:00:00-04:00", sender="NWS Buffalo NY")
+    alerts = SnapshotStore().publish("weather.alerts", [tornado, winter])
+    storm = Event("weather.alert", payload={"alert": tornado, "live_game": False})
     august = datetime(2026, 8, 26, 12, tzinfo=TORONTO)
+    september = datetime(2026, 9, 8, 16, 20, tzinfo=TORONTO)
     december = datetime(2026, 12, 1, tzinfo=TORONTO)
     return [
         Scene("weather.current/summer", WeatherBoard(), WeatherBoardConfig(), weather, august, 2.0),
+        Scene("weather.alerts/tornado", AlertsBoard(), AlertsBoardConfig(), alerts, september, 2.0),
+        Scene("weather.alerts/watch", AlertsBoard(), AlertsBoardConfig(), alerts, september, 15.0, sizes=((128, 64),)),
+        Scene("weather.alert/tornado", AlertBoard(), AlertBoardConfig(), alerts, september, 1.5, event=storm, sizes=((128, 64),)),
         Scene("flights.nearby/two", NearbyBoard(), NearbyConfig(), flights, august, 1.0),
         Scene("flights.overhead/one", OverheadBoard(), OverheadConfig(), flights, august, 0.5, event=overhead, sizes=((128, 64),)),
         Scene("holidays.countdown/christmas", HolidayBoard(), HolidayConfig(), holidays, december, 1.0),
