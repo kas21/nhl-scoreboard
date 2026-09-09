@@ -22,7 +22,9 @@ async def fetch_nws(http: httpx.AsyncClient, lat: float, lon: float) -> dict[str
         raise OutOfBounds(f"NWS does not cover {lat:.4f},{lon:.4f}")
     resp.raise_for_status()
     data = resp.json()
-    return data if isinstance(data, dict) else {}
+    if not isinstance(data, dict):
+        raise ValueError(f"NWS alerts: unexpected payload ({type(data).__name__})")
+    return data
 
 
 def _headline(props: dict[str, Any], event: str) -> str:
@@ -31,16 +33,34 @@ def _headline(props: dict[str, Any], event: str) -> str:
     return collapse(short) if short else collapse(props.get("headline")) or event
 
 
+def _references(props: dict[str, Any]) -> list[str]:
+    """Ids of the messages this one supersedes, earliest sent first (the chain's root leads)."""
+    refs = [r for r in (props.get("references") or []) if isinstance(r, dict) and r.get("identifier")]
+    return [r["identifier"] for r in sorted(refs, key=lambda r: r.get("sent") or "")]
+
+
 def parse_nws(payload: dict[str, Any]) -> list[dict[str, Any]]:
-    """Real, current alerts from a GeoJSON FeatureCollection; tests, exercises and cancellations dropped."""
+    """Real, current alerts from a GeoJSON FeatureCollection; tests, exercises and cancellations dropped.
+
+    Raises ValueError when the collection is not shaped like one, so the source logs a
+    failed poll rather than crashing.
+    """
     out = []
-    for feat in payload.get("features") or []:
+    features = payload.get("features") or []
+    if not isinstance(features, list) or not all(isinstance(f, dict) for f in features):
+        raise ValueError("NWS alerts: features is not a list of objects")
+    for feat in features:
         props = feat.get("properties") or {}
+        if not isinstance(props, dict):
+            raise ValueError("NWS alerts: feature properties is not an object")
         event = props.get("event")
         if not event or props.get("status") != "Actual" or props.get("messageType") == "Cancel":
             continue
+        if not isinstance(event, str):
+            raise ValueError(f"NWS alerts: event is {type(event).__name__}, not text")
+        msg_id = props.get("id") or feat.get("id") or event
         out.append(make_alert(
-            id=props.get("id") or feat.get("id") or event, provider="nws", event=event,
+            id=msg_id, key=msg_id, references=_references(props), provider="nws", event=event,
             severity=props.get("severity") or "Unknown", urgency=props.get("urgency"),
             headline=_headline(props, event), summary=summarize(props.get("description") or props.get("headline")),
             area=collapse(props.get("areaDesc")), onset=props.get("onset") or props.get("effective"),

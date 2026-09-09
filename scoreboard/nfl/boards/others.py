@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from ...boards.base import BoardContext, EventBoard, SequenceMixin
 from ...data import Event
+from ...isotime import parse_iso
 from ...nhl.boards.events import celebration_frames
 from ...nhl.boards.standings import StandingsBoard as NhlStandings
 from ...nhl.boards.team_summary import TeamSummaryBoard as NhlTeamSummary
@@ -27,11 +28,10 @@ class NflTickerBoard(NhlTicker):
         return logo(abbrev, 128)
 
     def _date_label(self, g: dict[str, Any], ctx: BoardContext) -> str:
-        try:
-            from datetime import datetime
-            return datetime.fromisoformat(g["start_time_utc"].replace("Z", "+00:00")).astimezone(ctx.now.tzinfo).strftime("%a").upper()
-        except ValueError:
+        started = parse_iso(g.get("start_time_utc"))
+        if started is None:
             return super()._date_label(g, ctx)
+        return started.astimezone(ctx.now.tzinfo).strftime("%a").upper()
 
 
 class NflStandingsBoard(NhlStandings):

@@ -188,6 +188,7 @@ def create_app(
                 "title": b.title,
                 "requires": sorted(b.requires),
                 "event": hasattr(b, "event_kinds"),
+                "playlistable": b.playlistable,       # False: plays on its event, never from a playlist
                 # What an "auto" playlist duration works out to, and whether the board ends
                 # itself at all. auto_seconds is null both for a board that never ends (the
                 # playlist holds it until the state changes) and for one whose length is only

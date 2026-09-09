@@ -1,7 +1,8 @@
 """Weather alerts: NWS / Environment Canada parsing, selection, the detector, the source and both boards."""
 import asyncio
 import json
-from datetime import UTC, datetime
+import math
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -22,7 +23,13 @@ from scoreboard.extras.weather.alerts.board import (
     until_text,
 )
 from scoreboard.extras.weather.alerts.eccc import ECCC_ALERTS, parse_eccc
-from scoreboard.extras.weather.alerts.model import OutOfBounds, classify_event, select_alerts
+from scoreboard.extras.weather.alerts.model import (
+    OutOfBounds,
+    classify_event,
+    link_updates,
+    make_alert,
+    select_alerts,
+)
 from scoreboard.extras.weather.alerts.nws import NWS_ALERTS, parse_nws
 from scoreboard.extras.weather.alerts.source import (
     WeatherAlertsConfig,
@@ -71,7 +78,7 @@ def test_nws_parse():
     assert heat["level"] == "warning" and heat["name"] == "Extreme Heat" and heat["severity"] == "Severe" and heat["provider"] == "nws"
     assert heat["area"].startswith("Catalina") and heat["expires"] == "2026-09-10T20:00:00-07:00" and heat["sender"] == "NWS Los Angeles/Oxnard CA"
     assert heat["summary"] and "\n" not in heat["summary"] and len(heat["summary"]) <= 200
-    assert heat["key"] == "extreme heat warning"
+    assert heat["key"] == heat["id"] and heat["references"] == []          # identity follows the agency's message chain
     assert heat["headline"].upper() == heat["headline"]          # NWS's short all-caps headline when there is one
     assert alerts[1]["level"] == "watch" and alerts[2]["level"] == "advisory" and alerts[4]["level"] == "statement"
 
@@ -83,6 +90,31 @@ def test_nws_parse_drops_tests_and_cancellations():
     feats[1]["properties"]["messageType"] = "Cancel"
     assert [a["event"] for a in parse_nws({"features": feats})][:2] == ["Heat Advisory", "Small Craft Advisory"]
     assert parse_nws({}) == [] and parse_nws({"features": [{"properties": {}}]}) == []
+
+
+def test_nws_updates_keep_the_identity_of_the_alert_they_supersede():
+    """An NWS update is a new message (new id) referencing the old one; a second warning of the
+    same kind with no references is a new hazard, so it gets its own card and interrupt."""
+    original = make_alert(id="a", provider="nws", event="Tornado Warning", severity="Extreme", headline="", summary="",
+                          area="Erie", onset=None, expires=None, sender="", key="a")
+    update = make_alert(id="b", provider="nws", event="Tornado Warning", severity="Extreme", headline="", summary="",
+                        area="Erie", onset=None, expires=None, sender="", key="b", references=["a"])
+    later = make_alert(id="c", provider="nws", event="Tornado Warning", severity="Extreme", headline="", summary="",
+                       area="Erie", onset=None, expires=None, sender="", key="c", references=["b"])
+    fresh = make_alert(id="d", provider="nws", event="Tornado Warning", severity="Extreme", headline="", summary="",
+                       area="Niagara", onset=None, expires=None, sender="", key="d")
+    assert [a["key"] for a in link_updates([update, fresh], [original])] == ["a", "d"]
+    assert [a["key"] for a in link_updates([later], [update])] == ["b"]                 # unknown chain: earliest reference
+    assert [a["key"] for a in link_updates([later], link_updates([update], [original]))] == ["a"]
+    linked = link_updates([update, fresh], [original])
+    assert [a["key"] for a in select_alerts(linked, WeatherAlertsConfig(), NOW)] == ["a", "d"]   # two cards, not one
+    payload = load("nws_alerts.json")
+    feat = payload["features"][0]
+    feat["properties"]["messageType"] = "Update"
+    feat["properties"]["references"] = [{"identifier": "new", "sent": "2026-09-08T12:00:00-07:00"},
+                                        {"identifier": "root", "sent": "2026-09-07T12:00:00-07:00"}]
+    assert parse_nws(payload)[0]["references"] == ["root", "new"]
+    assert parse_eccc(load("eccc_alerts.json"))[0]["key"] == "aqw"                       # ECCC has no chain: the hazard code
 
 
 def test_eccc_parse():
@@ -134,6 +166,9 @@ def test_detector_fires_once_per_new_alert_and_flags_live_games():
     s3 = store.publish("weather.alerts", [alert(), alert("Wind Advisory")])
     fresh = list(detect_alerts(s2, s3))
     assert [e.payload["alert"]["event"] for e in fresh] == ["Wind Advisory"] and fresh[0].payload["live_game"] is True
+    s4 = store.publish("weather.alerts", None)                                   # source switched off / moved
+    s5 = store.publish("weather.alerts", [alert(), alert("Wind Advisory")])
+    assert list(detect_alerts(s3, s4)) == [] and list(detect_alerts(s4, s5)) == []
 
 
 def test_detector_leaves_the_top_alert_standing_after_the_bus_collapses_a_burst():
@@ -217,6 +252,104 @@ async def test_a_failed_poll_still_retires_lapsed_alerts():
         assert store.get().version == version                       # nothing changed: nothing republished
 
 
+@pytest.mark.asyncio
+async def test_a_failed_first_poll_does_not_arm_the_detector():
+    """Boot before the network is up: nothing is published, so the first good poll is the
+    baseline and hours-old warnings do not interrupt as news."""
+    src = WeatherAlertsSource(clock=lambda: NOW)
+    store, bus = SnapshotStore(), EventBus()
+    store.subscribe(bus.on_snapshot)
+    bus.register(detect_alerts)
+    async with httpx.AsyncClient() as http, respx.mock(assert_all_called=False) as mock:
+        route = mock.get(url__regex=r"https://api\.weather\.gov/alerts/active.*").mock(side_effect=httpx.ConnectError("down"))
+        ctx = SourceContext("weather_alerts", store, lambda: WeatherAlertsConfig(), http)
+        ctx.location = (42.8864, -78.8784)
+        await src.poll(ctx, WeatherAlertsConfig(), ctx.location)
+        assert not store.get().has("weather.alerts")
+        route.mock(return_value=httpx.Response(200, json=load("nws_alerts.json")))
+        await src.poll(ctx, WeatherAlertsConfig(), ctx.location)
+        assert len(store.get().get("weather.alerts")) == 4 and list(bus.drain()) == []
+
+
+@pytest.mark.asyncio
+async def test_switching_off_or_moving_withdraws_the_baseline():
+    """Off, or at a new location, the board comes down and the next good poll is not news."""
+    src = WeatherAlertsSource(clock=lambda: NOW)
+    store, bus = SnapshotStore(), EventBus()
+    store.subscribe(bus.on_snapshot)
+    bus.register(detect_alerts)
+    async with httpx.AsyncClient() as http, respx.mock(assert_all_called=False) as mock:
+        mock.get(url__regex=r"https://api\.weather\.gov/alerts/active.*").mock(return_value=httpx.Response(200, json=load("nws_alerts.json")))
+        ctx = SourceContext("weather_alerts", store, lambda: WeatherAlertsConfig(), http)
+        ctx.location = (42.8864, -78.8784)
+        await src.poll(ctx, WeatherAlertsConfig(), ctx.location)
+        assert len(store.get().get("weather.alerts")) == 4
+        ctx.location = (43.65, -79.38)
+        await src.poll(ctx, WeatherAlertsConfig(), ctx.location)
+        assert len(store.get().get("weather.alerts")) == 4 and list(bus.drain()) == []
+        ctx._config_getter = lambda: WeatherAlertsConfig(enabled=False)
+        task = asyncio.create_task(src.run(ctx))
+        for _ in range(100):
+            await asyncio.sleep(0.01)
+            if store.get().get("weather.alerts") is None:
+                break
+        task.cancel()
+        assert store.get().has("weather.alerts") and store.get().get("weather.alerts") is None
+        ctx._config_getter = lambda: WeatherAlertsConfig()
+        await src.poll(ctx, WeatherAlertsConfig(), ctx.location)
+        assert len(store.get().get("weather.alerts")) == 4 and list(bus.drain()) == []
+
+
+@pytest.mark.asyncio
+async def test_source_wakes_when_the_soonest_alert_lapses():
+    """Between polls the source sleeps only until the next expiry, then re-filters, so the
+    board is empty (and out of the playlist) the moment nothing is in force."""
+    ends = datetime(2026, 9, 9, 0, 0, tzinfo=UTC)                      # Red Flag Warning and Flood Watch end
+    clock = {"now": ends - timedelta(minutes=2)}
+    src = WeatherAlertsSource(clock=lambda: clock["now"])
+    store = SnapshotStore()
+    naps, fetch_in = [], []
+
+    async def sleep(seconds, until_poll=None):
+        naps.append(seconds)
+        fetch_in.append(until_poll)
+        clock["now"] = LATER
+        if len(naps) > 1:
+            raise asyncio.CancelledError
+
+    async with httpx.AsyncClient() as http, respx.mock(assert_all_called=False) as mock:
+        mock.get(url__regex=r"https://api\.weather\.gov/alerts/active.*").mock(return_value=httpx.Response(200, json=load("nws_alerts.json")))
+        ctx = SourceContext("weather_alerts", store, lambda: WeatherAlertsConfig(), http)
+        ctx.location = (42.8864, -78.8784)
+        ctx.sleep = sleep
+        with pytest.raises(asyncio.CancelledError):
+            await src.run(ctx)
+    assert 120 < naps[0] <= 125 < WeatherAlertsConfig().poll_seconds
+    assert [a["event"] for a in store.get().get("weather.alerts")] == ["Extreme Heat Warning", "Heat Advisory"]
+    assert naps[1] == WeatherAlertsConfig().poll_seconds - naps[0]              # the rest of the interval, then a fetch
+    assert fetch_in == [WeatherAlertsConfig().poll_seconds, naps[1]]            # diagnostics still show the fetch, not the nap
+    src._raw = []
+    assert src._seconds_to_next_expiry(WeatherAlertsConfig()) == math.inf
+
+
+@pytest.mark.asyncio
+async def test_a_malformed_payload_is_a_failed_poll_not_a_crash():
+    src = WeatherAlertsSource(clock=lambda: NOW)
+    store = SnapshotStore()
+    async with httpx.AsyncClient() as http, respx.mock(assert_all_called=False) as mock:
+        route = mock.get(url__regex=r"https://api\.weather\.gov/alerts/active.*").mock(return_value=httpx.Response(200, json=load("nws_alerts.json")))
+        ctx = SourceContext("weather_alerts", store, lambda: WeatherAlertsConfig(), http)
+        ctx.location = (42.8864, -78.8784)
+        await src.poll(ctx, WeatherAlertsConfig(), ctx.location)
+        version = store.get().version
+        for body in (["not", "a", "collection"], {"features": ["x"]}, {"features": [{"properties": {"event": 7, "status": "Actual"}}]}):
+            route.mock(return_value=httpx.Response(200, json=body))
+            await src.poll(ctx, WeatherAlertsConfig(), ctx.location)        # logged and re-filtered, not raised
+        assert store.get().version == version and len(store.get().get("weather.alerts")) == 4
+    with pytest.raises(ValueError):
+        parse_nws({"features": ["x"]})
+
+
 def test_out_of_bounds_is_a_value_error():
     assert issubclass(OutOfBounds, ValueError)
     assert "point=" in NWS_ALERTS and "weather-alerts" in ECCC_ALERTS
@@ -254,6 +387,21 @@ def test_alerts_board_cycles_and_renders_every_size():
     assert not board.done(ctx, cfg) and board.done(_ctx(alerts, elapsed=10.0), cfg)
     assert board.auto_seconds(ctx, cfg) == 10.0
     assert AlertsBoard.requires == frozenset({"weather.alerts"})
+    lapsed = [alert(), alert("Winter Storm Watch", "Niagara, NY", expires="2026-09-08T15:00:00-04:00")]
+    assert board.auto_seconds(_ctx(lapsed), cfg) == 5.0 and board.done(_ctx(lapsed, elapsed=5.0), cfg)
+    assert board.auto_seconds(_ctx([]), cfg) == 0.0
+
+
+def test_alerts_board_follows_the_snapshot_without_being_re_entered():
+    """The director restarts a board from elapsed 0 on a state change without calling enter,
+    so an alert retired by the last poll must not come back."""
+    board, cfg = AlertsBoard(), AlertsBoardConfig(seconds_per_alert=5)
+    both = [alert(), alert("Winter Storm Watch", "Niagara, NY")]
+    board.enter(_ctx(both, elapsed=0.0), cfg)
+    board.render(_ctx(both, elapsed=1.0), cfg)
+    only = [alert("Winter Storm Watch", "Niagara, NY")]
+    assert board.render(_ctx(only, elapsed=1.0), cfg).getpixel((64, 3)) == LEVEL_COLORS["watch"]
+    assert board.done(_ctx(only, elapsed=5.0), cfg) and not board.done(_ctx(both, elapsed=5.0), cfg)
 
 
 def test_alerts_board_with_nothing_to_show_says_so_and_hands_back_the_screen():
@@ -289,6 +437,16 @@ def test_alert_board_flashes_then_holds_the_card():
     small = AlertBoard()
     small.enter(_ctx([alert()], 64, 32, elapsed=0.0, event=event), cfg)
     assert small.render(_ctx([alert()], 64, 32, elapsed=2.0, event=event), cfg).size == (64, 32)
+
+
+def test_alert_board_builds_the_card_once(monkeypatch):
+    import scoreboard.extras.weather.alerts.board as mod
+    calls = []
+    real = mod.card
+    monkeypatch.setattr(mod, "card", lambda *a, **k: calls.append(1) or real(*a, **k))
+    event = Event("weather.alert", payload={"alert": alert(), "live_game": False})
+    AlertBoard().enter(_ctx([alert()], elapsed=0.0, event=event), AlertBoardConfig(duration=4))
+    assert len(calls) == 1
 
 
 def test_plugins_register_the_source_boards_and_detector():

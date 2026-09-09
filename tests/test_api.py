@@ -67,17 +67,19 @@ def test_boards_and_index(tmp_path):
 
 def test_boards_report_what_auto_duration_means(tmp_path):
     """A blank playlist duration reads as "auto"; the UI needs a number to put beside it."""
+    from scoreboard.extras.weather.alerts.board import AlertBoard
     from scoreboard.extras.weather.board import WeatherBoard
 
     config = ConfigStore(tmp_path / "config.json")
     snapshots, events = SnapshotStore(), EventBus()
-    reg = Registry(boards={b.key: b for b in (ClockBoard(), WeatherBoard())})
+    reg = Registry(boards={b.key: b for b in (ClockBoard(), WeatherBoard(), AlertBoard())})
     director = Director(config, snapshots, reg, events)
     c = TestClient(create_app(config, snapshots, reg, director, PreviewHub()), **UI)
 
     by_key = {b["key"]: b for b in c.get("/api/boards").json()}
     assert by_key["clock"] == {**by_key["clock"], "self_timed": False, "auto_seconds": None}
     assert by_key["weather.current"]["self_timed"] is True
+    assert by_key["weather.current"]["playlistable"] is True and by_key["weather.alert"]["playlistable"] is False
     assert by_key["weather.current"]["auto_seconds"] == 15.0        # WeatherBoardConfig.duration default
     c.patch("/api/config", json={"boards": {"weather.current": {"duration": 12}}})
     assert {b["key"]: b["auto_seconds"] for b in c.get("/api/boards").json()}["weather.current"] == 12.0

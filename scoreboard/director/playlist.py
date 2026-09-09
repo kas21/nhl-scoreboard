@@ -20,11 +20,11 @@ class Cursor:
 
 
 def available_entries(entries: tuple[PlaylistEntry, ...], loaded: set[str],
-                      event_boards: Collection[str] = ()) -> list[PlaylistEntry]:
-    """Enabled entries whose board is loaded. Interrupt boards are left out: they only
-    draw something with an event behind them, so in a playlist they would hold a blank
-    frame for their whole sequence."""
-    return [e for e in entries if e.enabled and e.board in loaded and e.board not in event_boards]
+                      not_playlistable: Collection[str] = ()) -> list[PlaylistEntry]:
+    """Enabled entries whose board is loaded and can rotate. Interrupt boards are left out:
+    they only draw something with an event behind them, so in a playlist they would hold a
+    blank frame for their whole sequence."""
+    return [e for e in entries if e.enabled and e.board in loaded and e.board not in not_playlistable]
 
 
 def advance(cursor: Cursor, count: int, now: float) -> Cursor:

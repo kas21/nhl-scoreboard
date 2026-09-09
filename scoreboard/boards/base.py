@@ -58,6 +58,9 @@ class BaseBoard:
     config_model: ClassVar[type[BaseModel]] = EmptyConfig
     requires: ClassVar[frozenset[str]] = frozenset()
     sport: ClassVar[str | None] = None      # set on boards that only make sense for one sport's main event
+    # False for boards that only draw something with an event behind them: the director keeps
+    # them out of the rotation and the web UI out of the playlist pickers.
+    playlistable: ClassVar[bool] = True
 
     def enter(self, ctx: BoardContext, cfg: BaseModel) -> None:
         """Called once when the board becomes active; pre-render here."""
@@ -111,6 +114,7 @@ class EventBoard(BaseBoard):
     """A board that plays in response to an event (goal, penalty...)."""
 
     event_kinds: ClassVar[frozenset[str]] = frozenset()
+    playlistable: ClassVar[bool] = False
 
     def matches(self, event: Event, cfg: BaseModel) -> bool:
         return event.kind in self.event_kinds

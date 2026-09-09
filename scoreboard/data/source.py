@@ -55,10 +55,13 @@ class SourceContext:
         if self.health is not None:
             self.health.record_publish(self.key, key)
 
-    async def sleep(self, seconds: float) -> None:
-        """Pause between polls; records when this source will next fetch so the UI can show it."""
+    async def sleep(self, seconds: float, *, until_poll: float | None = None) -> None:
+        """Pause between polls; records when this source will next fetch so the UI can show it.
+
+        ``until_poll`` is for a source that naps in pieces between fetches (to retire an alert
+        on time, say): the diagnostics page then still shows the fetch, not the nap."""
         if self.health is not None:
-            self.health.set_next_poll(self.key, self.health.now() + seconds)
+            self.health.set_next_poll(self.key, self.health.now() + (seconds if until_poll is None else until_poll))
         try:
             await asyncio.sleep(seconds)
         finally:

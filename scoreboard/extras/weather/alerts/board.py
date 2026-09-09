@@ -16,6 +16,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from ....boards.base import BaseBoard, BoardContext, EventBoard, SequenceMixin
 from ....data import Event
+from ....isotime import parse_iso
 from ....render import (
     Absolute,
     Anchor,
@@ -29,8 +30,8 @@ from ....render import (
     render_tree,
 )
 from ....render.fx import chip
-from ....render.text import fit_font, text_size
-from .model import LEVEL_RANK, in_force, parse_when
+from ....render.text import fit_font, wrap_text
+from .model import LEVEL_RANK, in_force
 from .source import ALERTS_KEY, EVENT_KIND
 
 LEVEL_COLORS: dict[str, tuple[int, int, int]] = {
@@ -67,7 +68,7 @@ class AlertBoardConfig(BaseModel):
 
 def until_text(expires: str | None, now: datetime) -> str:
     """'UNTIL 4:45 PM' in the panel's zone, with the weekday when it is not today."""
-    when = parse_when(expires)
+    when = parse_iso(expires)
     if when is None:
         return ""
     local = when.astimezone(now.tzinfo)
@@ -78,22 +79,6 @@ def until_text(expires: str | None, now: datetime) -> str:
 
 def level_color(alert: dict[str, Any]) -> tuple[int, int, int]:
     return LEVEL_COLORS.get(alert.get("level") or "other", LEVEL_COLORS["other"])
-
-
-def wrap(text: str, font: Any, max_width: int) -> list[str]:
-    """Greedy word wrap measured with the font that draws it."""
-    lines: list[str] = []
-    line = ""
-    for word in text.split():
-        candidate = f"{line} {word}".strip()
-        if line and text_size(candidate, font)[0] > max_width:
-            lines.append(line)
-            line = word
-        else:
-            line = candidate
-    if line:
-        lines.append(line)
-    return lines
 
 
 def _bar(alert: dict[str, Any], width: int, f6: Any, counter: str) -> Image.Image:
@@ -126,7 +111,7 @@ def full_card(alert: dict[str, Any], w: int, h: int, f6: Any, now: datetime, cou
     until = until_text(alert.get("expires"), now)
     if until:
         items.append((Anchor(Text(until, f6, color), h="start"), 1, 24, w - 2, LINE_H))
-    lines = wrap(alert.get("summary") or alert.get("headline") or "", f6, w - 2)
+    lines = wrap_text(alert.get("summary") or alert.get("headline") or "", f6, w - 2)
     pages = [lines[i:i + LINES_PER_PAGE] for i in range(0, len(lines), LINES_PER_PAGE)][:MAX_PAGES]
     faces = [VBox([Text(line, f6, LIGHT) for line in page], spacing=LINE_GAP, align="start") for page in pages]
     if faces:
@@ -158,33 +143,34 @@ def card(alert: dict[str, Any], ctx: BoardContext, counter: str = "", page_secon
 
 
 class AlertsBoard(BaseBoard):
+    """Cycles through what is in force. Nothing is cached at ``enter``: the director restarts
+    a board from elapsed 0 on a state change without re-entering it, and the source only
+    re-checks expiry every poll, so the list is read off the snapshot on every call and
+    filtered by ``ctx.now`` — ``done`` and ``auto_seconds`` then agree by construction."""
+
     key = "weather.alerts"
     title = "Weather alerts"
     config_model = AlertsBoardConfig
     requires = frozenset({ALERTS_KEY})
 
-    def __init__(self) -> None:
-        self._items: list[dict[str, Any]] = []
-
-    def enter(self, ctx: BoardContext, cfg: AlertsBoardConfig) -> None:
-        # The source re-checks expiry every poll; between polls the board does it itself.
-        self._items = [a for a in (ctx.snapshot.get(ALERTS_KEY) or []) if in_force(a, ctx.now)]
+    @staticmethod
+    def _in_force(ctx: BoardContext) -> list[dict[str, Any]]:
+        return [a for a in (ctx.snapshot.get(ALERTS_KEY) or []) if in_force(a, ctx.now)]
 
     def done(self, ctx: BoardContext, cfg: AlertsBoardConfig) -> bool:
-        return not self._items or ctx.elapsed >= cfg.seconds_per_alert * len(self._items)
+        return ctx.elapsed >= self.auto_seconds(ctx, cfg)
 
     def auto_seconds(self, ctx: BoardContext, cfg: AlertsBoardConfig) -> float:
-        return cfg.seconds_per_alert * max(len(ctx.snapshot.get(ALERTS_KEY) or []), 1)
+        return cfg.seconds_per_alert * len(self._in_force(ctx))
 
     def render(self, ctx: BoardContext, cfg: AlertsBoardConfig) -> Image.Image:
-        if not self._items:
-            self.enter(ctx, cfg)
-        if not self._items:
+        items = self._in_force(ctx)
+        if not items:
             return render_tree(Text("NO WEATHER ALERTS", ctx.profile.label_font(), GRAY), ctx.width, ctx.height)
-        idx = min(int(ctx.elapsed // cfg.seconds_per_alert), len(self._items) - 1)
+        idx = min(int(ctx.elapsed // cfg.seconds_per_alert), len(items) - 1)
         local = ctx.elapsed - idx * cfg.seconds_per_alert
-        counter = f"{idx + 1}/{len(self._items)}" if len(self._items) > 1 else ""
-        return render_tree(card(self._items[idx], ctx, counter, cfg.page_seconds), ctx.width, ctx.height, t=local)
+        counter = f"{idx + 1}/{len(items)}" if len(items) > 1 else ""
+        return render_tree(card(items[idx], ctx, counter, cfg.page_seconds), ctx.width, ctx.height, t=local)
 
 
 class AlertBoard(SequenceMixin, EventBoard):
@@ -203,6 +189,7 @@ class AlertBoard(SequenceMixin, EventBoard):
 
     def build(self, ctx: BoardContext, cfg: AlertBoardConfig) -> Sequence:
         alert = (ctx.event.payload.get("alert") if ctx.event else None) or {}
-        frames = [render_tree(card(alert, ctx), ctx.width, ctx.height, t=i / ctx.fps) for i in range(int(cfg.duration * ctx.fps))]
+        tree = card(alert, ctx)             # one tree: the animated nodes' material caches hit frame to frame
+        frames = [render_tree(tree, ctx.width, ctx.height, t=i / ctx.fps) for i in range(int(cfg.duration * ctx.fps))]
         still = frames[0] if frames else Image.new("RGB", (ctx.width, ctx.height))
         return Sequence(ctx.fps).flash(level_color(alert), times=2, secs=FLASH_SECONDS).frames(frames).build(still)

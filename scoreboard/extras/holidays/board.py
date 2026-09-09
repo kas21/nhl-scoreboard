@@ -10,6 +10,7 @@ from ...boards.base import BaseBoard, BoardContext
 from ...imagecache import load as load_image
 from ...render import Absolute, Img, Sheen, Slide, Text, VBox, fit_font, load_font, render_tree
 from ...render.anim import quintic_out
+from ...render.text import wrap_text
 
 NUMBER = (80, 200, 255)
 LABEL = (160, 170, 180)
@@ -32,22 +33,6 @@ def _image(path: str, size: int) -> Image.Image | None:
     picture has to take effect without a restart.
     """
     return load_image(Path(path), size)
-
-
-def _wrap(text: str, font, width: int) -> list[str]:
-    from ...render.text import text_size
-    words = text.split()
-    lines, cur = [], ""
-    for w in words:
-        trial = f"{cur} {w}".strip()
-        if text_size(trial, font)[0] <= width or not cur:
-            cur = trial
-        else:
-            lines.append(cur)
-            cur = w
-    if cur:
-        lines.append(cur)
-    return lines[:2]
 
 
 class CountdownBoard(BaseBoard):
@@ -93,11 +78,11 @@ class CountdownBoard(BaseBoard):
         label = str(item.get("display") or item["name"]).upper()
         if today:
             rows = [Text("TODAY IS", small, TODAY_LABEL)]
-            rows += [Text(line, fit_font(line, "pl", text_w, 12), TODAY_NAME) for line in _wrap(label, big, text_w)]
+            rows += [Text(line, fit_font(line, "pl", text_w, 12), TODAY_NAME) for line in wrap_text(label, big, text_w, max_lines=2)]
         else:
             rows = [Sheen(Text(str(item["days"]), big, NUMBER), period=3.0, band=10, strength=0.6, once=True, delay=0.6),
                     Text("DAY TIL" if item["days"] == 1 else "DAYS TIL", small, LABEL)]
-            rows += [Text(line, small, NAME) for line in _wrap(label, small, text_w)]
+            rows += [Text(line, small, NAME) for line in wrap_text(label, small, text_w, max_lines=2)]
         col = VBox(rows, spacing=1)
         items.append((Slide(col, 0.4, "up", delay=0.1, easing=quintic_out), text_x, 0, text_w, h))
         return render_tree(Absolute(items), w, h, t=local)

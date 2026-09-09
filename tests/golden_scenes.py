@@ -277,12 +277,12 @@ def extras_scenes() -> list[Scene]:
          "image": str(HOLIDAY_IMAGES / "christmas_day.png"), "custom": False},
         {"name": "Game Day", "display": "Game Day", "date": "2026-12-01", "days": 0, "image": None, "custom": True},
     ])
-    tornado = make_alert(id="t1", provider="nws", event="Tornado Warning", severity="Extreme", urgency="Immediate",
+    tornado = make_alert(id="t1", key="t1", provider="nws", event="Tornado Warning", severity="Extreme", urgency="Immediate",
                          headline="TORNADO WARNING IN EFFECT UNTIL 445 PM EDT", area="Erie, NY; Niagara, NY",
                          summary="At 412 PM EDT, a severe thunderstorm capable of producing a tornado was located near Buffalo, "
                                  "moving northeast at 40 mph. HAZARD...Tornado and quarter size hail. SOURCE...Radar indicated rotation.",
                          onset="2026-09-08T16:12:00-04:00", expires="2026-09-08T16:45:00-04:00", sender="NWS Buffalo NY")
-    winter = make_alert(id="w1", provider="nws", event="Winter Storm Watch", severity="Severe", urgency="Future",
+    winter = make_alert(id="w1", key="w1", provider="nws", event="Winter Storm Watch", severity="Severe", urgency="Future",
                         headline="WINTER STORM WATCH IN EFFECT FROM WEDNESDAY EVENING THROUGH THURSDAY AFTERNOON",
                         area="Northern Erie", summary="Heavy snow possible. Total snow accumulations of 8 to 14 inches possible.",
                         onset="2026-09-09T19:00:00-04:00", expires="2026-09-10T16:00:00-04:00", sender="NWS Buffalo NY")

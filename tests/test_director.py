@@ -237,3 +237,54 @@ def test_event_boards_in_a_playlist_are_skipped(tmp_path):
     d.frame(t + 5.2); d.frame(t + 5.3)
     assert d.active_board == "blank"                                # only one real entry: it just stays
     assert available_entries((PlaylistEntry(board="goal"), PlaylistEntry(board="blank")), {"goal", "blank"}, {"goal"}) == [PlaylistEntry(board="blank")]
+    assert GoalBoard.playlistable is False and BlankBoard.playlistable is True
+
+
+def test_interrupt_boards_in_a_playlist_are_warned_about_on_every_config_change(tmp_path, caplog):
+    config, snapshots, events, d = make(tmp_path)
+    with caplog.at_level("WARNING", logger="scoreboard.director.director"):
+        config.update({"playlists": {"offday": [{"board": "goal", "duration": 5}, {"board": "blank", "duration": 5}]}})
+        config.update({"playlists": {"offday": [{"board": "blank", "duration": 5}]}})
+        config.update({"playlists": {"offday": [{"board": "goal", "duration": 5}, {"board": "blank", "duration": 5}]}})
+        config.update({"brightness": {"day": 50}})                      # playlists untouched: no repeat
+    assert sum("goal" in r.message and "offday" in r.message for r in caplog.records) == 2
+
+
+class RecordingGoalBoard(GoalBoard):
+    """Remembers the event it was entered with, like a SequenceMixin board caching its timeline."""
+
+    def __init__(self):
+        self.entered = []
+
+    def enter(self, ctx, cfg):
+        self.entered.append(ctx.event.payload.get("n") if ctx.event else None)
+
+
+def test_a_second_event_on_the_same_board_re_enters_it(tmp_path, monkeypatch):
+    """Two goals a few seconds apart: the second must not replay the first one's timeline."""
+    config = ConfigStore(tmp_path / "config.json")
+    snapshots, events = SnapshotStore(), EventBus()
+    goal = RecordingGoalBoard()
+    reg = Registry(boards={b.key: b for b in (ClockBoard(), SplashBoard(), BlankBoard(), goal)})
+    d = Director(config, snapshots, reg, events)
+    t = booted(d)
+    events._queue.append(Event("goal", payload={"n": 1}))
+    d.frame(t + 0.1)
+    events._queue.append(Event("goal", payload={"n": 2}))
+    d.frame(t + 1.0)
+    assert goal.entered == [1] and d.active_board == "goal"
+    d.frame(t + 2.2); d.frame(t + 2.3)      # first goal done -> the pending second is picked up
+    assert d.active_board == "goal" and goal.entered == [1, 2]
+    d.frame(t + 4.5); d.frame(t + 4.6)
+    assert d.active_board == "clock"
+    wall = {"now": t + 5.0}                 # the override expiry reads the real clock; pin it to the frame times
+    monkeypatch.setattr("scoreboard.director.director._time.monotonic", lambda: wall["now"])
+    d.set_override("goal", 5.0)             # the UI previews the board with no event behind it
+    d.frame(t + 5.0)
+    assert goal.entered == [1, 2, None]
+    events._queue.append(Event("goal", payload={"n": 3}))
+    d.frame(t + 6.0)
+    assert goal.entered == [1, 2, None]     # override still holds
+    wall["now"] = t + 10.5
+    d.frame(t + 10.5)                       # override lapsed: the real event plays, freshly entered
+    assert d.active_board == "goal" and goal.entered == [1, 2, None, 3]

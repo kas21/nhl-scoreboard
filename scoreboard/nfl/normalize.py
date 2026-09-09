@@ -8,10 +8,11 @@ ticker says ALABAMA rather than CRIMSON TIDE.
 """
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC
 from types import ModuleType
 from typing import Any
 
+from ..isotime import parse_iso
 from . import teams as nfl_teams
 from .teams import DIVISION_OF
 
@@ -84,10 +85,8 @@ def normalize_game(event: dict[str, Any], *, sport: str = "nfl", teams: ModuleTy
     poss_id = str(sit.get("possession") or "")
     possession = "away" if poss_id and poss_id == a["id"] else "home" if poss_id and poss_id == h["id"] else None
     start = event.get("date", "")
-    try:
-        local_date = datetime.fromisoformat(start.replace("Z", "+00:00")).astimezone(UTC).date().isoformat()
-    except ValueError:
-        local_date = ""
+    started = parse_iso(start)
+    local_date = started.astimezone(UTC).date().isoformat() if started is not None else ""
     outcome = ""
     if state == "post":
         outcome = "FINAL/OT" if period > 4 else "FINAL"

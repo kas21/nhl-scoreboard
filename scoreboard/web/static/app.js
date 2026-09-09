@@ -96,6 +96,7 @@ const autoLabel = (b) => !b ? ''
   : b.auto_seconds == null ? (b.self_timed ? 'auto · length not known yet' : 'auto · until the state changes')
   : b.auto_seconds < 0.5 ? 'auto · skipped, nothing to show'
   : `auto ≈ ${fmtSecs(b.auto_seconds)}`;
+const SKIPPED_HINT = "An interrupt board plays when its event happens (a goal, a flight overhead, a weather alert) and is passed over in the rotation. Remove it from the playlist or leave it; it makes no difference.";
 const AUTO_HINT = "Blank means auto: the board runs its own length instead of a fixed one. That length follows how much there is to show (games, pages, aircraft), so it moves with the data — and a board with no length of its own stays up until the state changes.";
 
 function useSources(intervalMs = 3000) {
@@ -229,22 +230,32 @@ function Playlist({ state, list, boards, autos, update }) {
     addEventListener('keydown', onKey);
   };
 
+  // An interrupt board (goal, flight overhead, weather alert) plays on its event and never
+  // from a playlist. One can still be listed — an old config, a hand edit — so the row says
+  // so and its controls are inert rather than looking live for an entry that never plays.
+  const rotates = (b) => !b || b.playlistable !== false;
+  const byKey = Object.fromEntries(boards.map(b => [b.key, b]));
+  const pickable = boards.filter(rotates);
   return html`<div class="card playlist"><h2>${state}</h2><ul>
-    ${shown.map((e, i) => html`<li class=${drag && drag.to === i ? 'dragging' : ''}>
+    ${shown.map((e, i) => {
+      const skipped = !rotates(byKey[e.board]);
+      return html`<li class=${[drag && drag.to === i ? 'dragging' : '', skipped ? 'skipped' : ''].join(' ').trim()}>
       <span class="grip" title="Drag to reorder" onpointerdown=${ev => grab(ev, i)}>⠿</span>
-      <input type="checkbox" checked=${e.enabled} onchange=${ev => edit(i, { enabled: ev.target.checked })} />
+      <input type="checkbox" checked=${e.enabled} disabled=${skipped} onchange=${ev => edit(i, { enabled: ev.target.checked })} />
       <select value=${e.board} onchange=${ev => edit(i, { board: ev.target.value })}>
-        ${boards.filter(b => !b.event || b.key === e.board).map(b => html`<option value=${b.key}>${b.title}</option>`)}
+        ${boards.filter(b => rotates(b) || b.key === e.board).map(b => html`<option value=${b.key}>${b.title}</option>`)}
       </select>
-      <input type="number" min="1" placeholder="auto" title=${AUTO_HINT} value=${e.duration ?? ''} style="width:80px"
+      <input type="number" min="1" placeholder="auto" title=${AUTO_HINT} value=${e.duration ?? ''} style="width:80px" disabled=${skipped}
         onchange=${ev => edit(i, { duration: ev.target.value === '' ? null : +ev.target.value })} /> s
-      <span class="muted small auto" title=${AUTO_HINT}>${e.duration == null ? autoLabel(autos[e.board]) : ''}</span>
+      <span class="muted small auto" title=${skipped ? SKIPPED_HINT : AUTO_HINT}>${skipped ? 'not in rotation · plays on its event' : e.duration == null ? autoLabel(autos[e.board]) : ''}</span>
       <button class="secondary" disabled=${i === 0} onclick=${() => move(i, -1)}>↑</button>
       <button class="secondary" disabled=${i === list.length - 1} onclick=${() => move(i, 1)}>↓</button>
       <button class="danger" onclick=${() => update(state, shown.filter((_, j) => j !== i))}>✕</button>
-    </li>`)}
+    </li>`;
+    })}
     </ul>
-    <button class="secondary" onclick=${() => update(state, [...list, { board: boards[0].key, duration: 15, enabled: true }])}>+ Add board</button>
+    <button class="secondary" disabled=${!pickable.length}
+      onclick=${() => update(state, [...list, { board: pickable[0].key, duration: 15, enabled: true }])}>+ Add board</button>
   </div>`;
 }
 

@@ -64,15 +64,18 @@ class Director:
         self._cursor: Cursor | None = None       # created on first frame
         self._booted_at = 0.0
         self._active_key: str | None = None
+        self._entered_event: Event | None = None   # the event the active board was entered with
         self._active_event: tuple[Event, EventBoard, float] | None = None
         self._pending: list[Event] = []
         self._board_cfg_cache: dict[tuple[str, int], BaseModel] = {}
         self._last_frame: Image.Image | None = None
         self._quarantine: dict[str, float] = {}       # board key -> monotonic time it may run again
-        self._skipped_interrupts: set[str] = set()     # interrupt boards found in a playlist, warned about once
+        self._not_playlistable = frozenset(k for k, b in registry.boards.items() if not b.playlistable)
         self._override: tuple[str, float] | None = None   # (board key, monotonic expiry) forced by the UI
         self._transition: tuple[Image.Image, float] | None = None     # (outgoing frame, started_at)
         self._cfg_version = 0
+        self._playlists = config.get().playlists
+        self._warn_unplayable(config.get())
         config.subscribe(self._on_config)
 
     # -- public --------------------------------------------------------------
@@ -129,7 +132,10 @@ class Director:
         self._sync_state(snap, mono)
 
         board, key, event = self._select(cfg, snap, mono)
-        switching = key != self._active_key
+        # A new event on the board already showing is a switch too: a second goal must not
+        # replay the first one's cached timeline, and a real alert arriving behind a UI
+        # preview of the alert board must not play the preview's placeholder.
+        switching = key != self._active_key or event is not self._entered_event
         if switching and not isinstance(board, EventBoard) and not self._active_event:
             self._cursor = Cursor(self._cursor.state, self._cursor.index, mono)       # the new board's clock starts now
         ctx = self._context(cfg, snap, mono, event)
@@ -140,7 +146,7 @@ class Director:
                 self._transition = (self._last_frame, mono)
             else:
                 self._transition = None          # event boards cut in instantly
-            self._active_key = key
+            self._active_key, self._entered_event = key, event
             board.enter(ctx, board_cfg)
         try:
             frame = board.render(ctx, board_cfg)
@@ -165,12 +171,23 @@ class Director:
 
     # -- internals -----------------------------------------------------------
 
-    def _on_config(self, _: AppConfig) -> None:
+    def _on_config(self, cfg: AppConfig) -> None:
         # Called on the web thread while the render thread reads the cache, so the dict is
         # replaced rather than mutated: a reader either sees the whole old map or the whole
         # new one, and never a `clear()` in progress. Same reason the snapshot is immutable.
         self._cfg_version += 1
         self._board_cfg_cache = {}
+        if cfg.playlists != self._playlists:          # not on every brightness tweak
+            self._playlists = cfg.playlists
+            self._warn_unplayable(cfg)
+
+    def _warn_unplayable(self, cfg: AppConfig) -> None:
+        """Say so whenever a saved playlist lists a board that cannot rotate (an old config, a
+        hand edit): the entry is passed over rather than drawn empty, and the UI marks it."""
+        for state in PLAYLIST_STATES:
+            for e in getattr(cfg.playlists, state.value):
+                if e.board in self._not_playlistable:
+                    log.warning("playlist %s lists %s, an interrupt board; skipping it (it plays on its event instead)", state.value, e.board)
 
     def _now(self, cfg: AppConfig) -> datetime:
         try:
@@ -194,13 +211,7 @@ class Director:
     def _entries(self, cfg: AppConfig, snap: Snapshot, state: AppState, usable: set[str]) -> list:
         """Playlist entries that are enabled, loaded, not quarantined, and whose required data is non-empty."""
         boards = self._registry.boards
-        listed = getattr(cfg.playlists, state.value)
-        interrupts = {b.key for b in self._registry.event_boards}
-        entries = available_entries(listed, usable, interrupts)
-        for e in listed:
-            if e.board in interrupts and e.board not in self._skipped_interrupts:
-                self._skipped_interrupts.add(e.board)
-                log.warning("playlist %s lists %s, an interrupt board; skipping it (it plays on its event instead)", state.value, e.board)
+        entries = available_entries(getattr(cfg.playlists, state.value), usable, self._not_playlistable)
         main = snap.get("main_event") or {}
         return [e for e in entries
                 if all(snap.get(k) for k in boards[e.board].requires)

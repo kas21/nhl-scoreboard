@@ -4,9 +4,10 @@ Everything here is a pure function of its inputs (recorded fixtures drive the te
 """
 from __future__ import annotations
 
-from datetime import UTC, date, datetime
+from datetime import UTC, date
 from typing import Any
 
+from ..isotime import parse_iso
 from .teams import DIVISION_OF, DIVISION_ORDER, LEAGUE_OF, abbrev_for, team
 
 SUFFIXES = {1: "st", 2: "nd", 3: "rd"}
@@ -147,10 +148,8 @@ def normalize_game(game: dict[str, Any]) -> dict[str, Any] | None:
     start = game.get("gameDate") or ""
     local_date = game.get("officialDate") or ""
     if not local_date:
-        try:
-            local_date = datetime.fromisoformat(start.replace("Z", "+00:00")).astimezone(UTC).date().isoformat()
-        except ValueError:
-            local_date = ""
+        started = parse_iso(start)
+        local_date = started.astimezone(UTC).date().isoformat() if started is not None else ""
     decisions = game.get("decisions") or {}
     period = HALF_LABELS.get(sit["half"], "") if phase == "live" else ""
     return {

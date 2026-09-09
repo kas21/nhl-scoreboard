@@ -23,20 +23,35 @@ async def fetch_eccc(http: httpx.AsyncClient, lat: float, lon: float) -> dict[st
     resp = await http.get(ECCC_ALERTS, params={"f": "json", "lang": "en", "limit": 100, "bbox": bbox}, follow_redirects=True)
     resp.raise_for_status()
     data = resp.json()
-    return data if isinstance(data, dict) else {}
+    if not isinstance(data, dict):
+        raise ValueError(f"ECCC alerts: unexpected payload ({type(data).__name__})")
+    return data
 
 
 def parse_eccc(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    """Alerts still in effect. ECCC has no message chain, so the hazard code is the identity.
+
+    Raises ValueError when the collection is not shaped like one, so the source logs a
+    failed poll rather than crashing.
+    """
     out = []
-    for feat in payload.get("features") or []:
+    features = payload.get("features") or []
+    if not isinstance(features, list) or not all(isinstance(f, dict) for f in features):
+        raise ValueError("ECCC alerts: features is not a list of objects")
+    for feat in features:
         props = feat.get("properties") or {}
+        if not isinstance(props, dict):
+            raise ValueError("ECCC alerts: feature properties is not an object")
         name = props.get("alert_name_en")
-        if not name or (props.get("status_en") or "").lower() == "ended":
+        if not name or (str(props.get("status_en") or "")).lower() == "ended":
             continue
+        if not isinstance(name, str):
+            raise ValueError(f"ECCC alerts: alert_name_en is {type(name).__name__}, not text")
         event = name.title()
         out.append(make_alert(
-            id=f"{props.get('alert_code')}:{props.get('feature_id')}:{props.get('publication_datetime')}", provider="eccc",
-            event=event, severity=RISK_SEVERITY.get((props.get("risk_colour_en") or "").lower(), "Unknown"),
+            id=f"{props.get('alert_code')}:{props.get('feature_id')}:{props.get('publication_datetime')}",
+            key=str(props.get("alert_code") or name).lower(), provider="eccc",
+            event=event, severity=RISK_SEVERITY.get(str(props.get("risk_colour_en") or "").lower(), "Unknown"),
             headline=f"{event} in effect".upper(), summary=summarize(props.get("alert_text_en")),
             area=collapse(props.get("feature_name_en")), onset=props.get("validity_datetime"),
             expires=props.get("event_end_datetime") or props.get("expiration_datetime"), sender=SENDER,

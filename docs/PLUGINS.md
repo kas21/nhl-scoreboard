@@ -54,6 +54,10 @@ class MyAlert(SequenceMixin, EventBoard):
 ```
 Emit events with a detector: `def detect(prev: Snapshot, new: Snapshot) -> Iterable[Event]` registered
 under `scoreboard.detectors`. Diff the two snapshots; never keep state in the detector.
+`EventBoard` sets `playlistable = False`: the director keeps such a board out of every rotation (it would hold a
+blank frame with no event behind it), the web UI keeps it out of the playlist pickers and marks any saved entry
+that still names one, and a new event on the board already showing re-enters it, so a cached `Sequence` is
+rebuilt for the new payload.
 
 ## Sport packages
 Publish a normalised game dict (docs/DATA.md) under `<sport>.main_event`, set `sport` on boards that only

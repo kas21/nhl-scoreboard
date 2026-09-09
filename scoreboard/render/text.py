@@ -79,3 +79,20 @@ def fit_font(text: str, name: str, max_width: int, start: int, minimum: int = 5)
         if text_size(text, font)[0] <= max_width:
             return font
     return load_font(name, minimum)
+
+
+def wrap_text(text: str, font: ImageFont.ImageFont, max_width: int, max_lines: int | None = None) -> list[str]:
+    """Greedy word wrap measured with the font that draws it. A word wider than the line
+    stands alone rather than splitting; ``max_lines`` drops the overflow."""
+    lines: list[str] = []
+    line = ""
+    for word in text.split():
+        candidate = f"{line} {word}".strip()
+        if line and text_size(candidate, font)[0] > max_width:
+            lines.append(line)
+            line = word
+        else:
+            line = candidate
+    if line:
+        lines.append(line)
+    return lines[:max_lines] if max_lines is not None else lines

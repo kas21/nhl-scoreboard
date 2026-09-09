@@ -7,6 +7,7 @@ from typing import Any
 
 from PIL import Image, ImageDraw
 
+from ...isotime import parse_iso
 from ...render import Anchor, HBox, Img, Spacer, Stack, Text, VBox, load_font
 from ...render.layout import Box, Node
 from ...render.profiles import SizeProfile
@@ -20,12 +21,8 @@ RED = (230, 40, 40)
 
 
 def local_time(iso_utc: str, tz) -> datetime | None:
-    if not iso_utc:
-        return None
-    try:
-        return datetime.fromisoformat(iso_utc.replace("Z", "+00:00")).astimezone(tz)
-    except ValueError:
-        return None
+    dt = parse_iso(iso_utc)
+    return dt.astimezone(tz) if dt is not None else None
 
 
 def fmt_time(dt: datetime | None, fmt24: bool = False) -> str:
