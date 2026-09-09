@@ -1,6 +1,19 @@
 # Data model
 
-All snapshot values are plain JSON-shaped dicts/lists (immutable by convention: sources publish new objects).
+## Snapshot mechanics
+Everything a board can see lives in one `Snapshot` (`data/store.py`): a frozen dataclass with `version`
+(monotonic), `data` (key → value) and `updated` (key → epoch seconds of the last publish). Sources call
+`ctx.publish(value, subkey)` (→ `<source>.<subkey>`) or `ctx.publish_to(key, value)`; the store builds a new
+snapshot with that one key replaced and hands `(prev, new)` to its listeners — the event bus, which runs the
+detectors, and the arbiter, which recomputes `main_event`. Readers on the render thread take a reference
+and never lock.
+
+All values are plain JSON-shaped dicts and lists, published as new objects (never mutated in place).
+`None` is a real value with a meaning of its own where a table below says so; `snapshot.get(key)` returns
+`None` for a missing key as well, and `snapshot.has(key)` tells the two apart. A board's `requires` keys
+must be present *and non-empty* for it to enter a playlist, so publishing `[]` or `None` is how a source
+takes its board down. `snapshot.age(key)` gives seconds since the last publish; `GET /api/snapshot` dumps
+the whole thing.
 
 ## Snapshot keys
 | Key | Producer | Shape |

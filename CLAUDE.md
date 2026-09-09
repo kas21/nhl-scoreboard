@@ -60,7 +60,7 @@ tests/              pytest; fixtures/ are real API captures (NHL 2026-04-11 game
                     fixtures/mlb and fixtures/ncaaf are API-shaped but generated (see their READMEs) — replace with captures when you can;
                     golden/ holds the pinned board frames (test_golden.py + golden_scenes.py), one PNG per board/state/size
 tools/ scripts/     build steps; Pi install.sh + pi_tuning.sh
-docs/               USER_GUIDE, HARDWARE, ARCHITECTURE, DATA, PLUGINS, DEVELOPMENT
+docs/               OVERVIEW (start here), USER_GUIDE, HARDWARE, ARCHITECTURE, DATA, PLUGINS, DEVELOPMENT; README.md indexes them
 ```
 
 ## Key concepts (read docs/ARCHITECTURE.md for detail)

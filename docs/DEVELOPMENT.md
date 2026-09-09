@@ -1,12 +1,33 @@
 # Development
 
 ## Setup
+Requirements: Python ≥ 3.11 (Pi OS Bookworm ships 3.11, Trixie 3.13) and [uv](https://docs.astral.sh/uv/).
+No Node toolchain: the UI is plain ES modules served as static files. No API keys: every feed is keyless.
+
 ```bash
-uv sync --extra dev --extra emulator
-uv run scoreboard --demo --emulator      # emulator window + web UI, replaying a recorded game
+git clone https://github.com/kas21/nhl-scoreboard && cd nhl-scoreboard
+uv sync --extra dev --extra emulator     # venv + deps; `emulator` pulls RGBMatrixEmulator, `dev` pytest/ruff/respx
+uv run scoreboard --demo --emulator      # emulator window + web UI on :8080, replaying a recorded game
+uv run scoreboard --emulator             # the same against the live feeds
+uv run scoreboard --output none          # headless: browser preview only (CI, SSH sessions)
 uv run pytest -q && uv run ruff check scoreboard tests
 ```
-Python ≥ 3.11 (Pi OS Bookworm ships 3.11, Trixie 3.13). No Node toolchain: the UI is plain ES modules.
+
+What you get on first run: `~/.scoreboard/config.json` is written with defaults (`--config` to put it
+elsewhere), team logos download from ESPN's CDN into `~/.scoreboard/cache/logos/` over the first few
+seconds (a coloured tile stands in until then), and the setup wizard opens at http://localhost:8080. Set a
+location there or in Settings to turn on weather, alerts, flights and sunset dimming. The emulator window
+is the panel; the dashboard's preview is the same frames over a WebSocket.
+
+Useful switches: `-v` for debug logging; `SCOREBOARD_CACHE_DIR` / `SCOREBOARD_DATA_DIR` to relocate the
+cache and user data (see [ARCHITECTURE.md](ARCHITECTURE.md#caches-and-on-disk-state)).
+
+## Repo tour
+Read [OVERVIEW.md](OVERVIEW.md) first. Then: `app.py` is the wiring, `director/director.py` the frame loop,
+`data/` the store and event bus, `boards/base.py` the board contract, `render/layout.py` the layout engine,
+`nhl/` the reference sport package and `extras/weather/alerts/` a compact example of a source, a detector,
+a playlist board and an interrupt board together. `tests/golden_scenes.py` lists every board and the
+snapshot it is rendered from, which doubles as a catalogue.
 
 ## Workflow
 - Boards are pinned pixel-for-pixel by `tests/test_golden.py`: every board, in its key states, rendered from
