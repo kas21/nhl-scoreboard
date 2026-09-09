@@ -69,6 +69,7 @@ class Director:
         self._board_cfg_cache: dict[tuple[str, int], BaseModel] = {}
         self._last_frame: Image.Image | None = None
         self._quarantine: dict[str, float] = {}       # board key -> monotonic time it may run again
+        self._skipped_interrupts: set[str] = set()     # interrupt boards found in a playlist, warned about once
         self._override: tuple[str, float] | None = None   # (board key, monotonic expiry) forced by the UI
         self._transition: tuple[Image.Image, float] | None = None     # (outgoing frame, started_at)
         self._cfg_version = 0
@@ -193,7 +194,13 @@ class Director:
     def _entries(self, cfg: AppConfig, snap: Snapshot, state: AppState, usable: set[str]) -> list:
         """Playlist entries that are enabled, loaded, not quarantined, and whose required data is non-empty."""
         boards = self._registry.boards
-        entries = available_entries(getattr(cfg.playlists, state.value), usable)
+        listed = getattr(cfg.playlists, state.value)
+        interrupts = {b.key for b in self._registry.event_boards}
+        entries = available_entries(listed, usable, interrupts)
+        for e in listed:
+            if e.board in interrupts and e.board not in self._skipped_interrupts:
+                self._skipped_interrupts.add(e.board)
+                log.warning("playlist %s lists %s, an interrupt board; skipping it (it plays on its event instead)", state.value, e.board)
         main = snap.get("main_event") or {}
         return [e for e in entries
                 if all(snap.get(k) for k in boards[e.board].requires)

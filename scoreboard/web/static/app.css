@@ -154,3 +154,10 @@ table.flights td { white-space:normal; }
 .holidays { margin:0; padding:0; list-style:none; }
 .holidays li { display:flex; gap:10px; padding:3px 0; font-size:13px; }
 .flight-stats { font-size:13px; margin-bottom:6px; }
+.alerts { margin:0; padding:0; list-style:none; }
+.alerts li { display:flex; gap:10px; padding:4px 0; font-size:13px; align-items:flex-start; }
+.chip.level-warning { background:#b3261e; color:#fff; }
+.chip.level-watch { background:#c77700; color:#fff; }
+.chip.level-advisory { background:#d4b000; color:#111; }
+.chip.level-statement { background:#2f6fd6; color:#fff; }
+.chip.level-other { background:#555; color:#fff; }

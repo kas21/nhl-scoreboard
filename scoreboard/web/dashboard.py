@@ -24,6 +24,7 @@ SPORTS = (("nhl", "NHL"), ("nfl", "NFL"), ("ncaaf", "College football"), ("mlb",
 MAX_FLIGHTS = 8
 MAX_HOLIDAYS = 5
 MAX_FORECAST_DAYS = 4
+MAX_ALERTS = 6
 
 TEAM_FIELDS = ("abbrev", "name", "score", "record")
 GAME_FIELDS = ("id", "sport", "type", "date", "start_time_utc", "phase", "period", "clock", "outcome", "series", "week")
@@ -32,6 +33,7 @@ AIRCRAFT_FIELDS = ("hex", "ident", "callsign", "registration", "airline", "type"
 HOLIDAY_FIELDS = ("name", "display", "date", "days")
 WEATHER_FIELDS = ("label", "temp", "feels", "humidity", "wind", "wind_dir", "precip", "is_day", "units", "short", "desc", "icon")
 FORECAST_FIELDS = ("date", "hi", "lo", "pop", "short", "icon")
+ALERT_FIELDS = ("event", "level", "severity", "headline", "area", "expires", "sender")
 
 
 def local_today(timezone: str | None) -> str:
@@ -114,6 +116,13 @@ def weather_summary(snap: Snapshot) -> dict[str, Any] | None:
             "daily": [_pick(d, FORECAST_FIELDS) for d in (snap.get("weather.daily") or [])[:MAX_FORECAST_DAYS]]}
 
 
+def alerts_summary(snap: Snapshot) -> list[dict[str, Any]] | None:
+    alerts = snap.get("weather.alerts")
+    if alerts is None:
+        return None
+    return [_pick(a, ALERT_FIELDS) for a in alerts[:MAX_ALERTS]]
+
+
 def dashboard_summary(snap: Snapshot, today: str) -> dict[str, Any]:
     main = snap.get("main_event") or None
     return {
@@ -124,6 +133,7 @@ def dashboard_summary(snap: Snapshot, today: str) -> dict[str, Any]:
         "flight_stats": snap.get("flights.stats"),
         "holidays": holidays_summary(snap),
         "weather": weather_summary(snap),
+        "alerts": alerts_summary(snap),
     }
 
 

@@ -1,6 +1,7 @@
 """Playlist cursor: which board to show in the current state and when to advance."""
 from __future__ import annotations
 
+from collections.abc import Collection
 from dataclasses import dataclass, replace
 
 from ..config.models import PlaylistEntry
@@ -18,8 +19,12 @@ class Cursor:
         return None
 
 
-def available_entries(entries: tuple[PlaylistEntry, ...], loaded: set[str]) -> list[PlaylistEntry]:
-    return [e for e in entries if e.enabled and e.board in loaded]
+def available_entries(entries: tuple[PlaylistEntry, ...], loaded: set[str],
+                      event_boards: Collection[str] = ()) -> list[PlaylistEntry]:
+    """Enabled entries whose board is loaded. Interrupt boards are left out: they only
+    draw something with an event behind them, so in a playlist they would hold a blank
+    frame for their whole sequence."""
+    return [e for e in entries if e.enabled and e.board in loaded and e.board not in event_boards]
 
 
 def advance(cursor: Cursor, count: int, now: float) -> Cursor:

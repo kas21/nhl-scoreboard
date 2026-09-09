@@ -7,12 +7,13 @@ from scoreboard.boards.blank import BlankBoard
 from scoreboard.boards.clock import ClockBoard
 from scoreboard.boards.splash import SplashBoard
 from scoreboard.config import ConfigStore
-from scoreboard.config.models import BrightnessConfig, LocationConfig
+from scoreboard.config.models import BrightnessConfig, LocationConfig, PlaylistEntry
 from scoreboard.data import SnapshotStore
 from scoreboard.data.events import Event, EventBus
 from scoreboard.director import AppState, Director, compute_state
 from scoreboard.director.brightness import brightness_for
 from scoreboard.director.director import BOOT_SECONDS
+from scoreboard.director.playlist import available_entries
 from scoreboard.plugins import Registry
 
 
@@ -223,3 +224,16 @@ def test_a_board_that_only_the_error_state_needs_is_not_assumed(tmp_path):
     d = Director(config, snapshots, Registry(boards={"splash": SplashBoard()}), events)
     d.frame(1000.0)
     assert d.frame(1000.0 + BOOT_SECONDS + 0.1).size == (128, 64)
+
+
+def test_event_boards_in_a_playlist_are_skipped(tmp_path):
+    """An interrupt board only makes sense with an event behind it; listed in a playlist
+    (an old config, a hand edit) it is passed over rather than drawn empty."""
+    config, snapshots, events, d = make(tmp_path)
+    config.update({"transition": {"style": "none"},
+                   "playlists": {"offday": [{"board": "goal", "duration": 5}, {"board": "blank", "duration": 5}]}})
+    t = booted(d)
+    assert d.active_board == "blank"
+    d.frame(t + 5.2); d.frame(t + 5.3)
+    assert d.active_board == "blank"                                # only one real entry: it just stays
+    assert available_entries((PlaylistEntry(board="goal"), PlaylistEntry(board="blank")), {"goal", "blank"}, {"goal"}) == [PlaylistEntry(board="blank")]

@@ -1,0 +1,414 @@
+{
+ "@context": [
+  "https://geojson.org/geojson-ld/geojson-context.jsonld",
+  {
+   "@version": "1.1",
+   "wx": "https://api.weather.gov/ontology#",
+   "@vocab": "https://api.weather.gov/ontology#"
+  }
+ ],
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.db766f10ec2d16bf95069c04e9743b830e973352.003.1",
+   "type": "Feature",
+   "geometry": null,
+   "properties": {
+    "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.db766f10ec2d16bf95069c04e9743b830e973352.003.1",
+    "@type": "wx:Alert",
+    "id": "urn:oid:2.49.0.1.840.0.db766f10ec2d16bf95069c04e9743b830e973352.003.1",
+    "areaDesc": "Catalina and Santa Barbara Islands",
+    "references": [],
+    "sent": "2026-09-08T10:49:00-07:00",
+    "effective": "2026-09-08T10:49:00-07:00",
+    "onset": "2026-09-09T08:00:00-07:00",
+    "expires": "2026-09-09T15:00:00-07:00",
+    "ends": "2026-09-10T20:00:00-07:00",
+    "status": "Actual",
+    "messageType": "Alert",
+    "category": "Met",
+    "severity": "Severe",
+    "certainty": "Likely",
+    "urgency": "Expected",
+    "event": "Extreme Heat Warning",
+    "sender": "w-nws.webmaster@noaa.gov",
+    "senderName": "NWS Los Angeles/Oxnard CA",
+    "headline": "Extreme Heat Warning issued September 8 at 10:49AM PDT until September 10 at 8:00PM PDT by NWS Los Angeles/Oxnard CA",
+    "description": "* WHAT...Temperatures of 88 to 100 expected.\n\n* WHERE...Catalina and Santa Barbara Islands.\n\n* WHEN...From 8 AM Wednesday to 8 PM PDT Thursday.\n\n* IMPACTS...Heat related illnesses increase significantly during\nextreme heat events.\n\n* ADDITIONAL DETAILS...Humid conditions will add to heat discomfort.\nHeat peaking on Wednesday for most areas.",
+    "instruction": "Drink plenty of fluids, stay in an air-conditioned room, stay out of\nthe sun, and check up on relatives and neighbors.\n\nDo not leave young children and pets in unattended vehicles. Car\ninteriors will reach lethal temperatures in a matter of minutes.\n\nStay cool, stay hydrated, stay informed.",
+    "response": "Execute",
+    "note": null,
+    "parameters": {
+     "AWIPSidentifier": [
+      "NPWLOX"
+     ],
+     "WMOidentifier": [
+      "WWUS76 KLOX 081749"
+     ],
+     "NWSheadline": [
+      "EXTREME HEAT WARNING IN EFFECT FROM 8 AM WEDNESDAY TO 8 PM PDT THURSDAY"
+     ],
+     "BLOCKCHANNEL": [
+      "EAS",
+      "NWEM",
+      "CMAS"
+     ],
+     "VTEC": [
+      "/O.NEW.KLOX.XH.W.0007.260909T1500Z-260911T0300Z/"
+     ],
+     "eventEndingTime": [
+      "2026-09-10T20:00:00-07:00"
+     ]
+    },
+    "scope": "Public",
+    "code": "IPAWSv1.0",
+    "language": "en-US",
+    "web": "http://www.weather.gov",
+    "eventCode": {
+     "SAME": [
+      "NWS"
+     ],
+     "NationalWeatherService": [
+      "XHW"
+     ]
+    }
+   }
+  },
+  {
+   "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.1c4a47222ca0c1d9086645e0ee120afd6cb1edaf.001.1",
+   "type": "Feature",
+   "geometry": null,
+   "properties": {
+    "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.1c4a47222ca0c1d9086645e0ee120afd6cb1edaf.001.1",
+    "@type": "wx:Alert",
+    "id": "urn:oid:2.49.0.1.840.0.1c4a47222ca0c1d9086645e0ee120afd6cb1edaf.001.1",
+    "areaDesc": "South Central Mountains",
+    "references": [],
+    "sent": "2026-09-08T01:49:00-06:00",
+    "effective": "2026-09-08T01:49:00-06:00",
+    "onset": "2026-09-08T11:00:00-06:00",
+    "expires": "2026-09-08T12:00:00-06:00",
+    "ends": "2026-09-08T18:00:00-06:00",
+    "status": "Actual",
+    "messageType": "Alert",
+    "category": "Met",
+    "severity": "Severe",
+    "certainty": "Possible",
+    "urgency": "Future",
+    "event": "Flood Watch",
+    "sender": "w-nws.webmaster@noaa.gov",
+    "senderName": "NWS Albuquerque NM",
+    "headline": "Flood Watch issued September 8 at 1:49AM MDT until September 8 at 6:00PM MDT by NWS Albuquerque NM",
+    "description": "* WHAT...Flash flooding caused by excessive rainfall is possible.\n\n* WHERE...A portion of central New Mexico, including the following\narea, South Central Mountains.\n\n* WHEN...From 11 AM MDT this morning through this afternoon.\n\n* IMPACTS...Excessive runoff may result in flooding of rivers,\ncreeks, streams, and other low-lying and flood-prone locations\ndownstream of the South Fork and Salt wildfire burn scars.\n\n* ADDITIONAL DETAILS...\n- Monsoon moisture and atmospheric instability will be present this\nafternoon, leading to the development of strong, slow- moving\nthunderstorms over the Sacramento mountains. These slow-moving\nstorms will be capable of producing rainfall rates of 1 to 2\ninches per hour which may lead to excessive runoff on the\nvulnerable South Fork and Salt burn scars. These burn scars are\nvery susceptible to flash flooding.\n- http://www.weather.gov/abq/EmergencyPrepFlood",
+    "instruction": "You should monitor later forecasts and be prepared to take action\nshould Flash Flood Warnings be issued.",
+    "response": "Prepare",
+    "note": null,
+    "parameters": {
+     "AWIPSidentifier": [
+      "FFAABQ"
+     ],
+     "WMOidentifier": [
+      "WGUS65 KABQ 080749"
+     ],
+     "NWSheadline": [
+      "FLOOD WATCH IN EFFECT FROM 11 AM MDT THIS MORNING THROUGH THIS AFTERNOON"
+     ],
+     "BLOCKCHANNEL": [
+      "EAS",
+      "NWEM",
+      "CMAS"
+     ],
+     "EAS-ORG": [
+      "WXR"
+     ],
+     "VTEC": [
+      "/O.NEW.KABQ.FA.A.0019.260908T1700Z-260909T0000Z/"
+     ],
+     "eventEndingTime": [
+      "2026-09-08T18:00:00-06:00"
+     ]
+    },
+    "scope": "Public",
+    "code": "IPAWSv1.0",
+    "language": "en-US",
+    "web": "http://www.weather.gov",
+    "eventCode": {
+     "SAME": [
+      "FFA"
+     ],
+     "NationalWeatherService": [
+      "FAA"
+     ]
+    }
+   }
+  },
+  {
+   "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.1d90df3faf428253c16d93062e4937c8e102465e.001.1",
+   "type": "Feature",
+   "geometry": null,
+   "properties": {
+    "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.1d90df3faf428253c16d93062e4937c8e102465e.001.1",
+    "@type": "wx:Alert",
+    "id": "urn:oid:2.49.0.1.840.0.1d90df3faf428253c16d93062e4937c8e102465e.001.1",
+    "areaDesc": "Orange; Washington; Scott; Jefferson; Dubois; Crawford; Perry; Harrison; Floyd; Clark; Hancock; Breckinridge; Meade; Ohio; Grayson; Hardin; Bullitt; Jefferson; Oldham; Trimble; Butler; Edmonson; Logan; Warren; Simpson",
+    "references": [],
+    "sent": "2026-09-08T14:06:00-04:00",
+    "effective": "2026-09-08T14:06:00-04:00",
+    "onset": "2026-09-09T12:00:00-04:00",
+    "expires": "2026-09-09T05:00:00-04:00",
+    "ends": "2026-09-09T20:00:00-04:00",
+    "status": "Actual",
+    "messageType": "Alert",
+    "category": "Met",
+    "severity": "Moderate",
+    "certainty": "Likely",
+    "urgency": "Expected",
+    "event": "Heat Advisory",
+    "sender": "w-nws.webmaster@noaa.gov",
+    "senderName": "NWS Louisville KY",
+    "headline": "Heat Advisory issued September 8 at 2:06PM EDT until September 9 at 8:00PM EDT by NWS Louisville KY",
+    "description": "* WHAT...Heat index values up to 106 expected.\n\n* WHERE...Portions of south central Indiana and north central,\nnorthwest, and south central Kentucky.\n\n* WHEN...From noon EDT /11 AM CDT/ to 8 PM EDT /7 PM CDT/ Wednesday.\n\n* IMPACTS...Hot temperatures and high humidity may cause heat\nillnesses.",
+    "instruction": "Drink plenty of fluids, stay in an air-conditioned room, stay out of\nthe sun, and check up on relatives and neighbors.",
+    "response": "Execute",
+    "note": null,
+    "parameters": {
+     "AWIPSidentifier": [
+      "NPWLMK"
+     ],
+     "WMOidentifier": [
+      "WWUS73 KLMK 081806"
+     ],
+     "NWSheadline": [
+      "HEAT ADVISORY IN EFFECT FROM NOON EDT /11 AM CDT/ TO 8 PM EDT /7 PM CDT/ WEDNESDAY"
+     ],
+     "BLOCKCHANNEL": [
+      "EAS",
+      "NWEM",
+      "CMAS"
+     ],
+     "VTEC": [
+      "/O.NEW.KLMK.HT.Y.0011.260909T1600Z-260910T0000Z/"
+     ],
+     "eventEndingTime": [
+      "2026-09-09T20:00:00-04:00"
+     ]
+    },
+    "scope": "Public",
+    "code": "IPAWSv1.0",
+    "language": "en-US",
+    "web": "http://www.weather.gov",
+    "eventCode": {
+     "SAME": [
+      "NWS"
+     ],
+     "NationalWeatherService": [
+      "HTY"
+     ]
+    }
+   }
+  },
+  {
+   "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.f80792e69e24d652937329ee51dc01086ac38c8b.001.2",
+   "type": "Feature",
+   "geometry": null,
+   "properties": {
+    "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.f80792e69e24d652937329ee51dc01086ac38c8b.001.2",
+    "@type": "wx:Alert",
+    "id": "urn:oid:2.49.0.1.840.0.f80792e69e24d652937329ee51dc01086ac38c8b.001.2",
+    "areaDesc": "Kauai Northwest Waters; Kauai Leeward Waters",
+    "references": [],
+    "sent": "2026-09-08T08:05:00-10:00",
+    "effective": "2026-09-08T08:05:00-10:00",
+    "onset": "2026-09-08T08:05:00-10:00",
+    "expires": "2026-09-08T18:00:00-10:00",
+    "ends": "2026-09-08T18:00:00-10:00",
+    "status": "Actual",
+    "messageType": "Alert",
+    "category": "Met",
+    "severity": "Minor",
+    "certainty": "Likely",
+    "urgency": "Expected",
+    "event": "Small Craft Advisory",
+    "sender": "w-nws.webmaster@noaa.gov",
+    "senderName": "NWS Honolulu HI",
+    "headline": "Small Craft Advisory issued September 8 at 8:05AM HST until September 8 at 6:00PM HST by NWS Honolulu HI",
+    "description": "* WHAT...Southwest winds 20 to 30 kt with gusts up to 40 kt and\nseas 12 to 16 feet.\n\n* WHERE...Kauai Northwest Waters and Kauai Leeward Waters.\n\n* WHEN...Until 6 PM HST this evening.\n\n* IMPACTS...Conditions will be hazardous to small craft.",
+    "instruction": "Inexperienced mariners, especially those operating smaller\nvessels, should avoid navigating in these conditions.",
+    "response": "Avoid",
+    "note": null,
+    "parameters": {
+     "AWIPSidentifier": [
+      "MWWHFO"
+     ],
+     "WMOidentifier": [
+      "WHHW70 PHFO 081805"
+     ],
+     "NWSheadline": [
+      "SMALL CRAFT ADVISORY IN EFFECT UNTIL 6 PM HST THIS EVENING... ...HURRICANE WARNING IS CANCELLED"
+     ],
+     "BLOCKCHANNEL": [
+      "EAS",
+      "NWEM",
+      "CMAS"
+     ],
+     "VTEC": [
+      "/O.EXA.PHFO.SC.Y.0036.000000T0000Z-260909T0400Z/"
+     ],
+     "eventEndingTime": [
+      "2026-09-08T18:00:00-10:00"
+     ]
+    },
+    "scope": "Public",
+    "code": "IPAWSv1.0",
+    "language": "en-US",
+    "web": "http://www.weather.gov",
+    "eventCode": {
+     "SAME": [
+      "NWS"
+     ],
+     "NationalWeatherService": [
+      "SCY"
+     ]
+    }
+   }
+  },
+  {
+   "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.85819a3d9a8ffaaffac9c7e5ebdbc8f01b56d8d6.001.1",
+   "type": "Feature",
+   "geometry": null,
+   "properties": {
+    "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.85819a3d9a8ffaaffac9c7e5ebdbc8f01b56d8d6.001.1",
+    "@type": "wx:Alert",
+    "id": "urn:oid:2.49.0.1.840.0.85819a3d9a8ffaaffac9c7e5ebdbc8f01b56d8d6.001.1",
+    "areaDesc": "Northern St. Tammany; Southwestern St. Tammany; Central Tangipahoa; Lower Tangipahoa",
+    "references": [],
+    "sent": "2026-09-08T13:10:00-05:00",
+    "effective": "2026-09-08T13:10:00-05:00",
+    "onset": "2026-09-08T13:10:00-05:00",
+    "expires": "2026-09-08T13:45:00-05:00",
+    "ends": null,
+    "status": "Actual",
+    "messageType": "Alert",
+    "category": "Met",
+    "severity": "Moderate",
+    "certainty": "Observed",
+    "urgency": "Expected",
+    "event": "Special Weather Statement",
+    "sender": "w-nws.webmaster@noaa.gov",
+    "senderName": "NWS New Orleans LA",
+    "headline": "Special Weather Statement issued September 8 at 1:10PM CDT by NWS New Orleans LA",
+    "description": "At 110 PM CDT, Doppler radar was tracking a strong thunderstorm over\nCovington, moving northwest at 15 mph.\n\nHAZARD...Winds in excess of 40 mph.\n\nSOURCE...Radar indicated.\n\nIMPACT...Gusty winds could knock down tree limbs and blow around\nunsecured objects.\n\nLocations impacted include...\nHammond, Mandeville, Covington, Ponchatoula, Abita Springs,\nMadisonville, and Robert.\n\nThis includes the following Interstates...\nInterstate 12 between mile markers 39 and 65.\nInterstate 55 in Louisiana near mile marker 29.",
+    "instruction": "Frequent cloud to ground lightning is occurring with this storm.\nLightning can strike 10 miles away from a thunderstorm. Seek a safe\nshelter inside a building or vehicle.\n\nTorrential rainfall is also occurring with this storm and may lead\nto localized flooding. Do not drive your vehicle through flooded\nroadways.",
+    "response": "Execute",
+    "note": null,
+    "parameters": {
+     "AWIPSidentifier": [
+      "SPSLIX"
+     ],
+     "WMOidentifier": [
+      "WWUS84 KLIX 081810"
+     ],
+     "NWSheadline": [
+      "A STRONG THUNDERSTORM WILL IMPACT PORTIONS OF WEST CENTRAL ST. TAMMANY AND SOUTHEASTERN TANGIPAHOA PARISHES THROUGH 145 PM CDT"
+     ],
+     "eventMotionDescription": [
+      "2026-09-08T18:10:00-00:00...storm...114DEG...12KT...30.47,-90.13"
+     ],
+     "maxWindGust": [
+      "40 MPH"
+     ],
+     "maxHailSize": [
+      "0.00"
+     ],
+     "BLOCKCHANNEL": [
+      "EAS",
+      "NWEM",
+      "CMAS"
+     ],
+     "EAS-ORG": [
+      "WXR"
+     ]
+    },
+    "scope": "Public",
+    "code": "IPAWSv1.0",
+    "language": "en-US",
+    "web": "http://www.weather.gov",
+    "eventCode": {
+     "SAME": [
+      "SPS"
+     ],
+     "NationalWeatherService": [
+      "SPS"
+     ]
+    }
+   }
+  },
+  {
+   "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.5e5d70c80c01c6b10ec180f95a19c0f09ba699ca.001.1",
+   "type": "Feature",
+   "geometry": null,
+   "properties": {
+    "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.5e5d70c80c01c6b10ec180f95a19c0f09ba699ca.001.1",
+    "@type": "wx:Alert",
+    "id": "urn:oid:2.49.0.1.840.0.5e5d70c80c01c6b10ec180f95a19c0f09ba699ca.001.1",
+    "areaDesc": "Corson; Campbell; Walworth; Dewey; Potter; Sully",
+    "references": [],
+    "sent": "2026-09-08T09:23:00-05:00",
+    "effective": "2026-09-08T09:23:00-05:00",
+    "onset": "2026-09-08T12:00:00-05:00",
+    "expires": "2026-09-08T19:00:00-05:00",
+    "ends": "2026-09-08T19:00:00-05:00",
+    "status": "Actual",
+    "messageType": "Alert",
+    "category": "Met",
+    "severity": "Severe",
+    "certainty": "Likely",
+    "urgency": "Expected",
+    "event": "Red Flag Warning",
+    "sender": "w-nws.webmaster@noaa.gov",
+    "senderName": "NWS Aberdeen SD",
+    "headline": "Red Flag Warning issued September 8 at 9:23AM CDT until September 8 at 7:00PM CDT by NWS Aberdeen SD",
+    "description": "...RED FLAG WARNING IN EFFECT UNTIL 6 PM MDT /7 PM CDT/ THIS EVENING\nDUE TO WIND AND LOW RELATIVE HUMIDITY FOR PORTIONS OF CENTRAL AND\nNORTH CENTRAL SOUTH DAKOTA...\n\nThe National Weather Service in Aberdeen SD has issued a Red Flag\nWarning.\n\n* AFFECTED AREA...Portions of central and north central South Dakota.\n\n* TIMING...Until 7 PM CDT /6 PM MDT/ this evening.\n\n* WINDS...West winds 15 to 30 mph with gusts up to 40 mph.\n\n* RELATIVE HUMIDITY...Relative Humidity between 18 to 28 percent.\n\n* IMPACTS...Any fires that develop will spread rapidly. Outdoor\nburning is not recommended.",
+    "instruction": "A Red Flag Warning is issued when we identify weather conditions that\npromote rapid spread of fire which may become life-threatening. This\ndoes not mean there is a fire. These conditions are either occurring\nnow or will begin soon. It is important to have multiple ways to\nreceive information from authorities.\n\nFollow all fire restrictions. One less spark, one less wildfire.",
+    "response": "Prepare",
+    "note": null,
+    "parameters": {
+     "AWIPSidentifier": [
+      "RFWABR"
+     ],
+     "WMOidentifier": [
+      "WWUS83 KABR 081423"
+     ],
+     "NWSheadline": [
+      "RED FLAG WARNING IN EFFECT UNTIL 7 PM CDT /6 PM MDT/ THIS EVENING"
+     ],
+     "BLOCKCHANNEL": [
+      "EAS",
+      "NWEM",
+      "CMAS"
+     ],
+     "VTEC": [
+      "/O.NEW.KABR.FW.W.0021.260908T1700Z-260909T0000Z/"
+     ],
+     "eventEndingTime": [
+      "2026-09-08T19:00:00-05:00"
+     ]
+    },
+    "scope": "Public",
+    "code": "IPAWSv1.0",
+    "language": "en-US",
+    "web": "http://www.weather.gov",
+    "eventCode": {
+     "SAME": [
+      "NWS"
+     ],
+     "NationalWeatherService": [
+      "FWW"
+     ]
+    }
+   }
+  }
+ ],
+ "title": "Current watches, warnings, and advisories for 40.7128 N, 74.006 W",
+ "updated": "2026-09-08T18:23:09+00:00"
+}

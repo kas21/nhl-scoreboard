@@ -52,7 +52,8 @@ scoreboard/
                     136-team registry (teams.py, ESPN abbrevs by conference), conference standings, ranks, slate filter
   mlb/              MLB Stats API (statsapi.mlb.com), normaliser, source, detectors; boards subclass the NHL ones
                     with a baseball centre column (inning arrow, bases, count, outs, pitcher/batter strip)
-  extras/           holidays, flights (adsb.lol + adsbdb + airline logos), weather (Open-Meteo) — same plugin contract
+  extras/           holidays, flights (adsb.lol + adsbdb + airline logos), weather (Open-Meteo; weather/alerts: NWS + Environment
+                    Canada watches/warnings, an interrupt board and a playlist board) — same plugin contract
   imagecache.py logos.py  runtime image cache ($SCOREBOARD_CACHE_DIR) + team logos fetched from ESPN's CDN
   assets/           fonts under render/fonts, holiday images, penalty gif (team logos are fetched at runtime)
 tests/              pytest; fixtures/ are real API captures (NHL 2026-04-11 game day, ESPN, adsb.lol, Open-Meteo);
@@ -68,7 +69,7 @@ docs/               USER_GUIDE, HARDWARE, ARCHITECTURE, DATA, PLUGINS, DEVELOPME
   only clock; no I/O. Boards never fetch — sources do, in the background, on their own cadence.
 - **Snapshot keys** (docs/DATA.md): `<sport>.scores|standings|team_summary|season|main_event` (sport = nhl / nfl / ncaaf / mlb),
   `main_event` (arbitrated across sports), `system`, `holidays.upcoming|available`, `flights.nearby|overhead`,
-  `weather.current|daily`.
+  `weather.current|daily|alerts`.
 - **Events** are derived by diffing consecutive snapshots (goal, penalty, touchdown, run / home run, flight overhead…);
   event boards pre-empt the playlist, then it resumes. Bursts collapse to the latest per kind/team.
 - **Config**: `config.json` stores only overrides; the API returns effective values (model defaults merged).
