@@ -204,11 +204,15 @@ function Editor({ field, onChange }) {
     case 'enum-list': {
       const opts = resolve(s.items, root).enum;
       const sel = value || [];
+      const typed = s['x-widget'] === 'team-picker';   // a code the list does not know yet (a new or relocated team) can be typed
       return html`<div class="tags">
         ${sel.map((v, i) => html`<span class="tag">${v} <a onclick=${() => onChange(sel.filter((_, j) => j !== i))}>✕</a></span>`)}
         <select onchange=${e => { if (e.target.value) onChange([...sel, e.target.value]); e.target.value = ''; }}>
           <option value="">+ add</option>${opts.filter(o => !sel.includes(o)).map(o => html`<option value=${o}>${o}</option>`)}
-        </select></div>`;
+        </select>
+        ${typed ? html`<input type="text" class="code" maxlength="4" placeholder="or type a code" title="A team code the list does not have yet, e.g. a new or relocated team"
+          onchange=${e => { const v = e.target.value.trim().toUpperCase(); if (v && !sel.includes(v)) onChange([...sel, v]); e.target.value = ''; }} />` : ''}
+        </div>`;
     }
     case 'string-list':
       return html`<input type="text" id=${id} value=${(value || []).join(', ')} placeholder="comma separated"

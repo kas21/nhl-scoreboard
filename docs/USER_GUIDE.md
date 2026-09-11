@@ -14,7 +14,9 @@ NHL is the main event; NFL, college football (FBS) and MLB work the same way. Ev
    - **Your panel** — pick the size and driver board. The panel shows a test pattern.
    - **Colours & orientation** — fix the colour order / rotation by looking at the panel; press
      *Apply* (restarts the display driver, ~5 s).
-   - **Your team** — favourites in priority order; the first one is followed.
+   - **Your team** — favourites in priority order; the first one is followed. The list offers the teams the
+     scoreboard knows; a new or relocated team can be typed as its code before the app catches up (it shows
+     with neutral colours until then, and the diagnostics page says so).
    - **Where you are** — search your town (sets timezone, and location for weather/flights/sunset dimming).
    - **Name** — the address you'll use (`name.local:8080`).
 5. Finish. The wizard is always available again under **Setup**.
@@ -75,7 +77,10 @@ nothing needs a restart.
   the game or with the puck dropped. Only your team's goals get the full celebration; a goal by the other
   side is a short flash in its colours, so pick a side (or a game your favourite is in) to see the whole
   animation. Nothing is saved; a restart ends it.
-- **Diagnostics** — recent log lines.
+- **Diagnostics** — recent log lines and the data sources table. A source's *Drift* count says how often the
+  feed did not look the way the scoreboard expects (a renamed field, a value it has never seen, a team not in
+  its registry); open the row to read the notes. The panel keeps drawing its best guess meanwhile, so a
+  growing count on a game night is worth a look even when nothing errors.
 
 ## Boards
 | Board | Shows | Needs |

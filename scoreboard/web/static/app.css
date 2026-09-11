@@ -181,3 +181,7 @@ table.flights td { white-space:normal; }
 .sim-action select { max-width:180px; }
 .sim-running details { margin-top:14px; }
 .sim-running summary { font-weight:400; }
+.warn { color:#f0b35a; }
+.tags input.code { width:8.5em; font-size:13px; text-transform:uppercase; }
+ul.drift { margin:4px 0 0 0; padding-left:18px; font-size:13px; }
+ul.drift li { margin:2px 0; }

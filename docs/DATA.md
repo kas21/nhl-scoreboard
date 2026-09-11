@@ -40,7 +40,9 @@ but a board or a webhook that must not act on a fake goal can.
 
 ## Game dict (shared by NHL, NFL and MLB boards)
 ```
-id, sport, type (1 pre / 2 regular / 3 playoff), state (raw), phase (pregame|live|intermission|postgame),
+id, sport, type (1 pre / 2 regular / 3 playoff), state (raw; NHL: PPD/SUSP/CNCL when the schedule state says the game is not
+being played — those are postgame, so a postponed favourite does not sit in pregame all night), schedule_state (NHL: OK|PPD|SUSP|CNCL),
+phase (pregame|live|intermission|postgame),
 date (YYYY-MM-DD local), start_time_utc, week (NFL),
 away/home: {abbrev, name, city, score, sog, record, color?, accent?, timeouts?, hits?, errors?, probable_pitcher?},
 period (label: 1st/2nd/3rd/OT/SO | 1st..4th/HALF/OT | TOP/BOT/MID/END), period_number, clock (MLB: inning ordinal),

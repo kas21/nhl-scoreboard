@@ -38,6 +38,18 @@ def fmt_date(iso_date: str) -> str:
         return iso_date
 
 
+COMPACT_OUTCOMES = {"SUSPENDED": "SUSP", "CANCELLED": "CNCL"}
+
+
+def outcome_chip(outcome: str, compact: bool = False) -> str:
+    """Chip text for a game that is over or not being played: FINAL, FINAL/OT, PPD, SUSPENDED…
+    ``compact`` is for the ticker's narrower chip (F/OT, SUSP)."""
+    label = outcome or "FINAL"
+    if not compact:
+        return label
+    return COMPACT_OUTCOMES.get(label, label.replace("FINAL/", "F/"))
+
+
 def team_logo(abbrev: str, size: int) -> Img:
     return Img(logo(abbrev, size))
 

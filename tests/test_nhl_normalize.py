@@ -147,3 +147,38 @@ def test_select_main_event_ignores_future_game_days(score):
     assert select_main_event(games, ["TOR"], today="2026-04-10") is None
     live = {**games[0], "state": "LIVE", "away": {**games[0]["away"], "abbrev": "TOR"}}
     assert select_main_event([live], ["TOR"], today="2026-04-10") is live   # active games always count
+
+
+# -- schedule state (postponed / suspended / cancelled) ---------------------------
+
+def _tor_raw(score):
+    return next(g for g in score["games"] if g["homeTeam"]["abbrev"] == "TOR")
+
+
+@pytest.mark.parametrize("sched, state, outcome", [
+    ("PPD", "PPD", "PPD"), ("SUSP", "SUSP", "SUSPENDED"), ("CNCL", "CNCL", "CANCELLED"),
+])
+def test_schedule_state_overrides_game_state(score, sched, state, outcome):
+    raw = {**_tor_raw(score), "gameState": "FUT", "gameScheduleState": sched}
+    g = normalize_game(raw)
+    assert (g["state"], g["phase"], g["outcome"]) == (state, "postgame", outcome)
+    assert g["schedule_state"] == sched
+
+
+def test_schedule_state_ok_or_absent_changes_nothing(score):
+    raw = _tor_raw(score)
+    with_ok = normalize_game({**raw, "gameScheduleState": "OK"})
+    without = normalize_game({k: v for k, v in raw.items() if k != "gameScheduleState"})
+    assert with_ok == without
+    assert with_ok["schedule_state"] == "OK" and with_ok["outcome"].startswith("FINAL")
+
+
+def test_postponed_game_is_never_active_and_ranks_below_played_games(score):
+    from scoreboard.nhl.normalize import ACTIVE_STATES
+
+    ppd = normalize_game({**_tor_raw(score), "gameState": "FUT", "gameScheduleState": "PPD"})
+    assert ppd["state"] not in ACTIVE_STATES
+    played = normalize_game(next(g for g in score["games"] if g["homeTeam"]["abbrev"] != "TOR"))
+    ppd_fla = {**ppd, "home": {**ppd["home"], "abbrev": played["away"]["abbrev"]}}
+    assert select_main_event([ppd_fla, played], [played["away"]["abbrev"]], today=played["date"]) is played
+    assert select_main_event([ppd], ["TOR"], today=ppd["date"]) is ppd          # still shown when it is the only one

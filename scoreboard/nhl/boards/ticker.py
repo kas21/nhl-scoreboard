@@ -13,7 +13,7 @@ from ...render import Absolute, HBox, Img, Sheen, Slide, Text, load_font, render
 from ...render.anim import exponential_in_out, linear
 from ...render.fx import Chip, chip, fit_logo
 from ..teams import logo
-from .common import fmt_date, fmt_time, local_time
+from .common import fmt_date, fmt_time, local_time, outcome_chip
 
 WHITE = (255, 255, 255)
 LIGHT = (200, 200, 200)
@@ -114,7 +114,7 @@ class TickerBoard(BaseBoard):
         if pregame:
             pass
         elif g["phase"] == "postgame":
-            label = g["outcome"].replace("FINAL/", "F/") if "/" in g["outcome"] else "FINAL"
+            label = outcome_chip(g["outcome"], compact=True)
             items.append((Slide(Chip(label, f6, WHITE, RED), 0.4, "right", easing=linear, h_align="end"), 67, half - 4, 60, 8))
         else:
             period = "INT" if g["in_intermission"] else g["period"].upper()

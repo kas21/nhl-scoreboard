@@ -111,7 +111,9 @@ function Favourites({ value, onChange }) {
     ${value.map((v, i) => html`<span class="tag">${i + 1}. ${v} <a onclick=${() => onChange(value.filter((_, j) => j !== i))}>✕</a></span>`)}
     <select onchange=${e => { if (e.target.value) onChange([...value, e.target.value]); e.target.value = ''; }}>
       <option value="">+ add team</option>${NHL.filter(t => !value.includes(t)).map(t => html`<option value=${t}>${t}</option>`)}
-    </select></div>`;
+    </select>
+    <input type="text" class="code" maxlength="4" placeholder="or type a code" title="A team code the list does not have yet, e.g. a new or relocated team"
+      onchange=${e => { const v = e.target.value.trim().toUpperCase(); if (v && !value.includes(v)) onChange([...value, v]); e.target.value = ''; }} /></div>`;
 }
 
 function Hostname() {

@@ -132,7 +132,7 @@ function SourcesTable() {
   if (!rows) return html`<p class="muted">Loading…</p>`;
   if (!rows.length) return html`<p class="muted">No data sources loaded.</p>`;
   return html`<div class="tablewrap"><table class="sources">
-    <thead><tr><th></th><th>Source</th><th>Last OK</th><th>Next poll</th><th>Fetches</th><th>Errors</th><th>Latency</th><th>Publishes</th><th>Restarts</th></tr></thead>
+    <thead><tr><th></th><th>Source</th><th>Last OK</th><th>Next poll</th><th>Fetches</th><th>Errors</th><th>Latency</th><th>Publishes</th><th>Restarts</th><th title="The feed no longer looks the way the source expects: an unknown value, a missing field, a team the registry has never heard of. The source carries on with its best guess.">Drift</th></tr></thead>
     <tbody>${rows.map(r => html`
       <tr class=${open === r.key ? 'open' : ''} onclick=${() => setOpen(open === r.key ? null : r.key)}>
         <td><${SourceDot} status=${r.status} /></td>
@@ -144,11 +144,14 @@ function SourcesTable() {
         <td>${fmtMs(r.last_latency_ms)}</td>
         <td>${r.publishes}<div class="muted small">${fmtAgo(r.last_publish_ago)}</div></td>
         <td>${r.restarts}</td>
+        <td class=${r.drift_count ? 'warn' : ''}>${r.drift_count || 0}</td>
       </tr>
-      ${open === r.key ? html`<tr class="detail"><td colspan="9">
+      ${open === r.key ? html`<tr class="detail"><td colspan="10">
         <div><span class="muted">Publishes to:</span> ${r.keys.length ? r.keys.join(', ') : '—'}</div>
         <div><span class="muted">Last request:</span> ${r.last_url || '—'}${r.last_fetch_ago != null ? html` <span class="muted">(${fmtAgo(r.last_fetch_ago)})</span>` : ''}</div>
         <div><span class="muted">Last error:</span> ${r.last_error ? html`<span class="error">${r.last_error}</span> <span class="muted">(${fmtAgo(r.last_error_ago)})</span>` : '—'}</div>
+        ${r.drift && r.drift.length ? html`<div><span class="muted">Feed drift (${r.drift_count}, last ${fmtAgo(r.last_drift_ago)}):</span>
+          <ul class="drift">${r.drift.map(n => html`<li>${n}</li>`)}</ul></div>` : ''}
       </td></tr>` : ''}`)}
     </tbody></table></div>`;
 }
