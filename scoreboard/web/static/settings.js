@@ -7,6 +7,7 @@
 // to "only what I changed" or "hide the expert knobs".
 
 import { html, useState, useEffect, useMemo } from './htm-preact.js';
+import { Select } from './select.js';
 
 // Every state-changing call carries this header. A page on another site cannot set it
 // without a preflight the scoreboard never answers, which is what stops a drive-by POST
@@ -185,8 +186,7 @@ function Editor({ field, onChange }) {
   const id = path.replace(/\./g, '-');
   switch (kind) {
     case 'enum':
-      return html`<select id=${id} value=${value} onchange=${e => onChange(e.target.value)}>
-        ${s.enum.map(v => html`<option value=${v}>${v}</option>`)}</select>`;
+      return html`<${Select} id=${id} value=${value} options=${s.enum} onchange=${e => onChange(e.target.value)} />`;
     case 'boolean':
       return html`<input type="checkbox" id=${id} checked=${!!value} onchange=${e => onChange(e.target.checked)} />`;
     case 'number':
@@ -207,9 +207,8 @@ function Editor({ field, onChange }) {
       const typed = s['x-widget'] === 'team-picker';   // a code the list does not know yet (a new or relocated team) can be typed
       return html`<div class="tags">
         ${sel.map((v, i) => html`<span class="tag">${v} <a onclick=${() => onChange(sel.filter((_, j) => j !== i))}>✕</a></span>`)}
-        <select onchange=${e => { if (e.target.value) onChange([...sel, e.target.value]); e.target.value = ''; }}>
-          <option value="">+ add</option>${opts.filter(o => !sel.includes(o)).map(o => html`<option value=${o}>${o}</option>`)}
-        </select>
+        <${Select} options=${[['', '+ add'], ...opts.filter(o => !sel.includes(o))]}
+          onchange=${e => { if (e.target.value) onChange([...sel, e.target.value]); e.target.value = ''; }} />
         ${typed ? html`<input type="text" class="code" maxlength="4" placeholder="or type a code" title="A team code the list does not have yet, e.g. a new or relocated team"
           onchange=${e => { const v = e.target.value.trim().toUpperCase(); if (v && !sel.includes(v)) onChange([...sel, v]); e.target.value = ''; }} />` : ''}
         </div>`;
@@ -225,9 +224,7 @@ function Editor({ field, onChange }) {
       return html`<div class="map">
         ${entries.map(([k, v]) => html`<div class="map-row">
           <input type="text" value=${k} onchange=${e => e.target.value.trim() && rename(k, e.target.value.trim())} />
-          <select value=${v} onchange=${e => onChange({ ...map, [k]: e.target.value })}>
-            ${opts.map(o => html`<option value=${o}>${o}</option>`)}
-          </select>
+          <${Select} value=${v} options=${opts} onchange=${e => onChange({ ...map, [k]: e.target.value })} />
           <a class="rm" onclick=${() => { const n = { ...map }; delete n[k]; onChange(n); }}>✕</a>
         </div>`)}
         <div class="map-row">

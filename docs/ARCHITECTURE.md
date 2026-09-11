@@ -261,7 +261,7 @@ State-changing calls need `X-Requested-With: scoreboard-ui` and a `Host` the box
 (`web/guard.py`; see [HARDWARE.md](HARDWARE.md#security)). The UI is Preact + HTM served as static files
 (no build step): `app.js` (shell, boards, playlists), `dashboard.js`, `settings.js` (schema-driven forms),
 `holidays.js`, `sim.js` (the Simulator page: start forms from each engine's schema, buttons from its action
-specs — nothing in it knows hockey), `wizard.js` (first-run flow).
+specs — nothing in it knows hockey), `wizard.js` (first-run flow), `select.js` (the one `<select>` component: its options are memoised so a poll's re-render leaves them untouched, otherwise Chrome shuts a menu that is open).
 
 ## Plugins
 `plugins.load_registry()` reads four entry-point groups — `scoreboard.boards`, `scoreboard.sources`,

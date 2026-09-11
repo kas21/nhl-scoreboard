@@ -5,6 +5,7 @@ import { Settings } from './settings.js';
 import { Holidays } from './holidays.js';
 import { Simulator } from './sim.js';
 import { GamesCard, AroundCard } from './dashboard.js';
+import { Select } from './select.js';
 
 // Every state-changing call carries this header. A page on another site cannot set it
 // without a preflight the scoreboard never answers, which is what stops a drive-by POST
@@ -246,9 +247,8 @@ function Playlist({ state, list, boards, autos, update }) {
       return html`<li class=${[drag && drag.to === i ? 'dragging' : '', skipped ? 'skipped' : ''].join(' ').trim()}>
       <span class="grip" title="Drag to reorder" onpointerdown=${ev => grab(ev, i)}>⠿</span>
       <input type="checkbox" checked=${e.enabled} disabled=${skipped} onchange=${ev => edit(i, { enabled: ev.target.checked })} />
-      <select value=${e.board} onchange=${ev => edit(i, { board: ev.target.value })}>
-        ${boards.filter(b => rotates(b) || b.key === e.board).map(b => html`<option value=${b.key}>${b.title}</option>`)}
-      </select>
+      <${Select} value=${e.board} options=${boards.filter(b => rotates(b) || b.key === e.board).map(b => [b.key, b.title])}
+        onchange=${ev => edit(i, { board: ev.target.value })} />
       <input type="number" min="1" placeholder="auto" title=${AUTO_HINT} value=${e.duration ?? ''} style="width:80px" disabled=${skipped}
         onchange=${ev => edit(i, { duration: ev.target.value === '' ? null : +ev.target.value })} /> s
       <span class="muted small auto" title=${skipped ? SKIPPED_HINT : AUTO_HINT}>${skipped ? 'not in rotation · plays on its event' : e.duration == null ? autoLabel(autos[e.board]) : ''}</span>
