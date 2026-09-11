@@ -127,12 +127,14 @@ def _nhl_world() -> dict[str, Any]:
     live = {**final, "state": "LIVE", "phase": "live", "clock": "12:34", "period": "2nd", "outcome": "",
             "powerplay": {"code": "h54", "clock": "01:12"}, "pulled_goalie": 1}
     pre = {**final, "state": "FUT", "phase": "pregame", "outcome": "", "start_time_utc": "2026-04-11T23:00:00Z"}
+    ppd = {**final, "state": "PPD", "schedule_state": "PPD", "outcome": "PPD",
+           "away": {**final["away"], "score": 0, "sog": 0}, "home": {**final["home"], "score": 0, "sog": 0}}
     store = SnapshotStore()
     store.publish("nhl.scores", [normalize_game(g, recs) for g in score["games"]])
     store.publish("nhl.standings", standings)
     store.publish("nhl.team_summary",
                   {"TOR": team_summary("TOR", standings, _load("nhl", "club_schedule_TOR_week.json"), "2026-04-11")})
-    return {"store": store, "final": final, "live": live, "pre": pre}
+    return {"store": store, "final": final, "live": live, "pre": pre, "ppd": ppd}
 
 
 def nhl_scenes() -> list[Scene]:
@@ -153,6 +155,7 @@ def nhl_scenes() -> list[Scene]:
         Scene("nhl.game/pregame", GameBoard(), GameConfig(), with_game("pre"), now, 2.0, sizes=ALL_SIZES),
         Scene("nhl.game/live", GameBoard(), GameConfig(), with_game("live"), now, 3.0, sizes=ALL_SIZES),
         Scene("nhl.game/final", GameBoard(), GameConfig(), with_game("final"), now, 2.0, sizes=ALL_SIZES),
+        Scene("nhl.game/postponed", GameBoard(), GameConfig(), with_game("ppd"), now, 2.0, sizes=((128, 64), (64, 32))),
         Scene("nhl.ticker/idle", TickerBoard(), TickerConfig(), idle, now, 1.0),
         Scene("nhl.standings/idle", StandingsBoard(), StandingsConfig(), idle, now, 3.0),
         Scene("nhl.team_summary/idle", TeamSummaryBoard(), TeamSummaryConfig(), idle, now, 2.0),

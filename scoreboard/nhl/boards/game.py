@@ -15,7 +15,7 @@ from ...render import Absolute, Anchor, Box, HBox, Img, Sheen, Slide, Text, load
 from ...render.anim import cubic_out, elastic_out, exponential_out, quartic_out
 from ...render.fx import Chip, fit_logo, reflected_gradient
 from ..teams import logo, team
-from .common import WHITE, fmt_date, fmt_time, local_time
+from .common import GREY, WHITE, fmt_date, fmt_time, local_time, outcome_chip
 
 BLACK = (0, 0, 0)
 RED = (200, 0, 0)
@@ -28,6 +28,7 @@ HOME_LOGO_X = 73
 HOME_STAGGER = 0.4          # seconds the home logo's slide trails the away logo
 SHEEN_STAGGER = 1.4         # seconds the home logo's sheen trails the away sheen (they no longer overlap)
 GRADIENT = (34, 0, 60, 64)
+NOT_PLAYED_WORDS = {"PPD": "POSTPONED", "CANCELLED": "CANCELLED"}   # a suspended game keeps its score
 SCORE_AWAY_X, SCORE_HOME_X, SCORE_Y = 53, 68, 25
 HYPHEN = (62, 30, 4, 2)
 SOG_Y = 43
@@ -148,7 +149,12 @@ class GameBoard(BaseBoard):
 
     def _final(self, g, ctx, cfg) -> list:
         f6 = ctx.profile.label_font()
-        label = g["outcome"].replace("FINAL/", "FINAL/") if g["outcome"] else "FINAL"
+        label = outcome_chip(g["outcome"])
+        if label in NOT_PLAYED_WORDS:                   # postponed / cancelled: there is no score to show
+            return self._teams_info(g, cfg, f6) + [
+                (Chip(label, f6, WHITE, RED), 34, 14, 60, 7),
+                (Text(NOT_PLAYED_WORDS[label], f6, GREY), 34, 30, 60, 6),
+            ]
         items = self._teams_info(g, cfg, f6) + [
             (Chip(label, f6, WHITE, RED), 34, 14, 60, 7),
             (self._score(g["away"]["score"], "end"), SCORE_AWAY_X - 10, SCORE_Y, 18, 12),

@@ -41,9 +41,11 @@ snapshot it is rendered from, which doubles as a catalogue.
 - Deploy to the Pi: push, then Dashboard → *Update & restart* (or `POST /api/system/update`
   with `X-Requested-With: scoreboard-ui` — see [HARDWARE.md](HARDWARE.md#security)); check `/api/status` and the preview.
 - `SCOREBOARD_CONTRACT_TEST=1 uv run pytest tests/test_nhl_contract.py` checks the *live* NHL feed still
-  carries every field `nhl/normalize.py` reads. The normal suite only checks that spec against the recorded
-  fixtures; run the live pass on a schedule, because the failure it catches is silent — a renamed field
-  makes the boards draw a plausible wrong scoreboard rather than crash.
+  carries every field `nhl/normalize.py` reads. The spec lives in `nhl/contract.py`; the normal suite checks
+  it against the recorded fixtures, the source checks every payload at runtime (mismatches show as *drift* on
+  the diagnostics page) and `.github/workflows/nhl-contract.yml` runs the live pass weekly (or from the
+  Actions tab). The failure it catches is silent — a renamed field makes the boards draw a plausible wrong
+  scoreboard rather than crash — so keep all three in step when you read a new field.
 - To see a board react without a game on, use the **Simulator** page (any output mode): it publishes a
   real-shaped game under the NHL keys and every state, interrupt and playlist follows. `--demo` is the
   scripted equivalent for a quick unattended run-through. Both work offline.

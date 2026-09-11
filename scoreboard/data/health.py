@@ -14,6 +14,7 @@ from typing import Any
 
 OFFLINE_AFTER_FAILURES = 3      # consecutive fetch failures before a source counts as offline
 ERROR_TEXT_LIMIT = 200
+DRIFT_NOTES_LIMIT = 40          # distinct feed-drift notes kept per source; the count keeps going past it
 
 
 @dataclass(frozen=True)
@@ -35,6 +36,9 @@ class SourceStats:
     publishes: int = 0
     last_publish_at: float | None = None
     keys: tuple[str, ...] = ()
+    drift: tuple[str, ...] = ()             # distinct notes about the feed's shape or its fit with our registry
+    drift_count: int = 0                    # every occurrence, repeats included
+    last_drift_at: float | None = None
 
     @property
     def status(self) -> str:
@@ -73,6 +77,9 @@ class SourceStats:
             "publishes": self.publishes,
             "last_publish_ago": ago(self.last_publish_at),
             "keys": list(self.keys),
+            "drift": list(self.drift),
+            "drift_count": self.drift_count,
+            "last_drift_ago": ago(self.last_drift_at),
         }
 
 
@@ -148,6 +155,19 @@ class SourceHealth:
 
     def set_next_poll(self, key: str, at: float | None) -> None:
         self._update(key, next_poll_at=at)
+
+    def record_drift(self, key: str, note: str) -> bool:
+        """Note something odd about a feed. Returns True the first time ``note`` is seen for
+        ``key`` (the caller logs it then); repeats only bump the count, so a field the NHL
+        renamed shows up once in the log and as a growing number on the diagnostics page."""
+        with self._lock:
+            current = self._stats.get(key)
+            if current is None:
+                return False
+            new = note not in current.drift
+            notes = current.drift if not new or len(current.drift) >= DRIFT_NOTES_LIMIT else (*current.drift, note)
+            self._stats[key] = replace(current, drift=notes, drift_count=current.drift_count + 1, last_drift_at=self._clock())
+        return new
 
 
 class TrackedHttp:

@@ -186,3 +186,58 @@ async def test_runner_records_running_and_crashes(monkeypatch):
         except asyncio.CancelledError:
             pass
     assert health.get("flaky").running is False
+
+
+# -- feed drift -----------------------------------------------------------------
+
+def test_drift_notes_dedupe_and_count():
+    h = SourceHealth(clock=Clock(5.0))
+    h.register("nhl")
+    assert h.record_drift("nhl", "unknown gameState 'XYZ'") is True
+    assert h.record_drift("nhl", "unknown gameState 'XYZ'") is False       # same note again: counted, not repeated
+    assert h.record_drift("nhl", "unknown periodType 'Q'") is True
+    s = h.get("nhl")
+    assert s.drift == ("unknown gameState 'XYZ'", "unknown periodType 'Q'")
+    assert s.drift_count == 3 and s.last_drift_at == 5.0
+    d = s.to_dict(now=8.0)
+    assert d["drift"] == list(s.drift) and d["drift_count"] == 3 and d["last_drift_ago"] == 3.0
+
+
+def test_drift_notes_are_capped_but_still_counted():
+    from scoreboard.data.health import DRIFT_NOTES_LIMIT
+
+    h = SourceHealth(clock=Clock())
+    h.register("nhl")
+    for i in range(DRIFT_NOTES_LIMIT + 5):
+        h.record_drift("nhl", f"note {i}")
+    s = h.get("nhl")
+    assert len(s.drift) == DRIFT_NOTES_LIMIT and s.drift_count == DRIFT_NOTES_LIMIT + 5
+
+
+def test_drift_on_unknown_source_is_ignored():
+    h = SourceHealth(clock=Clock())
+    assert h.record_drift("ghost", "anything") is False
+    assert h.get("ghost") is None
+
+
+@pytest.mark.asyncio
+async def test_context_drift_logs_once_and_records(caplog):
+    h = SourceHealth(clock=Clock())
+    async with httpx.AsyncClient() as http:
+        ctx = SourceContext("nhl", SnapshotStore(), lambda: None, http, health=h)
+        with caplog.at_level("WARNING", logger="source.nhl"):
+            ctx.drift("unknown gameState 'XYZ'")
+            ctx.drift("unknown gameState 'XYZ'")
+    assert [r.message for r in caplog.records].count("feed drift: unknown gameState 'XYZ'") == 1
+    assert h.get("nhl").drift_count == 2
+
+
+@pytest.mark.asyncio
+async def test_context_drift_without_health_still_logs_once(caplog):
+    async with httpx.AsyncClient() as http:
+        ctx = SourceContext("nhl", SnapshotStore(), lambda: None, http)
+        with caplog.at_level("WARNING", logger="source.nhl"):
+            ctx.drift("a")
+            ctx.drift("a")
+            ctx.drift("b")
+    assert [r.message for r in caplog.records] == ["feed drift: a", "feed drift: b"]

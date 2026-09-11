@@ -14,6 +14,9 @@ PHASE_BY_STATE = {
 }
 ACTIVE_STATES = frozenset({"PRE", "LIVE", "CRIT"})
 FINISHED_STATES = frozenset({"OVER", "FINAL", "OFF"})
+# gameScheduleState says whether the game is being played at all; gameState alone still reads
+# FUT for a postponed game, and a postponed favourite must not sit in "pregame" all night.
+NOT_PLAYED = {"PPD": "PPD", "SUSP": "SUSPENDED", "CNCL": "CANCELLED"}       # schedule state -> outcome label
 
 
 def _text(value: Any) -> str:
@@ -132,6 +135,10 @@ def normalize_game(
     phase = PHASE_BY_STATE.get(state, "pregame")
     if phase == "live" and in_intermission:
         phase = "intermission"
+    schedule_state = game.get("gameScheduleState") or "OK"
+    outcome = outcome_label(game)
+    if schedule_state in NOT_PLAYED:
+        state, phase, outcome = schedule_state, "postgame", NOT_PLAYED[schedule_state]
     sit = (landing or {}).get("situation") or game.get("situation") or {}
     pp_code, pulled = situation(sit.get("situationCode"))
     game_type = int(game.get("gameType") or 2)
@@ -141,6 +148,7 @@ def normalize_game(
         "id": int(game["id"]),
         "type": game_type,
         "state": state,
+        "schedule_state": schedule_state,
         "phase": phase,
         "date": game.get("gameDate", ""),
         "start_time_utc": game.get("startTimeUTC", ""),
@@ -151,7 +159,7 @@ def normalize_game(
         "clock": clock.get("timeRemaining", ""),
         "clock_running": bool(clock.get("running")),
         "in_intermission": in_intermission,
-        "outcome": outcome_label(game),
+        "outcome": outcome,
         "powerplay": {"code": pp_code, "clock": sit.get("timeRemaining", "")},
         "pulled_goalie": pulled,
         "goals": goals,

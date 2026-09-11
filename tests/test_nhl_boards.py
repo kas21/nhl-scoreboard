@@ -144,3 +144,39 @@ def test_standings_scrolls_and_finishes(world):
     assert first.tobytes() != later.tobytes()
     assert not board.done(replace(ctx, elapsed=0.5), cfg)
     assert board.done(replace(ctx, elapsed=60.0), cfg)
+
+
+# -- postponed / suspended / cancelled ------------------------------------------
+
+@pytest.mark.parametrize("outcome, full, compact", [
+    ("", "FINAL", "FINAL"), ("FINAL", "FINAL", "FINAL"), ("FINAL/OT", "FINAL/OT", "F/OT"), ("FINAL/2OT", "FINAL/2OT", "F/2OT"),
+    ("PPD", "PPD", "PPD"), ("SUSPENDED", "SUSPENDED", "SUSP"), ("CANCELLED", "CANCELLED", "CNCL"),
+])
+def test_outcome_chips(outcome, full, compact):
+    from scoreboard.nhl.boards.common import outcome_chip
+
+    assert outcome_chip(outcome) == full
+    assert outcome_chip(outcome, compact=True) == compact
+
+
+@pytest.mark.parametrize("outcome", ["PPD", "SUSPENDED", "CANCELLED"])
+def test_game_board_draws_a_not_played_game_without_a_score(world, outcome):
+    """A postponed game must not look like a 0-0 final: the chip names the outcome and the score row is gone."""
+    from scoreboard.nhl.boards.game import GameBoard as GB
+
+    g = {**world["final"], "state": outcome[:4], "outcome": outcome, "away": {**world["final"]["away"], "score": 0},
+         "home": {**world["final"]["home"], "score": 0}}
+    board = GB()
+    ctx = BoardContext(snapshot=world["store"].publish("main_event", g), profile=profile_for(128, 64), width=128, height=64,
+                       fps=30, now=datetime(2026, 4, 11, 18, 30, tzinfo=ZoneInfo("America/Toronto")), elapsed=3.0)
+    board.enter(ctx, GameConfig())
+    from scoreboard.render.layout import Text
+
+    items = board._final(g, ctx, GameConfig())
+    words = {node.text for node, *_ in items if isinstance(node, Text)}
+    score_rows = [node for node, *_ in items if type(node).__name__ == "Slide" and getattr(node, "direction", None) == "up"]
+    if outcome == "SUSPENDED":
+        assert "SUSPENDED" not in words and len(score_rows) > 2    # a suspended game keeps its score (record + score slides)
+    else:
+        assert {"PPD": "POSTPONED", "CANCELLED": "CANCELLED"}[outcome] in words
+    assert board.render(ctx, GameConfig()).size == (128, 64)

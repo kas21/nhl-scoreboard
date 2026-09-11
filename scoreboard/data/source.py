@@ -9,7 +9,7 @@ from typing import Any, ClassVar, Protocol, runtime_checkable
 import httpx
 from pydantic import BaseModel
 
-from .health import SourceHealth, TrackedHttp
+from .health import DRIFT_NOTES_LIMIT, SourceHealth, TrackedHttp
 from .store import SnapshotStore
 
 log = logging.getLogger(__name__)
@@ -39,6 +39,7 @@ class SourceContext:
         self.timezone: str | None = None            # IANA name, set by the app from location config
         self.location: tuple[float, float] | None = None   # (lat, lon) from location config, if set
         self.log = logging.getLogger(f"source.{key}")
+        self._drift_seen: set[str] = set()
 
     @property
     def config(self) -> BaseModel:
@@ -54,6 +55,21 @@ class SourceContext:
         self._store.publish(key, value, owner=self.key)
         if self.health is not None:
             self.health.record_publish(self.key, key)
+
+    def drift(self, note: str) -> None:
+        """Report that the feed no longer looks the way this source expects — an unknown enum
+        value, a missing field, a team the registry has never heard of. Logged once per distinct
+        note and counted on the diagnostics page; the source carries on with its best guess,
+        so this is the signal that the guess may be wrong. Keep notes free of per-game values
+        (ids, clocks) so the same problem collapses to one line."""
+        if self.health is not None:
+            new = self.health.record_drift(self.key, note)
+        else:                                       # no registry (tests, one-off scripts): dedupe locally
+            new = note not in self._drift_seen
+            if new and len(self._drift_seen) < DRIFT_NOTES_LIMIT:
+                self._drift_seen.add(note)
+        if new:
+            self.log.warning("feed drift: %s", note)
 
     async def sleep(self, seconds: float, *, until_poll: float | None = None) -> None:
         """Pause between polls; records when this source will next fetch so the UI can show it.

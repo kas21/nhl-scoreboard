@@ -61,7 +61,12 @@ attributed to the source), `ctx.config` (its section of the config, re-validated
 apply on the next loop and an invalid section falls back to defaults), `ctx.timezone` and `ctx.location`
 (kept current by a config listener), `ctx.publish(value, subkey)` → `<key>.<subkey>`, `ctx.publish_to(key,
 value)` for shared keys such as `main_event` and `system`, `ctx.sleep(seconds)` (records the next poll for
-the diagnostics page) and `ctx.snapshot()`.
+the diagnostics page), `ctx.snapshot()` and `ctx.drift(note)` — the feed no longer looks the way the source
+expects (an unknown enum value, a missing field, a team the registry has never heard of). A forgiving
+normaliser turns a renamed field into a plausible wrong board rather than a crash, so this is the signal
+that its best guess may be wrong: logged once per distinct note, counted in health, listed on the
+diagnostics page. The NHL source checks every payload against `nhl/contract.py`, the same spec the test
+suite runs against the fixtures and a weekly GitHub Action runs against the live API.
 
 `run_source_forever` supervises it: a crash is logged, counted in health, and the source is restarted after
 2, 5, 15, 30 then 60 s; cancellation at shutdown propagates. A source that *returns* is restarted too.

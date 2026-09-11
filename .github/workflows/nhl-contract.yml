@@ -1,0 +1,28 @@
+# The live NHL feed still carries what the boards read. The fast suite checks the recorded
+# fixtures; only this pass talks to api-web.nhle.com, and the failure it catches is silent —
+# a renamed field makes the panel draw a plausible wrong scoreboard rather than crash.
+#
+# Weekly on Monday morning (Eastern), or on demand from the Actions tab. Off-season runs skip
+# rather than pass: an empty slate proves nothing.
+name: NHL feed contract
+
+on:
+  schedule:
+    - cron: "0 13 * * 1"
+  workflow_dispatch:
+
+jobs:
+  live-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Install
+        run: uv sync --extra dev
+      - name: Check the live feed against the spec
+        env:
+          SCOREBOARD_CONTRACT_TEST: "1"
+        run: uv run pytest tests/test_nhl_contract.py -q -rs
