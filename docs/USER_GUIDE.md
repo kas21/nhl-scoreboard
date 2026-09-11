@@ -72,7 +72,9 @@ nothing needs a restart.
   on the panel the moment you do. Useful in the off-season, for checking a playlist, or for showing someone
   the goal animation without waiting for one. Options: which side counts as your team (auto follows your NHL
   favourites), preseason / regular / playoff rules, period length, clock speed, and whether to begin before
-  the game or with the puck dropped. Nothing is saved; a restart ends it.
+  the game or with the puck dropped. Only your team's goals get the full celebration; a goal by the other
+  side is a short flash in its colours, so pick a side (or a game your favourite is in) to see the whole
+  animation. Nothing is saved; a restart ends it.
 - **Diagnostics** — recent log lines.
 
 ## Boards
