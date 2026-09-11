@@ -26,6 +26,7 @@ ALERT = (255, 160, 40)
 
 LOGO_MAX, LOGO_MIN = 40, 16      # the old Flight-Wall card's logo block
 LINE_H, MARGIN, GAP, BLOCK_GAP = 6, 2, 3, 4
+LABEL_GAP, PAIR_GAP = 3, 6       # "Alt:" to its value; between label/value pairs on a row
 
 
 SIGHTINGS_HELP = "Add how many times this airframe has been seen to the telemetry (needs count_sightings on the flights source; 128x64 only)"
@@ -112,11 +113,11 @@ def _telemetry_rows(ac: dict[str, Any], metric: bool, font: Any, width: int, sig
         if not value:
             continue
         lw, vw = text_size(f"{label}:", font)[0], text_size(value, font)[0]
-        if row and x + lw + 2 + vw > width - MARGIN:
+        if row and x + lw + LABEL_GAP + vw > width - MARGIN:
             rows.append(row)
             row, x = [], MARGIN
         row.append((label, value, lw, vw))
-        x += lw + 2 + vw + 6
+        x += lw + LABEL_GAP + vw + PAIR_GAP
     if row:
         rows.append(row)
     return rows
@@ -172,8 +173,8 @@ def card(ac: dict[str, Any], width: int, height: int, metric: bool, f6: Any, hea
         x = MARGIN
         for label, value, lw, vw in row:
             items.append((Text(f"{label}:", f6, LABEL), x, ty, lw, LINE_H))
-            items.append((Text(value, f6, TEXT), x + lw + 2, ty, vw, LINE_H))
-            x += lw + 2 + vw + 6
+            items.append((Text(value, f6, TEXT), x + lw + LABEL_GAP, ty, vw, LINE_H))
+            x += lw + LABEL_GAP + vw + PAIR_GAP
         ty += LINE_H + GAP
     return items
 

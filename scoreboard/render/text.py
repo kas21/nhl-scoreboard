@@ -60,7 +60,17 @@ def text_box(text: str, font: ImageFont.ImageFont, antialias: bool = False) -> t
     far larger than they draw.
     """
     if is_bitmap(font):
-        left, top, right, bottom = font.getbbox(text)
+        # PIL reports the character cell for bitmap faces (a 6-row box for tom-thumb's
+        # 5-row glyphs), so measure the rendered mask instead; the cell is the fallback
+        # for strings with no ink at all.
+        ink = font.getmask(text, mode="1").getbbox()
+        if ink is None:
+            return font.getbbox(text)
+        left, top, right, bottom = ink
+        if text[:1].isspace():                      # spaces at either end still take their advance,
+            left = 0                                # so "Alt: " keeps its gap before the value
+        if text[-1:].isspace():
+            right = font.getbbox(text)[2]
         return left, top, right, bottom
     mode = "L" if antialias else "1"
     return font.getbbox(text, mode=mode, anchor="la")

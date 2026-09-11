@@ -78,10 +78,11 @@ def test_label_font_has_no_colliding_glyphs():
 
 def test_label_font_keeps_the_ported_128x64_metrics():
     """The 128x64 boards are pixel ports with 5px-tall text boxes and fixed column
-    x-positions; the label face has to stay on plfont-6's 4px pitch or they reflow."""
+    x-positions; the label face has to stay on plfont-6's 4px pitch and 5px ink or they reflow."""
     old = load_font("pl", 6)
     for profile in PROFILES:
         if profile.width <= 128 and profile.height <= 64:
             label = profile.label_font()
             for sample in ("SOG", "12-4-1", "FINAL/OT", "0O68AR"):
-                assert text_size(sample, label) == text_size(sample, old), f"{profile.name}: {sample}"
+                assert label.getbbox(sample)[2] == old.getbbox(sample)[2], f"{profile.name}: {sample} pitch"
+                assert text_size(sample, label)[1] == text_size(sample, old)[1] == 5, f"{profile.name}: {sample} ink"

@@ -173,7 +173,7 @@ class GameBoard(BaseBoard):
             (strip, 34, 14, 60, 7),
             (self._score(g["away"]["score"], "end"), SCORE_AWAY_X - 10, SCORE_Y, 18, 12),
             (Box(fill=(255, 255, 255, 255)), *HYPHEN),
-            (self._score(g["home"]["score"], "start"), SCORE_HOME_X, SCORE_Y, 18, 12),
+            (self._score(g["home"]["score"], "start"), SCORE_HOME_X - 1, SCORE_Y, 18, 12),
         ]
         items += self._live_stats_row(g, cfg, f6)
         items += self._indicators(g, t, f6)
