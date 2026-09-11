@@ -9,6 +9,7 @@
 // is cheaper than a socket for a page that is open for minutes at a time.
 
 import { html, useState, useEffect, useRef } from './htm-preact.js';
+import { Select } from './select.js';
 
 const UI = { 'x-requested-with': 'scoreboard-ui' };
 const POLL_MS = 1000;
@@ -37,8 +38,8 @@ function OptionField({ name, schema, root, value, onChange }) {
   let control;
   if (s.enum) {
     const labels = s.labels || {};
-    control = html`<select id=${id} value=${value} onchange=${e => onChange(e.target.value)}>
-      ${s.enum.map(v => html`<option value=${v}>${labels[v] || v}</option>`)}</select>`;
+    control = html`<${Select} id=${id} value=${value} options=${s.enum.map(v => [v, labels[v] || v])}
+      onchange=${e => onChange(e.target.value)} />`;
   } else if (s.type === 'boolean') {
     control = html`<input type="checkbox" id=${id} checked=${!!value} onchange=${e => onChange(e.target.checked)} />`;
   } else if (s.type === 'integer' || s.type === 'number') {
@@ -76,8 +77,7 @@ function StartForm({ sim, onStart, busy }) {
 
 function ParamInput({ p, value, onChange }) {
   if (p.kind === 'select') {
-    return html`<select title=${p.label} value=${value} onchange=${e => onChange(e.target.value)}>
-      ${p.options.map(([v, l]) => html`<option value=${v}>${l}</option>`)}</select>`;
+    return html`<${Select} title=${p.label} value=${value} options=${p.options} onchange=${e => onChange(e.target.value)} />`;
   }
   if (p.kind === 'bool') return html`<label class="inline"><input type="checkbox" checked=${!!value} onchange=${e => onChange(e.target.checked)} /> ${p.label}</label>`;
   if (p.kind === 'number') return html`<input type="number" title=${p.label} value=${value ?? ''} onchange=${e => onChange(e.target.value === '' ? null : +e.target.value)} style="width:90px" />`;

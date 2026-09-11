@@ -1,4 +1,5 @@
 import { html, useState, useEffect } from './htm-preact.js';
+import { Select } from './select.js';
 
 // Every state-changing call carries this header. A page on another site cannot set it
 // without a preflight the scoreboard never answers, which is what stops a drive-by POST
@@ -25,6 +26,8 @@ const BOARDS = [
   { id: 'regular', label: 'Direct wiring / other HAT ("regular")' },
 ];
 const ORDERS = ['RGB', 'RBG', 'GRB', 'GBR', 'BRG', 'BGR'];
+const MAPPERS = [['', 'Normal'], ['Rotate:180', 'Upside down (rotate 180)'], ['Rotate:90', 'Rotate 90'], ['Rotate:270', 'Rotate 270'], ['Mirror:H', 'Mirrored']];
+const SLOWDOWNS = [['1', '1 (Pi 3 / Zero 2)'], ['2', '2 (Pi 4, default)'], ['3', '3'], ['4', '4 (Pi 5)']];
 const NHL = ['ANA','BOS','BUF','CAR','CBJ','CGY','CHI','COL','DAL','DET','EDM','FLA','LAK','MIN','MTL','NJD','NSH','NYI','NYR','OTT','PHI','PIT','SEA','SJS','STL','TBL','TOR','UTA','VAN','VGK','WPG','WSH'];
 
 function Step({ n, title, children }) {
@@ -57,22 +60,20 @@ export function Wizard({ config, save, Preview, onDone }) {
     html`<${Step} n=${1} title="Your panel">
       <p class="muted">Pick the closest match. The panel shows a test pattern: a yellow border, "TOP LEFT" in the top-left corner and red / green / blue / white bars.</p>
       <div class="field"><label>Panel size</label>
-        <select value=${preset.id} onchange=${e => saveDisplay(PANELS.find(p => p.id === e.target.value).display)}>${PANELS.map(p => html`<option value=${p.id}>${p.label}</option>`)}</select></div>
+        <${Select} value=${preset.id} options=${PANELS.map(p => [p.id, p.label])} onchange=${e => saveDisplay(PANELS.find(p => p.id === e.target.value).display)} /></div>
       <div class="field"><label>Driver board</label>
-        <select value=${d.gpio_mapping} onchange=${e => saveDisplay({ gpio_mapping: e.target.value })}>${BOARDS.map(b => html`<option value=${b.id}>${b.label}</option>`)}</select></div>
+        <${Select} value=${d.gpio_mapping} options=${BOARDS.map(b => [b.id, b.label])} onchange=${e => saveDisplay({ gpio_mapping: e.target.value })} /></div>
       ${needsRestart && html`<div class="row"><button disabled=${busy} onclick=${restart}>Apply to the panel (restart driver)</button><span class="muted">${msg}</span></div>`}
     <//>`,
     html`<${Step} n=${2} title="Colours and orientation">
       <p class="muted">Look at the physical panel, not the preview. The bars should read red, green, blue, white from left to right, and "TOP LEFT" should be at the top-left.</p>
       <div class="field"><label>Colour order</label>
-        <select value=${d.rgb_sequence} onchange=${e => saveDisplay({ rgb_sequence: e.target.value })}>${ORDERS.map(o => html`<option value=${o}>${o}</option>`)}</select>
+        <${Select} value=${d.rgb_sequence} options=${ORDERS} onchange=${e => saveDisplay({ rgb_sequence: e.target.value })} />
         <small>If the bars are in the wrong order, choose the order you actually see (e.g. you see red, blue, green → pick RBG).</small></div>
       <div class="field"><label>Orientation</label>
-        <select value=${d.pixel_mapper} onchange=${e => saveDisplay({ pixel_mapper: e.target.value })}>
-          <option value="">Normal</option><option value="Rotate:180">Upside down (rotate 180)</option><option value="Rotate:90">Rotate 90</option><option value="Rotate:270">Rotate 270</option><option value="Mirror:H">Mirrored</option></select></div>
+        <${Select} value=${d.pixel_mapper} options=${MAPPERS} onchange=${e => saveDisplay({ pixel_mapper: e.target.value })} /></div>
       <div class="field"><label>Flicker fix</label>
-        <select value=${d.slowdown_gpio} onchange=${e => saveDisplay({ slowdown_gpio: +e.target.value })}>
-          <option value="1">1 (Pi 3 / Zero 2)</option><option value="2">2 (Pi 4, default)</option><option value="3">3</option><option value="4">4 (Pi 5)</option></select>
+        <${Select} value=${String(d.slowdown_gpio)} options=${SLOWDOWNS} onchange=${e => saveDisplay({ slowdown_gpio: +e.target.value })} />
         <small>Raise this if the panel flickers or shows ghosting.</small></div>
       ${needsRestart && html`<div class="row"><button disabled=${busy} onclick=${restart}>Apply to the panel (restart driver)</button><span class="muted">${msg}</span></div>`}
     <//>`,
@@ -109,9 +110,8 @@ export function Wizard({ config, save, Preview, onDone }) {
 function Favourites({ value, onChange }) {
   return html`<div class="tags">
     ${value.map((v, i) => html`<span class="tag">${i + 1}. ${v} <a onclick=${() => onChange(value.filter((_, j) => j !== i))}>✕</a></span>`)}
-    <select onchange=${e => { if (e.target.value) onChange([...value, e.target.value]); e.target.value = ''; }}>
-      <option value="">+ add team</option>${NHL.filter(t => !value.includes(t)).map(t => html`<option value=${t}>${t}</option>`)}
-    </select>
+    <${Select} options=${[['', '+ add team'], ...NHL.filter(t => !value.includes(t))]}
+      onchange=${e => { if (e.target.value) onChange([...value, e.target.value]); e.target.value = ''; }} />
     <input type="text" class="code" maxlength="4" placeholder="or type a code" title="A team code the list does not have yet, e.g. a new or relocated team"
       onchange=${e => { const v = e.target.value.trim().toUpperCase(); if (v && !value.includes(v)) onChange([...value, v]); e.target.value = ''; }} /></div>`;
 }
