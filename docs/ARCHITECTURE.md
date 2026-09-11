@@ -83,6 +83,12 @@ outside the lock. Values are plain dicts and lists by convention; `None` is a le
 alerts source uses it for "unknown", the arbiter for "no game"). `snapshot.get(key)` returns `None` for
 both a missing key and a `None` value; `snapshot.has(key)` tells them apart.
 
+A key can be **claimed** (`store.claim(keys, owner)`): while an owner holds it, a publish from anyone else
+is *shadowed* — kept aside, not applied, no listener run — and `release()` publishes the last shadowed value,
+or failing that the value from before the claim, so readers are back on real data at once. Every publish
+through a `SourceContext` carries the source's key as its owner. Only the simulator claims anything today
+(see [Simulation](#simulation)); the mechanism is what lets it take a feed over without stopping the source.
+
 Two listeners are wired at startup:
 
 - **`EventBus.on_snapshot`** runs every registered detector on `(prev, new)` and appends what they return
@@ -134,6 +140,32 @@ wraps `rgbmatrix` (hardware) or `RGBMatrixEmulator` (same API) with double-buffe
 `web.preview_fps` times a second (once a second when nobody is watching, so `/api/preview.png` stays
 fresh); an encoder thread turns it into PNG bytes and fans them out to `/ws/preview` subscribers, each of
 which has a two-deep queue that drops the oldest frame when a client falls behind.
+
+## Simulation
+`sim/` drives the boards by hand from the browser without a mock anywhere: a **simulation** (`sim/base.py`,
+`Simulation` protocol) claims the snapshot keys a source would publish and writes real-shaped values there,
+so the arbiter, the detectors, the state machine and every board run exactly as on a game night. `SimulatorHub`
+(`sim/hub.py`, one per app) holds the running engines, ticks them four times a second from an asyncio task
+(`Application.run_async`), publishes when an engine reports a change, and serialises every call under one lock
+because the web API drives it from worker threads. Several engines may run at once as long as their claims do
+not overlap; a conflicting start is refused whole (`ClaimError` → 409). A start that fails releases its
+claims; an engine that raises in `tick()` is stopped, not left holding the feed.
+
+An engine is a plain object: `options_model` (pydantic; its JSON schema is the start form),
+`claims`, `start(options, ctx)`, `tick(ctx) -> changed`, `action(name, params, ctx)`, `actions()` (the
+buttons that apply *right now*, as `Action`/`Param` specs the page draws), `values()` (key → value to
+publish) and `describe()` (a headline and label/value lines). `SimContext` gives it a monotonic `now`, the
+local wall clock, the snapshot (still real for the claimed keys at `start`, so an engine can take the
+records and the rest of the slate from it) and the app config. Registration is the `scoreboard.sims`
+entry-point group; `nhl/sim.py` is the bundled engine — a hockey game with a running clock, goals, penalties
+with a timed power play, pulled goalies, intermissions, overtime and a shootout, publishing
+`nhl.main_event` and `nhl.scores` in `normalize.py`'s shape (plus `simulated: true`).
+
+Routes: `GET /api/sim` (every engine's form schema, and for a running one its options, summary and
+actions), `POST /api/sim/{key}/start|stop|action`, `POST /api/sim/stop`. `/api/status` lists what is
+`simulating`, and the UI shows a badge on every page while anything is, with a stop button on it. Nothing is
+persisted; a restart ends every simulation. `--demo` is the older, scripted cousin: it *replaces* the NHL
+source with a fixture replay and needs a restart to leave.
 
 ## Render engine (`render/`)
 - **Layout tree**: `Text`, `Img`, `Box`, `Spacer` leaves; `HBox`, `VBox`, `Stack`, `Anchor`, `Absolute`
@@ -213,7 +245,7 @@ FastAPI on `web.port` (8080). Endpoints: `/api/config` (GET effective, PATCH dee
 `playlistable`, `self_timed`, `auto_seconds`), `/api/snapshot`, `/api/logs`, `/api/override` (force a board),
 `/api/system` (+ `/restart`, `/hostname`, `/update`, `/update/check`), `/api/geocode`, `/api/preview.png`,
 `/ws/preview` (PNG frames), `/api/holidays/images/{slug}` (GET the picture, POST your own as the raw body,
-DELETE to put the bundled one back) and `/api/holidays/settings` (GET / PUT). Those are the only
+DELETE to put the bundled one back) and `/api/holidays/settings` (GET / PUT), and `/api/sim` (see [Simulation](#simulation)). Those are the only
 plugin-specific routes, and each earns it: a picture is a file, so it cannot ride on `/api/config`; and
 `PATCH /api/config` deep-merges, so it can add a key to the `overrides` map but never take one out, and
 plugin sections are `dict[str, Any]` in `AppConfig` so nothing validates them on the way in. The `/settings`
@@ -223,10 +255,11 @@ its own with `edited_on()` (see `config/models.py`); the generated settings form
 State-changing calls need `X-Requested-With: scoreboard-ui` and a `Host` the box answers to
 (`web/guard.py`; see [HARDWARE.md](HARDWARE.md#security)). The UI is Preact + HTM served as static files
 (no build step): `app.js` (shell, boards, playlists), `dashboard.js`, `settings.js` (schema-driven forms),
-`holidays.js`, `wizard.js` (first-run flow).
+`holidays.js`, `sim.js` (the Simulator page: start forms from each engine's schema, buttons from its action
+specs — nothing in it knows hockey), `wizard.js` (first-run flow).
 
 ## Plugins
-`plugins.load_registry()` reads three entry-point groups — `scoreboard.boards`, `scoreboard.sources`,
-`scoreboard.detectors` — and instantiates each; a broken one is logged and skipped. The bundled sports
+`plugins.load_registry()` reads four entry-point groups — `scoreboard.boards`, `scoreboard.sources`,
+`scoreboard.detectors`, `scoreboard.sims` — and instantiates each; a broken one is logged and skipped. The bundled sports
 and extras register the same way as a third-party package would (see `pyproject.toml`), which is why the
 director and the web UI have no sport-specific code. [PLUGINS.md](PLUGINS.md) has the contracts.

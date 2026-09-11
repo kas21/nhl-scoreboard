@@ -163,3 +163,21 @@ table.flights td { white-space:normal; }
 .chip.level-advisory { background:#d4b000; color:#111; }
 .chip.level-statement { background:#2f6fd6; color:#fff; }
 .chip.level-other { background:#555; color:#fff; }
+
+/* ---- simulator page ------------------------------------------------------- */
+.badge.sim { background:#7a2a8a; animation:none; display:inline-flex; gap:6px; align-items:center; }
+.badge.sim a { color:#fff; text-decoration:none; }
+.badge.sim .stop { cursor:pointer; opacity:.75; }
+.badge.sim .stop:hover { opacity:1; }
+.chip.live { background:#1f5a34; color:#5fd28a; margin-left:8px; vertical-align:middle; }
+.sim-form .fields .field:last-of-type { border-bottom:0; }
+.sim-head { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
+.sim-headline { font-size:22px; font-weight:700; margin-right:auto; }
+.sim-status { margin-bottom:6px; }
+.sim-group .group { margin:14px 0 6px; }
+.sim-actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.sim-action { display:flex; gap:6px; align-items:center; background:#0e1116; border:1px solid #2a3340; border-radius:8px; padding:6px 8px; }
+.sim-action input[type=text] { width:150px; }
+.sim-action select { max-width:180px; }
+.sim-running details { margin-top:14px; }
+.sim-running summary { font-weight:400; }

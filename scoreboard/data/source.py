@@ -51,7 +51,7 @@ class SourceContext:
 
     def publish_to(self, key: str, value: Any) -> None:
         """Publish under an arbitrary key (e.g. the sport-agnostic ``main_event``)."""
-        self._store.publish(key, value)
+        self._store.publish(key, value, owner=self.key)
         if self.health is not None:
             self.health.record_publish(self.key, key)
 

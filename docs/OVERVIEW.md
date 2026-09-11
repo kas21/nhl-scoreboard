@@ -87,7 +87,8 @@ Think of a newsroom with a wall of screens.
 | Layout tree | `HBox` / `VBox` / `Text` / `Img` … measured and placed by Pillow | `render/layout.py` |
 | Animated node | `Marquee`, `Pulse`, `Sheen`… — a function of `t` inside a static tree | `render/animated.py` |
 | Size profile | Font and logo sizes for a panel size (128x64, 64x32…) | `render/profiles.py` |
-| Registry | Boards, sources and detectors discovered from entry points | `plugins.py` |
+| Registry | Boards, sources, detectors and simulations discovered from entry points | `plugins.py` |
+| Simulation | Claims a source's keys and publishes what you tell it to, from the Simulator page | `sim/`, `nhl/sim.py` |
 | Config store | Atomic `config.json` with backups, salvage and migrations; listeners fire on change | `config/store.py` |
 | Source health | Per-source fetch, publish and crash stats for the diagnostics page | `data/health.py` |
 

@@ -1,4 +1,4 @@
-"""Discover boards and data sources: built-ins plus ``scoreboard.*`` entry points."""
+"""Discover boards, data sources, detectors and simulations: built-ins plus ``scoreboard.*`` entry points."""
 from __future__ import annotations
 
 import logging
@@ -8,6 +8,7 @@ from importlib.metadata import entry_points
 from .boards.base import BaseBoard, EventBoard
 from .data.events import Detector
 from .data.source import DataSource
+from .sim.base import Simulation
 
 log = logging.getLogger(__name__)
 
@@ -17,6 +18,7 @@ class Registry:
     boards: dict[str, BaseBoard] = field(default_factory=dict)
     sources: dict[str, DataSource] = field(default_factory=dict)
     detectors: list[Detector] = field(default_factory=list)
+    sims: dict[str, Simulation] = field(default_factory=dict)      # simulations, by key (the URL segment)
 
     @property
     def event_boards(self) -> list[EventBoard]:
@@ -40,7 +42,9 @@ def load_registry() -> Registry:
             reg.detectors.append(ep.load())
         except Exception:
             log.exception("failed to load detector %s", ep.name)
-    log.info("loaded boards=%s sources=%s", sorted(reg.boards), sorted(reg.sources))
+    for ep in entry_points(group="scoreboard.sims"):
+        _load(ep, reg.sims, "simulation")
+    log.info("loaded boards=%s sources=%s sims=%s", sorted(reg.boards), sorted(reg.sources), sorted(reg.sims))
     return reg
 
 

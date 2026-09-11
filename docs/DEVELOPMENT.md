@@ -8,6 +8,7 @@ No Node toolchain: the UI is plain ES modules served as static files. No API key
 git clone https://github.com/kas21/nhl-scoreboard && cd nhl-scoreboard
 uv sync --extra dev --extra emulator     # venv + deps; `emulator` pulls RGBMatrixEmulator, `dev` pytest/ruff/respx
 uv run scoreboard --demo --emulator      # emulator window + web UI on :8080, replaying a recorded game
+uv run scoreboard --emulator             # …then open Simulator in the UI to run a game by hand (goals, penalties, periods)
 uv run scoreboard --emulator             # the same against the live feeds
 uv run scoreboard --output none          # headless: browser preview only (CI, SSH sessions)
 uv run pytest -q && uv run ruff check scoreboard tests
@@ -43,6 +44,9 @@ snapshot it is rendered from, which doubles as a catalogue.
   carries every field `nhl/normalize.py` reads. The normal suite only checks that spec against the recorded
   fixtures; run the live pass on a schedule, because the failure it catches is silent — a renamed field
   makes the boards draw a plausible wrong scoreboard rather than crash.
+- To see a board react without a game on, use the **Simulator** page (any output mode): it publishes a
+  real-shaped game under the NHL keys and every state, interrupt and playlist follows. `--demo` is the
+  scripted equivalent for a quick unattended run-through. Both work offline.
 - Playlists on an existing install don't pick up new default entries — add new boards through the
   Boards page or a PATCH to `/api/config`.
 

@@ -21,6 +21,7 @@ from .data.source import SourceContext, run_source_forever
 from .director import Director
 from .output import PreviewHub, create_output
 from .plugins import load_registry
+from .sim import SimulatorHub
 from .web.api import LogBuffer, SystemControl, create_app
 from .web.updater import Updater
 
@@ -57,6 +58,8 @@ class Application:
         for detector in self.registry.detectors:
             self.events.register(detector)
         self.director = Director(self.config, self.snapshots, self.registry, self.events)
+        # Drives boards by hand from the browser; idle until a simulation is started.
+        self.simulator = SimulatorHub(self.snapshots, self.config.get, self.registry.sims)
         self.preview = PreviewHub(self.config.get().web.preview_fps)
         self.config.subscribe(lambda c: self.preview.set_fps(c.web.preview_fps))
         self.output = create_output(self.config.get().display, output_mode, self.director.brightness())
@@ -123,7 +126,8 @@ class Application:
             web = self.config.get().web
             server = uvicorn.Server(uvicorn.Config(
                 create_app(self.config, self.snapshots, self.registry, self.director, self.preview, self.logs,
-                           system=SystemControl(self.request_restart), updater=self.updater, health=self.health),
+                           system=SystemControl(self.request_restart), updater=self.updater, health=self.health,
+                           simulator=self.simulator),
                 host=web.host, port=web.port, log_level="warning", loop="asyncio",
             ))
             server.install_signal_handlers = lambda: None  # we handle signals ourselves
@@ -158,6 +162,7 @@ class Application:
                     await asyncio.sleep(max(hours, 1) * 3600 if hours > 0 else 3600)
 
             tasks.append(asyncio.create_task(update_checker(), name="update-checker"))
+            tasks.append(asyncio.create_task(self.simulator.run(), name="simulator"))
             await stop.wait()
             log.info("shutting down")
             server.should_exit = True

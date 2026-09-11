@@ -66,6 +66,7 @@ scoreboard/
   extras/           holidays, flights, weather and weather alerts — same plugin contract as the sports
   imagecache.py logos.py  runtime image cache and team logos fetched from ESPN's CDN (no artwork in the repo)
   demo.py           replays tests/fixtures/nhl as a live game
+  sim/              the simulator: claim a feed's keys and drive the boards from the browser (nhl/sim.py is the NHL engine)
   plugins.py        entry-point discovery for boards / sources / detectors
 tests/              pytest; fixtures/ are real API captures; golden/ pins every board's pixels
 tools/ scripts/     font build; Pi install.sh + pi_tuning.sh

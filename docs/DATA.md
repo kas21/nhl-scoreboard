@@ -15,6 +15,11 @@ must be present *and non-empty* for it to enter a playlist, so publishing `[]` o
 takes its board down. `snapshot.age(key)` gives seconds since the last publish; `GET /api/snapshot` dumps
 the whole thing.
 
+A key can be claimed by one owner (the simulator does this for `nhl.main_event` and `nhl.scores` while a
+simulated game runs): other publishers' values are held back and the freshest one is republished the moment
+the claim is released. A game dict published by the simulator carries `simulated: true`; nothing reads it,
+but a board or a webhook that must not act on a fake goal can.
+
 ## Snapshot keys
 | Key | Producer | Shape |
 |---|---|---|
