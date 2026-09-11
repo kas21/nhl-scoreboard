@@ -3,6 +3,7 @@ import { html } from './htm-preact.js';
 import { Wizard } from './wizard.js';
 import { Settings } from './settings.js';
 import { Holidays } from './holidays.js';
+import { Simulator } from './sim.js';
 import { GamesCard, AroundCard } from './dashboard.js';
 
 // Every state-changing call carries this header. A page on another site cannot set it
@@ -291,6 +292,17 @@ function UpdateBadge() {
   return null;
 }
 
+// A forgotten simulation would keep the panel on a fake game through a real one, so say so
+// on every page, with the way out one click away.
+function SimBadge() {
+  const [st, setSt] = useState(null);
+  useEffect(() => { const t = () => api.get('/api/sim').then(setSt).catch(() => {}); t(); const id = setInterval(t, 5000); return () => clearInterval(id); }, []);
+  if (!st || !st.active) return null;
+  const names = st.sims.filter(s => s.running).map(s => s.title).join(', ');
+  return html`<span class="badge sim" title=${`Simulating: ${names}. The panel is not showing real data.`}>
+    <a href="#sim">Simulating</a> <a class="stop" title="Stop every simulation" onclick=${() => api.post('/api/sim/stop').then(setSt)}>✕</a></span>`;
+}
+
 function App() {
   const [page, setPage] = useState(location.hash.slice(1) || 'dashboard');
   const [config, setConfig] = useState(null);
@@ -305,10 +317,10 @@ function App() {
     addEventListener('hashchange', onHash); return () => removeEventListener('hashchange', onHash);
   }, []);
   const save = (patch) => api.patch('/api/config', patch).then(c => { setConfig(c); setError(null); }).catch(e => setError(e.message));
-  const pages = { dashboard: 'Dashboard', playlists: 'Boards', settings: 'Settings', diagnostics: 'Diagnostics', setup: 'Setup' };
+  const pages = { dashboard: 'Dashboard', playlists: 'Boards', settings: 'Settings', sim: 'Simulator', diagnostics: 'Diagnostics', setup: 'Setup' };
   const showWizard = config && (!config.setup_complete || page === 'setup');
   return html`
-    <header><h1>Scoreboard</h1><${UpdateBadge} /><nav>${Object.entries(pages).map(([k, v]) => html`<a href=${'#' + k} class=${page === k ? 'active' : ''}>${v}</a>`)}</nav></header>
+    <header><h1>Scoreboard</h1><${SimBadge} /><${UpdateBadge} /><nav>${Object.entries(pages).map(([k, v]) => html`<a href=${'#' + k} class=${page === k ? 'active' : ''}>${v}</a>`)}</nav></header>
     <main>
       ${error && html`<div class="card error">${error}</div>`}
       ${!config ? html`<p class="muted">Loading…</p>`
@@ -316,6 +328,7 @@ function App() {
         : page === 'settings' ? html`<${Settings} config=${config} schema=${schema} boards=${boards} save=${save} />`
         : page === 'playlists' ? html`<${Playlists} config=${config} boards=${boards} save=${save} />`
         : page === 'holidays' ? html`<${Holidays} />`
+        : page === 'sim' ? html`<${Simulator} Preview=${Preview} />`
         : page === 'diagnostics' ? html`<${Diagnostics} />`
         : html`<${Dashboard} config=${config} save=${save} />`}
     </main>`;

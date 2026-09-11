@@ -75,6 +75,9 @@ nfl = "scoreboard.nfl.events:detect_nfl"
 ncaaf = "scoreboard.ncaaf.events:detect_ncaaf"
 mlb = "scoreboard.mlb.events:detect_mlb"
 
+[project.entry-points."scoreboard.sims"]
+nhl = "scoreboard.nhl.sim:NhlSim"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

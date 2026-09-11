@@ -64,6 +64,15 @@ nothing needs a restart.
   known yet` until then).
 - **Settings** — every option, grouped: Display, Location, Brightness (fixed / sunrise-sunset / hours),
   Transition between boards, Sports priority, per-board settings, per-data-source settings.
+- **Simulator** — run a game by hand to see what the panel does: pick two teams, drop the puck, start and stop
+  the clock, score (with or without naming the scorer), call penalties, pull a goalie, end periods. The panel
+  follows it exactly as it would a real game — the live board, the goal and penalty alerts, the ticker, the
+  intermission and final playlists — while the real feed keeps polling underneath, out of sight. A *Simulating*
+  badge shows on every page until you stop it (the ✕ on the badge stops everything); the real data is back
+  on the panel the moment you do. Useful in the off-season, for checking a playlist, or for showing someone
+  the goal animation without waiting for one. Options: which side counts as your team (auto follows your NHL
+  favourites), preseason / regular / playoff rules, period length, clock speed, and whether to begin before
+  the game or with the puck dropped. Nothing is saved; a restart ends it.
 - **Diagnostics** — recent log lines.
 
 ## Boards

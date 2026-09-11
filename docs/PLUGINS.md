@@ -1,7 +1,9 @@
 # Writing a board or data source
 
-Everything — NHL, NFL, college football, MLB, weather, flights, holidays — uses the same three contracts and is registered
-with entry points in `pyproject.toml`. Third-party packages do exactly the same.
+Everything — NHL, NFL, college football, MLB, weather, flights, holidays — uses the same contracts and is registered
+with entry points in `pyproject.toml`. Third-party packages do exactly the same. There are three you will
+use (source, board, detector) and a fourth, optional one: a simulation, which lets the Simulator page drive
+your boards by hand.
 
 ## Data source
 ```python
@@ -66,6 +68,35 @@ apply to that sport, and reuse `nhl.select.select_main_event` / the NHL boards a
 same API costs — it subclasses the NFL source, client and boards and only owns its team registry, conference
 standings and the rank/slate touches; `mlb/` shows a sport whose live board needs
 its own centre column — override `_live` / `_live_stats_row` / `_indicators` on the NHL `GameBoard` and keep the rest).
+
+## Simulation (optional: drive your boards from the browser)
+A simulation claims the snapshot keys your source publishes and writes values there on demand, so the
+Simulator page can exercise your boards and interrupts with no feed behind them. It is not a mock: the
+detectors, the arbiter and the director all run on what it publishes.
+```python
+class MyOptions(BaseModel):                       # the start form; the page draws it from the JSON schema
+    model_config = ConfigDict(frozen=True, extra="forbid", title="My feed")
+    level: Literal["watch", "warning"] = "warning"
+
+class MySim:
+    key = "my"; title = "My feed"; description = "Raise and clear a thing."
+    options_model = MyOptions
+    claims = frozenset({"my.latest"})              # keys taken over while running; must not overlap another sim's
+    def start(self, options, ctx):  self.opts, self.items = options, []      # ctx: now (monotonic), wall, snapshot, config
+    def tick(self, ctx):            return False   # advance to ctx.now; True when values() changed
+    def actions(self):              return [Action("raise", "Raise", "Things", (Param("text", "Text"),), primary=True),
+                                            Action("clear", "Clear", "Things", enabled=bool(self.items))]
+    def action(self, name, params, ctx):
+        if name == "raise": self.items.append({"level": self.opts.level, "text": params.get("text", "")})
+        elif name == "clear": self.items = []
+        else: raise SimError(f"unknown action {name!r}")
+    def values(self):               return {"my.latest": list(self.items)}
+    def describe(self):             return {"headline": f"{len(self.items)} active", "lines": [["Level", self.opts.level]]}
+```
+`actions()` is asked after every change, so return only what makes sense now (an engine mid-intermission
+does not offer "goal"); `Param` kinds are `select` (with `(value, label)` options), `text`, `number`,
+`bool`. `SimError` becomes a 422 with your message on the page. `nhl/sim.py` is the worked example.
+Register: `[project.entry-points."scoreboard.sims"] my = "pkg.module:MySim"`.
 
 ## Testing
 Record a real API response into `tests/fixtures/<plugin>/`, test the normaliser as a pure function,

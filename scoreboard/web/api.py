@@ -28,9 +28,11 @@ from ..data.health import SourceHealth
 from ..director import Director
 from ..output import PreviewHub
 from ..plugins import Registry
+from ..sim import SimulatorHub
 from .dashboard import router as dashboard_router
 from .guard import AccessGuard
 from .holidays import router as holidays_router
+from .sim import router as sim_router
 from .updater import Updater
 
 log = logging.getLogger(__name__)
@@ -113,6 +115,7 @@ def create_app(
     system: SystemControl | None = None,
     updater: Updater | None = None,
     health: SourceHealth | None = None,
+    simulator: SimulatorHub | None = None,
 ) -> FastAPI:
     app = FastAPI(title="scoreboard", version=__version__)
     system = system or SystemControl()
@@ -129,6 +132,7 @@ def create_app(
             "snapshot_version": snap.version,
             "sources": {k: snap.age(k) for k in snap.data},
             "setup_complete": config.get().setup_complete,
+            "simulating": simulator.running() if simulator is not None else [],
         }
 
     @app.get("/api/sources")
@@ -295,6 +299,7 @@ def create_app(
     # config value, so it cannot ride on /api/config like every other holiday setting.
     app.include_router(holidays_router(config, snapshots))
     app.include_router(dashboard_router(config, snapshots))
+    app.include_router(sim_router(simulator if simulator is not None else SimulatorHub(snapshots, config.get, registry.sims)))
 
     app.mount("/static", RevalidatingStatic(directory=STATIC), name="static")
     # Outermost, so nothing is routed before the host and CSRF checks run. See web/guard.py.

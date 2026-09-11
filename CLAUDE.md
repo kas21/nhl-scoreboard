@@ -46,7 +46,9 @@ scoreboard/
   output/           matrix (rgbmatrix | RGBMatrixEmulator | null), PreviewHub (WebSocket PNG stream)
   web/              FastAPI API + Preact/HTM UI (no build step): dashboard, boards/playlists, settings, wizard,
                     diagnostics, holidays (per-holiday list: hide, rename, upload a picture)
-  nhl/              api-web.nhle.com client, normaliser, source, season phase, event detectors, boards (ported old designs)
+  sim/              simulator hub + contract: an engine claims a source's snapshot keys and publishes on demand from the
+                    web UI (Simulator page, /api/sim); entry-point group scoreboard.sims; nhl/sim.py is the NHL game engine
+  nhl/              api-web.nhle.com client, normaliser, source, season phase, event detectors, boards (ported old designs), sim
   nfl/              ESPN site API, normaliser, source, detectors; boards subclass the NHL ones
   ncaaf/            college football (FBS) on the same ESPN API: subclasses the NFL source/client/boards; owns the
                     136-team registry (teams.py, ESPN abbrevs by conference), conference standings, ranks, slate filter
@@ -75,8 +77,11 @@ docs/               OVERVIEW (start here), USER_GUIDE, HARDWARE, ARCHITECTURE, D
 - **Config**: `config.json` stores only overrides; the API returns effective values (model defaults merged).
   Every pydantic field appears in the web UI automatically. Live edits apply without restart, except
   `display.*` driver options (need a restart — the wizard has a button).
-- **Plugins**: `scoreboard.boards` / `scoreboard.sources` / `scoreboard.detectors` entry points; bundled
+- **Plugins**: `scoreboard.boards` / `scoreboard.sources` / `scoreboard.detectors` / `scoreboard.sims` entry points; bundled
   extras use the same mechanism. A board may declare `sport` and `requires` (snapshot keys, must be non-empty).
+- **Simulator**: `SnapshotStore.claim()` lets one owner take keys over (other publishers are shadowed, the freshest
+  real value comes back on release); `SimulatorHub` runs engines that publish real-shaped data under those keys, so
+  detectors/boards/interrupts are exercised for real. No mocks in boards; add a sim engine, not a fake mode.
 
 ## Conventions & gotchas
 
