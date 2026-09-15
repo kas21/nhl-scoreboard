@@ -85,7 +85,7 @@ nothing needs a restart.
 ## Boards
 | Board | Shows | Needs |
 |---|---|---|
-| NHL game / NFL game / College football game / MLB game | your team's game: pregame matchup, live score with period/clock, PP / empty net (NHL) or possession, down & distance, red zone, timeouts (NFL and college, which also puts the poll rank in front of a ranked team's record) or inning + half, bases, count, outs, pitcher / batter, due up, last pitch (MLB), final (with hits and W/L/S pitchers for MLB) | a favourite with a game today |
+| NHL game / NFL game / College football game / MLB game | your team's game: pregame matchup, live score with period/clock, PP / empty net (NHL) or possession, down & distance, spot of the ball, a scrolling last play, red zone, timeouts (NFL and college, which also puts the poll rank in front of a ranked team's record) or inning + half, bases, count, outs, pitcher / batter, due up, last pitch (MLB), final (with hits and W/L/S pitchers for MLB) | a favourite with a game today |
 | Goal / Touchdown / Home run | full-screen celebration + scorer card (NHL); runs that are not homers get a short card (MLB, off for the other team by default) | live game |
 | Penalty | referee animation + details card | live game |
 | Ticker | every game on today's slate (college: the games the source's `slate` setting keeps — ranked teams by default, or your conferences, or all sixty-odd; your favourites' games always) | slate within `show_games_within_days` |

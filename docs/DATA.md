@@ -49,7 +49,7 @@ period (label: 1st/2nd/3rd/OT/SO | 1st..4th/HALF/OT | TOP/BOT/MID/END), period_n
 clock_running, in_intermission (never set by MLB: inning breaks stay live),
 outcome ('' | FINAL | FINAL/OT | FINAL/SO | FINAL/2OT | FINAL/11 | PPD | CANCELLED | SUSPENDED),
 powerplay {code: ev|a54|h53…, clock}, pulled_goalie (0|1 away|2 home|3 both), goals[], penalties[],   # NHL
-situation {possession, down, distance, yard_line, red_zone, text, last_play}                          # NFL
+situation {possession, down, distance, yard_line, red_zone, text, spot, last_play}                    # NFL (spot: "KC 44")
 situation {inning, inning_ordinal, half (top|bottom|middle|end), batting, balls, strikes, outs,          # MLB
            runners [1B,2B,3B], batter, on_deck, in_hole, pitcher, pitch_count, pitch {speed, code, label},
            last_play {type, label, text, complete, batting}, no_hitter, perfect_game, delay, note}

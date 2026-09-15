@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 import httpx
 import pytest
 import respx
+from PIL import ImageChops
 
 from scoreboard.boards.base import BoardContext
 from scoreboard.data import Event, SnapshotStore
@@ -112,6 +113,58 @@ def test_nfl_boards_render():
     assert sb.render(ctx(1.0, ev), ScoreConfig()).getbbox() is not None
     fg = Event("nfl.field_goal", team=live["away"]["abbrev"], payload={"side": "away", "game": live, "score": "7-3", "points": 3})
     assert NflScoreBoard().render(ctx(1.0, fg), ScoreConfig()).getbbox() is not None
+
+
+def test_situation_carries_the_spot_and_a_tidy_last_play():
+    ev = load("espn_scoreboard.json")["events"][0]
+    comp = ev["competitions"][0]
+    comp["status"] = {"period": 3, "displayClock": "7:12", "type": {"state": "in", "name": "STATUS_IN_PROGRESS"}}
+    comp["situation"] = {"possessionText": "KC 44", "shortDownDistanceText": "3rd & 7",
+                         "lastPlay": {"text": " (Shotgun) P.Mahomes pass complete to T.Kelce for 12 yards. "}}
+    sit = normalize_game(ev)["situation"]
+    assert sit["spot"] == "KC 44" and sit["text"] == "3rd & 7"
+    assert sit["last_play"] == "(Shotgun) P.Mahomes pass complete to T.Kelce for 12 yards."
+    comp["situation"] = {"lastPlay": {"text": "x" * 300}}
+    sit = normalize_game(ev)["situation"]
+    assert sit["spot"] == "" and len(sit["last_play"]) == 80
+    comp["situation"] = {}
+    assert normalize_game(ev)["situation"]["last_play"] == ""
+
+
+def _live_nfl_snapshot(**situation):
+    games = normalize_scoreboard(load("espn_scoreboard.json"))
+    sit = {"possession": "home", "down": 3, "distance": 7, "red_zone": False, "text": "3rd & 7", "spot": "", "last_play": "", **situation}
+    live = {**games[0], "state": "LIVE", "phase": "live", "period": "3rd", "clock": "7:12", "outcome": "", "favorite_side": "home", "situation": sit}
+    return SnapshotStore().publish("main_event", live)
+
+
+def _nfl_frame(snap, cfg: NflGameConfig, t: float = 2.0):
+    now = datetime(2026, 8, 26, 13, tzinfo=ZoneInfo("America/Toronto"))
+    ctx = BoardContext(snapshot=snap, profile=profile_for(128, 64), width=128, height=64, fps=30, now=now, elapsed=t)
+    return NflGameBoard().render(ctx, cfg)
+
+
+def test_nfl_game_board_shows_the_spot_under_down_and_distance():
+    with_spot = _nfl_frame(_live_nfl_snapshot(spot="KC 44"), NflGameConfig())
+    without = _nfl_frame(_live_nfl_snapshot(), NflGameConfig())
+    hidden = _nfl_frame(_live_nfl_snapshot(spot="KC 44"), NflGameConfig(show_field_position=False))
+    box = ImageChops.difference(with_spot, without).getbbox()
+    assert box is not None and box[0] >= 34 and box[2] <= 94 and box[1] >= 50 and box[3] <= 56, box
+    assert ImageChops.difference(hidden, without).getbbox() is None
+
+
+def test_nfl_game_board_scrolls_the_last_play_along_the_bottom():
+    play = "P.Mahomes pass complete to T.Kelce for 12 yards to the DEN 33"
+    snap = _live_nfl_snapshot(last_play=play)
+    with_play = _nfl_frame(snap, NflGameConfig())
+    without = _nfl_frame(_live_nfl_snapshot(), NflGameConfig())
+    hidden = _nfl_frame(snap, NflGameConfig(show_last_play=False))
+    box = ImageChops.difference(with_play, without).getbbox()
+    assert box is not None and box[0] >= 10 and box[2] <= 118 and box[1] >= 55 and box[3] <= 61, box
+    assert ImageChops.difference(hidden, without).getbbox() is None
+    strip = (12, 56, 116, 61)                                               # below the logos, so no sheen in the crop
+    later = _nfl_frame(snap, NflGameConfig(), t=4.0)
+    assert ImageChops.difference(with_play.crop(strip), later.crop(strip)).getbbox() is not None   # too wide: it marquees
 
 
 @pytest.mark.asyncio

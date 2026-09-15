@@ -18,6 +18,7 @@ from .teams import DIVISION_OF
 
 PERIOD_LABELS = {1: "1st", 2: "2nd", 3: "3rd", 4: "4th"}
 UNRANKED = 99           # ESPN's ``curatedRank.current`` outside the top 25
+LAST_PLAY_CHARS = 80    # a play description longer than this scrolls past the board's dwell time
 
 
 def _record(competitor: dict[str, Any]) -> str:
@@ -104,9 +105,16 @@ def normalize_game(event: dict[str, Any], *, sport: str = "nfl", teams: ModuleTy
             "possession": possession, "down": sit.get("down"), "distance": sit.get("distance"),
             "yard_line": sit.get("yardLine"), "red_zone": bool(sit.get("isRedZone")),
             "text": sit.get("shortDownDistanceText") or sit.get("downDistanceText") or "",
-            "last_play": ((sit.get("lastPlay") or {}).get("text") or "")[:60],
+            "spot": sit.get("possessionText") or "",            # where the ball is, e.g. "KC 44"
+            "last_play": _last_play(sit),
         },
     }
+
+
+def _last_play(sit: dict[str, Any]) -> str:
+    """ESPN's play text, trimmed of its padding and capped so a marquee finishes in one board dwell."""
+    text = (sit.get("lastPlay") or {}).get("text") or ""
+    return " ".join(text.split())[:LAST_PLAY_CHARS]
 
 
 def _season_type(event: dict[str, Any]) -> int:

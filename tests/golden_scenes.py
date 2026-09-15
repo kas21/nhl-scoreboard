@@ -174,7 +174,8 @@ def nfl_scenes() -> list[Scene]:
     st = nfl_standings(_load("nfl", "espn_standings.json"))
     live = {**games[0], "state": "LIVE", "phase": "live", "period": "3rd", "clock": "7:12", "outcome": "",
             "favorite_side": "home",
-            "situation": {"possession": "home", "down": 2, "distance": 7, "red_zone": True, "text": "2nd & 7", "last_play": ""}}
+            "situation": {"possession": "home", "down": 2, "distance": 7, "red_zone": True, "text": "2nd & 7", "spot": "BUF 14",
+                          "last_play": "(Shotgun) P.Mahomes pass short right to T.Kelce for 9 yards to the BUF 14."}}
     live = {**live, "home": {**live["home"], "timeouts": 2}}
     store = SnapshotStore()
     store.publish("nfl.scores", games)
