@@ -6,6 +6,7 @@ dashboard; the main event is still picked from every game, so a favourite is nev
 """
 from __future__ import annotations
 
+from datetime import tzinfo
 from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -64,8 +65,8 @@ class NcaafSource(NflSource):
     def _api(self, ctx: SourceContext) -> NcaafApi:
         return NcaafApi(ctx.http)
 
-    def _scoreboard(self, payload: dict[str, Any]) -> list[dict[str, Any]]:
-        return normalize_scoreboard(payload)
+    def _scoreboard(self, payload: dict[str, Any], tz: tzinfo | None) -> list[dict[str, Any]]:
+        return normalize_scoreboard(payload, tz=tz)
 
     def _standings(self, payload: dict[str, Any]) -> dict[str, Any]:
         self._fbs = fbs_abbrevs(payload) or self._fbs
@@ -74,8 +75,9 @@ class NcaafSource(NflSource):
     def _registry_abbrev(self, api_abbrev: str) -> str:
         return REGISTRY_ABBREVS.get(api_abbrev, api_abbrev)
 
-    def _summary(self, abbrev: str, standings: dict[str, Any], schedule: dict[str, Any] | None, today: str) -> dict[str, Any]:
-        return team_summary(abbrev, standings, schedule, today)
+    def _summary(self, abbrev: str, standings: dict[str, Any], schedule: dict[str, Any] | None, today: str,
+                 tz: tzinfo | None) -> dict[str, Any]:
+        return team_summary(abbrev, standings, schedule, today, tz=tz)
 
     def _slate(self, games: list[dict[str, Any]], cfg: BaseModel) -> list[dict[str, Any]]:
         return slate(games, cfg)  # type: ignore[arg-type]

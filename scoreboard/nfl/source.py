@@ -6,7 +6,7 @@ The loops are written against class-level hooks (``sport``, ``teams``, the norma
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime
+from datetime import datetime, tzinfo
 from typing import Any, ClassVar, Literal
 from zoneinfo import ZoneInfo
 
@@ -47,14 +47,15 @@ class NflSource:
     def _api(self, ctx: SourceContext) -> NflApi:
         return NflApi(ctx.http)
 
-    def _scoreboard(self, payload: dict[str, Any]) -> list[dict[str, Any]]:
-        return normalize_scoreboard(payload)
+    def _scoreboard(self, payload: dict[str, Any], tz: tzinfo | None) -> list[dict[str, Any]]:
+        return normalize_scoreboard(payload, tz=tz)
 
     def _standings(self, payload: dict[str, Any]) -> dict[str, Any]:
         return normalize_standings(payload)
 
-    def _summary(self, abbrev: str, standings: dict[str, Any], schedule: dict[str, Any] | None, today: str) -> dict[str, Any]:
-        return team_summary(abbrev, standings, schedule, today)
+    def _summary(self, abbrev: str, standings: dict[str, Any], schedule: dict[str, Any] | None, today: str,
+                 tz: tzinfo | None) -> dict[str, Any]:
+        return team_summary(abbrev, standings, schedule, today, tz=tz)
 
     def _slate(self, games: list[dict[str, Any]], cfg: BaseModel) -> list[dict[str, Any]]:
         """The games worth showing on the ticker and dashboard (the main event is picked from all of them)."""
@@ -94,7 +95,7 @@ class NflSource:
                 continue
             main = None
             try:
-                games = self._scoreboard(await api.scoreboard())      # current week
+                games = self._scoreboard(await api.scoreboard(), _tz(ctx))      # current week
                 today = _today(ctx)
                 games = sorted(games, key=lambda g: g["start_time_utc"])
                 ctx.publish(_season(games, today, self.sport), subkey="season")
@@ -111,8 +112,7 @@ class NflSource:
                 ctx.publish_to(f"{self.sport}.main_event", main)
             except NflApiError as exc:
                 ctx.log.warning("%s score poll failed: %s", self.label, exc)
-            active = bool(main and main["phase"] in ("live", "intermission", "pregame") and main["date"] == _today(ctx))
-            await ctx.sleep(cfg.live_interval if active else cfg.idle_interval)
+            await ctx.sleep(cfg.live_interval if poll_active(main, _today(ctx)) else cfg.idle_interval)
 
     async def _standings_loop(self, ctx: SourceContext, api: NflApi) -> None:
         while True:
@@ -133,18 +133,36 @@ class NflSource:
                             schedule = await api.team_schedule(ids[abbrev])
                         except NflApiError as exc:
                             ctx.log.warning("%s schedule fetch failed for %s: %s", self.label, abbrev, exc)
-                    summaries[abbrev] = self._summary(abbrev, standings, schedule, _today(ctx))
+                    summaries[abbrev] = self._summary(abbrev, standings, schedule, _today(ctx), _tz(ctx))
                 ctx.publish(summaries, subkey="team_summary")
             except (NflApiError, KeyError, IndexError) as exc:
                 ctx.log.warning("%s standings poll failed: %s", self.label, exc)
             await asyncio.sleep(cfg.standings_interval)
 
 
-def _today(ctx: SourceContext) -> str:
+def poll_active(main: dict[str, Any] | None, today: str) -> bool:
+    """Poll at the live cadence while the favourite's game is in progress, or is today's and yet to start.
+
+    A game in progress counts whatever its date says: the score feed is the only thing keeping
+    the board current, and a date mismatch must never drop it to the idle cadence."""
+    if not main:
+        return False
+    if main["phase"] in ("live", "intermission"):
+        return True
+    return main["phase"] == "pregame" and main["date"] == today
+
+
+def _tz(ctx: SourceContext) -> tzinfo | None:
+    """The viewer's zone from the location config; None (UTC dates) when unset or unknown."""
     try:
-        return datetime.now(ZoneInfo(ctx.timezone)).date().isoformat() if ctx.timezone else datetime.now().astimezone().date().isoformat()
+        return ZoneInfo(ctx.timezone) if ctx.timezone else None
     except Exception:
-        return datetime.now().astimezone().date().isoformat()
+        return None
+
+
+def _today(ctx: SourceContext) -> str:
+    tz = _tz(ctx)
+    return (datetime.now(tz) if tz else datetime.now().astimezone()).date().isoformat()
 
 
 def _days(today: str, other: str) -> int:

@@ -9,6 +9,7 @@ conference per page; ``wildcard`` shows the divisions of the conferences that ha
 """
 from __future__ import annotations
 
+from datetime import tzinfo
 from typing import Any
 
 from ..nfl.normalize import normalize_game as _football_game
@@ -19,12 +20,12 @@ GAME_KW: dict[str, Any] = {"sport": "ncaaf", "teams": teams, "school_names": Tru
 CONF_RECORD_STATS = ("vsconf", "vs. conf.", "vsconference")
 
 
-def normalize_game(event: dict[str, Any]) -> dict[str, Any] | None:
-    return _football_game(event, **GAME_KW)
+def normalize_game(event: dict[str, Any], tz: tzinfo | None = None) -> dict[str, Any] | None:
+    return _football_game(event, **GAME_KW, tz=tz)
 
 
-def normalize_scoreboard(payload: dict[str, Any]) -> list[dict[str, Any]]:
-    games = [normalize_game(e) for e in payload.get("events") or []]
+def normalize_scoreboard(payload: dict[str, Any], tz: tzinfo | None = None) -> list[dict[str, Any]]:
+    games = [normalize_game(e, tz=tz) for e in payload.get("events") or []]
     return [g for g in games if g]
 
 
@@ -140,9 +141,10 @@ def _ordinal(day: str) -> int | None:
         return None
 
 
-def team_summary(abbrev: str, standings: dict[str, Any] | None, schedule: dict[str, Any] | None, today: str) -> dict[str, Any]:
+def team_summary(abbrev: str, standings: dict[str, Any] | None, schedule: dict[str, Any] | None, today: str,
+                 tz: tzinfo | None = None) -> dict[str, Any]:
     row = ((standings or {}).get("teams") or {}).get(abbrev) or {}
-    games = schedule_games(schedule, **GAME_KW)
+    games = schedule_games(schedule, **GAME_KW, tz=tz)
     prev, next_game = prev_and_next(games, today)
     return {
         "abbrev": abbrev, "sport": "ncaaf",

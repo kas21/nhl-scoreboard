@@ -11,6 +11,7 @@ from PIL import ImageChops
 from scoreboard.boards.base import BoardContext
 from scoreboard.data import Event, SnapshotStore
 from scoreboard.data.arbiter import MainEventArbiter, choose
+from scoreboard.data.source import SourceContext
 from scoreboard.nfl.boards.game import NflGameBoard, NflGameConfig
 from scoreboard.nfl.boards.others import (
     NflScoreBoard,
@@ -24,8 +25,10 @@ from scoreboard.nfl.normalize import (
     normalize_game,
     normalize_scoreboard,
     normalize_standings,
+    schedule_games,
     team_summary,
 )
+from scoreboard.nfl.source import NflConfig, NflSource, poll_active
 from scoreboard.nhl.boards.standings import StandingsConfig
 from scoreboard.nhl.boards.team_summary import TeamSummaryConfig
 from scoreboard.nhl.boards.ticker import TickerConfig
@@ -165,6 +168,59 @@ def test_nfl_game_board_scrolls_the_last_play_along_the_bottom():
     strip = (12, 56, 116, 61)                                               # below the logos, so no sheen in the crop
     later = _nfl_frame(snap, NflGameConfig(), t=4.0)
     assert ImageChops.difference(with_play.crop(strip), later.crop(strip)).getbbox() is not None   # too wide: it marquees
+
+
+def test_game_date_is_the_local_calendar_day_when_a_timezone_is_given():
+    ev = load("espn_scoreboard.json")["events"][0]
+    ev["date"] = "2026-09-15T00:15Z"                                        # Monday night, 8:15 pm Eastern
+    assert normalize_game(ev)["date"] == "2026-09-15"                       # UTC by default (fixtures, goldens)
+    assert normalize_game(ev, tz=ZoneInfo("America/New_York"))["date"] == "2026-09-14"
+    assert schedule_games({"events": [ev]}, tz=ZoneInfo("America/New_York"))[0]["date"] == "2026-09-14"
+    summary = team_summary("HOU", None, {"events": [ev]}, "2026-09-14", tz=ZoneInfo("America/New_York"))
+    assert summary["prev_game"]["date"] == "2026-09-14"                   # the fixture game is final
+
+
+def test_poll_cadence_is_live_for_a_game_in_progress_or_a_pregame_today():
+    assert poll_active({"phase": "live", "date": "2026-09-15"}, "2026-09-14")          # in progress: the date can't demote it
+    assert poll_active({"phase": "intermission", "date": "2026-09-15"}, "2026-09-14")
+    assert poll_active({"phase": "pregame", "date": "2026-09-14"}, "2026-09-14")
+    assert not poll_active({"phase": "pregame", "date": "2026-09-15"}, "2026-09-14")
+    assert not poll_active({"phase": "postgame", "date": "2026-09-14"}, "2026-09-14")
+    assert not poll_active(None, "2026-09-14")
+
+
+class _StopLoop(Exception):
+    pass
+
+
+@pytest.mark.asyncio
+async def test_scores_loop_polls_a_night_game_at_the_live_interval(monkeypatch):
+    """A 00:15Z kickoff is the evening of the local day: the loop must sleep the live interval, not the idle one."""
+    from scoreboard.nfl import source as nfl_source
+    payload = load("espn_scoreboard.json")
+    ev = payload["events"][0]
+    ev["date"] = ev["competitions"][0]["date"] = "2026-09-15T00:15Z"
+    ev["competitions"][0]["status"] = {"period": 0, "displayClock": "0:00", "type": {"state": "pre", "name": "STATUS_SCHEDULED"}}
+    monkeypatch.setattr(nfl_source, "_today", lambda ctx: "2026-09-14")
+    slept: list[float] = []
+
+    async def stop_after_recording(seconds: float, **_: object) -> None:
+        slept.append(seconds)
+        raise _StopLoop
+
+    async with httpx.AsyncClient() as http, respx.mock(assert_all_called=False) as mock:
+        mock.get(url__regex=r".*/nfl/scoreboard.*").mock(return_value=httpx.Response(200, json=payload))
+        cfg = NflConfig(favorites=["HOU"], live_interval=20, idle_interval=300)
+        store = SnapshotStore()
+        ctx = SourceContext(key="nfl", store=store, config_getter=lambda: cfg, http=http)
+        ctx.timezone = "America/New_York"
+        ctx.sleep = stop_after_recording
+        src = NflSource()
+        with pytest.raises(_StopLoop):
+            await src._scores_loop(ctx, src._api(ctx))
+        main = store.get().get("nfl.main_event")
+    assert main["id"] == ev["id"] and main["date"] == "2026-09-14"
+    assert slept == [20]
 
 
 @pytest.mark.asyncio

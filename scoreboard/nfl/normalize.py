@@ -8,7 +8,7 @@ ticker says ALABAMA rather than CRIMSON TIDE.
 """
 from __future__ import annotations
 
-from datetime import UTC
+from datetime import UTC, tzinfo
 from types import ModuleType
 from typing import Any
 
@@ -65,7 +65,9 @@ def period_label(period: int, state: str, status_name: str) -> str:
 
 
 def normalize_game(event: dict[str, Any], *, sport: str = "nfl", teams: ModuleType = nfl_teams,
-                   school_names: bool = False) -> dict[str, Any] | None:
+                   school_names: bool = False, tz: tzinfo | None = None) -> dict[str, Any] | None:
+    """``tz`` is the viewer's zone: a game's ``date`` is its calendar day *there*, so a Monday-night
+    kickoff at 00:15Z still counts as Monday. Without it the date is the UTC day (fixtures, goldens)."""
     comps = event.get("competitions") or []
     if not comps:
         return None
@@ -87,7 +89,7 @@ def normalize_game(event: dict[str, Any], *, sport: str = "nfl", teams: ModuleTy
     possession = "away" if poss_id and poss_id == a["id"] else "home" if poss_id and poss_id == h["id"] else None
     start = event.get("date", "")
     started = parse_iso(start)
-    local_date = started.astimezone(UTC).date().isoformat() if started is not None else ""
+    local_date = started.astimezone(tz or UTC).date().isoformat() if started is not None else ""
     outcome = ""
     if state == "post":
         outcome = "FINAL/OT" if period > 4 else "FINAL"
@@ -197,9 +199,10 @@ def prev_and_next(games: list[dict[str, Any]], today: str) -> tuple[dict[str, An
     return prev, next_game
 
 
-def team_summary(abbrev: str, standings: dict[str, Any] | None, schedule: dict[str, Any] | None, today: str) -> dict[str, Any]:
+def team_summary(abbrev: str, standings: dict[str, Any] | None, schedule: dict[str, Any] | None, today: str,
+                 tz: tzinfo | None = None) -> dict[str, Any]:
     row = ((standings or {}).get("teams") or {}).get(abbrev) or {}
-    prev, next_game = prev_and_next(schedule_games(schedule), today)
+    prev, next_game = prev_and_next(schedule_games(schedule, tz=tz), today)
     bye = (schedule or {}).get("byeWeek")
     return {
         "abbrev": abbrev, "sport": "nfl",
