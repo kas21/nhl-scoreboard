@@ -16,7 +16,7 @@ from scoreboard.data import Event, SnapshotStore
 from scoreboard.data.arbiter import choose
 from scoreboard.data.source import SourceContext
 from scoreboard.mlb import teams as mlb_teams
-from scoreboard.mlb.api import BASE_URL, FEED_URL
+from scoreboard.mlb.api import BASE_URL, FEED_URL, MlbApi
 from scoreboard.mlb.boards.game import MlbGameBoard, MlbGameConfig, bases_image
 from scoreboard.mlb.boards.others import (
     MlbScoreBoard,
@@ -35,7 +35,7 @@ from scoreboard.mlb.normalize import (
     season_info,
     team_summary,
 )
-from scoreboard.mlb.source import MlbConfig, MlbSource, _slate
+from scoreboard.mlb.source import MlbConfig, MlbSource, _poll_active, _slate
 from scoreboard.nhl.boards.standings import StandingsConfig
 from scoreboard.nhl.boards.team_summary import TeamSummaryConfig
 from scoreboard.nhl.boards.ticker import TickerConfig
@@ -187,6 +187,11 @@ def test_slate_and_main_event_selection():
     tomorrow = [{**g, "date": "2026-09-04"} for g in games[:2]] + [{**g, "date": "2026-09-05"} for g in games[2:]]
     assert {g["date"] for g in _slate(tomorrow, TODAY)} == {"2026-09-04"}
     assert _slate(games, "2026-09-09") == []
+    yesterday = [{**g, "date": "2026-09-02"} for g in games]            # local midnight passed mid-game
+    live_ids = [g["id"] for g in games if g["state"] == "LIVE"]
+    assert [g["id"] for g in _slate(yesterday, TODAY)] == live_ids        # the live ones stay, finals and futures go
+    assert [g["id"] for g in _slate(yesterday + games[:2], TODAY)] == [*live_ids, *(g["id"] for g in games[:2])]
+    assert _slate([{**g, "date": "2026-09-01"} for g in games], TODAY) == []   # only yesterday's carry over
     main = select_main_event(games, ["LAD", "NYY"], today=TODAY)
     assert main["id"] == "776002"                                       # the live favourite wins
     assert select_main_event(games, ["NYY", "LAD"], today=TODAY)["id"] == "776002"   # live beats a favourite's final
@@ -370,7 +375,7 @@ async def test_source_publishes_everything(monkeypatch):
             return httpx.Response(200, json=load("schedule_NYY_2026-08-24_2026-09-17.json"))
         if params.get("teamId"):
             return httpx.Response(200, json={"dates": []})
-        assert params["startDate"] == TODAY and params["endDate"] == "2026-09-04" and "linescore" in params["hydrate"]
+        assert params["startDate"] == "2026-09-02" and params["endDate"] == "2026-09-04" and "linescore" in params["hydrate"]   # from yesterday: a game past local midnight is still live
         return httpx.Response(200, json=load("schedule_2026-09-03.json"))
 
     async with httpx.AsyncClient() as http, respx.mock() as mock:
@@ -396,6 +401,47 @@ async def test_source_publishes_everything(monkeypatch):
     assert set(snap.get("mlb.team_summary")) == {"LAD", "NYY"} and snap.get("mlb.team_summary")["NYY"]["next_game"]["opponent"] == "TOR"
     assert snap.get("mlb.season")["phase"] == "regular" and snap.get("mlb.season")["favorite"] == "LAD"
     assert any(p.get("teamId") == "119" for p in seen["schedule"])          # favourite schedules by Stats API id
+
+
+def test_poll_cadence_stays_live_after_local_midnight():
+    assert _poll_active({"state": "LIVE", "date": "2026-09-02"}, TODAY)      # extra innings past midnight
+    assert _poll_active({"state": "PRE", "date": TODAY}, TODAY)
+    assert not _poll_active({"state": "PRE", "date": "2026-09-04"}, TODAY)
+    assert not _poll_active({"state": "FUT", "date": TODAY}, TODAY)
+    assert not _poll_active({"state": "FINAL", "date": TODAY}, TODAY)
+    assert not _poll_active(None, TODAY)
+
+
+class _StopLoop(Exception):
+    pass
+
+
+@pytest.mark.asyncio
+async def test_live_game_from_yesterday_keeps_the_board_and_the_live_cadence(monkeypatch):
+    """After local midnight the favourite's game carries yesterday's official date; it must stay the main event."""
+    import scoreboard.mlb.source as src
+    monkeypatch.setattr(src, "_today", lambda ctx: "2026-09-04")
+    slept: list[float] = []
+
+    async def stop_after_recording(seconds: float, **_: object) -> None:
+        slept.append(seconds)
+        raise _StopLoop
+
+    async with httpx.AsyncClient() as http, respx.mock(assert_all_called=False) as mock:
+        mock.get(f"{BASE_URL}/schedule").mock(return_value=httpx.Response(200, json=load("schedule_2026-09-03.json")))
+        mock.get(f"{FEED_URL}/game/776002/feed/live").mock(return_value=httpx.Response(200, json=load("feed_live_776002.json")))
+        cfg = MlbConfig(favorites=["LAD"], live_interval=10, idle_interval=60)
+        store = SnapshotStore()
+        ctx = SourceContext("mlb", store, lambda: cfg, http)
+        ctx.sleep = stop_after_recording
+        with pytest.raises(_StopLoop):
+            await MlbSource()._scores_loop(ctx, MlbApi(ctx.http))
+        snap = store.get()
+    assert snap.get("mlb.main_event")["id"] == "776002" and snap.get("mlb.main_event")["date"] == "2026-09-03"
+    live_ids = {g["id"] for g in normalize_schedule(load("schedule_2026-09-03.json")) if g["state"] == "LIVE"}
+    assert {g["id"] for g in snap.get("mlb.scores")} == live_ids
+    assert {g["id"] for g in snap.get("mlb.schedule")} == live_ids
+    assert slept == [10]
 
 
 @pytest.mark.asyncio

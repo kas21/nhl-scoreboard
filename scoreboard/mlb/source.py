@@ -63,8 +63,9 @@ class MlbSource:
             main: dict[str, Any] | None = None
             try:
                 today = _today(ctx)
+                start = (date.fromisoformat(today) - timedelta(days=1)).isoformat()    # a game past local midnight keeps yesterday's official date
                 end = (date.fromisoformat(today) + timedelta(days=cfg.show_games_within_days)).isoformat()
-                games = normalize_schedule(await api.schedule(today, end))
+                games = normalize_schedule(await api.schedule(start, end))
                 if not cfg.follow_spring_training:
                     games = [g for g in games if g["game_type"] != "S"]
                 ctx.publish(_schedule_window(games, today, cfg), subkey="schedule")
@@ -78,8 +79,7 @@ class MlbSource:
             except MlbApiError as exc:
                 ctx.log.warning("MLB score poll failed: %s", exc)
                 main = ctx.snapshot().get("mlb.main_event") or None
-            active = bool(main and main["state"] in ACTIVE_STATES and main["date"] == _today(ctx))
-            await ctx.sleep(cfg.live_interval if active else cfg.idle_interval)
+            await ctx.sleep(cfg.live_interval if _poll_active(main, _today(ctx)) else cfg.idle_interval)
 
     async def _enrich(self, ctx: SourceContext, api: MlbApi, main: dict[str, Any]) -> dict[str, Any]:
         """Last play / pitch / no-hitter flags / decisions come only from the live feed."""
@@ -164,17 +164,33 @@ def _schedule_window(games: list[dict[str, Any]], today: str, cfg: MlbConfig) ->
     On an off day this is empty either way; the dashboard also merges ``scores``, which
     then holds the next slate, so the next day's games still show.
     """
-    keep = [g for g in games if g["date"] == today] if cfg.schedule_today_only else games
+    keep = [g for g in games if _is_todays(g, today)] if cfg.schedule_today_only else [g for g in games if g["date"] >= today or _is_todays(g, today)]
     return sorted(keep, key=lambda g: (g["date"], g["start_time_utc"]))
 
 
+def _is_todays(g: dict[str, Any], today: str) -> bool:
+    """Dated today, or yesterday's game still being played past local midnight."""
+    if g["date"] == today:
+        return True
+    return g["state"] == "LIVE" and g["date"] == (date.fromisoformat(today) - timedelta(days=1)).isoformat()
+
+
 def _slate(games: list[dict[str, Any]], today: str) -> list[dict[str, Any]]:
-    """Today's games; on an off day, the nearest upcoming day's games (within the fetched window)."""
-    todays = [g for g in games if g["date"] == today]
+    """Today's games (plus any still in progress from yesterday); on an off day, the nearest upcoming day's."""
+    todays = [g for g in games if _is_todays(g, today)]
     if todays:
         return todays
     nearest = min((g["date"] for g in games if g["date"] > today), default=None)
     return [g for g in games if g["date"] == nearest] if nearest else []
+
+
+def _poll_active(main: dict[str, Any] | None, today: str) -> bool:
+    """Live cadence while the favourite's game is in progress (whatever its official date says) or warming up today."""
+    if not main:
+        return False
+    if main["state"] == "LIVE":
+        return True
+    return main["state"] in ACTIVE_STATES and main["date"] == today
 
 
 def _today(ctx: SourceContext) -> str:
