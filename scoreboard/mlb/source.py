@@ -10,6 +10,7 @@ from zoneinfo import ZoneInfo
 from pydantic import BaseModel, ConfigDict, Field
 
 from ..config.models import ADVANCED
+from ..data.gameday import carry_last_night, is_last_nights
 from ..data.source import SourceContext
 from ..logos import watch as watch_logos
 from ..nhl.select import favorite_side, select_main_event
@@ -69,7 +70,7 @@ class MlbSource:
                 if not cfg.follow_spring_training:
                     games = [g for g in games if g["game_type"] != "S"]
                 ctx.publish(_schedule_window(games, today, cfg), subkey="schedule")
-                games = _slate(games, today)
+                games = _slate(games, today, carry_last_night(ctx))
                 main = select_main_event(games, cfg.favorites, today=today)
                 if main and main["state"] == "LIVE":
                     main = await self._enrich(ctx, api, main)
@@ -175,13 +176,17 @@ def _is_todays(g: dict[str, Any], today: str) -> bool:
     return g["state"] == "LIVE" and g["date"] == (date.fromisoformat(today) - timedelta(days=1)).isoformat()
 
 
-def _slate(games: list[dict[str, Any]], today: str) -> list[dict[str, Any]]:
-    """Today's games (plus any still in progress from yesterday); on an off day, the nearest upcoming day's."""
+def _slate(games: list[dict[str, Any]], today: str, carry_last_night: bool = False) -> list[dict[str, Any]]:
+    """Today's games (plus any still in progress from yesterday); on an off day, the nearest upcoming day's.
+
+    Before the game-day rollover hour (``carry_last_night``) last night's results lead the list either way.
+    """
+    carried = [g for g in games if carry_last_night and is_last_nights(g, today) and not _is_todays(g, today)]
     todays = [g for g in games if _is_todays(g, today)]
     if todays:
-        return todays
+        return [*carried, *todays]
     nearest = min((g["date"] for g in games if g["date"] > today), default=None)
-    return [g for g in games if g["date"] == nearest] if nearest else []
+    return [*carried, *(g for g in games if g["date"] == nearest)] if nearest else carried
 
 
 def _poll_active(main: dict[str, Any] | None, today: str) -> bool:

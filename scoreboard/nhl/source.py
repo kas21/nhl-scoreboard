@@ -18,6 +18,7 @@ from typing import Any, ClassVar
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from ..config.models import ADVANCED
+from ..data.gameday import carry_last_night, is_last_nights, yesterday
 from ..data.source import SourceContext
 from ..logos import watch as watch_logos
 from .api import NhlApi, NhlApiError
@@ -101,12 +102,13 @@ class NhlSource:
                 _report(ctx, check_score_payload(payload))
                 records = records_from_standings(ctx.snapshot().get("nhl.standings"))
                 games = _normalize_games(ctx, payload.get("games") or [], records)
-                if not cfg.follow_preseason:
-                    games = [g for g in games if g["type"] != 1]
+                games = _followed(games, cfg)
                 today = _local_today(ctx)
                 slate_date = payload.get("currentDate") or (games[0]["date"] if games else today)
                 if _days_between(today, slate_date) > cfg.show_games_within_days:
                     games = []                                   # too far out to be "tonight's games"
+                if carry_last_night(ctx):
+                    games = await self._with_last_night(ctx, api, cfg, games, slate_date, today, records)
                 main = select_main_event(games, cfg.favorites, today=today)
                 if main and main["state"] in ACTIVE_STATES:
                     main = await self._enrich(ctx, api, main, records)
@@ -123,6 +125,26 @@ class NhlSource:
                 main = (ctx.snapshot().get("main_event") or None)      # keep polling cadence of last known state
             active = bool(main and main["state"] in ACTIVE_STATES)
             await ctx.sleep(cfg.live_interval if active else cfg.idle_interval)
+
+    async def _with_last_night(self, ctx: SourceContext, api: NhlApi, cfg: NhlConfig, games: list[dict[str, Any]],
+                               slate_date: str, today: str, records: dict[str, str]) -> list[dict[str, Any]]:
+        """Before the game-day rollover hour the ticker shows last night's results ahead of today's games.
+
+        ``/score/now`` covers one league day and turns on the league's own schedule, so whichever of
+        the two days it left out is fetched by date. The main event is still picked by today's date,
+        so a carried-over final never brings the postgame board back.
+        """
+        last = yesterday(today)
+        missing = today if slate_date == last else last
+        try:
+            payload = await api.score(missing)
+        except NhlApiError as exc:
+            ctx.log.debug("score fetch for %s failed, ticker shows the league day only: %s", missing, exc)
+            return games
+        extra = _followed([g for g in _normalize_games(ctx, payload.get("games") or [], records) if g["date"] == missing], cfg)
+        if missing == today:                                     # the league is still on last night: keep its results, add today
+            return [*(g for g in games if is_last_nights(g, today)), *extra]
+        return [*(g for g in extra if is_last_nights(g, today)), *games]
 
     async def _enrich(self, ctx: SourceContext, api: NhlApi, main: dict[str, Any], records: dict[str, str]) -> dict[str, Any]:
         """Add situation (power play / pulled goalie) and penalties from the landing feed."""
@@ -194,6 +216,10 @@ class NhlSource:
 def _report(ctx: SourceContext, notes: list[str]) -> None:
     for note in notes:
         ctx.drift(note)
+
+
+def _followed(games: list[dict[str, Any]], cfg: NhlConfig) -> list[dict[str, Any]]:
+    return games if cfg.follow_preseason else [g for g in games if g["type"] != 1]
 
 
 def _normalize_games(ctx: SourceContext, raws: list[dict[str, Any]], records: dict[str, str]) -> list[dict[str, Any]]:

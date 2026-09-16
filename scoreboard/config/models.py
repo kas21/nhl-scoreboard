@@ -168,6 +168,7 @@ class LogosConfig(FrozenModel):
 
 class SportsConfig(FrozenModel):
     priority: list[Literal["nhl", "nfl", "ncaaf", "mlb"]] = Field(["nhl", "nfl", "ncaaf", "mlb"], description="When two sports have a game, which wins the screen (live games always win)")
+    game_day_rollover_hour: int = Field(10, ge=0, le=12, description="Keep last night's finals in the ticker until this hour of the morning (local time); 0 = they leave at midnight. Today's games always show as soon as the date turns")
 
 
 class WebConfig(FrozenModel):

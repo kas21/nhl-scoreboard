@@ -65,7 +65,9 @@ nothing needs a restart.
   move on. Standings and team summary only know their length after they have run once (`auto · length not
   known yet` until then).
 - **Settings** — every option, grouped: Display, Location, Brightness (fixed / sunrise-sunset / hours),
-  Transition between boards, Sports priority, per-board settings, per-data-source settings.
+  Transition between boards, Sports (priority, and the game-day rollover hour: last night's finals stay in the
+  ticker until then — today's games show as soon as the date turns, and the postgame board still leaves at
+  midnight), per-board settings, per-data-source settings.
 - **Simulator** — run a game by hand to see what the panel does: pick two teams, drop the puck, start and stop
   the clock, score (with or without naming the scorer), call penalties, pull a goalie, end periods. The panel
   follows it exactly as it would a real game — the live board, the goal and penalty alerts, the ticker, the
@@ -88,7 +90,7 @@ nothing needs a restart.
 | NHL game / NFL game / College football game / MLB game | your team's game: pregame matchup, live score with period/clock, PP / empty net (NHL) or possession, down & distance, spot of the ball, a scrolling last play, red zone, timeouts (NFL and college, which also puts the poll rank in front of a ranked team's record) or inning + half, bases, count, outs, pitcher / batter, due up, last pitch (MLB), final (with hits and W/L/S pitchers for MLB) | a favourite with a game today |
 | Goal / Touchdown / Home run | full-screen celebration + scorer card (NHL); runs that are not homers get a short card (MLB, off for the other team by default) | live game |
 | Penalty | referee animation + details card | live game |
-| Ticker | every game on today's slate (college: the games the source's `slate` setting keeps — ranked teams by default, or your conferences, or all sixty-odd; your favourites' games always) | slate within `show_games_within_days` |
+| Ticker | every game on today's slate, led by last night's finals until the game-day rollover hour (college: the games the source's `slate` setting keeps — ranked teams by default, or your conferences, or all sixty-odd; your favourites' games always) | slate within `show_games_within_days` |
 | Standings | division / wildcard / league (GB column for MLB; college shows one conference per page with a CONF record column, your favourites' conferences only unless you turn `favorite_conferences_only` off, and `wildcard` means the divisions of conferences that still have them); "FINAL yyyy-yy" banner in the off-season | — |
 | Team summary | record, streak, last result, next game (college: rank, conference record and place) | favourites |
 | Season countdown | days until your team's opener / preseason (spring training) / kickoff / opening day | off-season & preseason |

@@ -58,8 +58,9 @@ can be exercised offline.
 A source is a class with `key`, `config_model` and `async run(ctx)`. `SourceContext` is everything it may
 touch: `ctx.http` (a shared `httpx.AsyncClient`, wrapped so each request's outcome and latency are
 attributed to the source), `ctx.config` (its section of the config, re-validated on every read so UI edits
-apply on the next loop and an invalid section falls back to defaults), `ctx.timezone` and `ctx.location`
-(kept current by a config listener), `ctx.publish(value, subkey)` → `<key>.<subkey>`, `ctx.publish_to(key,
+apply on the next loop and an invalid section falls back to defaults), `ctx.timezone`, `ctx.location` and
+`ctx.game_day_rollover_hour` (kept current by a config listener; `data/gameday.py` turns the last into
+"carry last night's finals" for the NHL and MLB slates), `ctx.publish(value, subkey)` → `<key>.<subkey>`, `ctx.publish_to(key,
 value)` for shared keys such as `main_event` and `system`, `ctx.sleep(seconds)` (records the next poll for
 the diagnostics page), `ctx.snapshot()` and `ctx.drift(note)` — the feed no longer looks the way the source
 expects (an unknown enum value, a missing field, a team the registry has never heard of). A forgiving

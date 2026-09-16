@@ -38,6 +38,7 @@ class SourceContext:
         self.http: httpx.AsyncClient = TrackedHttp(http, health, key) if health is not None else http  # type: ignore[assignment]
         self.timezone: str | None = None            # IANA name, set by the app from location config
         self.location: tuple[float, float] | None = None   # (lat, lon) from location config, if set
+        self.game_day_rollover_hour: int = 0        # sports.game_day_rollover_hour, set by the app (0 here keeps a bare context on the calendar day)
         self.log = logging.getLogger(f"source.{key}")
         self._drift_seen: set[str] = set()
 

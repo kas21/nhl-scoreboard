@@ -182,11 +182,12 @@ class Application:
                 log.warning("invalid config for source %s, using defaults", key)
                 return source.config_model()
         ctx = SourceContext(key, self.snapshots, cfg_getter, http, health=self.health)
-        def apply_location(c) -> None:
+        def apply_shared(c) -> None:
             ctx.timezone = c.location.timezone
             ctx.location = (c.location.latitude, c.location.longitude) if c.location.latitude is not None and c.location.longitude is not None else None
-        apply_location(self.config.get())
-        self.config.subscribe(apply_location)
+            ctx.game_day_rollover_hour = c.sports.game_day_rollover_hour
+        apply_shared(self.config.get())
+        self.config.subscribe(apply_shared)
         return ctx
 
     def run(self) -> None:
