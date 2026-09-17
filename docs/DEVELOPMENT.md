@@ -36,6 +36,9 @@ snapshot it is rendered from, which doubles as a catalogue.
   `SCOREBOARD_UPDATE_GOLDENS=1 uv run pytest tests/test_golden.py` and commit the PNGs with the change.
   New boards must be added to `tests/golden_scenes.py` (a guard test says so). `uv run python tools/golden_sheet.py`
   tiles the goldens into one gallery; readability at 1:1 on LEDs still differs from the emulator, so check there too.
+  The PNGs are pinned on macOS: FreeType in the Linux Pillow wheel rasterises TrueType slightly differently (every
+  board with a TTF score or clock), so CI runs the golden suite as information only and keeps the diff sheets as an
+  artifact; lint and the rest of the suite are the gate.
 - Every change: tests + ruff must pass; commit with `type: message`; push to `main`. CI (`.github/workflows/ci.yml`) runs
   the same two on every push and pull request; the Pi only ever updates from `main`, so a red run is the gate.
 - Deploy to the Pi: push, then Dashboard → *Update & restart* (or `POST /api/system/update`

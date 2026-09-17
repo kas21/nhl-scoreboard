@@ -109,4 +109,5 @@ docs/               OVERVIEW (start here), USER_GUIDE, HARDWARE, ARCHITECTURE, D
 - Any change to how a board looks fails `tests/test_golden.py` by design. Check the diff sheet, then regenerate
   the goldens and commit the PNGs alongside the code; never loosen the comparison.
 - Lint gate: `ruff check` must pass before commit (commit chains use `&&`; don't pipe through tail). CI runs the
-  same lint + suite on every push (`.github/workflows/ci.yml`); the weekly live NHL contract is a second workflow.
+  same lint + suite on every push (`.github/workflows/ci.yml`; the goldens are informational there, being pinned on
+  macOS FreeType); the weekly live NHL contract is a second workflow.
