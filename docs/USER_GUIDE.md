@@ -97,15 +97,26 @@ nothing needs a restart.
   its registry); open the row to read the notes. The panel keeps drawing its best guess meanwhile, so a
   growing count on a game night is worth a look even when nothing errors.
 
+## When a change takes effect
+Everything saved on the Settings and Boards pages applies without a restart, but not all at the same moment:
+- **Playlists** (order, enabling an entry, its seconds): the board on screen finishes its slot, then the new list is used.
+- **Board settings**: the next frame.
+- **A source's settings** (favourites, intervals, the slate): its next poll, which is brought forward to *now* by the
+  save — the source stops waiting out its old interval.
+- **Turning a source off** (`enabled`): at once. Its background fetching stops and everything it had published is
+  withdrawn, so its boards leave the rotation, its game stops being a candidate for the panel and the dashboard forgets it.
+  Turning it back on starts it fresh; the diagnostics page shows an off source as *Off* rather than starting or crashed.
+- **Display driver options** and **follower mode**: the next restart (the Setup wizard has the button).
+
 ## Boards
 | Board | Shows | Needs |
 |---|---|---|
-| NHL game / NFL game / College football game / MLB game | your team's game: pregame matchup, live score with period/clock, PP / empty net (NHL) or possession, down & distance, spot of the ball, a scrolling last play, red zone, timeouts (NFL and college, which also puts the poll rank in front of a ranked team's record) or inning + half, bases, count, outs, pitcher / batter, due up, last pitch (MLB), final (with hits and W/L/S pitchers for MLB) | a favourite with a game today |
-| Goal / Touchdown / Home run | full-screen celebration + scorer card (NHL; the other team's goals get the card, then WHO CARES?!); runs that are not homers get a short card (MLB, off for the other team by default) | live game |
-| Penalty | referee animation + details card | live game |
-| Ticker | every game on today's slate, led by last night's finals until the game-day rollover hour (college: the games the source's `slate` setting keeps — ranked teams by default, or your conferences, or all sixty-odd; your favourites' games always) | slate within `show_games_within_days` |
-| Standings | division / wildcard / league (GB column for MLB; college shows one conference per page with a CONF record column, your favourites' conferences only unless you turn `favorite_conferences_only` off, and `wildcard` means the divisions of conferences that still have them); "FINAL yyyy-yy" banner in the off-season | — |
-| Team summary | record, streak, last result, next game (college: rank, conference record and place) | favourites |
+| NHL game / NFL game / College football game / MLB game / College hockey game / AHL game | your team's game: pregame matchup, live score with period/clock, PP / empty net (NHL and AHL; the AHL's power play is worked out from the penalty log) or possession, down & distance, spot of the ball, a scrolling last play, red zone, timeouts (NFL and the college leagues, which also put the poll rank in front of a ranked team's record) or inning + half, bases, count, outs, pitcher / batter, due up, last pitch (MLB), final (with hits and W/L/S pitchers for MLB) | a favourite with a game today |
+| Goal / Touchdown / Home run | full-screen celebration + scorer card (NHL and AHL; college hockey has no scorer feed, so just the celebration; the other team's goals get the card, then WHO CARES?!); runs that are not homers get a short card (MLB, off for the other team by default) | live game |
+| Penalty | referee animation + details card (NHL, AHL) | live game |
+| Ticker | every game on today's slate, led by last night's finals until the game-day rollover hour (the college leagues: the games the source's `slate` setting keeps — ranked teams by default, or your conferences, or all; your favourites' games always) | slate within `show_games_within_days` |
+| Standings | division / wildcard / league (GB column for MLB; college shows one conference per page with a CONF record column, your favourites' conferences only unless you turn `favorite_conferences_only` off, and `wildcard` means the divisions of conferences that still have them; the AHL's `wildcard` view is each conference's two divisions); "FINAL yyyy-yy" banner in the off-season. There is no college hockey standings board: ESPN publishes none | — |
+| Team summary | record, streak, last result, next game (college football: rank, conference record and place; college hockey: W-L-T counted from the school's schedule, rank, conference) | favourites |
 | Season countdown | days until your team's opener / preseason (spring training) / kickoff / opening day | off-season & preseason |
 | Weather alerts | the watches, warnings and advisories in force at your location (red / orange / yellow bar, the hazard, until when, where, and the agency's description paged underneath on 128x64); only appears while one is in force | location (US via the National Weather Service, Canada via Environment Canada) |
 | Clock, Weather, Holiday countdown, Flights nearby / overhead | — | location for weather & flights |

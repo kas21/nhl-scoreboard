@@ -5,6 +5,7 @@ Start with [OVERVIEW.md](OVERVIEW.md) if you have not read it: this page is the 
 ```
  sources (asyncio tasks)          store              director (render thread, 30 fps)          output
  nhl / nfl / ncaaf / mlb  ──▶  Snapshot (immutable, ──▶  state ← main_event/season          ──▶ matrix
+ ncaah / ahl                    versioned dict)
  holidays / flights / weather   versioned dict)          playlist cursor, transitions,           preview ws
         │                           │                    event interrupts, brightness
         │                     EventBus: detectors(prev,new) ─▶ events queue ─▶ event boards
@@ -20,7 +21,11 @@ Start with [OVERVIEW.md](OVERVIEW.md) if you have not read it: this page is the 
    `ctx.publish()`es JSON-shaped dicts. A slow API never stalls the screen; the render thread reads the
    latest snapshot lock-free. Every request through `ctx.http`, every `ctx.publish()` and every crash/restart
    is recorded in `SourceHealth` (`data/health.py`) and shown on the dashboard/diagnostics pages — plugins get
-   this for free; use `await ctx.sleep(s)` instead of `asyncio.sleep` so the UI can show the next poll time.
+   this for free; use `await ctx.sleep(s)` instead of `asyncio.sleep` so the UI can show the next poll time
+   and a settings change can cut the nap short. `SourceSupervisor` (`data/source.py`) owns the tasks: a source
+   with an `enabled` setting runs only while it is on; switching it off cancels the task and *retracts* every key it
+   published (`SnapshotStore.retract` publishes `None` to each, so boards, arbiter, followers and MQTT all see it go),
+   switching it on starts it again — no restart either way.
 3. **Schema is the UI.** All settings are pydantic models; `/api/schema` drives the forms.
 4. **Shared state is swapped, never mutated.** Snapshots, config models, source stats and the director's
    board-config cache are frozen objects replaced whole, so a reader on another thread sees either the old
@@ -98,7 +103,7 @@ through a `SourceContext` carries the source's key as its owner. Only the simula
 Two listeners are wired at startup:
 
 - **`EventBus.on_snapshot`** runs every registered detector on `(prev, new)` and appends what they return
-  to a queue. Detectors are pure diffs (`nhl/events.py`, `nfl/events.py`, `mlb/events.py`,
+  to a queue. Detectors are pure diffs (`nhl/events.py`, `nfl/events.py`, `mlb/events.py`, `ncaah/` and `ahl/` reuse the NHL rule,
   `extras/flights`, `extras/weather/alerts`) and run outside the lock so a slow plugin cannot stall a
   publish. The director drains the queue once per frame; a drain collapses bursts to the latest event per
   `(kind, team)`, so a restart mid-game plays one goal, not nine.

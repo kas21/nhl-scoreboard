@@ -86,7 +86,7 @@ function Updater() {
   </div>`;
 }
 
-const STATUS_LABEL = { ok: 'OK', starting: 'Starting', degraded: 'Degraded', offline: 'Offline', crashed: 'Crashed', stopped: 'Stopped' };
+const STATUS_LABEL = { ok: 'OK', starting: 'Starting', degraded: 'Degraded', offline: 'Offline', crashed: 'Crashed', stopped: 'Stopped', disabled: 'Off' };
 const fmtAgo = (s) => s == null ? '—' : s < 60 ? `${Math.round(s)}s ago` : s < 3600 ? `${Math.round(s / 60)}m ago` : `${(s / 3600).toFixed(1)}h ago`;
 const fmtIn = (s) => s == null ? '—' : s <= 0 ? 'now' : s < 60 ? `in ${Math.round(s)}s` : `in ${Math.round(s / 60)}m`;
 const fmtMs = (ms) => ms == null ? '—' : ms < 1000 ? `${Math.round(ms)} ms` : `${(ms / 1000).toFixed(1)} s`;

@@ -22,7 +22,10 @@ class MySource:
             await asyncio.sleep(cfg.refresh_seconds)
 ```
 `ctx.timezone` (IANA) and `ctx.location` ((lat, lon) or None) come from the app config.
-Sleep between polls with `await ctx.sleep(seconds)` (not `asyncio.sleep`): it records when you will fetch next.
+Sleep between polls with `await ctx.sleep(seconds)` (not `asyncio.sleep`): it records when you will fetch next, and a
+save of your settings ends the nap early so the new values reach the next poll. Give the model an `enabled: bool = True`
+and the app runs your source only while it is on — turned off, its task is cancelled and every key it published is
+withdrawn (set to `None`), turned on again it starts fresh; you write nothing for either.
 Requests made through `ctx.http`, calls to `ctx.publish()` and crashes are counted per source automatically and
 shown under *Data sources* on the dashboard and diagnostics pages (`GET /api/sources`): status
 (starting / ok / degraded / offline after 3 consecutive failed requests / crashed), last OK, next poll, latency,
@@ -74,7 +77,11 @@ apply to that sport, and reuse `nhl.select.select_main_event` / the NHL boards a
 (`nfl/` is the worked example: ~600 lines for a whole league; `ncaaf/` shows how little a sibling league on the
 same API costs — it subclasses the NFL source, client and boards and only owns its team registry, conference
 standings and the rank/slate touches; `mlb/` shows a sport whose live board needs
-its own centre column — override `_live` / `_live_stats_row` / `_indicators` on the NHL `GameBoard` and keep the rest).
+its own centre column — override `_live` / `_live_stats_row` / `_indicators` on the NHL `GameBoard` and keep the rest;
+`ncaah/` is a second hockey league on ESPN, and `ahl/` a hockey league on a feed of its own — both subclass the NHL boards
+directly, the goal/penalty boards included, through their `logo_image` / `team_colors` hooks, and share the NHL goal detector
+via `nhl.events.detect_goals(prev, new, sport)`). A league whose logos are not on ESPN's CDN hands the cache a URL per team
+with `logos.register_urls(sport, {ABBR: url})` before calling `logos.watch`.
 
 ## Simulation (optional: drive your boards from the browser)
 A simulation claims the snapshot keys your source publishes and writes values there on demand, so the
