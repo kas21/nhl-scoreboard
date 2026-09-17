@@ -78,3 +78,30 @@ def test_cap_keeps_the_regulars(tmp_path):
     stats = log.stats(DAY)
     assert stats["airframes"] == 3 and stats["regulars"][0]["hex"] == "reg"
     assert {r["hex"] for r in stats["regulars"]} == {"reg", "once4", "once3"}      # the most recent one-offs survive
+
+
+def test_a_poll_that_only_sees_the_same_aircraft_again_does_not_rewrite_the_file(tmp_path):
+    """The log was marked dirty on every poll with anything in range and rewritten every
+    minute: with a full log that is ~700 KB a minute, a gigabyte a day, to the SD card."""
+    path = tmp_path / "s.json"
+    log = SightingLog(path, save_interval=0)
+    log.record([ac("a1", "C-GABC")], T0, DAY)
+    written = path.stat().st_mtime_ns
+    for i in range(1, 20):                                            # the same flyover, poll after poll
+        log.record([ac("a1", "C-GABC")], T0 + 30 * i, DAY)
+    assert path.stat().st_mtime_ns == written and not log._dirty
+    log.record([ac("a1", "C-GABC", type="B738")], T0 + 600, DAY)       # a detail became known: worth keeping
+    assert path.stat().st_mtime_ns != written
+    written = path.stat().st_mtime_ns
+    log.record([ac("a1", "C-GABC", type="B738")], T0 + 3 * 3600, DAY)   # a new visit: worth keeping
+    assert path.stat().st_mtime_ns != written and log.stats(DAY)["sightings"] == 2
+    # A last_seen that was never written only matters across a crash; a clean stop flushes it.
+    log.record([ac("a1", "C-GABC", type="B738")], T0 + 3 * 3600 + 60, DAY)
+    log.flush()
+    assert json.loads(path.read_text())["airframes"]["a1"]["last_seen"] == T0 + 3 * 3600 + 60
+
+
+def test_stats_survive_an_entry_without_first_seen(tmp_path):
+    path = tmp_path / "s.json"
+    path.write_text(json.dumps({"version": 1, "airframes": {"a1": {"count": 3, "last_seen": T0}}, "daily": {}}))
+    assert SightingLog(path).stats(DAY)["since"] is None

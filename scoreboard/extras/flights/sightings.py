@@ -7,7 +7,12 @@ of its last poll is the same visit, later than that is a new one.
 Keyed by ICAO hex (every aircraft has one, and it names the airframe); the registration
 is what people recognise, so it is kept for display. Persisted as one JSON file under the
 data directory, next to the uploaded holiday pictures, so an update cannot wipe it.
-Writes are atomic and debounced; a file that will not parse is set aside, never trusted.
+Writes are atomic and debounced, and only happen for something worth keeping: a new visit,
+an airframe never seen before, a registration or type that just became known. A poll that
+merely sees the same aircraft still overhead moves ``last_seen`` in memory and nothing else
+(it is written on the next real change or at shutdown); rewriting a 700 KB file every minute
+for as long as anything was in range came to a gigabyte a day on an SD card. A file that
+will not parse is set aside, never trusted.
 """
 
 from __future__ import annotations
@@ -23,7 +28,7 @@ log = logging.getLogger(__name__)
 VISIT_GAP_SECONDS = 30 * 60
 MAX_AIRFRAMES = 5000
 DAILY_KEEP = 60
-SAVE_INTERVAL_SECONDS = 60.0
+SAVE_INTERVAL_SECONDS = 15 * 60.0
 TOP_N = 5
 REGULAR_FIELDS = ("hex", "registration", "type", "operator", "count", "last_seen")
 
@@ -52,7 +57,8 @@ class SightingLog:
         self._airframes: dict[str, dict[str, Any]] = {}
         self._daily: dict[str, int] = {}
         self._loaded = False
-        self._dirty = False
+        self._dirty = False         # a change worth a debounced write (a visit, an airframe, a detail)
+        self._unsaved = False       # anything at all not on disk (a last_seen), written at shutdown
         self._last_save = 0.0
 
     # -- persistence ------------------------------------------------------------
@@ -78,15 +84,16 @@ class SightingLog:
             self._airframes, self._daily = {}, {}
 
     def flush(self) -> None:
-        """Write now if anything changed (call on shutdown)."""
-        if not self._dirty:
+        """Write now if anything is not on disk (call on shutdown): the last_seen of a flyover
+        still in progress is what keeps it from counting as a new visit after the restart."""
+        if not self._unsaved:
             return
         try:
             self._path.parent.mkdir(parents=True, exist_ok=True)
             tmp = self._path.with_suffix(".json.tmp")
             tmp.write_text(json.dumps({"version": 1, "airframes": self._airframes, "daily": self._daily}) + "\n")
             os.replace(tmp, self._path)
-            self._dirty = False
+            self._dirty = self._unsaved = False
         except OSError as exc:
             log.warning("could not save sightings log %s: %s", self._path, exc)
 
@@ -113,11 +120,13 @@ class SightingLog:
             entry = _entry_from(ac, prev, now, new_visit)
             airframes[hex_] = entry
             new_visits += new_visit
+            if new_visit or _details_changed(prev, entry):
+                self._dirty = True
             out.append({**ac, "sightings": entry["count"], "first_seen": entry["first_seen"]})
         self._airframes = _trimmed(airframes, self._max)
+        self._unsaved = self._unsaved or bool(aircraft)
         if new_visits:
             self._daily = _recent_days({**self._daily, today: self._daily.get(today, 0) + new_visits})
-        self._dirty = self._dirty or bool(aircraft)
         self._maybe_save(now)
         return out
 
@@ -129,9 +138,14 @@ class SightingLog:
             "airframes": len(self._airframes),
             "sightings": sum(e["count"] for e in self._airframes.values()),
             "today": self._daily.get(today, 0),
-            "since": min((e["first_seen"] for e in self._airframes.values()), default=None),
+            "since": min((e["first_seen"] for e in self._airframes.values() if e.get("first_seen") is not None), default=None),
             "regulars": [{k: v for k, v in {"hex": h, **e}.items() if k in REGULAR_FIELDS} for h, e in ranked[:TOP_N]],
         }
+
+
+def _details_changed(prev: dict[str, Any] | None, entry: dict[str, Any]) -> bool:
+    """A registration, type or operator that just became known is worth writing down."""
+    return prev is not None and any(entry.get(k) != prev.get(k) for k in ("registration", "type", "operator"))
 
 
 def _trimmed(airframes: dict[str, dict[str, Any]], limit: int) -> dict[str, dict[str, Any]]:

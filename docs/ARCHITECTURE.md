@@ -220,7 +220,7 @@ source with a fixture replay and needs a restart to leave.
 | Callsign → route/airline | flights source, in memory | 6 h positive, 1 h negative |
 | Last alerts fetch | weather alerts source, in memory | re-filtered between polls |
 | Latest preview PNG | `PreviewHub` | replaced per encode |
-| Airframe sighting log | `$SCOREBOARD_DATA_DIR/flights/sightings.json` | user data, never re-downloadable |
+| Airframe sighting log | `$SCOREBOARD_DATA_DIR/flights/sightings.json` | user data, never re-downloadable; written at most every 15 min and only for a new visit, airframe or detail (a flyover still in progress only moves `last_seen` in memory, flushed at shutdown) |
 | Uploaded holiday pictures | `$SCOREBOARD_DATA_DIR/holidays/<slug>.png` | user data |
 | Config | `config.json` (+ `.1`…`.5` backups, `.broken`, `.tmp`) | see below |
 
