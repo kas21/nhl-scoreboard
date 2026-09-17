@@ -52,11 +52,15 @@ details summary { cursor:pointer; font-weight:600; padding:8px 0; }
 .rotation .rot-head { display:flex; gap:12px; align-items:baseline; flex-wrap:wrap; margin-bottom:10px; }
 .rotation .rot-head h2 { margin:0; }
 .rotation .rot-head .next { margin-left:auto; }
-.rotation .lap { display:flex; gap:3px; }
-.rotation .seg { min-width:0; --fam:#8b94a5; }
-.rotation .seg > div { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; }
-.rotation .count, .rotation .len { font-size:11px; color:var(--muted); }
-.rotation .name { font-size:12px; margin-top:4px; }
+/* One grid column per slice (widths set inline by length), one row per label line: the seg
+   itself has no box, so every slice's count, bar, name and length share a row and stay aligned
+   however many lines a name takes. */
+.rotation .lap { display:grid; grid-auto-flow:column; grid-template-rows:auto auto auto auto; column-gap:3px; align-items:start; }
+.rotation .seg { display:contents; --fam:#8b94a5; }
+.rotation .seg > div { min-width:0; overflow:hidden; text-align:center; overflow-wrap:anywhere; }
+.rotation .count, .rotation .len { font-size:11px; line-height:1.3; color:var(--muted); }
+.rotation .name { font-size:12px; line-height:1.3; margin-top:4px; }
+.rotation .count { white-space:nowrap; text-overflow:ellipsis; }
 .rotation .bar { position:relative; height:10px; margin-top:4px; border-radius:3px; background:color-mix(in srgb, var(--fam) 30%, transparent); overflow:hidden; }
 .rotation .fill { height:100%; background:var(--fam); border-radius:3px; transition:width .4s linear; }
 .rotation .seg.active .name { color:#fff; font-weight:600; }
@@ -75,8 +79,8 @@ details summary { cursor:pointer; font-weight:600; padding:8px 0; }
 .rotation .skipped { margin-top:10px; }
 .rotation.compact .count, .rotation.compact .len { font-size:11px; }
 @media (max-width:640px) {
-  .rotation .lap { flex-direction:column; gap:6px; }
-  .rotation .seg { flex:none !important; display:grid; grid-template-columns:1fr auto; column-gap:8px; align-items:center; }
+  .rotation .lap { display:flex; flex-direction:column; gap:6px; }
+  .rotation .seg { display:grid; grid-template-columns:1fr auto; column-gap:8px; align-items:center; }
   .rotation .seg > div { text-align:left; }
   .rotation .seg .count { grid-column:2; grid-row:2; text-align:right; }
   .rotation .seg .bar { grid-column:1 / -1; grid-row:3; }

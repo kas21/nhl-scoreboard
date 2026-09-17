@@ -12,9 +12,9 @@ import { html, useState, useEffect } from './htm-preact.js';
 const POLL_MS = 3000;
 const TICK_MS = 500;
 const OPEN_WEIGHT = 30;      // a board with no length of its own gets this much of the bar
-// Every slice starts at this width so its label is readable, and only the room left over is
-// shared out by length: a 15 s clock beside a 3 minute ticker stays legible instead of 25 px wide.
-const BASE_PX = 60;
+// No slice is narrower than this, whatever its length: a 15 s clock beside a 3 minute ticker
+// stays legible instead of 25 px wide. Labels wrap onto a second line rather than truncate.
+const MIN_PX = 60;
 
 const fmtSecs = (s) => s == null ? '' : s < 60 ? `${Math.round(s)}s` : `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
 const plural = (n, unit) => `${n} ${n === 1 || unit === 'aircraft' ? unit : unit + 's'}`;
@@ -39,16 +39,20 @@ export function useRotation() {
   return { ...data, entries: data.entries.map(e => e.active && e.elapsed != null ? { ...e, elapsed: e.elapsed + drift } : e) };
 }
 
+const weight = (e) => e.seconds == null ? OPEN_WEIGHT : Math.max(e.seconds, 1);
+
+// The lap is a grid, one column per slice and one row per label line, so the bars line up
+// and a name that wraps in one slice does not push its neighbours' lengths out of line.
+const columns = (playing) => playing.map(e => `minmax(${MIN_PX}px, ${weight(e)}fr)`).join(' ');
+
 function Slice({ e }) {
   const open = e.seconds == null;
-  const weight = open ? OPEN_WEIGHT : Math.max(e.seconds, 1);
   const progress = e.active && !open && e.seconds > 0 ? Math.min(e.elapsed / e.seconds, 1) : 0;
   const count = e.count != null && e.unit ? plural(e.count, e.unit) : '';
   const each = e.pace_unit ? `${fmtSecs(e.duration != null ? e.duration : e.count ? e.seconds / e.count : null)} each` : '';
   const length = open ? 'until state changes' : `${e.auto || e.pace_unit ? '≈' : ''}${fmtSecs(e.seconds)}`;
   const title = `${e.title}${count ? ` · ${count}` : ''} · ${length}${each ? ` · ${each}` : ''}${e.auto ? ' (auto)' : ''}${e.active ? ` · ${fmtSecs(e.elapsed)} in` : ''}`;
-  return html`<div class=${['seg', 'fam-' + family(e.board), e.active ? 'active' : '', open ? 'open' : ''].join(' ').trim()}
-      style=${`flex:${weight} 1 ${BASE_PX}px`} title=${title}>
+  return html`<div class=${['seg', 'fam-' + family(e.board), e.active ? 'active' : '', open ? 'open' : ''].join(' ').trim()} title=${title}>
     <div class="count">${count || ' '}</div>
     <div class="bar"><div class="fill" style=${`width:${(progress * 100).toFixed(1)}%`}></div></div>
     <div class="name">${e.title}</div>
@@ -80,7 +84,7 @@ export function Rotation({ compact }) {
 
   return html`<div class=${'card rotation' + (compact ? ' compact' : '')}>
     <div class="rot-head"><h2>Rotation</h2><span class="muted">${summary}</span>${nextText ? html`<span class="muted next">${nextText}</span>` : ''}</div>
-    ${playing.length ? html`<div class="lap">${playing.map(e => html`<${Slice} e=${e} />`)}</div>`
+    ${playing.length ? html`<div class="lap" style=${`grid-template-columns:${columns(playing)}`}>${playing.map(e => html`<${Slice} e=${e} />`)}</div>`
       : html`<p class="muted">${rot.state === 'boot' ? 'Starting up.' : rot.state === 'error' ? 'No data and no connection: the panel shows the clock.'
         : `Nothing in the ${rot.state} playlist can play right now, so the panel shows the ${rot.board || 'clock'}.`}</p>`}
     ${skipped.length ? html`<div class="skipped muted small">Skipped: ${skipped.map((e, k) => html`${k ? ' · ' : ''}<b>${e.title}</b> (${e.skipped})`)}</div>` : ''}
