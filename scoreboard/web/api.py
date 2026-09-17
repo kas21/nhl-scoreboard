@@ -299,6 +299,11 @@ def create_app(
     def update_start() -> dict[str, Any]:
         return {"started": updater.update(), **updater.state()}
 
+    @app.post("/api/system/update/rollback")
+    def update_rollback() -> dict[str, Any]:
+        """Back to the commit the last update moved away from (then reinstall and restart)."""
+        return {"started": updater.rollback(), **updater.state()}
+
     @app.post("/api/system/restart")
     def system_restart() -> dict[str, Any]:
         return {"restarting": system.restart()}

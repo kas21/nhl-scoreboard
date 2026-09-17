@@ -211,6 +211,10 @@ class Application:
         return ctx
 
     def run(self) -> None:
-        asyncio.run(self.run_async())
+        try:
+            asyncio.run(self.run_async())
+        finally:
+            self._stop.set()
+            self.output.close()         # on every exit path, not only the render loop's own
         if self.exit_code:
             raise SystemExit(self.exit_code)

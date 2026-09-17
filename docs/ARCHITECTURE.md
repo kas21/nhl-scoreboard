@@ -262,7 +262,7 @@ trimmed per-sport / extras summary the dashboard polls),
 `/api/schema`, `/api/status`, `/api/sources` (per-source health), `/api/boards` (key, title, requires,
 `playlistable`, `self_timed`, `auto_seconds`), `/api/rotation` (the current playlist as the director runs it: lengths,
 counts, skip reasons, cursor), `/api/snapshot` (whole, or `?since=&wait=` long-poll for a follower panel), `/api/logs`, `/api/override` (force a board),
-`/api/system` (+ `/restart`, `/hostname`, `/update`, `/update/check`; `/api/status`, `/api/system` and the update state carry a per-process `boot_id`, which the UI watches to know a restart has produced a *new* server), `/api/geocode`, `/api/preview.png`,
+`/api/system` (+ `/restart`, `/hostname`, `/update`, `/update/check`, `/update/rollback`; `/api/status`, `/api/system` and the update state carry a per-process `boot_id`, which the UI watches to know a restart has produced a *new* server), `/api/geocode`, `/api/preview.png`,
 `/ws/preview` (PNG frames), `/api/holidays/images/{slug}` (GET the picture, POST your own as the raw body,
 DELETE to put the bundled one back) and `/api/holidays/settings` (GET / PUT), and `/api/sim` (see [Simulation](#simulation)). Those are the only
 plugin-specific routes, and each earns it: a picture is a file, so it cannot ride on `/api/config`; and

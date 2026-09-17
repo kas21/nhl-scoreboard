@@ -173,7 +173,8 @@ with a `value_template` of `{{ value_json.home.score }}`; a switch that turns th
 
 ## Updates
 The Dashboard tells you when a new version is available and updates with one click (the panel goes dark for
-~10 s while it restarts; the page reloads itself once the new version is up). Nothing else to do.
+~10 s while it restarts; the page reloads itself once the new version is up). If a new version misbehaves,
+the same card has **Roll back to** the one you came from. Nothing else to do.
 
 ## If something looks wrong
 - Colours swapped / mirrored → Setup → Colours & orientation → Apply.

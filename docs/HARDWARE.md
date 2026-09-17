@@ -14,7 +14,9 @@ curl -fsSL https://raw.githubusercontent.com/kas21/nhl-scoreboard/main/scripts/i
 sudo /opt/scoreboard/scripts/pi_tuning.sh && sudo reboot
 ```
 `install.sh`: apt deps → venv → `pip install -e .` → `rgbmatrix` (prebuilt wheel for this Python, else source
-build) → `scoreboard.service` (root, `--output hardware`, restart on failure) → starts it.
+build; only a cp313 wheel exists today, so Bookworm's 3.11 builds from source, ~3 min) → `scoreboard.service`
+(root, `--output hardware`, restart on failure, five failures in two minutes stop the loop) → starts it. It
+needs 64-bit Pi OS, and piped through `bash` it must be `sudo bash`: there is no script file to re-run under sudo.
 `pi_tuning.sh`: blacklists `snd_bcm2835` (conflicts with the matrix PWM — the driver refuses to start
 otherwise) and adds `isolcpus=3` (dedicated core for the refresh thread; removes residual flicker).
 
@@ -31,6 +33,13 @@ The dashboard checks GitHub daily (`web.update_check_hours`) and shows **Update 
 *Update & restart* (git fast-forward → reinstall if dependencies changed → restart). Requires the install to be a
 git checkout, which `install.sh` guarantees. API: `GET/POST /api/system/update`, `POST /api/system/update/check`
 (state-changing calls need the header below).
+
+Before it moves, the updater writes the commit it is leaving to the data dir. An install that fails puts
+the tree back there itself (a half-applied release would otherwise be what the next restart runs), and the
+dashboard offers **Roll back to `<sha>`** for a release that installed but does not work; the version you
+leave becomes the new way back, so the same button rolls forward again. `POST /api/system/update/rollback`.
+The reinstall is `pip install -e .` through the venv's Python; a venv made by `uv sync` has no pip, so
+`uv sync --frozen` is used there when `uv` is on the PATH (and honours `uv.lock`, which pip never reads).
 
 Updating runs `pip install -e .`, so whoever can write the checkout can run code as the service —
 which is root. The updater therefore refuses a checkout owned by a *different* user than the service
@@ -54,7 +63,8 @@ Within that boundary, two browser-driven attacks are closed off (`scoreboard/web
   to `web.allowed_hosts`.
 
 The systemd unit `install.sh` writes keeps root (the matrix driver needs GPIO) but adds
-`NoNewPrivileges`, `PrivateTmp`, `ProtectSystem=full`, `ProtectHome` and friends, so the writable
+`NoNewPrivileges`, `PrivateTmp`, `ProtectSystem=full`, `ProtectHome` and friends (not `RestrictRealtime`:
+the driver's refresh thread needs `SCHED_FIFO`, and being refused it means flicker), so the writable
 surface is the config dir, the cache dir (`/var/cache/scoreboard`), the data dir (`/var/lib/scoreboard`,
 uploaded pictures and the flight log) and the checkout.
 
@@ -80,3 +90,4 @@ journalctl -u scoreboard -f
 sudo sed -i 's|--output hardware|--output hardware --demo|' /etc/systemd/system/scoreboard.service && sudo systemctl daemon-reload && sudo systemctl restart scoreboard   # demo mode (revert the same way)
 ```
 Config lives at `/etc/scoreboard/config.json` (root-only; edit through the web UI). Backups `config.json.1..5`.
+The installer makes the journal persistent (`/var/log/journal`) so the reason for a crash survives a reboot.

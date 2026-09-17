@@ -116,3 +116,55 @@ def test_accepting_an_unowned_checkout_does_not_also_accept_a_writable_one(tmp_p
     os.chmod(install, os.stat(install).st_mode | st_mod.S_IWOTH)
     assert "writable" in up.check()["error"]
     assert up.update() is False
+
+
+def _settle(up):
+    for _ in range(100):
+        time.sleep(0.05)
+        if not up.state()["updating"]:
+            break
+    return up.state()
+
+
+def test_a_failed_install_puts_the_tree_back(tmp_path):
+    """New code with old dependencies is what the next restart would otherwise run."""
+    work, install = make_repos(tmp_path)
+    restarted = []
+    up = Updater(root=install, restart=lambda: restarted.append(1), python="false", state_dir=tmp_path / "state")   # 'false': pip fails
+    (work / "pyproject.toml").write_text("x"); git("add", "pyproject.toml", cwd=work); git("commit", "-qm", "deps", cwd=work); git("push", "-q", "origin", "main", cwd=work)
+    before = git("rev-parse", "HEAD", cwd=install)
+    assert up.check()["available"] and up.update()
+    st = _settle(up)
+    assert st["error"] and "rolled back" in st["error"] and st["available"] is True
+    assert git("rev-parse", "HEAD", cwd=install) == before and restarted == []
+    assert st["previous"] == before[:7]                     # written before the merge, so it survives the failure too
+
+
+def test_rollback_returns_to_the_commit_the_update_left_and_can_roll_forward(tmp_path):
+    work, install = make_repos(tmp_path)
+    restarted = []
+    up = Updater(root=install, restart=lambda: restarted.append(1), python="true", state_dir=tmp_path / "state")
+    assert up.rollback() is False and "nothing to roll back" in up.state()["error"]
+    one = git("rev-parse", "HEAD", cwd=install)
+    (work / "a.txt").write_text("2"); git("commit", "-qam", "two", cwd=work); git("push", "-q", "origin", "main", cwd=work)
+    up.check(); assert up.update(); st = _settle(up)
+    two = git("rev-parse", "HEAD", cwd=install)
+    assert st["previous"] == one[:7] and restarted == [1]
+    # A new process finds the way back on disk.
+    again = Updater(root=install, python="true", restart=lambda: restarted.append(2), state_dir=tmp_path / "state")
+    assert again.state()["previous"] == one[:7]
+    assert again.rollback(); st = _settle(again)
+    assert st["error"] is None and git("rev-parse", "HEAD", cwd=install) == one and restarted == [1, 2]
+    assert st["previous"] == two[:7] and st["available"] is True         # and the same button now rolls forward
+
+
+def test_check_does_not_fetch_under_a_running_update(tmp_path):
+    _, install = make_repos(tmp_path)
+    up = Updater(root=install, python="true", state_dir=tmp_path / "state")
+    up._git_lock.acquire()                                    # as _run_update holds it
+    try:
+        st = up.check()
+        assert st["checked_at"] is None and st["checking"] is False
+    finally:
+        up._git_lock.release()
+    assert up.check()["checked_at"] is not None

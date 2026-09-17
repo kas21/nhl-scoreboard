@@ -75,10 +75,20 @@ class MatrixOutput:
             self._matrix.brightness = percent
 
     def close(self) -> None:
+        """Blank the panel and destroy the matrix. The driver stops its refresh thread and
+        resets GPIO in the C++ destructor, which the binding runs when the object is freed;
+        Clear() alone left the refresh thread driving the panel until the interpreter got
+        round to it, and a non-clean exit never did. Safe to call twice."""
+        matrix = getattr(self, "_matrix", None)
+        if matrix is None:
+            return
         try:
-            self._matrix.Clear()
+            matrix.Clear()
         except Exception:
             pass
+        self._canvas = None
+        self._matrix = None
+        del matrix
 
 
 def create_output(cfg: DisplayConfig, mode: str, brightness: int = 80) -> Output:

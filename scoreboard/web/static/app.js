@@ -88,12 +88,14 @@ function Updater() {
   useEffect(() => { refresh(); const id = setInterval(refresh, 3000); return () => clearInterval(id); }, []);
   // An update restarts the server under this page. The module scripts in memory are the
   // old UI; reload once the new process answers so the page matches the API it talks to.
-  const update = async () => {
-    if (!confirm('Update and restart the scoreboard?')) return;
+  const run = async (path, question) => {
+    if (!confirm(question)) return;
     const before = st.boot_id;
-    setSt(await api.post('/api/system/update').catch(() => st));
+    setSt(await api.post(path).catch(() => st));
     if (await waitForRestart(before)) location.reload();
   };
+  const update = () => run('/api/system/update', 'Update and restart the scoreboard?');
+  const rollback = () => run('/api/system/update/rollback', `Go back to ${st.previous} and restart? The current version stays available to update to again.`);
   if (!st) return null;
   if (!st.is_checkout) return html`<div class="card"><h2>Updates</h2><p class="muted">This install is not a git checkout, so it can't update itself. Reinstall with <code>scripts/install.sh</code> to enable.</p></div>`;
   const busy = st.updating || st.checking;
@@ -103,6 +105,7 @@ function Updater() {
       <span class="muted"> · ${st.current || '?'}${st.checked_at ? ` · checked ${new Date(st.checked_at * 1000).toLocaleTimeString()}` : ''}</span></span>
       <button class="secondary" disabled=${busy} onclick=${() => api.post('/api/system/update/check').then(setSt)}>Check now</button>
       ${st.available && html`<button disabled=${busy} onclick=${update}>${st.updating ? 'Updating…' : 'Update & restart'}</button>`}
+      ${st.previous && html`<button class="secondary" disabled=${busy} onclick=${rollback} title=${st.previous_at ? `Left ${new Date(st.previous_at * 1000).toLocaleString()}` : ''}>Roll back to ${st.previous}</button>`}
     </div>
     ${st.error && html`<p class="error">${st.error}</p>`}
     ${st.log && st.log.length > 0 && html`<pre>${st.log.join('\n')}</pre>`}

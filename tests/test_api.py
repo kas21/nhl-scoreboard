@@ -291,3 +291,38 @@ def test_every_process_has_one_boot_id(tmp_path):
     c, _ = client(tmp_path)
     ids = {c.get("/api/status").json()["boot_id"], c.get("/api/system").json()["boot_id"], c.get("/api/system/update").json()["boot_id"]}
     assert len(ids) == 1 and len(ids.pop()) == 32
+
+
+def test_rollback_route_reports_nothing_to_roll_back_to(tmp_path):
+    from scoreboard.web.updater import Updater
+    c, _ = client(tmp_path)
+    r = c.post("/api/system/update/rollback")
+    assert r.status_code == 200 and r.json()["started"] is False
+    assert c.get("/api/system/update").json()["previous"] is None
+    assert Updater(root=tmp_path, state_dir=tmp_path / "state").state()["previous"] is None
+
+
+def test_matrix_output_lets_go_of_the_panel_on_close(monkeypatch):
+    """The driver resets GPIO in its destructor, which runs when the object is freed; Clear()
+    alone left the refresh thread driving the panel."""
+    import sys
+    import types
+
+    from scoreboard.config.models import DisplayConfig
+    from scoreboard.output.matrix import MatrixOutput
+    events = []
+
+    class FakeMatrix:
+        def __init__(self, options=None): self.brightness = options.brightness
+        def CreateFrameCanvas(self): return types.SimpleNamespace(SetImage=lambda img: None)
+        def SwapOnVSync(self, c): return c
+        def Clear(self): events.append("clear")
+        def __del__(self): events.append("freed")
+
+    fake = types.ModuleType("rgbmatrix")
+    fake.RGBMatrix, fake.RGBMatrixOptions = FakeMatrix, lambda: types.SimpleNamespace()
+    monkeypatch.setitem(sys.modules, "rgbmatrix", fake)
+    out = MatrixOutput(DisplayConfig(), emulator=False, brightness=50)
+    out.close()
+    out.close()                                             # idempotent: app.run and the render loop both call it
+    assert events == ["clear", "freed"]
