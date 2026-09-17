@@ -78,6 +78,7 @@ class SnapshotStore:
         self._claims: dict[str, str] = {}           # key -> owner holding it
         self._shadow: dict[str, Any] = {}           # key -> last value published by a non-owner while claimed
         self._restore: dict[str, Any] = {}          # key -> value before the claim (_MISSING if absent)
+        self._owned: dict[str, set[str]] = {}       # owner -> every key it has published (for retract)
 
     def get(self) -> Snapshot:
         return self._snapshot
@@ -92,6 +93,8 @@ class SnapshotStore:
         A publish to a key someone else has claimed is shadowed: nothing changes and no
         listener runs, but the value is kept for when the claim is released."""
         with self._lock:
+            if owner is not None:
+                self._owned.setdefault(owner, set()).add(key)
             holder = self._claims.get(key)
             if holder is not None and holder != owner:
                 self._shadow[key] = value
@@ -99,6 +102,17 @@ class SnapshotStore:
             prev, new, listeners = self._swap(key, value)
         _notify(listeners, prev, new)
         return new
+
+    def retract(self, owner: str) -> list[str]:
+        """Publish ``None`` to every key ``owner`` has ever published, so a source that is
+        switched off takes its data off the panel with it: boards that require the keys stop
+        qualifying, the arbiter drops its candidate game, followers and MQTT see the change.
+        Publishing rather than deleting keeps the version bookkeeping honest. Returns the keys."""
+        with self._lock:
+            keys = sorted(k for k in self._owned.get(owner, ()) if self._snapshot.data.get(k) is not None)
+        for key in keys:
+            self.publish(key, None, owner=owner)
+        return keys
 
     def _swap(self, key: str, value: Any) -> tuple[Snapshot, Snapshot, list[Listener]]:
         """Swap the snapshot. Called with the lock held; the caller runs the listeners

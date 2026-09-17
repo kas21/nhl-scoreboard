@@ -21,6 +21,7 @@ DRIFT_NOTES_LIMIT = 40          # distinct feed-drift notes kept per source; the
 class SourceStats:
     key: str
     running: bool = False
+    disabled: bool = False                  # switched off in the config; not a failure
     started_at: float | None = None
     restarts: int = 0
     fetches: int = 0
@@ -42,6 +43,8 @@ class SourceStats:
 
     @property
     def status(self) -> str:
+        if self.disabled:
+            return "disabled"
         if not self.running and self.restarts:
             return "crashed"
         if self.error_streak >= OFFLINE_AFTER_FAILURES:
@@ -62,6 +65,7 @@ class SourceStats:
             "key": self.key,
             "status": self.status,
             "running": self.running,
+            "disabled": self.disabled,
             "uptime": ago(self.started_at) if self.running else None,
             "restarts": self.restarts,
             "fetches": self.fetches,
@@ -118,6 +122,11 @@ class SourceHealth:
     def set_running(self, key: str, running: bool) -> None:
         now = self._clock()
         self._update(key, running=running, started_at=now if running else None)
+
+    def set_disabled(self, key: str, disabled: bool) -> None:
+        """A source switched off in the config: its counters are reset so the page does not
+        report it as crashed or offline over what happened before it was turned off."""
+        self._update(key, disabled=disabled, running=False, started_at=None, error_streak=0, next_poll_at=None)
 
     def record_crash(self, key: str, error: str) -> None:
         current = self._stats.get(key)

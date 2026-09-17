@@ -50,6 +50,18 @@ def test_fetch_success_and_failure_streaks():
     assert h.get("nhl").status == "ok"
 
 
+def test_disabled_is_a_status_of_its_own_and_clears_the_failure_streak():
+    h = SourceHealth(clock=Clock())
+    h.register("nfl")
+    for _ in range(3):
+        h.record_fetch("nfl", ok=False, latency_ms=1.0, error="boom")
+    h.set_disabled("nfl", True)
+    assert h.get("nfl").status == "disabled" and h.get("nfl").to_dict()["disabled"] is True
+    h.set_disabled("nfl", False)
+    h.set_running("nfl", True)
+    assert h.get("nfl").status == "ok"                  # the old streak does not come back with it
+
+
 def test_degraded_before_offline_threshold():
     h = SourceHealth(clock=Clock())
     h.register("nhl")

@@ -145,7 +145,7 @@ def _holiday_overrides(doc: dict[str, Any]) -> dict[str, Any]:
 
 
 # Bundled boards whose playlist seconds became seconds per item in config version 3.
-PACED_BOARDS = frozenset({"nhl.ticker", "nfl.ticker", "ncaaf.ticker", "mlb.ticker", "flights.nearby",
+PACED_BOARDS = frozenset({"nhl.ticker", "nfl.ticker", "ncaaf.ticker", "mlb.ticker", "ncaah.ticker", "ahl.ticker", "flights.nearby",
                           "holidays.countdown", "weather.alerts"})
 MAX_PACE = 30.0
 

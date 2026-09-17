@@ -28,8 +28,10 @@ from golden_scenes import Scene, all_scenes
 from PIL import Image, ImageChops, ImageDraw
 
 from scoreboard import logos
+from scoreboard.ahl import teams as ahl_teams
 from scoreboard.mlb import teams as mlb_teams
 from scoreboard.ncaaf import teams as ncaaf_teams
+from scoreboard.ncaah import teams as ncaah_teams
 from scoreboard.nfl import teams as nfl_teams
 from scoreboard.nhl import teams as nhl_teams
 from scoreboard.plugins import load_registry
@@ -88,7 +90,8 @@ def synthetic_logos(tmp_path_factory: pytest.TempPathFactory) -> Iterator[Path]:
     for abbrev in sorted(seen):
         nhl = nhl_teams.team(abbrev)
         discs = {"nhl": _disc(nhl.primary, nhl.accent), "nfl": _disc(*nfl_teams.colors(abbrev)), "mlb": _disc(*mlb_teams.colors(abbrev)),
-                 "ncaaf": _disc(*ncaaf_teams.colors(abbrev))}
+                 "ncaaf": _disc(*ncaaf_teams.colors(abbrev)), "ncaah": _disc(*ncaah_teams.colors(abbrev)),
+                 "ahl": _disc(*ahl_teams.colors(abbrev))}
         for sport, art in discs.items():
             path = root / sport / f"{abbrev}.png"
             path.parent.mkdir(parents=True, exist_ok=True)

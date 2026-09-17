@@ -1,7 +1,7 @@
 # CLAUDE.md — nhl-scoreboard
 
 Standalone LED-matrix scoreboard for Raspberry Pi. One Python process, one `config.json`,
-configured from a browser. NHL first; NFL, college football, MLB, weather, flights and holidays are bundled extras.
+configured from a browser. NHL first; NFL, college football, MLB, college hockey, AHL, weather, flights and holidays are bundled extras.
 This is the clean-slate successor to `nhl-led-scoreboard-v2` + the Tape-to-Tape hub (kept only
 as reference for board *designs*; the old code is not used).
 
@@ -54,6 +54,11 @@ scoreboard/
                     136-team registry (teams.py, ESPN abbrevs by conference), conference standings, ranks, slate filter
   mlb/              MLB Stats API (statsapi.mlb.com), normaliser, source, detectors; boards subclass the NHL ones
                     with a baseball centre column (inning arrow, bases, count, outs, pitcher/batter strip)
+  ncaah/            men's college hockey (D1) on ESPN's site API: subclasses the NFL client/source, hockey normaliser, owns the
+                    64-school registry + curated colours; NHL boards (game, ticker, team summary, goal). No standings: ESPN has none
+  ahl/              AHL on HockeyTech's feed (lscluster.hockeytech.com, the public key theahl.com uses): score bar, game summary
+                    (goals/penalties/shots; the power play is reconstructed from the penalty log), statview standings, seasons;
+                    32-club registry with NHL parents for colours; logos registered from the feed (logos.register_urls)
   extras/           holidays, flights (adsb.lol + adsbdb + airline logos), weather (Open-Meteo; weather/alerts: NWS + Environment
                     Canada watches/warnings, an interrupt board and a playlist board) — same plugin contract
   follower.py       display-only panel: long-polls a master's /api/snapshot?since= and republishes every key (replaces all sources)
@@ -71,7 +76,7 @@ docs/               OVERVIEW (start here), USER_GUIDE, HARDWARE, ARCHITECTURE, D
 
 - **Boards are pure**: `render(ctx, cfg) -> PIL.Image` from an immutable `Snapshot`; `ctx.elapsed` is the
   only clock; no I/O. Boards never fetch — sources do, in the background, on their own cadence.
-- **Snapshot keys** (docs/DATA.md): `<sport>.scores|standings|team_summary|season|main_event` (sport = nhl / nfl / ncaaf / mlb),
+- **Snapshot keys** (docs/DATA.md): `<sport>.scores|standings|team_summary|season|main_event` (sport = nhl / nfl / ncaaf / mlb / ncaah / ahl),
   `main_event` (arbitrated across sports), `system`, `holidays.upcoming|available`, `flights.nearby|overhead`,
   `weather.current|daily|alerts`.
 - **Events** are derived by diffing consecutive snapshots (goal, penalty, touchdown, run / home run, flight overhead…);

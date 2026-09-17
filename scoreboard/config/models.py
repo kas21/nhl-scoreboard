@@ -113,6 +113,8 @@ class Playlists(FrozenModel):
         PlaylistEntry(board="nfl.game", duration=15),
         PlaylistEntry(board="ncaaf.game", duration=15),
         PlaylistEntry(board="mlb.game", duration=15),
+        PlaylistEntry(board="ncaah.game", duration=15),
+        PlaylistEntry(board="ahl.game", duration=15),
         PlaylistEntry(board="nhl.ticker", duration=None),
         PlaylistEntry(board="clock", duration=10),
     )
@@ -121,6 +123,8 @@ class Playlists(FrozenModel):
         PlaylistEntry(board="nfl.game", duration=None),
         PlaylistEntry(board="ncaaf.game", duration=None),
         PlaylistEntry(board="mlb.game", duration=None),
+        PlaylistEntry(board="ncaah.game", duration=None),
+        PlaylistEntry(board="ahl.game", duration=None),
     )
     intermission: tuple[PlaylistEntry, ...] = (
         PlaylistEntry(board="weather.alerts", duration=None),
@@ -128,6 +132,8 @@ class Playlists(FrozenModel):
         PlaylistEntry(board="nfl.game", duration=15),
         PlaylistEntry(board="ncaaf.game", duration=15),
         PlaylistEntry(board="mlb.game", duration=15),
+        PlaylistEntry(board="ncaah.game", duration=15),
+        PlaylistEntry(board="ahl.game", duration=15),
         PlaylistEntry(board="nhl.ticker", duration=None),
         PlaylistEntry(board="nhl.standings", duration=None),
     )
@@ -137,6 +143,8 @@ class Playlists(FrozenModel):
         PlaylistEntry(board="nfl.game", duration=20),
         PlaylistEntry(board="ncaaf.game", duration=20),
         PlaylistEntry(board="mlb.game", duration=20),
+        PlaylistEntry(board="ncaah.game", duration=20),
+        PlaylistEntry(board="ahl.game", duration=20),
         PlaylistEntry(board="nhl.ticker", duration=None),
         PlaylistEntry(board="nhl.standings", duration=None),
         PlaylistEntry(board="clock", duration=10),
@@ -168,7 +176,7 @@ class LogosConfig(FrozenModel):
 
 
 class SportsConfig(FrozenModel):
-    priority: list[Literal["nhl", "nfl", "ncaaf", "mlb"]] = Field(["nhl", "nfl", "ncaaf", "mlb"], description="When two sports have a game, which wins the screen (live games always win)")
+    priority: list[Literal["nhl", "nfl", "ncaaf", "mlb", "ncaah", "ahl"]] = Field(["nhl", "nfl", "ncaaf", "mlb", "ncaah", "ahl"], description="When two sports have a game, which wins the screen (live games always win)")
     game_day_rollover_hour: int = Field(10, ge=0, le=12, description="Keep last night's finals in the ticker until this hour of the morning (local time); 0 = they leave at midnight. Today's games always show as soon as the date turns")
 
 

@@ -35,7 +35,7 @@ def _wrap(text: str, font, width: int) -> list[str]:
 
 
 class TickerConfig(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid", title="Score ticker")
+    model_config = ConfigDict(frozen=True, extra="forbid", title="NHL ticker")
     seconds_per_game: float = Field(8.0, ge=2, le=30, description="How long each game shows when the playlist row leaves the seconds blank")
     time_24h: bool = False
     skip_finished: bool = Field(False, description="Only show upcoming and live games")
@@ -43,11 +43,12 @@ class TickerConfig(BaseModel):
 
 class TickerBoard(BaseBoard):
     key = "nhl.ticker"
-    title = "Score ticker"
+    title = "NHL ticker"
     config_model = TickerConfig
     pace_unit = "game"
     requires = frozenset({"nhl.scores"})
     scores_key = "nhl.scores"
+    empty_record = "0-0-0"          # what a pregame card prints when the feed has no record for a side
 
     def logo_image(self, abbrev: str, g: dict[str, Any]) -> Image.Image:
         return logo(abbrev, 128)
@@ -105,7 +106,7 @@ class TickerBoard(BaseBoard):
             for i, line in enumerate(lines[:2]):
                 items.append((Slide(Text(line, f7, WHITE), 0.4, "up", easing=linear, h_align="start"), 48, y0 + 8 * i, name_w, 8))
             if pregame:
-                items.append((Slide(Text(g[side]["record"] or "0-0-0", f6, LIGHT), 0.4, "up", easing=linear, h_align="start"), 48, top + 21, 40, 5))
+                items.append((Slide(Text(g[side]["record"] or self.empty_record, f6, LIGHT), 0.4, "up", easing=linear, h_align="start"), 48, top + 21, 40, 5))
             else:
                 items.append((Slide(Text(str(g[side]["score"]), f7, WHITE), 0.4, "up", easing=linear, h_align="end"), 111, top + 7, 16, 12))
         if pregame:
@@ -113,7 +114,8 @@ class TickerBoard(BaseBoard):
             # date chip + start time sit in the seam between the halves, clear of both name blocks
             items.append((Slide(Img(date), 0.4, "right", easing=linear, h_align="end"), 100, half - 8, 27, 7))
             start = local_time(g["start_time_utc"], ctx.now.tzinfo)
-            items.append((Slide(Text(fmt_time(start, cfg.time_24h).upper(), f6, WHITE), 0.4, "right", easing=linear, h_align="end"), 90, half + 2, 37, 5))
+            when = "TBD" if g.get("time_tbd") else fmt_time(start, cfg.time_24h).upper()
+            items.append((Slide(Text(when, f6, WHITE), 0.4, "right", easing=linear, h_align="end"), 90, half + 2, 37, 5))
         if g.get("type") == 1:
             items.append((Chip("PRE", f6, BLACK, (255, 200, 0)), 108, 1, 19, 7))
         if pregame:

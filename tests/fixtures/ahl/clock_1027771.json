@@ -1,0 +1,110 @@
+{
+ "GC": {
+  "Parameters": {
+   "feed": "gc",
+   "tab": "clock",
+   "game_id": "1027771",
+   "key": "ccb91f29d6744675",
+   "client_code": "ahl",
+   "fmt": "json"
+  },
+  "Clock": {
+   "period": "4",
+   "game_clock": "00:04:38",
+   "game_date_iso_8601": "2025-06-21T18:00:00-07:00",
+   "timezone": "America/Vancouver",
+   "timezone_short": "PDT",
+   "started": "1",
+   "game_number": "5",
+   "season_id": "88",
+   "season_name": "2025 Calder Cup Playoffs",
+   "home_team": {
+    "name": "Abbotsford Canucks",
+    "team_id": "440",
+    "team_code": "ABB",
+    "team_nickname": "Canucks",
+    "team_city": "Abbotsford"
+   },
+   "visiting_team": {
+    "name": "Charlotte Checkers",
+    "team_id": "384",
+    "team_code": "CLT",
+    "team_nickname": "Checkers",
+    "team_city": "Charlotte"
+   },
+   "text_game_summary": "/stats/text-game-report.php?game_id=1027771",
+   "official_game_report": "/stats/official-game-report.php?game_id=1027771",
+   "home_audio_url": "",
+   "home_video_url": "",
+   "home_webcast_url": "",
+   "visiting_audio_url": "",
+   "visiting_video_url": "",
+   "visiting_webcast_url": "",
+   "tickets_url": "",
+   "venue": "Abbotsford Centre",
+   "final": "1",
+   "status": "4",
+   "home_goal_count": "3",
+   "visiting_goal_count": "4",
+   "progress": "Final OT",
+   "progress_short": "Final",
+   "period_name": "OT",
+   "home_lineup_card": "/game-lineups/ahl/1027771/ABB_2025-06-21.pdf",
+   "visiting_lineup_card": "/game-lineups/ahl/1027771/CLT_2025-06-21.pdf",
+   "game_lineups": "/game-lineups/ahl/1027771/CLT@ABB_2025-06-21.pdf",
+   "updated": {
+    "clock": 0,
+    "meta": 0,
+    "lineup": 0,
+    "goals": 0,
+    "penalties": 0,
+    "penaltyshots": 0,
+    "shots": 0,
+    "hits": 0,
+    "faceoffs": 0,
+    "pxp": 0,
+    "shootouts": 0,
+    "h2h": 0,
+    "pxpverbose": 0
+   },
+   "scoring": {
+    "home": {
+     "1": "1",
+     "2": "2",
+     "3": "0",
+     "4": "0"
+    },
+    "visiting": {
+     "1": "1",
+     "2": "2",
+     "3": "0",
+     "4": "1"
+    }
+   },
+   "shots_on_goal": {
+    "home": {
+     "1": 11,
+     "2": 7,
+     "3": 6,
+     "4": 8
+    },
+    "visiting": {
+     "1": 12,
+     "2": 14,
+     "3": 9,
+     "4": 5
+    }
+   },
+   "power_play": {
+    "total": {
+     "home": "2",
+     "visiting": "2"
+    },
+    "goals": {
+     "home": "1",
+     "visiting": "1"
+    }
+   }
+  }
+ }
+}

@@ -17,7 +17,7 @@ from .data import SnapshotStore
 from .data.arbiter import MainEventArbiter
 from .data.events import EventBus
 from .data.health import SourceHealth
-from .data.source import SourceContext, run_source_forever
+from .data.source import SourceContext, SourceSupervisor
 from .director import Director
 from .follower import FollowerSource
 from .mqtt import MqttBridge
@@ -129,8 +129,15 @@ class Application:
         render_thread.start()
 
         async with httpx.AsyncClient(timeout=15, follow_redirects=True, headers={"User-Agent": "nhl-scoreboard"}) as http:
-            tasks = [asyncio.create_task(run_source_forever(src, self._context(key, src, http)), name=f"source:{key}")
-                     for key, src in self.registry.sources.items()]
+            contexts = {key: self._context(key, src, http) for key, src in self.registry.sources.items()}
+            for ctx in contexts.values():
+                ctx.bind(loop)
+            self.sources = SourceSupervisor(self.registry.sources, contexts, self.snapshots, self.health)
+            await self.sources.reconcile(self.config.get().sources)
+            # A config save lands on the web thread; the supervisor works on the loop.
+            self.config.subscribe(lambda c: loop.call_soon_threadsafe(
+                lambda: asyncio.ensure_future(self.sources.reconcile(c.sources))))
+            tasks: list[asyncio.Task] = []
             web = self.config.get().web
             server = uvicorn.Server(uvicorn.Config(
                 create_app(self.config, self.snapshots, self.registry, self.director, self.preview, self.logs,
@@ -178,6 +185,7 @@ class Application:
             for t in tasks:
                 t.cancel()
             await asyncio.gather(*tasks, return_exceptions=True)
+            await self.sources.shutdown()
             await web_task
         self._stop.set()
         render_thread.join(timeout=2)

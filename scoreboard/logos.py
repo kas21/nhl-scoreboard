@@ -27,14 +27,18 @@ CDN = "https://a.espncdn.com/i/teamlogos/{sport}/500/{code}.png"
 CDN_DARK = "https://a.espncdn.com/i/teamlogos/{sport}/500-dark/{code}.png"
 TEAMS_API = "https://site.api.espn.com/apis/site/v2/sports/{path}/teams?{query}"
 
-LEAGUE_PATHS = {"nhl": "hockey/nhl", "nfl": "football/nfl", "mlb": "baseball/mlb", "ncaaf": "football/college-football"}
-# The college teams endpoint ignores ``groups`` and lists every school it knows (~760, D3 included), so ask
-# for all of them and pick out ours; the others fit the default page.
-TEAMS_QUERY = {"ncaaf": "limit=1000"}
+LEAGUE_PATHS = {"nhl": "hockey/nhl", "nfl": "football/nfl", "mlb": "baseball/mlb", "ncaaf": "football/college-football",
+                "ncaah": "hockey/mens-college-hockey"}
+# The college teams endpoints ignore ``groups`` and list every school they know (~760 football programmes,
+# ~120 hockey ones, D3 included), so ask for all of them and pick out ours; the others fit the default page.
+TEAMS_QUERY = {"ncaaf": "limit=1000", "ncaah": "limit=1000"}
 DEFAULT_TEAMS_QUERY = "limit=50"
 # Leagues whose flat CDN path is keyed by ESPN's numeric team id rather than the abbreviation:
 # every URL, the default art included, has to come from the team API's ``logos`` list.
-INDEXED_SPORTS = frozenset({"ncaaf"})
+INDEXED_SPORTS = frozenset({"ncaaf", "ncaah"})
+# Leagues ESPN does not carry: the source learns each team's logo URL from its own feed and
+# registers it here (:func:`register_urls`); only the default variant exists for them.
+_direct: dict[str, dict[str, str]] = {}
 LOGO_DIR = CACHE_ROOT / "logos"
 CONCURRENCY = 4
 FETCH_TIMEOUT = 20.0
@@ -46,7 +50,8 @@ ESPN_CODES: dict[str, dict[str, str]] = {"nhl": {"LAK": "la", "SJS": "sj", "TBL"
 # ...and its *team API* disagrees with the CDN for two more, so variant lookups need their own map
 API_ABBREVS: dict[str, dict[str, str]] = {"nhl": {"LAK": "LA", "SJS": "SJ", "TBL": "TB", "NJD": "NJ", "UTA": "UTAH"},
                                           "mlb": {"AZ": "ARI", "CWS": "CHW"},
-                                          "ncaaf": {"AFA": "AF", "BUFF": "BUF", "JVST": "JXST"}}   # scoreboard/standings code -> team API code
+                                          "ncaaf": {"AFA": "AF", "BUFF": "BUF", "JVST": "JXST"},   # scoreboard/standings code -> team API code
+                                          "ncaah": {"AFA": "AF", "WISC": "WIS"}}
 
 _preferences: dict[str, str] = {}       # "nhl:WSH" -> variant
 _use_curated = True
@@ -55,6 +60,16 @@ _generation = 0                         # bumped on every config change; watcher
 
 def espn_code(sport: str, abbrev: str) -> str:
     return ESPN_CODES.get(sport, {}).get(abbrev.upper(), abbrev.lower())
+
+
+def register_urls(sport: str, urls: Mapping[str, str]) -> None:
+    """Tell the cache where a league outside ESPN keeps its logos (abbreviation -> PNG URL).
+
+    A source calls this once it has the league's team list, then :func:`watch` as usual; a
+    changed URL (a team's new mark for the season) is picked up the next time the file is
+    missing, so it does not force a re-download of art already on disk.
+    """
+    _direct[sport] = {k.upper(): v for k, v in urls.items() if v}
 
 
 def api_abbrev(sport: str, abbrev: str) -> str:
@@ -138,7 +153,7 @@ async def prefetch(http: httpx.AsyncClient, sport: str, abbrevs: tuple[str, ...]
         return 0
 
     index: dict[str, dict[str, str]] = {}
-    if sport in INDEXED_SPORTS or any(v not in FLAT_VARIANTS for _, v in missing):
+    if sport not in _direct and (sport in INDEXED_SPORTS or any(v not in FLAT_VARIANTS for _, v in missing)):
         index = await _discover(http, sport, log)
         if sport in INDEXED_SPORTS and not index:
             log.warning("no %s team index, so no logos this time (%d missing)", sport, len(missing))
@@ -193,6 +208,8 @@ def id_before(a: str, b: str) -> bool:
 
 
 def _url(sport: str, abbrev: str, variant: str, index: Mapping[str, Mapping[str, str]]) -> str | None:
+    if sport in _direct:
+        return _direct[sport].get(abbrev.upper()) if variant == DEFAULT_VARIANT else None
     if sport not in INDEXED_SPORTS:
         if variant == DEFAULT_VARIANT:
             return CDN.format(sport=sport, code=espn_code(sport, abbrev))

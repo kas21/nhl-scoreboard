@@ -20,7 +20,7 @@ const fmtSecs = (s) => s == null ? '' : s < 60 ? `${Math.round(s)}s` : `${Math.f
 const plural = (n, unit) => `${n} ${n === 1 || unit === 'aircraft' ? unit : unit + 's'}`;
 const family = (key) => {
   const head = key.split('.')[0];
-  return ['nhl', 'nfl', 'ncaaf', 'mlb', 'weather', 'flights', 'holidays', 'season'].includes(head) ? head : 'other';
+  return ['nhl', 'nfl', 'ncaaf', 'mlb', 'ncaah', 'ahl', 'weather', 'flights', 'holidays', 'season'].includes(head) ? head : 'other';
 };
 
 export function useRotation() {

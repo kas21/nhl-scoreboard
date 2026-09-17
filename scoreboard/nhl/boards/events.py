@@ -30,7 +30,7 @@ PENALTY_YELLOW = (255, 196, 0)
 
 
 class GoalConfig(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid", title="Goal celebration")
+    model_config = ConfigDict(frozen=True, extra="forbid", title="NHL goal celebration")
     enabled: bool = True
     duration: float = Field(8.0, ge=2, le=30, description="Seconds of GOAL! animation (favourite goals)")
     summary: bool = Field(True, description="Follow with a scorer/assists card")
@@ -40,7 +40,7 @@ class GoalConfig(BaseModel):
 
 
 class PenaltyConfig(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid", title="Penalty alert")
+    model_config = ConfigDict(frozen=True, extra="forbid", title="NHL penalty alert")
     enabled: bool = True
     summary: bool = Field(True, description="Follow the referee animation with a details card")
     summary_duration: float = Field(5.0, ge=2, le=15)
@@ -105,13 +105,16 @@ def celebration_frames(word: str, logo_img: Image.Image, primary: tuple[int, int
     return frames
 
 
-def who_cares_frames(fav_abbrev: str, width: int, height: int, seconds: float, fps: int) -> list[Image.Image]:
+def who_cares_frames(fav_abbrev: str, width: int, height: int, seconds: float, fps: int,
+                     primary: tuple[int, int, int] | None = None) -> list[Image.Image]:
     """The building's answer to the PA announcing an opponent's goal.
 
     WHO slams in from the left, CARES?! lands from the right, and the chant bounces in the
-    favourite's colours on a half-second beat until a short fade.
+    favourite's colours on a half-second beat until a short fade. ``primary`` overrides the
+    NHL registry's colour for the other hockey leagues.
     """
-    primary = team(fav_abbrev).primary if fav_abbrev else (200, 0, 0)
+    if primary is None:
+        primary = team(fav_abbrev).primary if fav_abbrev else (200, 0, 0)
 
     def words(font_who, font_cares, fill, edge, stroke):
         return (stroked_text("WHO", font_who, fill, edge, width=stroke, pad=stroke),
@@ -182,30 +185,42 @@ def _img(image: Image.Image):
     return Img(image)
 
 
-def goal_summary_frames(goal: dict[str, Any], abbrev: str, width: int, height: int, seconds: float, fps: int, f6) -> list[Image.Image]:
+Brand = tuple[tuple[int, int, int], tuple[int, int, int]]       # (primary, text on primary)
+
+
+def _brand(abbrev: str, brand: Brand | None) -> Brand:
+    if brand is not None:
+        return brand
     t = team(abbrev)
+    return t.primary, t.text_on_primary
+
+
+def goal_summary_frames(goal: dict[str, Any], abbrev: str, width: int, height: int, seconds: float, fps: int, f6,
+                        brand: Brand | None = None) -> list[Image.Image]:
+    primary, fg = _brand(abbrev, brand)
     ari = load_font("ari", 11)
     header_txt = f"{abbrev} GOAL!  at {goal.get('time', '')}/{goal.get('period', '')}".rstrip("/ ")
     from ...render.fx import chip
-    header = chip(header_txt, f6, t.text_on_primary, t.primary, pad=(1, 1, width, 1)).crop((0, 0, width, 7))
+    header = chip(header_txt, f6, fg, primary, pad=(1, 1, width, 1)).crop((0, 0, width, 7))
     first = (goal.get("first_name") or goal.get("scorer", "")).upper()
     last = (goal.get("last_name") or "").upper()
     if goal.get("goals_to_date"):
         last = f"{last}({goal['goals_to_date']})"
     rows = [
-        (Text(f"#{goal['sweater']}" if goal.get("sweater") else "", ari, t.primary), 1, 9, 60, 9, 0.0),
+        (Text(f"#{goal['sweater']}" if goal.get("sweater") else "", ari, primary), 1, 9, 60, 9, 0.0),
         (Text(first, ari, WHITE), 1, 19, width - 1, 9, 0.1),
         (Text(last, ari, WHITE), 1, 29, width - 1, 11, 0.2),
     ]
-    statics = [(Chip("ASSISTS", f6, t.text_on_primary, t.primary), 1, 44, 29, 7)]
+    statics = [(Chip("ASSISTS", f6, fg, primary), 1, 44, 29, 7)]
     for i, a in enumerate((goal.get("assists") or [])[:2]):
         rows.append((Text(a, f6, LIGHT), 1, 52 + 6 * i, width - 1, 5, 0.1 * (3 + i)))
     rows = [(Anchor_start(n), x, y, w, h, d) for n, x, y, w, h, d in rows]
     return _card(rows, header, [(Anchor_start(n), x, y, w, h) for n, x, y, w, h in statics], width, height, seconds, fps)
 
 
-def penalty_summary_frames(pen: dict[str, Any], abbrev: str, width: int, height: int, seconds: float, fps: int, f6) -> list[Image.Image]:
-    t = team(abbrev)
+def penalty_summary_frames(pen: dict[str, Any], abbrev: str, width: int, height: int, seconds: float, fps: int, f6,
+                           brand: Brand | None = None) -> list[Image.Image]:
+    primary, fg = _brand(abbrev, brand)
     ari = load_font("ari", 11)
     from ...render.fx import chip
     header_txt = f"{abbrev} PENALTY!  at {pen.get('time', '')}/{pen.get('period', '')}".rstrip("/ ")
@@ -214,7 +229,7 @@ def penalty_summary_frames(pen: dict[str, Any], abbrev: str, width: int, height:
     first, _, last = player.partition(" ")
     kind = "MAJOR PENALTY" if int(pen.get("duration") or 0) >= 5 else "MINOR PENALTY"
     rows = [
-        (Chip(abbrev, ari, t.text_on_primary, t.primary, pad=(1, 1, 1, 1)), 1, 9, 30, 11, 0.0),
+        (Chip(abbrev, ari, fg, primary, pad=(1, 1, 1, 1)), 1, 9, 30, 11, 0.0),
         (Text(first, ari, WHITE), 1, 21, width - 1, 9, 0.1),
         (Text(last or "", ari, WHITE), 1, 31, width - 1, 9, 0.2),
         (Text(f"{pen.get('duration', 2)} MIN", f6, LIGHT), 1, 52, 60, 5, 0.3),
@@ -249,9 +264,18 @@ def penalty_gif_frames(width: int, height: int, slowdown: int = 3) -> tuple[Imag
 
 class GoalBoard(SequenceMixin, EventBoard):
     key = "nhl.goal"
-    title = "Goal celebration"
+    title = "NHL goal celebration"
     config_model = GoalConfig
     event_kinds = frozenset({"nhl.goal"})
+
+    # -- league hooks (the other hockey leagues swap the registry, the animation stays) --
+
+    def logo_image(self, abbrev: str) -> Image.Image:
+        return logo(abbrev, 128)
+
+    def team_colors(self, abbrev: str) -> Brand:
+        t = team(abbrev)
+        return t.primary, t.text_on_primary
 
     def matches(self, event: Event, cfg: GoalConfig) -> bool:
         if not cfg.enabled or event.kind not in self.event_kinds:
@@ -265,25 +289,31 @@ class GoalBoard(SequenceMixin, EventBoard):
         game = payload.get("game") or {}
         side = payload.get("side", "away")
         abbrev = (ev.team if ev and ev.team else game.get(side, {}).get("abbrev", "")) or ""
+        brand = self.team_colors(abbrev)
         seq = Sequence(ctx.fps)
         goal = payload.get("goal")
         if game.get("favorite_side") != side:
             fav = (game.get(game.get("favorite_side") or "", {}) or {}).get("abbrev", "")
             if goal:
-                seq.frames(goal_summary_frames(goal, abbrev, ctx.width, ctx.height, cfg.summary_duration, ctx.fps, ctx.profile.label_font()))
-            seq.frames(who_cares_frames(fav, ctx.width, ctx.height, cfg.opponent_duration, ctx.fps))
+                seq.frames(goal_summary_frames(goal, abbrev, ctx.width, ctx.height, cfg.summary_duration, ctx.fps, ctx.profile.label_font(), brand))
+            fav_primary = self.team_colors(fav)[0] if fav else (200, 0, 0)
+            seq.frames(who_cares_frames(fav, ctx.width, ctx.height, cfg.opponent_duration, ctx.fps, fav_primary))
             return seq.build(Image.new("RGB", (ctx.width, ctx.height)))
-        seq.frames(goal_frames(abbrev, ctx.width, ctx.height, cfg.duration, ctx.fps))
+        seq.frames(celebration_frames("GOAL!", self.logo_image(abbrev), brand[0], ctx.width, ctx.height, cfg.duration, ctx.fps))
         if cfg.summary and goal:
-            seq.frames(goal_summary_frames(goal, abbrev, ctx.width, ctx.height, cfg.summary_duration, ctx.fps, ctx.profile.label_font()))
+            seq.frames(goal_summary_frames(goal, abbrev, ctx.width, ctx.height, cfg.summary_duration, ctx.fps, ctx.profile.label_font(), brand))
         return seq.build(Image.new("RGB", (ctx.width, ctx.height)))
 
 
 class PenaltyBoard(SequenceMixin, EventBoard):
     key = "nhl.penalty"
-    title = "Penalty alert"
+    title = "NHL penalty alert"
     config_model = PenaltyConfig
     event_kinds = frozenset({"nhl.penalty"})
+
+    def team_colors(self, abbrev: str) -> Brand:
+        t = team(abbrev)
+        return t.primary, t.text_on_primary
 
     def matches(self, event: Event, cfg: PenaltyConfig) -> bool:
         return cfg.enabled and event.kind in self.event_kinds
@@ -294,5 +324,6 @@ class PenaltyBoard(SequenceMixin, EventBoard):
         abbrev = pen.get("team") or (ev.team if ev else "") or ""
         seq = Sequence(ctx.fps).frames(list(penalty_gif_frames(ctx.width, ctx.height)))
         if cfg.summary:
-            seq.frames(penalty_summary_frames(pen, abbrev, ctx.width, ctx.height, cfg.summary_duration, ctx.fps, ctx.profile.label_font()))
+            seq.frames(penalty_summary_frames(pen, abbrev, ctx.width, ctx.height, cfg.summary_duration, ctx.fps, ctx.profile.label_font(),
+                                              self.team_colors(abbrev)))
         return seq.build(Image.new("RGB", (ctx.width, ctx.height)))
