@@ -68,8 +68,9 @@ game_type (S/R/F/D/L/W), series ('SPRING' | 'WILD CARD' | 'NLDS GM2' | …), dec
 | `nhl.goal` / `nhl.goal_overturned` | `nhl/events.py` | side, count, goal {scorer, assists, goals_to_date, …}, score, game |
 | `nhl.penalty` | " | penalty {team, type, desc, player, duration, period, time}, game |
 | `nhl.state_change`, `nhl.powerplay` | " | old/new |
-| `nfl.touchdown` / `nfl.field_goal` / `nfl.safety` | `nfl/events.py` | side, points, score, last_play, game |
-| `ncaaf.touchdown` / `ncaaf.field_goal` / `ncaaf.safety` | `ncaaf/events.py` | the same rule on `ncaaf.main_event` |
+| `nfl.touchdown` / `nfl.field_goal` / `nfl.safety` / `nfl.score` (a 4- or 5-point swing) | `nfl/events.py` | side, points, score, last_play, game (classified from the score delta alone) |
+| `nfl.state_change` | " | old/new, game |
+| `ncaaf.touchdown` / `ncaaf.field_goal` / `ncaaf.safety` / `ncaaf.score`, `ncaaf.state_change` | `ncaaf/events.py` | the same rule on `ncaaf.main_event` |
 | `mlb.home_run` / `mlb.run` | `mlb/events.py` | side, runs, score, inning, half, batter, text, game (a homer only when the live feed's current play says so) |
 | `mlb.state_change`, `mlb.inning_change` | " | old/new; inning, half |
 | `ncaah.goal`, `ncaah.state_change` | `ncaah/events.py` | the NHL rule on `ncaah.main_event` (no scorer: ESPN has no goal feed, so `goal` is null; no penalties) |
@@ -81,7 +82,7 @@ Event bursts collapse to the latest event per (kind, team).
 ## External APIs (all keyless)
 | Source | Endpoints | Cadence |
 |---|---|---|
-| NHL `api-web.nhle.com/v1` | `score/now` (redirects to a dated URL — follow redirects), `gamecenter/{id}/landing` (situation, penalties, goals), `standings/now`, `club-schedule-season/{TEAM}/now`, `schedule/now` (season dates) | 5 s live / 60 s idle; standings+season hourly |
+| NHL `api-web.nhle.com/v1` | `score/now` (redirects to a dated URL — follow redirects), `gamecenter/{id}/landing` (situation, penalties, goals), `standings/now`, `club-schedule-season/{TEAM}/now`, `schedule/now` (season dates), `schedule/{date}` (the weekly walk behind `nhl.schedule`) | 5 s live / 60 s idle; standings+season hourly |
 | ESPN `site.api.espn.com` | `…/football/nfl/scoreboard` (current week; `?dates=YYYYMMDD`), `apis/v2/…/nfl/standings`, `…/teams`, `…/teams/{id}/schedule` | 20 s live-day / 300 s; hourly |
 | ESPN `site.api.espn.com` (college) | the same under `…/football/college-football/`, with `?groups=80&limit=200` on the scoreboard (FBS only, whole slate), `?group=80` on standings and `?limit=1000` on teams (that endpoint ignores `groups` and lists ~760 programmes, spelling AFA/BUFF/JVST as AF/BUF/JXST — `logos.API_ABBREVS`); game sides carry `rank` from `curatedRank`; teams are labelled by school (`shortDisplayName`) | same cadence |
 | ESPN `site.api.espn.com` (college hockey) | the same under `…/hockey/mens-college-hockey/`: `scoreboard?limit=200` (the whole D1 slate), `teams?limit=1000` (ids and logo URLs; `AFA`/`WISC` are spelled `AF`/`WIS` there — `logos.API_ABBREVS`), `teams/{id}/schedule` (a favourite's results: its record, team summary and rank come from here). The `standings` endpoint answers a shell with no rows and is not read | 15 s live / 300 s; schedules hourly |
@@ -105,4 +106,5 @@ supplied and nothing can re-download — `flights/sightings.json` (the airframe 
 `POST /api/holidays/images/{slug}`, which re-encodes whatever you send to a PNG of at most 256px. Both live outside the checkout so
 an OTA update, which fast-forwards the working tree, cannot delete them.
 
-Fixtures under `tests/fixtures/` are real captures of each; tests never hit the network (respx).
+Fixtures under `tests/fixtures/` are real captures of each, except MLB and college football, which are generated
+(see their READMEs); tests never hit the network (respx).

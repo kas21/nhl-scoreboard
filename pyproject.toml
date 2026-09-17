@@ -1,7 +1,7 @@
 [project]
 name = "nhl-scoreboard"
 version = "0.1.0"
-description = "Standalone LED matrix scoreboard for Raspberry Pi — NHL first, NFL, college football and MLB bundled, pluggable for more"
+description = "Standalone LED matrix scoreboard for Raspberry Pi — NHL first; NFL, college football, MLB, college hockey, the AHL, weather, flights and holidays bundled, pluggable for more"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"

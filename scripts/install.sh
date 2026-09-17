@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Install / update nhl-scoreboard on a Raspberry Pi as a systemd service.
 #
-#   curl -fsSL https://raw.githubusercontent.com/<owner>/nhl-scoreboard/main/scripts/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/kas21/nhl-scoreboard/main/scripts/install.sh | sudo bash
 #   ./scripts/install.sh            # from a checkout (re-runnable; updates in place)
 #
 # Steps: apt deps -> clone/update to /opt/scoreboard -> venv -> pip install ->

@@ -4,7 +4,7 @@
 A small LED panel on your Pi that follows your team: a live scoreboard with goal and penalty alerts
 during games, and a rotation of useful boards the rest of the time (scores around the league,
 standings, your team's record and next game, clock, weather, holiday countdown, aircraft overhead).
-NHL is the main event; NFL, college football (FBS) and MLB work the same way. Everything is set up from a web page — no files to edit.
+NHL is the main event; NFL, college football (FBS), MLB, college hockey and the AHL work the same way. Everything is set up from a web page — no files to edit.
 
 ## First run
 1. Flash Raspberry Pi OS (64-bit), set Wi-Fi + hostname + user in Raspberry Pi Imager.
@@ -32,7 +32,7 @@ to override one.
 
 A club's primary logo is not always the one that reads best on a panel. Some are wordmarks that
 turn to mush at 22px (Washington, Los Angeles); others are dark marks that vanish against a black
-panel (Tampa Bay, Toronto). ESPN publishes several variants per team, and **Settings -> LogosConfig**
+panel (Tampa Bay, Toronto). ESPN publishes several variants per team, and **Settings → Appearance → Logos**
 picks between them:
 
 - **Use curated defaults** (on): the audited picks for the six NHL teams whose default genuinely
@@ -51,8 +51,8 @@ nothing needs a restart.
   *Rotation* draws the current playlist as one lap: a bar with a slice per board, sized by how long it runs, with what
   the board is made of above it (7 games, 4 aircraft, 2 pages) and its name and length below; the slice on screen fills
   as it plays and the header says what comes next. Auto lengths are marked ≈ because they follow the data. Boards the
-  panel is passing over are listed underneath with the reason (no data, disabled, interrupt board, paused after an
-  error, nothing to show), and a goal or other interrupt shows as a banner while it plays. The same card sits at the
+  panel is passing over are listed underneath with the reason (no data, disabled, not loaded, interrupt board, paused after an
+  error, another sport's game, nothing to show), and a goal or other interrupt shows as a banner while it plays. The same card sits at the
   top of the *Boards* page.
   *Games* lists every game for the next few days per sport (as far ahead as that sport's *show games within days*
   setting; MLB lists only today's games unless you turn off *schedule today only*, with your teams' records and next game,
@@ -76,11 +76,12 @@ nothing needs a restart.
     state does (that is what the *live* game board wants), so give it seconds if you want the playlist to
     move on. Standings and team summary only know their length after they have run once (`auto · length not
     known yet` until then).
-- **Settings** — every option, grouped: Display, Location, Brightness (fixed / sunrise-sunset / hours),
-  Transition between boards, Sports (priority, and the game-day rollover hour: last night's finals stay in the
-  ticker until then — today's games show as soon as the date turns, and the postgame board still leaves at
-  midnight), per-board settings, per-data-source settings, Integrations (follow another panel, MQTT — see
-  below).
+- **Settings** — every option, grouped: Display, Location & time, Brightness (fixed / sunrise-sunset / hours),
+  Appearance (transition between boards, logos, and Sports: priority, and the game-day rollover hour: last night's
+  finals stay in the ticker until then — today's games show as soon as the date turns, and the postgame board still
+  leaves at midnight), Boards (per-board settings), Data sources (per-source settings), Integrations (follow
+  another panel, MQTT — see below) and System (web port, preview frame rate, update checks, allowed hosts, log
+  level). Rarely-touched fields are hidden behind the *Advanced* toggle.
 - **Simulator** — run a game by hand to see what the panel does: pick two teams, drop the puck, start and stop
   the clock, score (with or without naming the scorer), call penalties, pull a goalie, end periods. The panel
   follows it exactly as it would a real game — the live board, the goal and penalty alerts, the ticker, the
@@ -103,7 +104,7 @@ Everything saved on the Settings and Boards pages applies without a restart, but
 - **Board settings**: the next frame.
 - **A source's settings** (favourites, intervals, the slate): its next poll, which is brought forward to *now* by the
   save — the source stops waiting out its old interval.
-- **Turning a source off** (`enabled`): at once. Its background fetching stops and everything it had published is
+- **Turning a source off** (`enabled`; every source has the switch except NHL and holidays): at once. Its background fetching stops and everything it had published is
   withdrawn, so its boards leave the rotation, its game stops being a candidate for the panel and the dashboard forgets it.
   Turning it back on starts it fresh; the diagnostics page shows an off source as *Off* rather than starting or crashed.
 - **Display driver options** and **follower mode**: the next restart (the Setup wizard has the button).
@@ -115,7 +116,7 @@ Everything saved on the Settings and Boards pages applies without a restart, but
 | Goal / Touchdown / Home run | full-screen celebration + scorer card (NHL and AHL; college hockey has no scorer feed, so just the celebration; the other team's goals get the card, then WHO CARES?!); runs that are not homers get a short card (MLB, off for the other team by default) | live game |
 | Penalty | referee animation + details card (NHL, AHL) | live game |
 | Ticker | every game on today's slate, led by last night's finals until the game-day rollover hour (the college leagues: the games the source's `slate` setting keeps — ranked teams by default, or your conferences, or all; your favourites' games always) | slate within `show_games_within_days` |
-| Standings | division / wildcard / league (GB column for MLB; college shows one conference per page with a CONF record column, your favourites' conferences only unless you turn `favorite_conferences_only` off, and `wildcard` means the divisions of conferences that still have them; the AHL's `wildcard` view is each conference's two divisions); "FINAL yyyy-yy" banner in the off-season. There is no college hockey standings board: ESPN publishes none | — |
+| Standings | division / wildcard / league (GB column for MLB; college shows one conference per page with a CONF record column, your favourites' conferences only unless you turn `favorite_conferences_only` off, and `wildcard` means the divisions of conferences that still have them; the AHL's `wildcard` view is each conference's two divisions); "FINAL yyyy-yy" banner in the off-season. There is no college hockey standings board: ESPN publishes none | standings fetched (every sport but college hockey) |
 | Team summary | record, streak, last result, next game (college football: rank, conference record and place; college hockey: W-L-T counted from the school's schedule, rank, conference) | favourites |
 | Season countdown | days until your team's opener / preseason (spring training) / kickoff / opening day | off-season & preseason |
 | Weather alerts | the watches, warnings and advisories in force at your location (red / orange / yellow bar, the hazard, until when, where, and the agency's description paged underneath on 128x64); only appears while one is in force | location (US via the National Weather Service, Canada via Environment Canada) |
@@ -123,7 +124,7 @@ Everything saved on the Settings and Boards pages applies without a restart, but
 
 ## Alerts
 Goals/penalties/touchdowns/runs come from the same data the score uses (polled every 5 s NHL / 20 s NFL and
-college / 10 s MLB while your team plays), so nothing is missed if a poll fails. The other team's NHL goals get
+college football / 15 s college hockey / 10 s MLB and AHL while your team plays), so nothing is missed if a poll fails. The other team's NHL goals get
 the same scorer card (the PA announcement), then a WHO CARES?! chant in your team's colours (`opponent_duration` seconds); `opponent_goals` turns it off. `delay_seconds` (NHL and MLB sources) holds updates back to match a TV
 broadcast. MLB inning breaks stay in the *live* state (the board shows MID/END and who is due up) rather
 than switching to the intermission playlist seventeen times a game.
@@ -147,7 +148,7 @@ Integrations → *Follower*: tick *enabled*, put the first panel's web address i
 then on it fetches nothing itself: every score, standing, forecast and plane comes from the master, the
 moment the master has it. It still has its own display settings, brightness schedule, playlists and board
 settings, so one panel can rotate through everything while another sits on the game. Team logos are the one
-thing a follower still downloads itself. The Dashboard says which panel it is following, and the Diagnostics
+thing a follower still downloads itself (AHL clubs excepted: a follower shows their coloured tile). The Dashboard says which panel it is following, and the Diagnostics
 sources table shows the link as a single `follower` row. If the master goes away the follower keeps its last
 data, shows the stale dot after a few failed rounds, and picks up where it left off when the master is back.
 Starting a simulation on the master runs it on every follower too.
@@ -163,8 +164,8 @@ it wants them). The Dashboard status card says whether it is connected. Everythi
 | `scoreboard/state` | `{state, board, brightness, override}` | retained, on change |
 | `scoreboard/snapshot/<key>` | the data, one topic per snapshot key with dots as slashes: `snapshot/main_event`, `snapshot/nhl/scores`, `snapshot/weather/current`… | retained, on change (see [DATA.md](DATA.md) for shapes). *snapshot keys* (advanced) narrows it to the keys you name |
 | `scoreboard/event/<kind>` | `{kind, team, payload, ts}` — `event/nhl/goal`, `event/nhl/penalty`, `event/nfl/touchdown`, `event/flights/overhead`… | one message per event, not retained |
-| `scoreboard/cmd/power` ← | `off` blanks the panel until `on` | an override; a restart clears it |
-| `scoreboard/cmd/board` ← | a board key (`clock`), or `{"board": "nhl.standings", "seconds": 120}`; empty or `none` clears | forces a board, like the *preview* button |
+| `scoreboard/cmd/power` ← | `off` (or `0` / `false`) blanks the panel until `on` (`1` / `true`) | an override; a restart clears it |
+| `scoreboard/cmd/board` ← | a board key (`clock`), or `{"board": "nhl.standings", "seconds": 120}`; empty, `none`, `null` or `clear` clears | forces a board for `seconds` (60 by default), the same override the wizard's test pattern uses |
 
 A Home Assistant sensor for the score, for instance, is an `mqtt` sensor on `scoreboard/snapshot/main_event`
 with a `value_template` of `{{ value_json.home.score }}`; a switch that turns the panel off overnight publishes

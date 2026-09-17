@@ -1,6 +1,6 @@
 # Writing a board or data source
 
-Everything — NHL, NFL, college football, MLB, weather, flights, holidays — uses the same contracts and is registered
+Everything — NHL, NFL, college football, MLB, college hockey, the AHL, weather, weather alerts, flights, holidays — uses the same contracts and is registered
 with entry points in `pyproject.toml`. Third-party packages do exactly the same. There are three you will
 use (source, board, detector) and a fourth, optional one: a simulation, which lets the Simulator page drive
 your boards by hand.
@@ -19,9 +19,11 @@ class MySource:
             cfg = ctx.config        # re-read each loop: live edits apply
             data = await ctx.http.get(...)                     # ctx.http is a shared httpx.AsyncClient
             ctx.publish(data.json(), subkey="latest")          # -> "my.latest"
-            await asyncio.sleep(cfg.refresh_seconds)
+            await ctx.sleep(cfg.refresh_seconds)              # not asyncio.sleep: see below
 ```
-`ctx.timezone` (IANA) and `ctx.location` ((lat, lon) or None) come from the app config.
+`ctx.timezone` (IANA) and `ctx.location` ((lat, lon) or None) come from the app config. `ctx.log` is a logger
+named after the source; `ctx.drift(note)` reports a feed that no longer looks the way you expect (logged once per
+distinct note, counted on the diagnostics page) — keep per-game values out of the note so it collapses to one line.
 Sleep between polls with `await ctx.sleep(seconds)` (not `asyncio.sleep`): it records when you will fetch next, and a
 save of your settings ends the nap early so the new values reach the next poll. Give the model an `enabled: bool = True`
 and the app runs your source only while it is on — turned off, its task is cancelled and every key it published is
@@ -51,8 +53,6 @@ class MyBoard(BaseBoard):
 A board that shows a list one item at a time should declare `pace_unit = "item"`: the playlist's seconds
 then mean seconds per item and arrive as `ctx.pace` (None when the row is blank, so fall back to your own
 setting via `per_item(ctx, cfg.seconds_per_item)`), and the board must end itself through `done()`.
-```python
-```
 Use `enter(ctx, cfg)` to pre-render once when the board becomes active. `SequenceMixin` turns a board
 into `build(ctx, cfg) -> Sequence` for timeline boards. Layout/animation vocabulary: `render/__init__.py`.
 Register: `[project.entry-points."scoreboard.boards"] "my.card" = "pkg.module:MyBoard"`.
@@ -74,7 +74,7 @@ rebuilt for the new payload.
 ## Sport packages
 Publish a normalised game dict (docs/DATA.md) under `<sport>.main_event`, set `sport` on boards that only
 apply to that sport, and reuse `nhl.select.select_main_event` / the NHL boards as base classes
-(`nfl/` is the worked example: ~600 lines for a whole league; `ncaaf/` shows how little a sibling league on the
+(`nfl/` is the worked example: ~800 lines for a whole league; `ncaaf/` shows how little a sibling league on the
 same API costs — it subclasses the NFL source, client and boards and only owns its team registry, conference
 standings and the rank/slate touches; `mlb/` shows a sport whose live board needs
 its own centre column — override `_live` / `_live_stats_row` / `_indicators` on the NHL `GameBoard` and keep the rest;

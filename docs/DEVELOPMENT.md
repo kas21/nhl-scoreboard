@@ -8,8 +8,7 @@ No Node toolchain: the UI is plain ES modules served as static files. No API key
 git clone https://github.com/kas21/nhl-scoreboard && cd nhl-scoreboard
 uv sync --extra dev --extra emulator     # venv + deps; `emulator` pulls RGBMatrixEmulator, `dev` pytest/ruff/respx
 uv run scoreboard --demo --emulator      # emulator window + web UI on :8080, replaying a recorded game
-uv run scoreboard --emulator             # …then open Simulator in the UI to run a game by hand (goals, penalties, periods)
-uv run scoreboard --emulator             # the same against the live feeds
+uv run scoreboard --emulator             # the live feeds; open Simulator in the UI to run a game by hand (goals, penalties, periods)
 uv run scoreboard --output none          # headless: browser preview only (CI, SSH sessions)
 uv run pytest -q && uv run ruff check scoreboard tests
 ```
@@ -61,17 +60,17 @@ snapshot it is rendered from, which doubles as a catalogue.
   always and `logos.logo()` resolves the choice from config, so adding a variant needs no board change.
   The branded variants live on a per-team GUID path that only ESPN's *team API* hands out, so a
   variant fetch costs one extra request per league; the flat `default`/`dark` paths need none.
-  That API 403s unknown user agents, hence the explicit `ESPN_API_UA` on the discovery request.
-  Tests run against an empty cache (`conftest.py` points `SCOREBOARD_CACHE_DIR` at a temp dir), so boards
-  render the placeholder tile — assert on layout, not on club colours.
+  That API 403s unknown user agents, hence the explicit `espn.HEADERS` on the discovery request.
+  Tests run against an empty cache (`conftest.py` points `SCOREBOARD_CACHE_DIR` at a temp dir): unit tests see
+  the placeholder tile and the golden suite paints a synthetic disc in team colours — assert on layout, not on real artwork.
 
-## Release checklist (when the repo goes public)
-1. GitHub Actions: pytest + ruff on push; build `rgbmatrix` wheels for cp311/cp312/cp313 aarch64.
+## Release checklist
+1. GitHub Actions: pytest + ruff on push (not there yet: only the weekly live NHL contract workflow runs); build `rgbmatrix` wheels for cp311/cp312/cp313 aarch64.
 2. ~~installer clone path + OTA button~~ done.
 3. pi-gen image.
 
 ## Backlog
-OTA/installer (needs public repo) · own rgbmatrix wheels · 64x32 design pass · MLB fixtures from real
+own rgbmatrix wheels · 64x32 design pass · MLB fixtures from real
 captures (the shipped ones are generated) · "preview this board" button (override API exists) · per-board "in every rotation" toggle ·
 sheen-speed settings on more boards · previous-season LAST game in the off-season · Home Assistant MQTT discovery ·
 a follower that takes logos from the master too (no internet needed on followers).

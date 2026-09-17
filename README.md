@@ -21,7 +21,7 @@ file, configured from a browser — no broker, no SSH. NHL first; NFL, college f
 **On a Raspberry Pi with a panel** (see [HARDWARE.md](docs/HARDWARE.md) for parts and wiring):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/kas21/nhl-scoreboard/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/kas21/nhl-scoreboard/main/scripts/install.sh | sudo bash
 sudo /opt/scoreboard/scripts/pi_tuning.sh && sudo reboot
 ```
 
@@ -34,7 +34,7 @@ uv sync --extra dev --extra emulator
 uv run scoreboard --demo --emulator     # replays a recorded game into an emulator window; web UI on :8080
 uv run scoreboard --emulator            # live data
 uv run scoreboard --output none         # headless: browser preview only
-uv run pytest -q                        # ~500 tests in a few seconds
+uv run pytest -q                        # ~700 tests, ~10 s
 ```
 
 Open http://localhost:8080 — the dashboard shows exactly what the matrix shows.
@@ -67,8 +67,12 @@ scoreboard/
   imagecache.py logos.py  runtime image cache and team logos fetched from ESPN's CDN (no artwork in the repo)
   demo.py           replays tests/fixtures/nhl as a live game
   sim/              the simulator: claim a feed's keys and drive the boards from the browser (nhl/sim.py is the NHL engine)
-  plugins.py        entry-point discovery for boards / sources / detectors
-tests/              pytest; fixtures/ are real API captures; golden/ pins every board's pixels
+  plugins.py        entry-point discovery for boards / sources / detectors / sims
+  follower.py       display-only panel: relays another scoreboard's snapshot instead of fetching
+  mqtt.py           bridge to a broker: snapshot, events and state out; board / power commands in
+  espn.py isotime.py logovariants.py   ESPN request headers, ISO-8601 parsing, the alternate-logo table
+  assets/           splash, penalty gif, holiday art, teams_branding.toml (team logos are fetched at runtime)
+tests/              pytest; fixtures/ are real API captures (MLB and college football are generated, see their READMEs); golden/ pins every board's pixels
 tools/ scripts/     font build; Pi install.sh + pi_tuning.sh
 docs/               the documents linked above
 ```

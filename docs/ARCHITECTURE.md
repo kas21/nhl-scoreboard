@@ -6,7 +6,7 @@ Start with [OVERVIEW.md](OVERVIEW.md) if you have not read it: this page is the 
  sources (asyncio tasks)          store              director (render thread, 30 fps)          output
  nhl / nfl / ncaaf / mlb  ──▶  Snapshot (immutable, ──▶  state ← main_event/season          ──▶ matrix
  ncaah / ahl                    versioned dict)
- holidays / flights / weather   versioned dict)          playlist cursor, transitions,           preview ws
+ holidays / flights / weather                            playlist cursor, transitions,           preview ws
         │                           │                    event interrupts, brightness
         │                     EventBus: detectors(prev,new) ─▶ events queue ─▶ event boards
         └── MainEventArbiter: <sport>.main_event ─▶ main_event (live first, then sports.priority)
@@ -39,7 +39,7 @@ Start with [OVERVIEW.md](OVERVIEW.md) if you have not read it: this page is the 
 
 | Thread | Runs | Paced by |
 |---|---|---|
-| main (asyncio) | one task per source (`run_source_forever`), uvicorn for the web UI, a render-thread watchdog (1 s), the GitHub update checker (`web.update_check_hours`), signal handling | event loop |
+| main (asyncio) | one task per source (`run_source_forever`), uvicorn for the web UI, a render-thread watchdog (1 s), the GitHub update checker (`web.update_check_hours`), the simulator tick (4/s), the MQTT bridge, signal handling | event loop |
 | `render` | `Director.frame()` → `output.show()` → `preview.submit()`; brightness applied each frame | `display.fps` (default 30), sleeps the rest of the budget |
 | `preview-encode` | PNG-encodes the latest submitted frame for browsers | frames arrive; drops when busy |
 | matrix driver (C++) | `rgbmatrix`'s own refresh thread, pinned to the isolated core on a Pi | hardware |
@@ -83,7 +83,7 @@ and refreshes standings, team summaries, season dates and the schedule hourly in
 alerts source polls every `poll_seconds` but naps only until the soonest alert lapses so it can retire it
 on time. [DATA.md](DATA.md#external-apis-all-keyless) lists every endpoint and cadence.
 
-Only the NHL source publishes `system.online`: three consecutive score-poll failures set it false, one
+Only the NHL source (or what stands in for it: `--demo`, a follower) publishes `system.online`: three consecutive score-poll failures set it false, one
 success sets it true. That is what draws the stale dot and, with no data at all, puts the app in ERROR.
 
 ### 2. The snapshot store
@@ -128,7 +128,7 @@ Two listeners are wired at startup:
    survives, the clock.
 4. **Enter** the board when it changed — or when the same event board has a new event behind it, so a
    cached `Sequence` is rebuilt for the new payload. Playlist boards get a transition in from the last
-   frame (`config.transition`: fade / slide / wipe / blinds); event boards cut in instantly.
+   frame (`config.transition`: none / fade / slide_left|right|up|down / wipe / blinds); event boards cut in instantly.
 5. **Render** with a `BoardContext` (snapshot, size profile, width, height, fps, `now` in the configured
    zone, `elapsed` since enter, the event). A board that raises is quarantined for 60 s and the cursor moves
    on; the last good frame is shown meanwhile.
@@ -229,16 +229,16 @@ safe to clear; `SCOREBOARD_DATA_DIR` (`~/.scoreboard/data`, `/var/lib/scoreboard
 supplied. Both live outside the checkout so an OTA update cannot delete them.
 
 ## Config lifecycle
-`config.json` holds **overrides only**; every default is a pydantic field in `config/models.py`, and the
-API returns effective values. `ConfigStore.update(patch)` deep-merges, validates the whole `AppConfig`,
+`config.json` is written in full for the core sections; plugin sections (`boards.*`, `sources.*`) hold only
+what was set. Every default is a pydantic field in `config/models.py`, and the API returns effective values. `ConfigStore.update(patch)` deep-merges, validates the whole `AppConfig`,
 writes atomically (temp file + rename, mode 0600, five rotating backups) and then calls its listeners with
 the new model; nothing is written if validation fails. On load a document that is not JSON is moved to
 `config.json.broken` and defaults are used; an old `version` is migrated step by step (`MIGRATIONS`); a
 document with bad keys is *salvaged* — only the offending paths are dropped, and a warning names them.
 
 Listeners registered at startup: log level, logo variant preferences, preview fps, each source context's
-timezone and location, the director (board-config cache reset, interrupt-board warning when playlists
-change), and the holidays source (republishes immediately when its settings change). Everything applies
+timezone and location, the source supervisor (starts, stops or wakes a source when its `sources.*` section
+changes), the director (board-config cache reset, interrupt-board warning when playlists change), and the holidays source (republishes immediately when its settings change). Everything applies
 without a restart except `display.*` driver options, which need the restart button the wizard offers.
 
 Plugin sections (`boards.<key>`, `sources.<key>`) are free-form dicts in `AppConfig` and are validated
@@ -257,7 +257,8 @@ than rejecting the whole file.
 | Bad plugin | its entry point is skipped at load and logged; the rest of the app runs (the director draws black if even the fallback board is missing) |
 
 ## Web
-FastAPI on `web.port` (8080). Endpoints: `/api/config` (GET effective, PATCH deep-merge, PUT, reset),
+FastAPI on `web.port` (8080). Endpoints: `/api/config` (GET effective, PATCH deep-merge, PUT replace, POST `/reset`), `/api/dashboard` (the
+trimmed per-sport / extras summary the dashboard polls),
 `/api/schema`, `/api/status`, `/api/sources` (per-source health), `/api/boards` (key, title, requires,
 `playlistable`, `self_timed`, `auto_seconds`), `/api/rotation` (the current playlist as the director runs it: lengths,
 counts, skip reasons, cursor), `/api/snapshot` (whole, or `?since=&wait=` long-poll for a follower panel), `/api/logs`, `/api/override` (force a board),
@@ -274,7 +275,7 @@ State-changing calls need `X-Requested-With: scoreboard-ui` and a `Host` the box
 (`web/guard.py`; see [HARDWARE.md](HARDWARE.md#security)). The UI is Preact + HTM served as static files
 (no build step): `app.js` (shell, boards, playlists), `dashboard.js`, `settings.js` (schema-driven forms),
 `holidays.js`, `sim.js` (the Simulator page: start forms from each engine's schema, buttons from its action
-specs — nothing in it knows hockey), `wizard.js` (first-run flow), `select.js` (the one `<select>` component: its options are memoised so a poll's re-render leaves them untouched, otherwise Chrome shuts a menu that is open).
+specs — nothing in it knows hockey), `wizard.js` (first-run flow), `rotation.js` (the Rotation card), `tags.js` (the draggable favourite-team pills), `select.js` (the one `<select>` component: its options are memoised so a poll's re-render leaves them untouched, otherwise Chrome shuts a menu that is open), `app.css`, and the vendored `htm-preact.js`.
 
 ## Integrations
 Two things sit beside the sources and touch nothing downstream. **Follower** (`follower.py`): with

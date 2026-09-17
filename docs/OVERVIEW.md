@@ -99,7 +99,7 @@ Think of a newsroom with a wall of screens.
 - **Sources never draw.** They may cache on disk (logos, airline art) but boards only read what has landed.
 - **Everything shared between threads is immutable and swapped, not mutated**: snapshots, config models,
   source stats, the director's board-config cache. Readers never lock.
-- **Config stores overrides only.** Defaults live in the pydantic models; the API returns effective values.
+- **Defaults live in the pydantic models, never in `config.json`.** Plugin sections hold only what was set; the API returns effective values.
 - **Failure is contained per part.** A crashing source restarts with backoff; a raising board is quarantined;
   an unreachable feed keeps the last data and shows a dot; a broken config loses only its bad keys; a dead
   render thread exits the process so systemd restarts it.
@@ -109,7 +109,7 @@ Think of a newsroom with a wall of screens.
 ```bash
 uv sync --extra dev --extra emulator
 uv run scoreboard --demo --emulator     # replays a recorded game into an emulator window; UI on :8080
-uv run pytest -q                        # ~500 tests, ~6 s; goldens pin every board's pixels
+uv run pytest -q                        # ~700 tests, ~10 s; goldens pin every board's pixels
 ```
 
 Then open http://localhost:8080. The dashboard shows the panel, the Boards page the playlists, Diagnostics

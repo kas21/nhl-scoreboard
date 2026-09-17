@@ -3,13 +3,14 @@
 ## Parts
 - Raspberry Pi 4 (tested) or Pi 3B+/Zero 2 (should work; lower `pwm_bits` if it struggles). Pi 5 needs the
   RP1 build of rpi-rgb-led-matrix (untested here).
-- HUB75 RGB LED panel(s): 128x64 (one 128x64, or two 64x64 chained), 64x32, 64x64, 128x32 presets exist.
+- HUB75 RGB LED panel(s): 128x64 (one 128x64, or two 64x64 chained), 64x32, 64x64, 128x32 presets exist;
+  128x128, 192x128 and 256x256 have size profiles too (set width/height by hand).
 - Adafruit RGB Matrix HAT/Bonnet (with the PWM jumper solder mod recommended) or direct wiring.
 - 5 V supply sized for the panel (a 128x64 can draw 4 A+ at full white).
 
 ## Install
 ```bash
-curl -fsSL https://raw.githubusercontent.com/kas21/nhl-scoreboard/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/kas21/nhl-scoreboard/main/scripts/install.sh | sudo bash
 sudo /opt/scoreboard/scripts/pi_tuning.sh && sudo reboot
 ```
 `install.sh`: apt deps → venv → `pip install -e .` → `rgbmatrix` (prebuilt wheel for this Python, else source
@@ -21,6 +22,9 @@ From a checkout, `sudo ./scripts/install.sh` uses that checkout in place — a *
 The service still runs as root, so unless you cloned as root the one-click Update refuses it (see
 [Updates](#updates)) and the unit relaxes `ProtectHome` to reach the checkout. For a permanent install
 from a checkout, `SCOREBOARD_CLONE=1 ./scripts/install.sh` clones to `/opt/scoreboard` instead.
+`SCOREBOARD_REPO`, `SCOREBOARD_BRANCH`, `SCOREBOARD_DIR` and `SCOREBOARD_CONFIG_DIR` override the clone
+source, branch, install dir (`/opt/scoreboard`) and config dir (`/etc/scoreboard`). The installer also adds the
+install dir to git's system-wide `safe.directory`, so root can operate a checkout owned by the login user.
 
 ## Updates
 The dashboard checks GitHub daily (`web.update_check_hours`) and shows **Update available** with a one-click
@@ -51,18 +55,21 @@ Within that boundary, two browser-driven attacks are closed off (`scoreboard/web
 
 The systemd unit `install.sh` writes keeps root (the matrix driver needs GPIO) but adds
 `NoNewPrivileges`, `PrivateTmp`, `ProtectSystem=full`, `ProtectHome` and friends, so the writable
-surface is the config dir, the cache dir and the checkout.
+surface is the config dir, the cache dir (`/var/cache/scoreboard`), the data dir (`/var/lib/scoreboard`,
+uploaded pictures and the flight log) and the checkout.
 
 ## Display settings (Settings → Display, or the wizard)
 | Setting | Notes |
 |---|---|
 | width/height/chain/parallel | total pixels and how panels are wired |
-| gpio_mapping | `adafruit-hat-pwm` (modded HAT), `adafruit-hat`, `regular` |
+| gpio_mapping | `adafruit-hat-pwm` (modded HAT), `adafruit-hat`, `regular`; also `regular-pi1`, `classic`, `classic-pi1` |
 | rgb_sequence | fix swapped colours; Kevin's panel needs `RGB` |
 | pixel_mapper | `Rotate:180`, `Mirror:H` … |
-| slowdown_gpio | 1 (Pi 3), 2 (Pi 4, default), 3–4 if flicker/ghosting |
-| pwm_bits / pwm_lsb_nanoseconds / pwm_dither_bits | colour depth vs refresh; 7/130/1 is a good default |
-| limit_refresh | cap Hz (60) for steadier brightness |
+| slowdown_gpio | default 4; 2 is what Kevin's Pi 4 needs, 1 a Pi 3; raise it for flicker/ghosting |
+| pwm_bits / pwm_lsb_nanoseconds / pwm_dither_bits | colour depth vs refresh; defaults 11 / 130 / 0; 7 / 130 / 1 trades depth for a steadier refresh on a slower Pi |
+| limit_refresh | cap Hz; default 0 = unlimited, 60 for steadier brightness |
+| scan_mode / row_addr_type / multiplexing / panel_type | panel quirks (advanced), e.g. `panel_type: FM6126A`; leave alone unless the panel shows garbage |
+| drop_privileges | off: appliance mode keeps root |
 | fps | render loop rate (30) |
 Driver options only apply at start — use the wizard's *Apply* (restart) button.
 

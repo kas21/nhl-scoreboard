@@ -12,7 +12,7 @@ uv sync --extra dev --extra emulator                 # dev install (emulator + f
 uv run scoreboard --emulator                        # emulator window (:8888) + web UI (:8080)
 uv run scoreboard --demo --emulator                 # replay a recorded NHL game (works in the off-season)
 uv run scoreboard --output none                     # headless: browser preview only
-uv run pytest -q                                    # ~350 tests, ~5s
+uv run pytest -q                                    # ~700 tests, ~10s
 SCOREBOARD_UPDATE_GOLDENS=1 uv run pytest tests/test_golden.py   # accept changed board frames (look at tests/golden/_failed first)
 uv run ruff check --fix scoreboard tests            # lint (rules pinned in pyproject)
 uv run python tools/build_fonts.py                  # BDF -> .pil bitmap fonts
@@ -51,7 +51,7 @@ scoreboard/
   nhl/              api-web.nhle.com client, normaliser, source, season phase, event detectors, boards (ported old designs), sim
   nfl/              ESPN site API, normaliser, source, detectors; boards subclass the NHL ones
   ncaaf/            college football (FBS) on the same ESPN API: subclasses the NFL source/client/boards; owns the
-                    136-team registry (teams.py, ESPN abbrevs by conference), conference standings, ranks, slate filter
+                    138-team registry (teams.py, ESPN abbrevs by conference), conference standings, ranks, slate filter
   mlb/              MLB Stats API (statsapi.mlb.com), normaliser, source, detectors; boards subclass the NHL ones
                     with a baseball centre column (inning arrow, bases, count, outs, pitcher/batter strip)
   ncaah/            men's college hockey (D1) on ESPN's site API: subclasses the NFL client/source, hockey normaliser, owns the
@@ -63,8 +63,11 @@ scoreboard/
                     Canada watches/warnings, an interrupt board and a playlist board) — same plugin contract
   follower.py       display-only panel: long-polls a master's /api/snapshot?since= and republishes every key (replaces all sources)
   mqtt.py           bridge to a broker: retained snapshot/<key> + event/<kind> + state out, cmd/board + cmd/power in (aiomqtt)
+  demo.py           --demo: replays tests/fixtures/nhl as a live game in place of the NHL source
+  plugins.py        entry-point discovery (boards / sources / detectors / sims); a broken plugin is logged and skipped
+  espn.py isotime.py logovariants.py   ESPN request headers, ISO-8601 parsing, the alternate-logo table
   imagecache.py logos.py  runtime image cache ($SCOREBOARD_CACHE_DIR) + team logos fetched from ESPN's CDN
-  assets/           fonts under render/fonts, holiday images, penalty gif (team logos are fetched at runtime)
+  assets/           splash, penalty gif, holiday images, teams_branding.toml; fonts live under render/fonts (team logos are fetched at runtime)
 tests/              pytest; fixtures/ are real API captures (NHL 2026-04-11 game day, ESPN, adsb.lol, Open-Meteo);
                     fixtures/mlb and fixtures/ncaaf are API-shaped but generated (see their READMEs) — replace with captures when you can;
                     golden/ holds the pinned board frames (test_golden.py + golden_scenes.py), one PNG per board/state/size
@@ -81,7 +84,8 @@ docs/               OVERVIEW (start here), USER_GUIDE, HARDWARE, ARCHITECTURE, D
   `weather.current|daily|alerts`.
 - **Events** are derived by diffing consecutive snapshots (goal, penalty, touchdown, run / home run, flight overhead…);
   event boards pre-empt the playlist, then it resumes. Bursts collapse to the latest per kind/team.
-- **Config**: `config.json` stores only overrides; the API returns effective values (model defaults merged).
+- **Config**: `config.json` is written in full for the core sections; plugin sections (`boards.*`, `sources.*`) hold
+  only what was set, and the API returns effective values (plugin defaults merged).
   Every pydantic field appears in the web UI automatically. Live edits apply without restart, except
   `display.*` driver options (need a restart — the wizard has a button).
 - **Plugins**: `scoreboard.boards` / `scoreboard.sources` / `scoreboard.detectors` / `scoreboard.sims` entry points; bundled
@@ -104,4 +108,5 @@ docs/               OVERVIEW (start here), USER_GUIDE, HARDWARE, ARCHITECTURE, D
 - Pi panel: `rgb_sequence=RGB`, `slowdown_gpio=2`, `isolcpus=3`, `snd_bcm2835` blacklisted.
 - Any change to how a board looks fails `tests/test_golden.py` by design. Check the diff sheet, then regenerate
   the goldens and commit the PNGs alongside the code; never loosen the comparison.
-- Lint gate: `ruff check` must pass before commit (the CI/commit chains use `&&`; don't pipe through tail).
+- Lint gate: `ruff check` must pass before commit (commit chains use `&&`; don't pipe through tail). There is no
+  CI on push yet: only the weekly live NHL contract workflow.
