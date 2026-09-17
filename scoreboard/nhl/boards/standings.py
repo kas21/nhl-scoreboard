@@ -25,7 +25,7 @@ EXIT_PX_PER_FRAME = 3
 
 
 class StandingsConfig(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid", title="Standings")
+    model_config = ConfigDict(frozen=True, extra="forbid", title="NHL standings")
     view: Literal["division", "wildcard", "league"] = "division"
     scroll_speed: float = Field(5.0, ge=1, le=40, description="Pixels per second")
     hold_seconds: float = Field(5.0, ge=0, le=20, description="Pause at the bottom before leaving")
@@ -34,7 +34,7 @@ class StandingsConfig(BaseModel):
 
 class StandingsBoard(BaseBoard):
     key = "nhl.standings"
-    title = "Standings"
+    title = "NHL standings"
     config_model = StandingsConfig
     requires = frozenset({"nhl.standings"})
     standings_key = "nhl.standings"

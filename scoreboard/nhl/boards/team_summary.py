@@ -41,7 +41,7 @@ def _fade_mask(width: int, height: int, solid_until: int, gone_at: int) -> Image
 
 
 class TeamSummaryConfig(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid", title="Team summary")
+    model_config = ConfigDict(frozen=True, extra="forbid", title="NHL team summary")
     scroll_speed: float = Field(5.0, ge=1, le=40)
     hold_seconds: float = Field(5.0, ge=0, le=20)
     sheen_seconds: float = Field(2.5, ge=0.5, le=10, description="Seconds per shimmer sweep across the logo")
@@ -50,7 +50,7 @@ class TeamSummaryConfig(BaseModel):
 
 class TeamSummaryBoard(BaseBoard):
     key = "nhl.team_summary"
-    title = "Team summary"
+    title = "NHL team summary"
     config_model = TeamSummaryConfig
     requires = frozenset({"nhl.team_summary"})
     summary_key = "nhl.team_summary"
