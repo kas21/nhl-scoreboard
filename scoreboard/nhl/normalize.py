@@ -130,7 +130,11 @@ def normalize_game(
     state = game.get("gameState", "FUT")
     clock = game.get("clock") or {}
     in_intermission = bool(clock.get("inIntermission"))
-    if state in ("LIVE", "CRIT") and not clock.get("running") and clock.get("timeRemaining") == "00:00":
+    period_type = (game.get("periodDescriptor") or {}).get("periodType")
+    # The feed sometimes reports a period's end before it sets inIntermission; a stopped
+    # clock at 00:00 is that. A shootout looks the same (no clock, not running) and is not.
+    if (state in ("LIVE", "CRIT") and period_type != "SO" and not clock.get("running")
+            and clock.get("timeRemaining") == "00:00"):
         in_intermission = True
     phase = PHASE_BY_STATE.get(state, "pregame")
     if phase == "live" and in_intermission:

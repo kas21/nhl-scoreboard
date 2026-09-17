@@ -245,7 +245,7 @@ async def test_standings_loop_publishes_standings_summaries_season_and_logo_urls
         store = SnapshotStore()
         ctx = SourceContext(key="ahl", store=store, config_getter=lambda: cfg, http=http)
         src = AhlSource()
-        monkeypatch.setattr(ahl_source.asyncio, "sleep", stop)
+        monkeypatch.setattr(ctx, "nap", stop)                # the loop naps through ctx, so a settings save can wake it
         with pytest.raises(_StopLoop):
             await src._standings_loop(ctx, src._api(ctx))
         if src._logo_task:

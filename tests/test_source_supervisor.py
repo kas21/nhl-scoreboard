@@ -157,3 +157,24 @@ async def test_a_source_that_returns_at_once_yields_to_the_loop():
             task.cancel()
             await asyncio.gather(task, return_exceptions=True)
     assert src.runs == 1
+
+
+@pytest.mark.asyncio
+async def test_a_wake_that_lands_mid_fetch_is_not_lost():
+    """A settings save while the source is awaiting its HTTP call used to be cleared by the
+    nap that followed, which then ran its full length. Both loops of a source see the wake."""
+    store = SnapshotStore()
+    async with httpx.AsyncClient() as http:
+        ctx = SourceContext("nfl", store, Settings, http)
+        ctx.bind(asyncio.get_running_loop())
+        ctx.wake()                                       # arrives while "fetching"
+        t0 = asyncio.get_running_loop().time()
+        await ctx.sleep(5)
+        assert asyncio.get_running_loop().time() - t0 < 1
+        t0 = asyncio.get_running_loop().time()
+        await ctx.nap(0.05)                              # consumed: this one runs its length
+        assert asyncio.get_running_loop().time() - t0 >= 0.04
+        main, side = asyncio.create_task(ctx.sleep(5)), asyncio.create_task(ctx.nap(5))
+        await asyncio.sleep(0)
+        ctx.wake()
+        await asyncio.wait_for(asyncio.gather(main, side), timeout=1)

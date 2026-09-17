@@ -65,11 +65,11 @@ class HolidaysConfig(BaseModel):
 
 def calendar_names(cfg: HolidaysConfig, years: set[int]) -> list[str]:
     """Every distinct holiday name in the configured calendar, in first-seen order."""
-    return list(dict.fromkeys(_calendar(cfg, years).values()))
+    return list(dict.fromkeys(name for names in _calendar(cfg, years).values() for name in names))
 
 
-def _calendar(cfg: HolidaysConfig, years: set[int]) -> dict[date, str]:
-    """Day -> holiday name. Empty (with a warning) if the country code is not one we know."""
+def _calendar(cfg: HolidaysConfig, years: set[int]) -> dict[date, list[str]]:
+    """Day -> the holidays on it. Empty (with a warning) if the country code is not one we know."""
     import holidays as holidays_lib
 
     country = cfg.country.upper()
@@ -84,10 +84,24 @@ def _calendar(cfg: HolidaysConfig, years: set[int]) -> dict[date, str]:
     except Exception as exc:
         log.warning("holidays: cannot build calendar for %s/%s: %s", cfg.country, cfg.subdivision, exc)
         return {}
-    # Asking for several categories makes the library join a day's names with "; " —
-    # in practice always spellings of the same holiday ("Birthday of Martin Luther
-    # King, Jr.; Martin Luther King Jr. Day"). The last is the everyday name.
-    return {day: str(name).split("; ")[-1].strip() for day, name in cal.items()}
+    return {day: distinct_names(str(name).split("; ")) for day, name in cal.items()}
+
+
+def distinct_names(names: list[str]) -> list[str]:
+    """The holidays behind a day's "; "-joined names.
+
+    Two categories can put the same holiday on a day under two spellings ("Birthday of
+    Martin Luther King, Jr."; "Martin Luther King Jr. Day"): those share most of their
+    words, and the last spelling is the everyday one. Two *different* holidays that fall
+    on one day ("Christmas Day (observed)"; "Christmas Eve") share a word at most, and
+    both have to survive, or the observed day, its picture and its override vanish.
+    """
+    kept: list[str] = []
+    for name in (n.strip() for n in names if n.strip()):
+        words = set(slug(name).split("_"))
+        kept = [k for k in kept if len(words & set(slug(k).split("_"))) < 3]
+        kept.append(name)
+    return kept
 
 
 def _display(name: str, override: HolidayOverride | None) -> str:
@@ -115,12 +129,13 @@ def upcoming(cfg: HolidaysConfig, today: date) -> list[dict[str, Any]]:
     """Pure: the holiday list for ``today`` (sorted, de-duplicated, within the horizon)."""
     years = _years(cfg, today)
     found: dict[tuple[date, str], dict[str, Any]] = {}
-    for day, name in _calendar(cfg, years).items():
-        override = cfg.overrides.get(name)
-        if override is not None and not override.enabled:
-            continue
-        found[(day, name)] = {"name": name, "display": _display(name, override), "date": day.isoformat(),
-                              "custom": False, "image": image_path(name, override.image if override else "")}
+    for day, names in _calendar(cfg, years).items():
+        for name in names:
+            override = cfg.overrides.get(name)
+            if override is not None and not override.enabled:
+                continue
+            found[(day, name)] = {"name": name, "display": _display(name, override), "date": day.isoformat(),
+                                  "custom": False, "image": image_path(name, override.image if override else "")}
     for entry in cfg.custom:
         override = cfg.overrides.get(entry.name)
         if not entry.enabled or (override is not None and not override.enabled):

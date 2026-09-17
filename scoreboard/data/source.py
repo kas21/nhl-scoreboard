@@ -83,13 +83,22 @@ class SourceContext:
         if self.health is not None:
             self.health.set_next_poll(self.key, self.health.now() + (seconds if until_poll is None else until_poll))
         try:
-            self._wake.clear()
+            await self.nap(seconds)
+        finally:
+            if self.health is not None:
+                self.health.set_next_poll(self.key, None)
+
+    async def nap(self, seconds: float) -> None:
+        """``sleep`` for a source's secondary loops (standings, schedules): the same early
+        wake on a settings change, but nothing reported as the next poll, which belongs to
+        the main loop. The wake flag is consumed *after* the wait, so a save that lands
+        while the source is mid-fetch is not thrown away by the nap that follows it."""
+        try:
             await asyncio.wait_for(self._wake.wait(), timeout=seconds)
         except TimeoutError:
             pass
         finally:
-            if self.health is not None:
-                self.health.set_next_poll(self.key, None)
+            self._wake.clear()
 
     def wake(self) -> None:
         """Cut the current nap short. Thread-safe: the config store calls this from the web thread."""

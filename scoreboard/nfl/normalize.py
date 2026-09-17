@@ -109,6 +109,7 @@ def normalize_game(event: dict[str, Any], *, sport: str = "nfl", teams: ModuleTy
             "text": sit.get("shortDownDistanceText") or sit.get("downDistanceText") or "",
             "spot": sit.get("possessionText") or "",            # where the ball is, e.g. "KC 44"
             "last_play": _last_play(sit),
+            "last_play_type": (((sit.get("lastPlay") or {}).get("type") or {}).get("text") or ""),
         },
     }
 

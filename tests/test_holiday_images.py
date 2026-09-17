@@ -252,3 +252,19 @@ def test_an_unrelated_config_change_does_not_recompute(tmp_path):
     version = snapshots.get().version
     config.update({"brightness": {"day": 55}})
     assert snapshots.get().version == version
+
+
+def test_save_accepts_a_phone_jpeg_with_a_multi_picture_segment(user_images):
+    """iPhone and Samsung JPEGs carry an MP APP2 segment, which Pillow reports as MPO."""
+    from io import BytesIO
+
+    from PIL import Image
+
+    from scoreboard.extras.holidays.images import save
+    buf = BytesIO()
+    first, second = Image.new("RGB", (40, 30), (200, 30, 30)), Image.new("RGB", (40, 30), (30, 30, 200))
+    first.save(buf, format="MPO", save_all=True, append_images=[second])
+    with Image.open(BytesIO(buf.getvalue())) as probe:
+        assert probe.format == "MPO"
+    save("phone_pic", buf.getvalue())
+    assert (user_images / "phone_pic.png").exists()

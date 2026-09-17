@@ -55,7 +55,7 @@ period (label: 1st/2nd/3rd/OT/SO | 1st..4th/HALF/OT | TOP/BOT/MID/END), period_n
 clock_running, in_intermission (never set by MLB: inning breaks stay live),
 outcome ('' | FINAL | FINAL/OT | FINAL/SO | FINAL/2OT | FINAL/11 | PPD | CANCELLED | SUSPENDED),
 powerplay {code: ev|a54|h53…, clock}, pulled_goalie (0|1 away|2 home|3 both), goals[], penalties[],   # NHL
-situation {possession, down, distance, yard_line, red_zone, text, spot, last_play}                    # NFL (spot: "KC 44")
+situation {possession, down, distance, yard_line, red_zone, text, spot, last_play, last_play_type}    # NFL (spot: "KC 44"; last_play_type: ESPN's play type, e.g. "Safety")
 situation {inning, inning_ordinal, half (top|bottom|middle|end), batting, balls, strikes, outs,          # MLB
            runners [1B,2B,3B], batter, on_deck, in_hole, pitcher, pitch_count, pitch {speed, code, label},
            last_play {type, label, text, complete, batting}, no_hitter, perfect_game, delay, note}
@@ -68,7 +68,7 @@ game_type (S/R/F/D/L/W), series ('SPRING' | 'WILD CARD' | 'NLDS GM2' | …), dec
 | `nhl.goal` / `nhl.goal_overturned` | `nhl/events.py` | side, count, goal {scorer, assists, goals_to_date, …}, score, game |
 | `nhl.penalty` | " | penalty {team, type, desc, player, duration, period, time}, game |
 | `nhl.state_change`, `nhl.powerplay` | " | old/new |
-| `nfl.touchdown` / `nfl.field_goal` / `nfl.safety` / `nfl.score` (a 4- or 5-point swing) | `nfl/events.py` | side, points, score, last_play, game (classified from the score delta alone) |
+| `nfl.touchdown` / `nfl.field_goal` / `nfl.safety` / `nfl.score` (a 4- or 5-point swing) | `nfl/events.py` | side, points, score, last_play, game (classified from `last_play_type` when ESPN names the play, else from the points; a bare +2 is taken as a two-point try, not a safety) |
 | `nfl.state_change` | " | old/new, game |
 | `ncaaf.touchdown` / `ncaaf.field_goal` / `ncaaf.safety` / `ncaaf.score`, `ncaaf.state_change` | `ncaaf/events.py` | the same rule on `ncaaf.main_event` |
 | `mlb.home_run` / `mlb.run` | `mlb/events.py` | side, runs, score, inning, half, batter, text, game (a homer only when the live feed's current play says so) |

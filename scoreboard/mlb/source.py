@@ -137,7 +137,7 @@ class MlbSource:
                 await self._publish_season(ctx, api, cfg, today, standings_year)
             except (MlbApiError, KeyError, IndexError, ValueError) as exc:
                 ctx.log.warning("MLB standings poll failed: %s", exc)
-            await asyncio.sleep(cfg.standings_interval)
+            await ctx.nap(cfg.standings_interval)
 
     async def _publish_season(self, ctx: SourceContext, api: MlbApi, cfg: MlbConfig, today: str, standings_year: int) -> None:
         try:

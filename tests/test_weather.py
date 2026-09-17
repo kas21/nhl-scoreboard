@@ -1,6 +1,6 @@
 import asyncio
 import json
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -150,3 +150,21 @@ def test_icon_and_threshold_are_independent_triggers():
     assert _flips(1, precip_threshold=0)             # a cloudy 2% day, forced by threshold
     assert not _flips(1, precip_threshold=100)       # nothing is ever likely enough
     assert _flips(2, precip_threshold=100)           # but a wet icon still speaks up
+
+
+def test_forecast_strip_starts_tomorrow_by_the_board_clock():
+    """The strip used to filter on the OS date; on a Pi kept on UTC that is already tomorrow
+    from local evening, so the first column went missing."""
+    from scoreboard.extras.weather.board import WeatherBoard, WeatherBoardConfig
+    now = datetime(2026, 8, 26, 21, 30, tzinfo=ZoneInfo("America/Toronto"))      # 01:30Z on the 27th
+    ctx = _weather_ctx(now)
+    daily = ctx.snapshot.get("weather.daily")
+    tomorrow = [d["date"] for d in daily if d["date"] > now.date().isoformat()][:3]
+    assert tomorrow[0] == "2026-08-27" and len(tomorrow) == 3
+    img = WeatherBoard().render(ctx, WeatherBoardConfig())
+    # Three columns are drawn: the first day name sits in the first third, the third in the last.
+    assert _lit(img, (0, 31, 42, 64)) > 0 and _lit(img, (86, 31, 128, 64)) > 0
+    # ...and it is the board clock that decides which days: a day later, the strip moves on.
+    from PIL import ImageChops
+    later = WeatherBoard().render(_weather_ctx(now + timedelta(days=1)), WeatherBoardConfig())
+    assert ImageChops.difference(img.crop((0, 31, 128, 64)), later.crop((0, 31, 128, 64))).getbbox() is not None

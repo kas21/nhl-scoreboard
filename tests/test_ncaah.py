@@ -190,7 +190,7 @@ async def test_record_loop_learns_records_and_merges_them_into_the_slate(monkeyp
         cfg = NcaahConfig(favorites=["MICH"])
         store = SnapshotStore()
         ctx = SourceContext(key="ncaah", store=store, config_getter=lambda: cfg, http=http)
-        monkeypatch.setattr("asyncio.sleep", stop)
+        monkeypatch.setattr(ctx, "nap", stop)                # the loop naps through ctx, so a settings save can wake it
         src = NcaahSource()
         with pytest.raises(_StopLoop):
             await src._standings_loop(ctx, src._api(ctx))

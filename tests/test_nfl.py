@@ -239,3 +239,21 @@ async def test_espn_requests_use_a_user_agent_espn_accepts():
         mock.get(url__regex=r"https://site\.api\.espn\.com/.*").mock(side_effect=capture)
         await NflApi(http).scoreboard()
     assert seen["ua"] == espn.API_UA and "nhl-scoreboard" not in seen["ua"]
+
+
+def test_two_point_conversion_is_not_a_safety():
+    from scoreboard.nfl.events import classify
+    store = SnapshotStore()
+    g = normalize_scoreboard(load("espn_scoreboard.json"))[0]
+    base = {**g, "state": "LIVE", "phase": "live", "away": {**g["away"], "score": 0}, "home": {**g["home"], "score": 0}}
+    s0 = store.publish("nfl.main_event", base)
+    s1 = store.publish("nfl.main_event", {**base, "away": {**base["away"], "score": 6}})
+    s2 = store.publish("nfl.main_event", {**base, "away": {**base["away"], "score": 8}})
+    assert [e.kind for e in detect_nfl(s0, s1)] == ["nfl.touchdown"]
+    assert [e.kind for e in detect_nfl(s1, s2)] == []                       # the try, silent like an extra point
+    said = {**base, "home": {**base["home"], "score": 2},
+            "situation": {**base["situation"], "last_play_type": "Safety"}}
+    assert [e.kind for e in detect_nfl(s0, store.publish("nfl.main_event", said))] == ["nfl.safety"]
+    assert classify(8, "") == "touchdown" and classify(3, "Field Goal Good") == "field_goal"
+    assert classify(6, "Two Point Pass") is None and classify(1, "Extra Point Good") is None
+    assert classify(4, "") == "score"

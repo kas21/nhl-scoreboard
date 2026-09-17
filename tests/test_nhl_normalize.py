@@ -182,3 +182,23 @@ def test_postponed_game_is_never_active_and_ranks_below_played_games(score):
     ppd_fla = {**ppd, "home": {**ppd["home"], "abbrev": played["away"]["abbrev"]}}
     assert select_main_event([ppd_fla, played], [played["away"]["abbrev"]], today=played["date"]) is played
     assert select_main_event([ppd], ["TOR"], today=ppd["date"]) is ppd          # still shown when it is the only one
+
+
+def test_shootout_is_live_not_intermission():
+    """A shootout has no clock: 00:00, not running, inIntermission false. That used to trip the
+    stopped-clock-means-intermission fallback, so the board said INT instead of SO."""
+    raw = {"id": 1, "gameState": "LIVE", "awayTeam": {"abbrev": "A"}, "homeTeam": {"abbrev": "B"},
+           "clock": {"timeRemaining": "00:00", "secondsRemaining": 0, "running": False, "inIntermission": False},
+           "periodDescriptor": {"number": 5, "periodType": "SO"}}
+    g = normalize_game(raw)
+    assert g["phase"] == "live" and not g["in_intermission"] and g["period"] == "SO"
+
+
+def test_halftime_game_stays_the_main_event(score):
+    from scoreboard.nhl.select import select_main_event
+    live = {"id": 1, "state": "HALF", "date": "2026-04-11", "away": {"abbrev": "KC"}, "home": {"abbrev": "BUF"}}
+    pre = {"id": 2, "state": "PRE", "date": "2026-04-11", "away": {"abbrev": "DAL"}, "home": {"abbrev": "NYG"}}
+    assert select_main_event([pre, live], ["KC", "DAL"], today="2026-04-11") is live
+    # ...and past local midnight a halftime game is still the game being played.
+    assert select_main_event([{**live, "date": "2026-04-10"}], ["KC"], today="2026-04-11")["id"] == 1
+    assert select_main_event([{**live, "state": "POST", "date": "2026-04-10"}], ["KC"], today="2026-04-11") is None

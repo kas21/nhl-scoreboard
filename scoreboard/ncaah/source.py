@@ -8,7 +8,6 @@ trims what reaches the ticker and dashboard; the main event is still picked from
 """
 from __future__ import annotations
 
-import asyncio
 from datetime import tzinfo
 from typing import Any, ClassVar, Literal
 
@@ -130,4 +129,4 @@ class NcaahSource(NflSource):
                 ctx.publish(summaries, subkey="team_summary")
             except (NcaahApiError, KeyError, IndexError) as exc:
                 ctx.log.warning("%s record refresh failed: %s", self.label, exc)
-            await asyncio.sleep(cfg.standings_interval)
+            await ctx.nap(cfg.standings_interval)

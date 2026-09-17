@@ -125,7 +125,7 @@ class WeatherBoard(BaseBoard):
         if cfg.show_forecast and daily and h >= 48:
             y0 = 30
             items.append((Img(Image.new("RGBA", (w, 1), (*DIVIDER, 255))), 0, y0, w, 1))
-            days = [d for d in daily if d["date"] > date.today().isoformat()][:3] or daily[1:4]
+            days = [d for d in daily if d["date"] > ctx.now.date().isoformat()][:3] or daily[1:4]
             col = w // max(len(days), 1)
             for i, d in enumerate(days):
                 x = i * col

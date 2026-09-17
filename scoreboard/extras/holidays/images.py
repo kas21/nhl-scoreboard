@@ -38,7 +38,7 @@ MAX_UPLOAD_BYTES = 8 * 1024 * 1024
 MAX_SOURCE_PIXELS = 40_000_000
 # Panels are at most 64 rows tall today; 256 leaves room and still keeps files small.
 STORED_SIZE = 256
-READABLE_FORMATS = frozenset({"PNG", "JPEG", "GIF", "WEBP", "BMP"})
+READABLE_FORMATS = frozenset({"PNG", "JPEG", "MPO", "GIF", "WEBP", "BMP"})     # MPO: iPhone / Samsung JPEGs
 
 _PARENTHETICAL = re.compile(r"\s*\([^)]*\)\s*$")
 

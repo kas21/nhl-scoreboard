@@ -146,7 +146,7 @@ class AhlSource:
             cfg: AhlConfig = ctx.config  # type: ignore[assignment]
             if not cfg.enabled:
                 self._standings_ready.set()
-                await asyncio.sleep(60)
+                await ctx.nap(60)
                 continue
             try:
                 today = _today(ctx)
@@ -177,7 +177,7 @@ class AhlSource:
             except (AhlApiError, KeyError, IndexError, ValueError) as exc:
                 ctx.log.warning("%s standings poll failed: %s", self.label, exc)
                 self._standings_ready.set()
-            await asyncio.sleep(cfg.standings_interval)
+            await ctx.nap(cfg.standings_interval)
 
     async def _refresh_teams(self, ctx: SourceContext, api: AhlApi, season_id: int | None) -> None:
         """The league's team list: ids for the schedule calls, logo URLs for the cache, and a realignment check."""

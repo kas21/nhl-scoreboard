@@ -141,7 +141,7 @@ class NflSource:
                 ctx.publish(summaries, subkey="team_summary")
             except (NflApiError, KeyError, IndexError) as exc:
                 ctx.log.warning("%s standings poll failed: %s", self.label, exc)
-            await asyncio.sleep(cfg.standings_interval)
+            await ctx.nap(cfg.standings_interval)
 
 
 def poll_active(main: dict[str, Any] | None, today: str) -> bool:

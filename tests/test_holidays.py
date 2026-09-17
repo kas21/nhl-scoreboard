@@ -249,3 +249,17 @@ def test_a_row_with_no_picture_has_nothing_to_show():
     assert by_name["Columbus Day"]["image"] is None
     assert by_name["Columbus Day"]["image_name"] is None
     assert by_name["Columbus Day"]["image_slug"] == "columbus_day"   # but you can still add one
+
+
+def test_two_holidays_on_one_day_both_survive_but_one_holiday_spelled_twice_does_not():
+    from scoreboard.extras.holidays.source import distinct_names
+    assert distinct_names(["Birthday of Martin Luther King, Jr.", "Martin Luther King Jr. Day"]) == ["Martin Luther King Jr. Day"]
+    assert distinct_names(["Christmas Day (observed)", "Christmas Eve"]) == ["Christmas Day (observed)", "Christmas Eve"]
+    assert distinct_names(["New Year's Day (observed)", "New Year's Eve"]) == ["New Year's Day (observed)", "New Year's Eve"]
+    assert distinct_names(["Susan B. Anthony Day", "Washington's Birthday"]) == ["Susan B. Anthony Day", "Washington's Birthday"]
+    # Christmas 2027 falls on a Saturday: the 24th is both Christmas Eve and the observed day.
+    cfg = HolidaysConfig(country="US", horizon_days=10)
+    names = {i["name"] for i in upcoming(cfg, date(2027, 12, 20)) if i["date"] == "2027-12-24"}
+    assert names == {"Christmas Day (observed)", "Christmas Eve"}
+    hidden = HolidaysConfig(country="US", horizon_days=10, overrides={"Christmas Day (observed)": HolidayOverride(enabled=False)})
+    assert {i["name"] for i in upcoming(hidden, date(2027, 12, 20)) if i["date"] == "2027-12-24"} == {"Christmas Eve"}

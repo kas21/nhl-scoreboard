@@ -31,7 +31,7 @@ withdrawn (set to `None`), turned on again it starts fresh; you write nothing fo
 Requests made through `ctx.http`, calls to `ctx.publish()` and crashes are counted per source automatically and
 shown under *Data sources* on the dashboard and diagnostics pages (`GET /api/sources`): status
 (starting / ok / degraded / offline after 3 consecutive failed requests / crashed), last OK, next poll, latency,
-last error, published keys. If a source runs several loops, only call `ctx.sleep` from the main one.
+last error, published keys. If a source runs several loops, call `ctx.sleep` from the main one and `ctx.nap(seconds)` from the others: the same early wake, nothing reported as the next poll.
 Register: `[project.entry-points."scoreboard.sources"] my = "pkg.module:MySource"`.
 
 ## Board

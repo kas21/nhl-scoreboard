@@ -3,7 +3,10 @@ from __future__ import annotations
 
 from typing import Any
 
-_PRIORITY = {"LIVE": 0, "CRIT": 0, "PRE": 1, "FUT": 2, "OVER": 3, "FINAL": 3, "OFF": 3}
+# Every state the sport normalisers emit. NHL: LIVE/CRIT/PRE/FUT/OVER/FINAL/OFF; ESPN football:
+# PRE/LIVE/HALF/POST; anything unknown sorts last, so a new state is never mistaken for a live one.
+_PRIORITY = {"LIVE": 0, "CRIT": 0, "HALF": 0, "PRE": 1, "FUT": 2, "OVER": 3, "FINAL": 3, "OFF": 3, "POST": 3}
+ACTIVE_STATES = frozenset({"LIVE", "CRIT", "HALF"})
 
 
 def select_main_event(games: list[dict[str, Any]], favorites: list[str], today: str | None = None) -> dict[str, Any] | None:
@@ -18,7 +21,7 @@ def select_main_event(games: list[dict[str, Any]], favorites: list[str], today: 
         for g in games:
             if team not in (g["away"]["abbrev"], g["home"]["abbrev"]):
                 continue
-            if today and g.get("date") != today and g["state"] not in ("LIVE", "CRIT"):
+            if today and g.get("date") != today and g["state"] not in ACTIVE_STATES:
                 continue
             key = (_PRIORITY.get(g["state"], 9), rank)
             if best is None or key < best[:2]:

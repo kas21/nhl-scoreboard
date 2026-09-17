@@ -210,7 +210,7 @@ class NhlSource:
             except NhlApiError as exc:
                 ctx.log.warning("standings poll failed: %s", exc)
                 self._standings_ready.set()
-            await asyncio.sleep(cfg.standings_interval)
+            await ctx.nap(cfg.standings_interval)
 
 
 def _report(ctx: SourceContext, notes: list[str]) -> None:
