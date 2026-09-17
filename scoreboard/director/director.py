@@ -132,7 +132,9 @@ class Director:
     def brightness(self, now: datetime | None = None) -> int:
         cfg = self._config.get()
         now = now or self._now(cfg)
-        return brightness_for(now, cfg.brightness, cfg.location, live=self.state == AppState.LIVE)
+        # An intermission is still the game: dimming for twenty minutes between periods and
+        # popping back up for the next one is not what "keep bright when live" means.
+        return brightness_for(now, cfg.brightness, cfg.location, live=self.state in (AppState.LIVE, AppState.INTERMISSION))
 
     def frame(self, mono: float | None = None) -> Image.Image:
         mono = _time.monotonic() if mono is None else mono

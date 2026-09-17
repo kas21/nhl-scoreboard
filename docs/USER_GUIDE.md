@@ -124,7 +124,9 @@ Everything saved on the Settings and Boards pages applies without a restart, but
 
 ## Alerts
 Goals/penalties/touchdowns/runs come from the same data the score uses (polled every 5 s NHL / 20 s NFL and
-college football / 15 s college hockey / 10 s MLB and AHL while your team plays), so nothing is missed if a poll fails. The other team's NHL goals get
+college football / 15 s college hockey / 10 s MLB and AHL while your team plays), so nothing is missed if a poll fails.
+An NHL goal waits one poll for the scorer's name when the feed's score moves before its scoring summary does, so
+the celebration comes with a name rather than five seconds sooner without one. The other team's NHL goals get
 the same scorer card (the PA announcement), then a WHO CARES?! chant in your team's colours (`opponent_duration` seconds); `opponent_goals` turns it off. `delay_seconds` (NHL and MLB sources) holds updates back to match a TV
 broadcast. MLB inning breaks stay in the *live* state (the board shows MID/END and who is due up) rather
 than switching to the intermission playlist seventeen times a game.

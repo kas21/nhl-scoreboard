@@ -108,5 +108,5 @@ docs/               OVERVIEW (start here), USER_GUIDE, HARDWARE, ARCHITECTURE, D
 - Pi panel: `rgb_sequence=RGB`, `slowdown_gpio=2`, `isolcpus=3`, `snd_bcm2835` blacklisted.
 - Any change to how a board looks fails `tests/test_golden.py` by design. Check the diff sheet, then regenerate
   the goldens and commit the PNGs alongside the code; never loosen the comparison.
-- Lint gate: `ruff check` must pass before commit (commit chains use `&&`; don't pipe through tail). There is no
-  CI on push yet: only the weekly live NHL contract workflow.
+- Lint gate: `ruff check` must pass before commit (commit chains use `&&`; don't pipe through tail). CI runs the
+  same lint + suite on every push (`.github/workflows/ci.yml`); the weekly live NHL contract is a second workflow.

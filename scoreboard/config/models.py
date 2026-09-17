@@ -77,7 +77,7 @@ class BrightnessConfig(FrozenModel):
     night_start: str = Field("22:00", pattern=r"^\d{2}:\d{2}$", description="For 'hours' mode")
     night_end: str = Field("07:00", pattern=r"^\d{2}:\d{2}$")
     sunset_offset_minutes: int = Field(0, ge=-180, le=180, description="For 'sun' mode")
-    keep_bright_when_live: bool = Field(True, description="Ignore night dimming during live games")
+    keep_bright_when_live: bool = Field(True, description="Ignore night dimming during live games (intermissions included)")
 
     @field_validator("night_start", "night_end")
     @classmethod

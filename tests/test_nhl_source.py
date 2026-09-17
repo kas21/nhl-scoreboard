@@ -175,3 +175,28 @@ def test_favourites_schema_still_lists_the_teams_for_the_picker():
 
     items = NhlConfig.model_json_schema()["properties"]["favorites"]["items"]
     assert items.get("enum") == list(NHL_TEAMS)
+
+
+def test_a_goal_waits_one_poll_for_its_scorer():
+    from scoreboard.nhl.source import NhlSource
+
+    class Ctx:
+        def __init__(self): self.main = None; self.log = __import__("logging").getLogger("t")
+        def snapshot(self):
+            from scoreboard.data import Snapshot
+            return Snapshot().with_value("nhl.main_event", self.main) if self.main else Snapshot()
+
+    def game(score, goals):
+        return {"id": 9, "state": "LIVE", "away": {"abbrev": "TOR", "score": score}, "home": {"abbrev": "BOS", "score": 0},
+                "goals": [{"team": "TOR", "scorer": f"#{i}"} for i in range(goals)]}
+
+    src, ctx = NhlSource(), Ctx()
+    ctx.main = game(1, 1)
+    assert src._wait_for_scorer(ctx, game(1, 1)) == game(1, 1)                # nothing new
+    held = src._wait_for_scorer(ctx, game(2, 1))                               # score moved, summary has not: hold
+    assert held == game(1, 1)
+    assert src._wait_for_scorer(ctx, game(2, 1)) == game(2, 1)                # one poll is all it gets
+    ctx.main = game(2, 2)
+    assert src._wait_for_scorer(ctx, game(3, 3)) == game(3, 3)                # score and summary together: straight through
+    assert src._wait_for_scorer(ctx, {**game(4, 3), "state": "OFF"})["away"]["score"] == 4   # a final is never held
+    assert src._wait_for_scorer(ctx, None) is None

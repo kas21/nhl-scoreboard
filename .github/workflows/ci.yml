@@ -1,0 +1,23 @@
+# Lint and the fast suite on every push and pull request. The deploy path is "push to main,
+# then Update on the Pi", so this is what stands between a broken commit and the panel.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Install
+        run: uv sync --extra dev
+      - name: Lint
+        run: uv run ruff check scoreboard tests
+      - name: Test
+        run: uv run pytest -q

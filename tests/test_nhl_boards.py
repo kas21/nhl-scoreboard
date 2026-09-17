@@ -215,3 +215,33 @@ def test_ticker_takes_the_playlist_pace_over_its_own_setting(world):
     assert board.done(replace(paced, elapsed=5.0 * n), cfg)
     first = board.render(replace(paced, elapsed=4.5), cfg)         # still the first game at 4.5 s in
     assert first.tobytes() != board.render(replace(paced, elapsed=5.5), cfg).tobytes() or n == 1
+
+
+def test_ticker_cards_show_the_score_as_it_is_now():
+    """The list is fixed when the ticker starts, but on a long slate the last cards used to
+    show scores a couple of minutes old while games were live."""
+    from datetime import UTC, datetime
+
+    from PIL import ImageChops
+
+    from scoreboard.boards.base import BoardContext
+    from scoreboard.data import SnapshotStore
+    from scoreboard.nhl.boards.ticker import TickerBoard, TickerConfig
+    from scoreboard.render.profiles import profile_for
+    live = {"id": 1, "state": "LIVE", "phase": "live", "date": "2026-04-11", "start_time_utc": "2026-04-11T23:00:00Z", "type": 2,
+            "away": {"abbrev": "TOR", "name": "Maple Leafs", "score": 1, "record": ""}, "home": {"abbrev": "BOS", "name": "Bruins", "score": 0, "record": ""},
+            "period": "2nd", "clock": "10:00", "in_intermission": False, "outcome": ""}
+    store = SnapshotStore()
+    snap = store.publish("nhl.scores", [live])
+
+    def ctx(s, elapsed):
+        return BoardContext(snapshot=s, profile=profile_for(128, 64), width=128, height=64, fps=30,
+                            now=datetime(2026, 4, 11, 20, tzinfo=UTC), elapsed=elapsed, pace=8.0)
+
+    board, cfg = TickerBoard(), TickerConfig()
+    board.enter(ctx(snap, 0.0), cfg)
+    before = board.render(ctx(snap, 3.0), cfg)
+    later = store.publish("nhl.scores", [{**live, "home": {**live["home"], "score": 3}, "clock": "04:12"}])
+    after = board.render(ctx(later, 3.0), cfg)
+    assert ImageChops.difference(before, after).getbbox() is not None                 # the new score is drawn
+    assert board.render(ctx(store.publish("nhl.scores", []), 3.0), cfg).size == (128, 64)   # the game vanishing mid-run still draws the entered copy

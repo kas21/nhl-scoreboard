@@ -76,6 +76,7 @@ class NhlSource:
 
     def __init__(self) -> None:
         self._standings_ready = asyncio.Event()
+        self._held_polls = 0        # polls the main event has been held back waiting for a goal's details
 
     async def run(self, ctx: SourceContext) -> None:
         api = NhlApi(ctx.http)
@@ -118,6 +119,7 @@ class NhlSource:
                     main = await self._enrich(ctx, api, main, records)
                 if main:
                     main = {**main, "favorite_side": favorite_side(main, cfg.favorites), "sport": "nhl"}
+                main = self._wait_for_scorer(ctx, main)
                 self._deliver(ctx, cfg, main, games, delayed)
                 failures = 0
                 ctx.publish_to("system", {"online": True, "failures": 0})
@@ -149,6 +151,31 @@ class NhlSource:
         if missing == today:                                     # the league is still on last night: keep its results, add today
             return [*(g for g in games if is_last_nights(g, today)), *extra]
         return [*(g for g in extra if is_last_nights(g, today)), *games]
+
+    def _wait_for_scorer(self, ctx: SourceContext, main: dict[str, Any] | None) -> dict[str, Any] | None:
+        """Hold a score change back for one poll when the goal behind it has no details yet.
+
+        The landing feed's score increments a poll or so before its scoring summary lists the
+        goal, so a goal published the moment the score moved carried no scorer, the card was
+        skipped, and the scorer never showed because the score did not change again. One poll
+        (five seconds, live) with the previous main event still published is what it costs to
+        celebrate with a name. Bounded: a second poll publishes whatever there is (a shootout
+        goal never gets an entry, and a feed can simply be late).
+        """
+        previous = ctx.snapshot().get("nhl.main_event")
+        if not main or not previous or previous.get("id") != main.get("id") or main.get("state") not in ACTIVE_STATES:
+            self._held_polls = 0
+            return main
+        for side in ("away", "home"):
+            scored = main[side]["score"] - previous[side]["score"]
+            listed = sum(1 for g in main.get("goals") or [] if g.get("team") == main[side]["abbrev"])
+            listed_before = sum(1 for g in previous.get("goals") or [] if g.get("team") == previous[side]["abbrev"])
+            if scored > 0 and listed - listed_before < scored and self._held_polls < 1:
+                self._held_polls += 1
+                ctx.log.debug("holding a %s goal one poll for the scorer", main[side]["abbrev"])
+                return previous
+        self._held_polls = 0
+        return main
 
     async def _enrich(self, ctx: SourceContext, api: NhlApi, main: dict[str, Any], records: dict[str, str]) -> dict[str, Any]:
         """Add situation (power play / pulled goalie) and penalties from the landing feed."""

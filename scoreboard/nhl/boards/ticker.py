@@ -83,7 +83,12 @@ class TickerBoard(BaseBoard):
         per = per_item(ctx, cfg.seconds_per_game)
         idx = min(int(ctx.elapsed // per), len(self._games) - 1)
         local = ctx.elapsed - idx * per
-        return render_tree(Absolute(self._card(self._games[idx], ctx, cfg)), w, h, t=local)
+        # The list (order, count, which games) is fixed at enter so the run is stable; the
+        # card itself is drawn from the freshest copy of that game, or on a long slate the
+        # last cards showed scores a couple of minutes old while games were live.
+        game = self._games[idx]
+        fresh = next((g for g in ctx.snapshot.get(self.scores_key) or [] if g.get("id") == game.get("id")), game)
+        return render_tree(Absolute(self._card(fresh, ctx, cfg)), w, h, t=local)
 
     def _date_label(self, g: dict[str, Any], ctx: BoardContext) -> str:
         return fmt_date(g["date"]).replace(" ", "")

@@ -437,3 +437,19 @@ def test_a_number_on_an_unpaced_board_is_still_the_whole_run(tmp_path):
     t = booted(d)
     d.frame(t + 5.2); d.frame(t + 5.3)
     assert d.active_board == "blank"
+
+
+def test_keep_bright_when_live_covers_the_intermission(tmp_path):
+    """Dimming for twenty minutes between periods and popping back up for the next one is
+    not what "keep bright when live" means."""
+    config, snapshots, _, d = make(tmp_path)
+    config.update({"brightness": {"mode": "hours", "day": 90, "night": 10, "night_start": "18:00", "night_end": "08:00"}})
+    night = datetime(2026, 1, 1, 23, 0, tzinfo=UTC)
+    t = booted(d)
+    assert d.brightness(night) == 10
+    snapshots.publish("main_event", {"phase": "live"}); d.frame(t + 1)
+    assert d.state == AppState.LIVE and d.brightness(night) == 90
+    snapshots.publish("main_event", {"phase": "intermission"}); d.frame(t + 2)
+    assert d.state == AppState.INTERMISSION and d.brightness(night) == 90
+    snapshots.publish("main_event", {"phase": "postgame"}); d.frame(t + 3)
+    assert d.brightness(night) == 10
