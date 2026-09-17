@@ -2,7 +2,8 @@
 
 Goal (favourite): scrolling band of [logo] GOAL! [logo] GOAL! ... over sweeping red
 glow bars, text colour cycling team-primary/black, then a goal-summary card.
-Goal (opponent): short primary/accent strobe.
+Goal (opponent): the same goal-summary card (the PA announcement), then the building's
+answer — WHO CARES?! — in the favourite's colours.
 Penalty: the referee GIF, then a penalty-summary card.
 """
 from __future__ import annotations
@@ -11,13 +12,13 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from PIL import Image
+from PIL import Image, ImageEnhance
 from pydantic import BaseModel, ConfigDict, Field
 
 from ...boards.base import BoardContext, EventBoard, SequenceMixin
 from ...data import Event
 from ...render import Absolute, Sequence, Slide, Text, load_font, render_tree
-from ...render.anim import gif_frames
+from ...render.anim import ease_out_cubic, gif_frames
 from ...render.fx import Chip, outlined, stroked_text
 from ..teams import logo, team
 
@@ -34,8 +35,8 @@ class GoalConfig(BaseModel):
     duration: float = Field(8.0, ge=2, le=30, description="Seconds of GOAL! animation (favourite goals)")
     summary: bool = Field(True, description="Follow with a scorer/assists card")
     summary_duration: float = Field(5.0, ge=2, le=15)
-    opponent_goals: bool = Field(True, description="Flash briefly for opponent goals")
-    opponent_flashes: int = Field(6, ge=1, le=20)
+    opponent_goals: bool = Field(True, description="Announce opponent goals (scorer card), then answer WHO CARES?!")
+    opponent_duration: float = Field(3.0, ge=1, le=15, description="Seconds of WHO CARES?! chant after the card")
 
 
 class PenaltyConfig(BaseModel):
@@ -104,15 +105,55 @@ def celebration_frames(word: str, logo_img: Image.Image, primary: tuple[int, int
     return frames
 
 
-def flash_frames(abbrev: str, width: int, height: int, count: int) -> list[Image.Image]:
-    """Opponent goal: alternate primary / accent fills with black between (2 frames per flash)."""
-    t = team(abbrev)
-    black = Image.new("RGB", (width, height), BLACK)
-    out = []
-    for i in range(count):
-        out.append(Image.new("RGB", (width, height), t.primary if i % 2 == 0 else t.accent))
-        out.append(black)
-    return out
+def who_cares_frames(fav_abbrev: str, width: int, height: int, seconds: float, fps: int) -> list[Image.Image]:
+    """The building's answer to the PA announcing an opponent's goal.
+
+    WHO slams in from the left, CARES?! lands from the right, and the chant bounces in the
+    favourite's colours on a half-second beat until a short fade.
+    """
+    primary = team(fav_abbrev).primary if fav_abbrev else (200, 0, 0)
+
+    def words(font_who, font_cares, fill, edge, stroke):
+        return (stroked_text("WHO", font_who, fill, edge, width=stroke, pad=stroke),
+                stroked_text("CARES?!", font_cares, fill, edge, width=stroke, pad=stroke))
+
+    if height >= 64:        # big gothic letters; the beat swaps fill and outline
+        who_font, cares_font = load_font("gothic", int(height * 0.47)), load_font("gothic", int(height * 0.31))
+        palettes = [words(who_font, cares_font, WHITE, primary, 2), words(who_font, cares_font, primary, WHITE, 2)]
+    else:                   # bold bitmap face; a dark primary would vanish, so the beat lifts it toward white
+        font = load_font("pixelbold", 15 if width >= 96 else 13)
+        lifted = tuple((c + 255) // 2 for c in primary)
+        palettes = [words(font, font, WHITE, BLACK, 1), words(font, font, lifted, BLACK, 1)]
+    who_w, who_h = palettes[0][0].size
+    cares_w, cares_h = palettes[0][1].size
+    gap = max(height // 20, 1)
+    who_y = (height - who_h - cares_h - gap) // 2
+    cares_y = who_y + who_h + gap
+    who_x, cares_x = (width - who_w) // 2, (width - cares_w) // 2
+
+    slide, beat = 0.25, 0.5
+    t_cares = 0.35
+    t_chant = t_cares + slide
+    t_fade = seconds - 0.3
+    half = max(int(fps * beat), 1)
+    frames = []
+    for f in range(int(seconds * fps)):
+        t = f / fps
+        frame = Image.new("RGBA", (width, height), (0, 0, 0, 255))
+        k = ((f - int(t_chant * fps)) // half) % 2 if t >= t_chant else 0
+        who, cares = palettes[k]
+        beat_f = (f - int(t_chant * fps)) % half if t >= t_chant else half
+        bounce = -2 if beat_f < 2 else (-1 if beat_f < 4 else 0)
+        e = ease_out_cubic(min(t / slide, 1.0))
+        frame.alpha_composite(who, (who_x - int((1 - e) * (who_x + who_w)), who_y + bounce))
+        if t >= t_cares:
+            e = ease_out_cubic(min((t - t_cares) / slide, 1.0))
+            frame.alpha_composite(cares, (cares_x + int((1 - e) * (width - cares_x)), cares_y + bounce))
+        out = frame.convert("RGB")
+        if t >= t_fade:
+            out = ImageEnhance.Brightness(out).enhance(max(1 - (t - t_fade) / (seconds - t_fade), 0.0))
+        frames.append(out)
+    return frames
 
 
 # -- summary cards --------------------------------------------------------------
@@ -225,10 +266,14 @@ class GoalBoard(SequenceMixin, EventBoard):
         side = payload.get("side", "away")
         abbrev = (ev.team if ev and ev.team else game.get(side, {}).get("abbrev", "")) or ""
         seq = Sequence(ctx.fps)
-        if game.get("favorite_side") != side:
-            return seq.frames(flash_frames(abbrev, ctx.width, ctx.height, cfg.opponent_flashes)).build(Image.new("RGB", (ctx.width, ctx.height)))
-        seq.frames(goal_frames(abbrev, ctx.width, ctx.height, cfg.duration, ctx.fps))
         goal = payload.get("goal")
+        if game.get("favorite_side") != side:
+            fav = (game.get(game.get("favorite_side") or "", {}) or {}).get("abbrev", "")
+            if goal:
+                seq.frames(goal_summary_frames(goal, abbrev, ctx.width, ctx.height, cfg.summary_duration, ctx.fps, ctx.profile.label_font()))
+            seq.frames(who_cares_frames(fav, ctx.width, ctx.height, cfg.opponent_duration, ctx.fps))
+            return seq.build(Image.new("RGB", (ctx.width, ctx.height)))
+        seq.frames(goal_frames(abbrev, ctx.width, ctx.height, cfg.duration, ctx.fps))
         if cfg.summary and goal:
             seq.frames(goal_summary_frames(goal, abbrev, ctx.width, ctx.height, cfg.summary_duration, ctx.fps, ctx.profile.label_font()))
         return seq.build(Image.new("RGB", (ctx.width, ctx.height)))

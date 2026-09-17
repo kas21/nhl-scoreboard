@@ -82,7 +82,7 @@ def test_live_board_shows_powerplay_and_empty_net(world):
 def test_goal_board_favorite_vs_opponent(world):
     live = world["live"]
     fav = Event("nhl.goal", team="TOR", payload={"side": "home", "game": live, "score": "1-3", "goal": live["goals"][-1]})
-    opp = Event("nhl.goal", team="FLA", payload={"side": "away", "game": live, "score": "2-3"})
+    opp = Event("nhl.goal", team="FLA", payload={"side": "away", "game": live, "score": "2-3", "goal": live["goals"][0]})
     cfg = GoalConfig()
     board = GoalBoard()
     assert board.matches(fav, cfg) and board.matches(opp, cfg)
@@ -93,7 +93,13 @@ def test_goal_board_favorite_vs_opponent(world):
     assert board.render(ctx, cfg).getbbox() is not None
     other = GoalBoard()
     other.enter(make_ctx(world, 128, 64, live, opp), cfg)
-    assert other._seq.duration < board._seq.duration       # opponent = short flash
+    # opponent = the same scorer card, then WHO CARES?! instead of the celebration
+    assert other._seq.duration == pytest.approx(cfg.summary_duration + cfg.opponent_duration, abs=0.1)
+    assert other.render(make_ctx(world, 128, 64, live, opp, elapsed=1.0), cfg).getbbox() is not None
+    assert other.render(make_ctx(world, 128, 64, live, opp, elapsed=cfg.summary_duration + 1.0), cfg).getbbox() is not None
+    bare = GoalBoard()                                     # no scorer details yet: straight to the chant
+    bare.enter(make_ctx(world, 128, 64, live, Event("nhl.goal", team="FLA", payload={"side": "away", "game": live})), cfg)
+    assert bare._seq.duration == pytest.approx(cfg.opponent_duration, abs=0.1)
     assert other.done(make_ctx(world, 128, 64, live, opp, elapsed=other._seq.duration + 0.1), cfg)
 
 

@@ -148,7 +148,7 @@ def nhl_scenes() -> list[Scene]:
 
     live = w["live"]
     fav_goal = Event("nhl.goal", team="TOR", payload={"side": "home", "game": live, "score": "1-3", "goal": live["goals"][-1]})
-    opp_goal = Event("nhl.goal", team="FLA", payload={"side": "away", "game": live, "score": "2-3"})
+    opp_goal = Event("nhl.goal", team="FLA", payload={"side": "away", "game": live, "score": "2-3", "goal": live["goals"][0]})
     penalty = Event("nhl.penalty", team="TOR", payload={"penalty": w["final"]["penalties"][0], "game": live})
     goal_cfg = GoalConfig()
     return [
@@ -161,7 +161,8 @@ def nhl_scenes() -> list[Scene]:
         Scene("nhl.team_summary/idle", TeamSummaryBoard(), TeamSummaryConfig(), idle, now, 2.0),
         Scene("nhl.goal/favorite", GoalBoard(), goal_cfg, with_game("live"), now, 2.0, event=fav_goal),
         Scene("nhl.goal/summary", GoalBoard(), goal_cfg, with_game("live"), now, goal_cfg.duration + 1.0, event=fav_goal),
-        Scene("nhl.goal/opponent", GoalBoard(), goal_cfg, with_game("live"), now, 0.2, event=opp_goal, sizes=((128, 64),)),
+        Scene("nhl.goal/opponent", GoalBoard(), goal_cfg, with_game("live"), now, 1.0, event=opp_goal),
+        Scene("nhl.goal/who_cares", GoalBoard(), goal_cfg, with_game("live"), now, goal_cfg.summary_duration + 1.5, event=opp_goal),
         Scene("nhl.penalty/live", PenaltyBoard(), PenaltyConfig(), with_game("live"), now, 1.0, event=penalty),
     ]
 
