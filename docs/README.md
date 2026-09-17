@@ -9,6 +9,7 @@
 | [ARCHITECTURE.md](ARCHITECTURE.md) | anyone changing the core | threads and loops, data flow end to end, the director's frame loop, render engine, caches and on-disk state, config lifecycle, failure handling, web routes |
 | [DATA.md](DATA.md) | anyone reading or producing data | snapshot mechanics, every snapshot key and its shape, the shared game dict, events, external APIs and cadences, cache and data directories |
 | [PLUGINS.md](PLUGINS.md) | adding a board, source, detector or sport | the three contracts with worked examples, registration, testing |
+| [REVIEW-2026-09-17.md](REVIEW-2026-09-17.md) | anyone picking up the backlog | the September 2026 review: every finding ranked with file:line, what has been fixed and in which commit, what is still open |
 
 The top-level [CLAUDE.md](../CLAUDE.md) is the condensed working notes for the repo: commands, layout,
 key concepts and gotchas.

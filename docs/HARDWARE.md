@@ -74,7 +74,7 @@ uploaded pictures and the flight log) and the checkout.
 | width/height/chain/parallel | total pixels and how panels are wired |
 | gpio_mapping | `adafruit-hat-pwm` (modded HAT), `adafruit-hat`, `regular`; also `regular-pi1`, `classic`, `classic-pi1` |
 | rgb_sequence | fix swapped colours; Kevin's panel needs `RGB` |
-| pixel_mapper | `Rotate:180`, `Mirror:H` … |
+| pixel_mapper | `Rotate:180`, `Mirror:H`, `Rotate:90` / `Rotate:270` for a panel mounted on its side (width and height stay the picture you see; the driver is told the panel's own rows and columns) … |
 | slowdown_gpio | default 4; 2 is what Kevin's Pi 4 needs, 1 a Pi 3; raise it for flicker/ghosting |
 | pwm_bits / pwm_lsb_nanoseconds / pwm_dither_bits | colour depth vs refresh; defaults 11 / 130 / 0; 7 / 130 / 1 trades depth for a steadier refresh on a slower Pi |
 | limit_refresh | cap Hz; default 0 = unlimited, 60 for steadier brightness |

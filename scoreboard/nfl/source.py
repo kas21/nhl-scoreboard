@@ -112,7 +112,7 @@ class NflSource:
                 nearest = min((g["date"] for g in upcoming), default=None)
                 if nearest and _days(today, nearest) > cfg.show_games_within_days and not any(g["phase"] in ("live", "intermission") for g in games):
                     slate = [g for g in slate if g["phase"] == "postgame"]        # keep results, hide far-off games
-                main = select_main_event(games, cfg.favorites, today=today)
+                main = select_main_event(games, cfg.favorites, today=today, timezone=ctx.timezone)
                 if main:
                     main = {**main, "favorite_side": favorite_side(main, cfg.favorites)}
                 ctx.publish(slate, subkey="scores")

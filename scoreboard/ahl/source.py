@@ -102,7 +102,7 @@ class AhlSource:
                 today = _today(ctx)
                 ctx.publish([g for g in games if 0 <= _days(today, g["date"]) <= cfg.show_games_within_days], subkey="schedule")
                 ctx.publish(self._slate(games, today, cfg, carry_last_night(ctx)), subkey="scores")
-                main = select_main_event(games, cfg.favorites, today=today)
+                main = select_main_event(games, cfg.favorites, today=today, timezone=ctx.timezone)
                 if main and main["state"] in ENRICHED_STATES:
                     main = await self._enrich(ctx, api, main)
                 if main:

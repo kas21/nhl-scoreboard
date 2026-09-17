@@ -113,7 +113,7 @@ class NhlSource:
                     games = []                                   # too far out to be "tonight's games"
                 if carry_last_night(ctx):
                     games = await self._with_last_night(ctx, api, cfg, games, slate_date, today, records)
-                main = select_main_event(games, cfg.favorites, today=today)
+                main = select_main_event(games, cfg.favorites, today=today, timezone=ctx.timezone)
                 if main and main["state"] in ACTIVE_STATES:
                     main = await self._enrich(ctx, api, main, records)
                 if main:

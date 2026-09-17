@@ -11,6 +11,19 @@ from ..config.models import DisplayConfig
 log = logging.getLogger(__name__)
 
 
+def rotated_quarter(pixel_mapper: str) -> bool:
+    """True when the mapper string turns the picture by 90 or 270 degrees (``Rotate:90``,
+    ``U-mapper;Rotate:270``): rpi-rgb-led-matrix's rotate mapper swaps the canvas for those."""
+    for part in pixel_mapper.split(";"):
+        name, _, arg = part.strip().partition(":")
+        if name.strip().lower() == "rotate":
+            try:
+                return int(arg.strip() or 0) % 180 == 90
+            except ValueError:
+                return False
+    return False
+
+
 class Output(Protocol):
     def show(self, frame: Image.Image) -> None: ...
     def set_brightness(self, percent: int) -> None: ...
@@ -41,8 +54,13 @@ class MatrixOutput:
         else:
             from rgbmatrix import RGBMatrix, RGBMatrixOptions  # type: ignore
         options = RGBMatrixOptions()
-        options.rows = cfg.height // cfg.parallel
-        options.cols = cfg.width // cfg.chain
+        # display.width/height are the picture you see. A Rotate:90/270 mapper turns the
+        # physical panel on its side, so the driver has to be told the panel's own rows and
+        # columns, which are then the configured size swapped; the canvas it hands back is
+        # the configured size again, which is what the director renders.
+        phys_w, phys_h = (cfg.height, cfg.width) if rotated_quarter(cfg.pixel_mapper) else (cfg.width, cfg.height)
+        options.rows = phys_h // cfg.parallel
+        options.cols = phys_w // cfg.chain
         options.chain_length = cfg.chain
         options.parallel = cfg.parallel
         options.hardware_mapping = cfg.gpio_mapping
@@ -64,6 +82,10 @@ class MatrixOutput:
         self._matrix = RGBMatrix(options=options)
         self._canvas = self._matrix.CreateFrameCanvas()
         self._brightness = brightness
+        got = (getattr(self._matrix, "width", None), getattr(self._matrix, "height", None))
+        if None not in got and got != (cfg.width, cfg.height):
+            log.warning("the matrix driver made a %sx%s canvas but display.width/height say %sx%s; "
+                        "frames will be cropped or padded. Check chain/parallel and the pixel mapper", *got, cfg.width, cfg.height)
 
     def show(self, frame: Image.Image) -> None:
         self._canvas.SetImage(frame.convert("RGB"))

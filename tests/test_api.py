@@ -326,3 +326,30 @@ def test_matrix_output_lets_go_of_the_panel_on_close(monkeypatch):
     out.close()
     out.close()                                             # idempotent: app.run and the render loop both call it
     assert events == ["clear", "freed"]
+
+
+def test_a_rotated_panel_is_described_to_the_driver_on_its_side(monkeypatch):
+    import sys
+    import types
+
+    from scoreboard.config.models import DisplayConfig
+    from scoreboard.output.matrix import MatrixOutput, rotated_quarter
+    assert rotated_quarter("Rotate:90") and rotated_quarter("U-mapper;Rotate:270") and rotated_quarter(" rotate : 90 ")
+    assert not rotated_quarter("") and not rotated_quarter("Rotate:180") and not rotated_quarter("Mirror:H") and not rotated_quarter("Rotate:x")
+    seen = {}
+
+    class FakeMatrix:
+        def __init__(self, options=None):
+            seen.update(rows=options.rows, cols=options.cols, mapper=getattr(options, "pixel_mapper_config", None))
+            self.width, self.height = 128, 64                     # what the mapper hands back: the picture you see
+            self.brightness = options.brightness
+        def CreateFrameCanvas(self): return types.SimpleNamespace(SetImage=lambda img: None)
+        def SwapOnVSync(self, c): return c
+        def Clear(self): pass
+
+    fake = types.ModuleType("rgbmatrix"); fake.RGBMatrix, fake.RGBMatrixOptions = FakeMatrix, lambda: types.SimpleNamespace()
+    monkeypatch.setitem(sys.modules, "rgbmatrix", fake)
+    MatrixOutput(DisplayConfig(width=128, height=64, chain=2, pixel_mapper="Rotate:90"), emulator=False).close()
+    assert seen == {"rows": 128, "cols": 32, "mapper": "Rotate:90"}      # two 32x128 panels? no: the 64x128 physical panel, chained in two
+    MatrixOutput(DisplayConfig(width=128, height=64, chain=2), emulator=False).close()
+    assert seen["rows"] == 64 and seen["cols"] == 64

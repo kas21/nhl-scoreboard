@@ -86,3 +86,30 @@ def test_label_font_keeps_the_ported_128x64_metrics():
             for sample in ("SOG", "12-4-1", "FINAL/OT", "0O68AR"):
                 assert label.getbbox(sample)[2] == old.getbbox(sample)[2], f"{profile.name}: {sample} pitch"
                 assert text_size(sample, label)[1] == text_size(sample, old)[1] == 5, f"{profile.name}: {sample} ink"
+
+
+def test_several_spacers_share_the_slack_to_the_last_pixel():
+    """n spacers used to drop up to n-1 px at the far end, so a logo sat a pixel off the edge."""
+    from PIL import Image
+
+    from scoreboard.render.layout import HBox, Img, Spacer, render_tree
+    tile = Img(Image.new("RGB", (3, 2), (255, 255, 255)))
+    for width in (64, 63, 61, 128, 127):
+        for n in (2, 3, 4):
+            children = [tile] + [x for _ in range(n) for x in (Spacer(), tile)]       # tile, sp, tile, sp, tile...
+            img = render_tree(HBox(children), width, 2)
+            assert img.getpixel((width - 1, 0)) == (255, 255, 255), (width, n)       # the last tile touches the edge
+            assert img.getpixel((0, 0)) == (255, 255, 255)
+    # Weighted: a 2:1 split lands within a pixel of two thirds, with nothing lost.
+    img = render_tree(HBox([tile, Spacer(weight=2), tile, Spacer(weight=1), tile]), 61, 2)
+    xs = [x for x in range(61) if img.getpixel((x, 0)) == (255, 255, 255)]
+    assert xs[0] == 0 and xs[-1] == 60 and abs(xs[3] - (3 + (61 - 9) * 2 // 3)) <= 1
+
+
+def test_text_cache_is_keyed_by_what_the_font_is_not_its_address():
+    from scoreboard.render.layout import Text, font_key
+    from scoreboard.render.text import load_font
+    small, big, bitmap = load_font("pl", 6), load_font("pl", 12), load_font("pixel", 6)
+    assert Text("1", small).cache_key() != Text("1", big).cache_key()
+    assert font_key(load_font("pl", 12)) == font_key(big)
+    assert not any(isinstance(part, int) and part > 10**6 for part in Text("1", bitmap).cache_key())    # no id() in the key

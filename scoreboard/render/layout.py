@@ -14,7 +14,7 @@ from __future__ import annotations
 from collections import OrderedDict
 from collections.abc import Hashable, Iterator, Sequence
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Any, Literal
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -139,6 +139,16 @@ class Img(Node):
         yield (self.image, x + _align(w - self.image.width, "center"), y + _align(h - self.image.height, "center"))
 
 
+def font_key(font: Any) -> tuple:
+    """What identifies a font for caching: its file and size, never ``id(font)``. Fonts come
+    from a bounded LRU; an evicted one is freed and its address reused by the next load, so a
+    key by address let a cached glyph image be served for a different font at a different size."""
+    path = getattr(font, "path", None) or getattr(font, "file", None)
+    if path is None:
+        return ("font", id(font))              # a font from nowhere (load_default): the object is all there is
+    return (str(path), getattr(font, "size", None))
+
+
 @dataclass
 class Text(Node):
     text: str
@@ -154,7 +164,7 @@ class Text(Node):
         self._origin = (-int(left), -int(top))
 
     def cache_key(self):
-        return ("text", self.text, id(self.font), self.fill, self.antialias)
+        return ("text", self.text, font_key(self.font), self.fill, self.antialias)
 
     def measure(self) -> tuple[int, int]:
         return self._size
@@ -262,10 +272,18 @@ class _Linear(Container):
         extra = max(total_main - used, 0)
         weight_total = sum(s.weight for s in spacers) or 0
         cursor = 0 if weight_total else extra // 2      # no spacers: centre along the main axis
+        # Slack is shared by cumulative rounding: each spacer gets up to its share of the running
+        # total, so the remainder lands on the spacers rather than being dropped (n spacers used
+        # to lose up to n-1 px at the far end, and a logo sat a pixel off the edge).
+        given = 0
+        weight_so_far = 0
         for child, (cw, ch) in zip(self.children, sizes):
             main = cw if self.horizontal else ch
             if isinstance(child, Spacer) and weight_total:
-                main += extra * child.weight // weight_total
+                weight_so_far += child.weight
+                share = extra * weight_so_far // weight_total - given
+                given += share
+                main += share
             stretch = isinstance(child, Container)       # containers fill the cross axis
             if self.horizontal:
                 cross = h if stretch else ch

@@ -28,7 +28,7 @@ const BOARDS = [
   { id: 'regular', label: 'Direct wiring / other HAT ("regular")' },
 ];
 const ORDERS = ['RGB', 'RBG', 'GRB', 'GBR', 'BRG', 'BGR'];
-const MAPPERS = [['', 'Normal'], ['Rotate:180', 'Upside down (rotate 180)'], ['Rotate:90', 'Rotate 90'], ['Rotate:270', 'Rotate 270'], ['Mirror:H', 'Mirrored']];
+const MAPPERS = [['', 'Normal'], ['Rotate:180', 'Upside down (rotate 180)'], ['Rotate:90', 'On its side (rotate 90) — width and height are what you see'], ['Rotate:270', 'On its side (rotate 270) — width and height are what you see'], ['Mirror:H', 'Mirrored']];
 const SLOWDOWNS = [['1', '1 (Pi 3 / Zero 2)'], ['2', '2 (Pi 4, default)'], ['3', '3'], ['4', '4 (Pi 5)']];
 const NHL = ['ANA','BOS','BUF','CAR','CBJ','CGY','CHI','COL','DAL','DET','EDM','FLA','LAK','MIN','MTL','NJD','NSH','NYI','NYR','OTT','PHI','PIT','SEA','SJS','STL','TBL','TOR','UTA','VAN','VGK','WPG','WSH'];
 

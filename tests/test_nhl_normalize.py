@@ -227,3 +227,18 @@ def test_penalties_are_detected_by_identity_not_by_count():
     events = [e for e in detect_main_event(s1, s2) if e.kind == "nhl.penalty"]
     assert [e.payload["penalty"]["desc"] for e in events] == ["p3"]
     assert _carry_landing({**base, "id": 8, "penalties": []}, s2.get("nhl.main_event"))["penalties"] == []     # another game: nothing carried
+
+
+def test_an_evening_game_is_todays_game_east_of_the_atlantic_too():
+    """The NHL dates a game by the Eastern day. A 7 pm ET puck drop is 01:00 the next day in
+    Berlin, where the local date already differs from the league date; the game must still
+    count as today's, or a European never sees a pregame or postgame board."""
+    from scoreboard.nhl.select import on_day, select_main_event
+    g = {"id": 1, "state": "FUT", "date": "2026-04-11", "start_time_utc": "2026-04-11T23:00:00Z",
+         "away": {"abbrev": "TOR"}, "home": {"abbrev": "BOS"}}
+    assert on_day(g, "2026-04-12", "Europe/Berlin") and not on_day(g, "2026-04-12", "America/Toronto")
+    assert select_main_event([g], ["TOR"], today="2026-04-12", timezone="Europe/Berlin") is g
+    assert select_main_event([g], ["TOR"], today="2026-04-12", timezone="America/Toronto") is None
+    assert select_main_event([{**g, "state": "OFF"}], ["TOR"], today="2026-04-12", timezone="Europe/Berlin")["state"] == "OFF"    # and the postgame board
+    assert select_main_event([g], ["TOR"], today="2026-04-13", timezone="Europe/Berlin") is None                                  # but not the day after
+    assert on_day({**g, "start_time_utc": "garbage"}, "2026-04-12", "Europe/Berlin") is False

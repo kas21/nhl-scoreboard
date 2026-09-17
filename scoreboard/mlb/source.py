@@ -71,7 +71,7 @@ class MlbSource:
                     games = [g for g in games if g["game_type"] != "S"]
                 ctx.publish(_schedule_window(games, today, cfg), subkey="schedule")
                 games = _slate(games, today, carry_last_night(ctx))
-                main = select_main_event(games, cfg.favorites, today=today)
+                main = select_main_event(games, cfg.favorites, today=today, timezone=ctx.timezone)
                 if main and main["state"] == "LIVE":
                     main = await self._enrich(ctx, api, main)
                 if main:

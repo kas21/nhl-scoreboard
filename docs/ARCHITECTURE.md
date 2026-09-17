@@ -188,7 +188,7 @@ source with a fixture replay and needs a restart to leave.
 - **Layout tree**: `Text`, `Img`, `Box`, `Spacer` leaves; `HBox`, `VBox`, `Stack`, `Anchor`, `Absolute`
   containers. Nodes measure their natural size, containers assign integer rects, `render_tree(root, w, h, t)`
   composites into an RGB frame. Containers stretch on the cross axis and centre children when there are no
-  `Spacer`s.
+  `Spacer`s; with spacers, the slack is shared by cumulative rounding so the last child ends on the edge.
 - **Static subtree cache**: a process-wide LRU of 512 composited images keyed by the subtree's structure
   and size (`cache_key()`), so a frame costs roughly what moves in it.
 - **Animated nodes** (`Marquee`, `Sheen`, `Pulse`, `Blink`, `Slide`, `Fade`, `Cycle`) pre-render their
@@ -210,7 +210,7 @@ source with a fixture replay and needs a restart to leave.
 
 | What | Where | Keyed by / lifetime |
 |---|---|---|
-| Static subtrees, animated material | in-process LRU (`render/layout.py`, 512 entries) | structure + size / content hash |
+| Static subtrees, animated material | in-process LRU (`render/layout.py`, 512 entries) | structure + size / content hash (a font by its file and size, never `id()`: the font LRU evicts and addresses are reused) |
 | Fonts, fx tiles, sheen ramps | `functools.lru_cache` | name + size |
 | Decoded images (logos, holiday art) | `imagecache._decode`, 256 entries | path + size + file mtime, so a file that lands after a miss is picked up |
 | Board configs | `Director._board_cfg_cache` | (board key, config version); replaced on config change |
