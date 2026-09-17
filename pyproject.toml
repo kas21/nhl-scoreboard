@@ -13,6 +13,7 @@ dependencies = [
     "uvicorn[standard]>=0.29",
     "astral>=3.2",
     "holidays>=0.50",
+    "aiomqtt>=2.0",
 ]
 
 [project.optional-dependencies]

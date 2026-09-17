@@ -2,7 +2,9 @@
 
 ## Snapshot mechanics
 Everything a board can see lives in one `Snapshot` (`data/store.py`): a frozen dataclass with `version`
-(monotonic), `data` (key → value) and `updated` (key → epoch seconds of the last publish). Sources call
+(monotonic), `data` (key → value), `updated` (key → epoch seconds of the last publish) and `versions`
+(key → the snapshot version that last published it, so `changed_since(v)` can hand a follower panel only
+what is new). Sources call
 `ctx.publish(value, subkey)` (→ `<source>.<subkey>`) or `ctx.publish_to(key, value)`; the store builds a new
 snapshot with that one key replaced and hands `(prev, new)` to its listeners — the event bus, which runs the
 detectors, and the arbiter, which recomputes `main_event`. Readers on the render thread take a reference
@@ -13,7 +15,11 @@ All values are plain JSON-shaped dicts and lists, published as new objects (neve
 `None` for a missing key as well, and `snapshot.has(key)` tells the two apart. A board's `requires` keys
 must be present *and non-empty* for it to enter a playlist, so publishing `[]` or `None` is how a source
 takes its board down. `snapshot.age(key)` gives seconds since the last publish; `GET /api/snapshot` dumps
-the whole thing.
+the whole thing, and `GET /api/snapshot?since=<version>&wait=<seconds>` only the keys published after
+that version, held open until there are some (or the wait runs out; a `since` beyond the current version,
+i.e. the box restarted, gets everything). That is the whole protocol between a master panel and a follower
+(`follower.py`): the follower republishes what it gets under the same keys, so nothing downstream knows.
+The MQTT bridge (`mqtt.py`) mirrors every key to `<prefix>/snapshot/<key>` (dots as slashes), retained.
 
 A key can be claimed by one owner (the simulator does this for `nhl.main_event` and `nhl.scores` while a
 simulated game runs): other publishers' values are held back and the freshest one is republished the moment
@@ -30,7 +36,7 @@ but a board or a webhook that must not act on a fake goal can.
 | `nhl.standings`, `nfl.standings`, `ncaaf.standings`, `mlb.standings` | sources | `{teams:{ABBR:row}, division:{name:[ABBR]}, wildcard:{conf:{group:[ABBR]}}, league:[ABBR]}` (MLB rows add `games_back`, `wildcard_games_back`, `win_pct`, `eliminated`; college's `division` is one list per conference, `wildcard` the divisions of conferences that still have them, and rows add `conference`, `conf_wins`, `conf_losses`, `conf_record`, `conference_rank`) |
 | `nhl.team_summary`, `nfl.team_summary`, `ncaaf.team_summary`, `mlb.team_summary` | sources | `{ABBR: {record:{wins,losses,otl,points,gp,l10,streak,division,division_rank,…}, prev_game, next_game}}` (college adds `rank`, `conference`, `conf_record`, `conference_rank`) |
 | `nhl.season`, `nfl.season`, `ncaaf.season`, `mlb.season` | sources | `{sport, phase: offseason|preseason|regular|playoffs, …dates, days_to_*, standings_final, first_game, favorite}` |
-| `system` | NHL source | `{online: bool, failures: n}` |
+| `system` | NHL source (a follower: relayed from the master, or its own `{online: false, master}` when it cannot reach it) | `{online: bool, failures: n}` |
 | `holidays.upcoming` | holidays | `[{name, display, date, days, image, custom}]` — `display` is the alternate name if one is set, `image` an absolute path or null |
 | `holidays.available` | holidays | `[{name, display, enabled, custom, image, image_name, image_slug, uploaded}]` — every holiday the calendar knows, on or off, for the Holidays page. `image_name` is the stem of the picture it shows now; `image_slug` is where an upload for that row would go, and they differ whenever a row borrows another's art |
 | `flights.nearby`, `flights.overhead` | flights | `[aircraft]` sorted by distance; with `count_sightings` on, each carries `sightings` (visits by this airframe, this one included) and `first_seen` (epoch seconds) |
