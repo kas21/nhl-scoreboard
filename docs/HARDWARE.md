@@ -90,4 +90,5 @@ journalctl -u scoreboard -f
 sudo sed -i 's|--output hardware|--output hardware --demo|' /etc/systemd/system/scoreboard.service && sudo systemctl daemon-reload && sudo systemctl restart scoreboard   # demo mode (revert the same way)
 ```
 Config lives at `/etc/scoreboard/config.json` (root-only; edit through the web UI). Backups `config.json.1..5`.
-The installer makes the journal persistent (`/var/log/journal`) so the reason for a crash survives a reboot.
+The installer makes the journal persistent (a drop-in at `/etc/systemd/journald.conf.d/scoreboard.conf`, capped at 64 MB;
+Pi OS pins it to RAM otherwise) so the reason for a crash survives a reboot.

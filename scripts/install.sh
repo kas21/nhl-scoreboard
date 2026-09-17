@@ -146,8 +146,19 @@ ReadWritePaths=$CONFIG_DIR $APP_DIR
 [Install]
 WantedBy=multi-user.target
 UNIT
-# Pi OS keeps the journal in RAM: the reason a service crash-looped is gone after a reboot.
-mkdir -p /var/log/journal && systemctl restart systemd-journald 2>/dev/null || true
+# Pi OS pins the journal to RAM (Storage=volatile in a journald drop-in), so the reason a
+# service crash-looped is gone after a reboot. Override it, capped to spare the SD card.
+if [ ! -f /etc/systemd/journald.conf.d/scoreboard.conf ]; then
+    mkdir -p /etc/systemd/journald.conf.d
+    cat > /etc/systemd/journald.conf.d/scoreboard.conf <<'JOURNAL'
+# nhl-scoreboard: keep the journal across reboots (Pi OS defaults to volatile) so the
+# reason a service crash-looped is still there afterwards. Capped to spare the SD card.
+[Journal]
+Storage=persistent
+SystemMaxUse=64M
+JOURNAL
+    systemctl restart systemd-journald 2>/dev/null || true
+fi
 systemctl daemon-reload
 systemctl enable -q $SERVICE
 systemctl restart $SERVICE
