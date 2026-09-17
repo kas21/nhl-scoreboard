@@ -7,17 +7,29 @@ import { Simulator } from './sim.js';
 import { GamesCard, AroundCard } from './dashboard.js';
 import { Rotation } from './rotation.js';
 import { Select } from './select.js';
+import { waitForRestart } from './system.js';
 
 // Every state-changing call carries this header. A page on another site cannot set it
 // without a preflight the scoreboard never answers, which is what stops a drive-by POST
 // to /api/system/update or /api/config/reset. See scoreboard/web/guard.py.
 const UI = { 'x-requested-with': 'scoreboard-ui' };
 
+/** Pydantic hands back a list of per-field errors; say which field, in words. The guard's
+ *  refusals are plain text (a 403 for a name not in web.allowed_hosts), shown as they are. */
+async function reason(r) {
+  const text = await r.text().catch(() => '');
+  let d = null;
+  try { d = JSON.parse(text).detail; } catch (e) { return text.trim() || `${r.status} ${r.statusText}`; }
+  if (typeof d === 'string') return d;
+  if (Array.isArray(d)) return d.map(e => `${(e.loc || []).join('.') || 'value'}: ${e.msg}`).join(' · ');
+  return `${r.status} ${r.statusText}`;
+}
+const ok = async (r) => { if (!r.ok) throw new Error(await reason(r)); return r.json(); };
+
 const api = {
-  get: (p) => fetch(p).then(r => r.json()),
-  patch: (p, body) => fetch(p, { method: 'PATCH', headers: { ...UI, 'content-type': 'application/json' }, body: JSON.stringify(body) })
-    .then(async r => { if (!r.ok) throw new Error(JSON.stringify((await r.json()).detail)); return r.json(); }),
-  post: (p) => fetch(p, { method: 'POST', headers: UI }).then(r => r.json()),
+  get: (p) => fetch(p).then(ok),
+  patch: (p, body) => fetch(p, { method: 'PATCH', headers: { ...UI, 'content-type': 'application/json' }, body: JSON.stringify(body) }).then(ok),
+  post: (p) => fetch(p, { method: 'POST', headers: UI }).then(ok),
 };
 
 function Preview() {
@@ -27,15 +39,18 @@ function Preview() {
   useEffect(() => { try { localStorage.setItem('ledLook', led ? '1' : '0'); } catch (e) {} }, [led]);
   useEffect(() => {
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-    let ws, url;
+    let ws, url, closed = false;
     const connect = () => {
+      if (closed) return;
       ws = new WebSocket(`${proto}://${location.host}/ws/preview`);
       ws.binaryType = 'blob';
       ws.onmessage = (e) => { const next = URL.createObjectURL(e.data); setSrc(next); if (url) URL.revokeObjectURL(url); url = next; };
-      ws.onclose = () => setTimeout(connect, 2000);
+      // Reconnect only while the preview is on the page: the close() below fires onclose
+      // too, and without the flag every page switch left one more socket streaming frames.
+      ws.onclose = () => { if (!closed) setTimeout(connect, 2000); };
     };
     connect();
-    return () => ws && ws.close();
+    return () => { closed = true; if (ws) ws.close(); if (url) URL.revokeObjectURL(url); };
   }, []);
   // LED look: decode the frame, redraw every pixel as a round LED with a gap and a soft glow.
   useEffect(() => {
@@ -71,6 +86,14 @@ function Updater() {
   const [st, setSt] = useState(null);
   const refresh = () => api.get('/api/system/update').then(setSt).catch(() => {});
   useEffect(() => { refresh(); const id = setInterval(refresh, 3000); return () => clearInterval(id); }, []);
+  // An update restarts the server under this page. The module scripts in memory are the
+  // old UI; reload once the new process answers so the page matches the API it talks to.
+  const update = async () => {
+    if (!confirm('Update and restart the scoreboard?')) return;
+    const before = st.boot_id;
+    setSt(await api.post('/api/system/update').catch(() => st));
+    if (await waitForRestart(before)) location.reload();
+  };
   if (!st) return null;
   if (!st.is_checkout) return html`<div class="card"><h2>Updates</h2><p class="muted">This install is not a git checkout, so it can't update itself. Reinstall with <code>scripts/install.sh</code> to enable.</p></div>`;
   const busy = st.updating || st.checking;
@@ -79,7 +102,7 @@ function Updater() {
       <span>${st.available ? html`<b>Update available</b> — ${st.behind} new commit${st.behind === 1 ? '' : 's'}${st.latest_message ? html`: <i>${st.latest_message}</i>` : ''}` : html`<span class="ok">Up to date</span>`}
       <span class="muted"> · ${st.current || '?'}${st.checked_at ? ` · checked ${new Date(st.checked_at * 1000).toLocaleTimeString()}` : ''}</span></span>
       <button class="secondary" disabled=${busy} onclick=${() => api.post('/api/system/update/check').then(setSt)}>Check now</button>
-      ${st.available && html`<button disabled=${busy} onclick=${() => confirm('Update and restart the scoreboard?') && api.post('/api/system/update').then(setSt)}>${st.updating ? 'Updating…' : 'Update & restart'}</button>`}
+      ${st.available && html`<button disabled=${busy} onclick=${update}>${st.updating ? 'Updating…' : 'Update & restart'}</button>`}
     </div>
     ${st.error && html`<p class="error">${st.error}</p>`}
     ${st.log && st.log.length > 0 && html`<pre>${st.log.join('\n')}</pre>`}
@@ -296,7 +319,7 @@ function Playlists({ config, boards, save }) {
 
 function Diagnostics() {
   const [lines, setLines] = useState([]);
-  useEffect(() => { const t = () => api.get('/api/logs').then(setLines); t(); const id = setInterval(t, 3000); return () => clearInterval(id); }, []);
+  useEffect(() => { const t = () => api.get('/api/logs').then(setLines).catch(() => {}); t(); const id = setInterval(t, 3000); return () => clearInterval(id); }, []);
   return html`
     <div class="card"><h2>Data sources</h2><p class="muted small">Background fetchers and their cadence. Click a row for details.</p><${SourcesTable} /></div>
     <div class="card"><h2>Logs</h2><pre>${lines.join('\n')}</pre></div>`;
@@ -330,9 +353,11 @@ function App() {
   const [boards, setBoards] = useState([]);
   const [error, setError] = useState(null);
   useEffect(() => {
-    api.get('/api/config').then(setConfig);
-    api.get('/api/schema').then(setSchema);
-    api.get('/api/boards').then(setBoards);
+    // A refusal here (the guard's 403 for a name not in web.allowed_hosts, say) used to
+    // leave the page on "Loading…" forever with the reason only in the response body.
+    api.get('/api/config').then(setConfig).catch(e => setError(`Could not load the settings: ${e.message}`));
+    api.get('/api/schema').then(setSchema).catch(() => {});
+    api.get('/api/boards').then(setBoards).catch(() => {});
     const onHash = () => setPage(location.hash.slice(1) || 'dashboard');
     addEventListener('hashchange', onHash); return () => removeEventListener('hashchange', onHash);
   }, []);

@@ -144,6 +144,9 @@ class Application:
                            system=SystemControl(self.request_restart), updater=self.updater, health=self.health,
                            simulator=self.simulator, mqtt=self.mqtt),
                 host=web.host, port=web.port, log_level="warning", loop="asyncio",
+                # A follower's /api/snapshot long-poll can be open for 25 s; a restart or an
+                # update must not wait for it.
+                timeout_graceful_shutdown=3,
             ))
             server.install_signal_handlers = lambda: None  # we handle signals ourselves
             web_task = asyncio.create_task(server.serve(), name="web")

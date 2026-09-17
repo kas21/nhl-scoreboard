@@ -9,6 +9,7 @@
 import { html, useState, useEffect, useMemo } from './htm-preact.js';
 import { Select } from './select.js';
 import { Tags } from './tags.js';
+import { RestartButton } from './system.js';
 
 // Every state-changing call carries this header. A page on another site cannot set it
 // without a preflight the scoreboard never answers, which is what stops a drive-by POST
@@ -80,8 +81,8 @@ const HIDDEN = new Set(['boards', 'sources', 'playlists', 'setup_complete', 'ver
 // Categories claim top-level keys. Anything unclaimed still appears, under "Other",
 // so a newly added config section is never silently invisible.
 const CATEGORIES = [
-  { id: 'display', label: 'Display', keys: ['display'],
-    note: 'Panel wiring and driver options. These take effect on the next driver restart — the Setup wizard has a button for it.' },
+  { id: 'display', label: 'Display', keys: ['display'], restart: true,
+    note: 'Panel wiring and driver options. These take effect on the next driver restart.' },
   { id: 'location', label: 'Location & time', keys: ['location'] },
   { id: 'brightness', label: 'Brightness', keys: ['brightness'] },
   { id: 'appearance', label: 'Appearance', keys: ['transition', 'ticker', 'logos', 'sports'] },
@@ -341,6 +342,7 @@ export function Settings({ config, schema, boards, save }) {
     </div>
 
     ${!searching && activeCat?.note && html`<p class="muted catnote">${activeCat.note}</p>`}
+    ${!searching && activeCat?.restart && html`<div class="card"><${RestartButton} label="Apply display settings (restart the driver)" /></div>`}
 
     ${shown.length === 0 && html`<div class="card"><p class="muted">
       Nothing matches${changedOnly ? ' — every setting in view is at its default.' : '.'}</p></div>`}
@@ -372,7 +374,7 @@ export function Settings({ config, schema, boards, save }) {
     </div>`)}</div>
 
     <div class="card row">
-      <button class="danger" onclick=${() => confirm('Reset all settings to defaults?')
+      <button class="danger" onclick=${() => confirm('Reset all settings to defaults? (The System > web settings are kept, so this page stays reachable.)')
         && api.post('/api/config/reset').then(() => location.reload())}>Reset to defaults</button>
       <span class="muted">${totalChanged} setting${totalChanged === 1 ? '' : 's'} differ from the defaults.</span>
     </div>`;

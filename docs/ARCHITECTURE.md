@@ -257,18 +257,20 @@ than rejecting the whole file.
 | Bad plugin | its entry point is skipped at load and logged; the rest of the app runs (the director draws black if even the fallback board is missing) |
 
 ## Web
-FastAPI on `web.port` (8080). Endpoints: `/api/config` (GET effective, PATCH deep-merge, PUT replace, POST `/reset`), `/api/dashboard` (the
+FastAPI on `web.port` (8080). Endpoints: `/api/config` (GET effective, PATCH deep-merge, PUT replace, POST `/reset`, which keeps the `web` section), `/api/dashboard` (the
 trimmed per-sport / extras summary the dashboard polls),
 `/api/schema`, `/api/status`, `/api/sources` (per-source health), `/api/boards` (key, title, requires,
 `playlistable`, `self_timed`, `auto_seconds`), `/api/rotation` (the current playlist as the director runs it: lengths,
 counts, skip reasons, cursor), `/api/snapshot` (whole, or `?since=&wait=` long-poll for a follower panel), `/api/logs`, `/api/override` (force a board),
-`/api/system` (+ `/restart`, `/hostname`, `/update`, `/update/check`), `/api/geocode`, `/api/preview.png`,
+`/api/system` (+ `/restart`, `/hostname`, `/update`, `/update/check`; `/api/status`, `/api/system` and the update state carry a per-process `boot_id`, which the UI watches to know a restart has produced a *new* server), `/api/geocode`, `/api/preview.png`,
 `/ws/preview` (PNG frames), `/api/holidays/images/{slug}` (GET the picture, POST your own as the raw body,
 DELETE to put the bundled one back) and `/api/holidays/settings` (GET / PUT), and `/api/sim` (see [Simulation](#simulation)). Those are the only
 plugin-specific routes, and each earns it: a picture is a file, so it cannot ride on `/api/config`; and
-`PATCH /api/config` deep-merges, so it can add a key to the `overrides` map but never take one out, and
-plugin sections are `dict[str, Any]` in `AppConfig` so nothing validates them on the way in. The `/settings`
-route validates against `HolidaysConfig` and replaces the section outright. A model can declare a page of
+`PATCH /api/config` deep-merges, so it can add a key to the `overrides` map but never take one out. Plugin
+sections are `dict[str, Any]` in `AppConfig`; the config routes validate each touched `boards.<key>` /
+`sources.<key>` against the plugin's own model (422 with the field's location) so a bad value is refused
+rather than saved and silently replaced by defaults at runtime. The `/settings` route validates against
+`HolidaysConfig` and replaces the section outright. A model can declare a page of
 its own with `edited_on()` (see `config/models.py`); the generated settings form then links to it.
 
 State-changing calls need `X-Requested-With: scoreboard-ui` and a `Host` the box answers to

@@ -7,6 +7,7 @@ import re
 import shutil
 import socket
 import subprocess
+import uuid
 from collections import deque
 from collections.abc import Callable
 from pathlib import Path
@@ -22,6 +23,7 @@ from starlette.types import Scope
 from .. import __version__
 from ..boards.base import BaseBoard
 from ..config import ConfigStore
+from ..config.models import deep_merge
 from ..config.schema import app_schema
 from ..data import SnapshotStore
 from ..data.health import SourceHealth
@@ -46,6 +48,9 @@ STATIC = Path(__file__).parent / "static"
 NO_CACHE = "no-cache"
 
 SNAPSHOT_WAIT_MAX = 60.0            # a follower's long-poll is never held longer than this
+# New for every process. The UI compares it across a restart or an update to know when the
+# *new* server is answering, rather than taking any 200 from the old one still shutting down.
+BOOT_ID = uuid.uuid4().hex
 SNAPSHOT_POLL_INTERVAL = 0.2        # how often a held request looks for a new snapshot version
 
 
@@ -130,6 +135,7 @@ def create_app(
         snap = snapshots.get()
         return {
             "version": __version__,
+            "boot_id": BOOT_ID,
             "state": director.state.value,
             "board": director.active_board,
             "brightness": director.brightness(),
@@ -164,27 +170,55 @@ def create_app(
             doc[section] = {**doc[section], **merged}
         return doc
 
+    def check_plugins(doc: dict[str, Any], *, merged_over: dict[str, Any] | None = None) -> None:
+        """Refuse a plugin section its own model would refuse.
+
+        ``AppConfig`` types ``boards`` / ``sources`` as free-form dicts, so without this a
+        bad value is saved with a 200, the page shows it as taken, and at runtime the plugin
+        silently falls back to *all* its defaults (the NHL source forgetting your favourites
+        because live_interval was cleared). ``merged_over`` is the stored section for a PATCH,
+        so the value checked is what would actually be validated after the deep-merge. A key
+        with no loaded plugin (a sport source while in follower mode) is left alone.
+        """
+        errors: list[dict[str, Any]] = []
+        for section, models in (("boards", registry.board_models()), ("sources", registry.source_models())):
+            for key, raw in (doc.get(section) or {}).items():
+                model = models.get(key)
+                if model is None or not isinstance(raw, dict):
+                    continue
+                stored = ((merged_over or {}).get(section) or {}).get(key) or {}
+                try:
+                    model.model_validate(deep_merge(stored, raw))
+                except ValidationError as exc:
+                    errors.extend({**e, "loc": (section, key, *e["loc"])} for e in exc.errors(include_url=False))
+        if errors:
+            raise HTTPException(status_code=422, detail=errors)
+
     @app.get("/api/config")
     def get_config() -> dict[str, Any]:
         return effective(config.get())
 
     @app.patch("/api/config")
     def patch_config(patch: dict[str, Any]) -> dict[str, Any]:
+        check_plugins(patch, merged_over=config.get().model_dump(mode="json"))
         try:
             return effective(config.update(patch))
         except ValidationError as exc:
-            raise HTTPException(status_code=422, detail=exc.errors()) from exc
+            raise HTTPException(status_code=422, detail=exc.errors(include_url=False)) from exc
 
     @app.put("/api/config")
     def put_config(document: dict[str, Any]) -> dict[str, Any]:
+        check_plugins(document)
         try:
             return effective(config.replace(document))
         except ValidationError as exc:
-            raise HTTPException(status_code=422, detail=exc.errors()) from exc
+            raise HTTPException(status_code=422, detail=exc.errors(include_url=False)) from exc
 
     @app.post("/api/config/reset")
     def reset_config() -> dict[str, Any]:
-        return effective(config.reset())
+        """Everything back to defaults except how the box is reached (`web`): resetting
+        `allowed_hosts` from a browser that got here through one of them would lock it out."""
+        return effective(config.replace({"web": config.get().web.model_dump(mode="json")}))
 
     @app.get("/api/schema")
     def schema() -> dict[str, Any]:
@@ -242,16 +276,20 @@ def create_app(
         board = body.get("board")
         if board is not None and board not in registry.boards:
             raise HTTPException(status_code=404, detail=f"unknown board {board!r}")
-        director.set_override(board, float(body.get("seconds", 60)))
+        try:
+            seconds = float(body.get("seconds", 60))
+        except (TypeError, ValueError) as exc:
+            raise HTTPException(status_code=422, detail="seconds must be a number") from exc
+        director.set_override(board, seconds)
         return {"override": director.override}
 
     @app.get("/api/system")
     def system_info() -> dict[str, Any]:
-        return {**system.version_info(), "hostname": system.hostname(), "can_restart": system._restart is not None}
+        return {**system.version_info(), "boot_id": BOOT_ID, "hostname": system.hostname(), "can_restart": system._restart is not None}
 
     @app.get("/api/system/update")
     def update_state() -> dict[str, Any]:
-        return updater.state()
+        return {**updater.state(), "boot_id": BOOT_ID}
 
     @app.post("/api/system/update/check")
     def update_check() -> dict[str, Any]:

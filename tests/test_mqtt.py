@@ -233,3 +233,29 @@ def test_mqtt_config_rejects_a_wildcard_prefix():
     with pytest.raises(ValidationError):
         MqttConfig(topic_prefix="sign/#")
     assert MqttConfig(topic_prefix="home/sign").topic_prefix == "home/sign"
+
+
+@pytest.mark.asyncio
+async def test_events_are_not_kept_while_there_is_no_broker_to_send_them_to(world):
+    config, snapshots, events, director, bridge, clients, log = world
+    events.register(lambda prev, new: [Event("flights.overhead", team=None, payload={"n": new.get("n")})] if new.get("n") else [])
+    for n in range(1, 400):
+        snapshots.publish("n", n)
+    assert bridge._pending == []                                    # MQTT is off: nothing accumulates
+    config.update({"mqtt": {"enabled": True, "host": "broker.local"}})
+    async with running(bridge):
+        await settle()
+        for n in range(400, 1100):
+            snapshots.publish("n", n)
+        assert len(bridge._pending) <= mod.PENDING_LIMIT             # bounded while a flush is pending
+
+
+@pytest.mark.asyncio
+async def test_a_clean_stop_says_offline(world):
+    """aiomqtt disconnects cleanly, which makes the broker drop the will: without an explicit
+    goodbye a restart left "online" retained and Home Assistant showed a dark panel as up."""
+    config, snapshots, events, director, bridge, clients, log = world
+    config.update({"mqtt": {"enabled": True, "host": "broker.local"}})
+    async with running(bridge):
+        await settle()
+    assert clients[0].sent("scoreboard/status") == ["online", "offline"]

@@ -184,3 +184,12 @@ def test_salvage_survives_a_missing_required_field_and_a_garbage_version(tmp_pat
     assert cfg.brightness.day == 42                                          # nothing else was lost
     assert [e.board for e in cfg.playlists.offday] == ["clock"]              # only the entry without a board went
     assert not (tmp_path / "config.json.broken").exists()
+
+
+def test_replace_migrates_an_old_document_and_survives_a_raising_listener(config_store):
+    seen = []
+    config_store.subscribe(lambda cfg: (_ for _ in ()).throw(RuntimeError("listener boom")))
+    config_store.subscribe(seen.append)
+    cfg = config_store.replace({"version": 2, "playlists": {"offday": [{"board": "nhl.ticker", "duration": 120}]}})
+    assert cfg.version == 3 and cfg.playlists.offday[0].duration is None       # the 2 -> 3 migration ran
+    assert seen == [cfg]                                                         # the listener behind the bad one still ran

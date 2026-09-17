@@ -54,23 +54,30 @@ class ConfigStore:
             self._write(new)
             self._config = new
             listeners = list(self._listeners)
+        self._notify(listeners, new)
+        return new
+
+    def replace(self, document: dict[str, Any]) -> AppConfig:
+        """Replace the whole document (import / reset). An export from an older version is
+        migrated first, so a v2 file imported over the API does not keep its old semantics
+        until the next restart happens to migrate it."""
+        with self._lock:
+            new = AppConfig.model_validate(migrate(document) if isinstance(document, dict) else document)
+            self._write(new)
+            self._config = new
+            listeners = list(self._listeners)
+        self._notify(listeners, new)
+        return new
+
+    @staticmethod
+    def _notify(listeners: list[Listener], new: AppConfig) -> None:
+        """One raising listener must not keep the rest (the source supervisor, the director's
+        cache reset) from seeing a change that is already on disk."""
         for listener in listeners:
             try:
                 listener(new)
             except Exception:
                 log.exception("config listener failed")
-        return new
-
-    def replace(self, document: dict[str, Any]) -> AppConfig:
-        """Replace the whole document (import / reset)."""
-        with self._lock:
-            new = AppConfig.model_validate(document)
-            self._write(new)
-            self._config = new
-            listeners = list(self._listeners)
-        for listener in listeners:
-            listener(new)
-        return new
 
     def reset(self) -> AppConfig:
         return self.replace({})

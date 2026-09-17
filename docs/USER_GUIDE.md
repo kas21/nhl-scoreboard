@@ -107,7 +107,7 @@ Everything saved on the Settings and Boards pages applies without a restart, but
 - **Turning a source off** (`enabled`; every source has the switch except NHL and holidays): at once. Its background fetching stops and everything it had published is
   withdrawn, so its boards leave the rotation, its game stops being a candidate for the panel and the dashboard forgets it.
   Turning it back on starts it fresh; the diagnostics page shows an off source as *Off* rather than starting or crashed.
-- **Display driver options** and **follower mode**: the next restart (the Setup wizard has the button).
+- **Display driver options** and **follower mode**: the next restart (Settings → Display and the Setup wizard both have the button).
 
 ## Boards
 | Board | Shows | Needs |
@@ -160,7 +160,7 @@ it wants them). The Dashboard status card says whether it is connected. Everythi
 
 | Topic | What | Notes |
 |---|---|---|
-| `scoreboard/status` | `online` / `offline` | retained; `offline` is set by the broker if the panel drops |
+| `scoreboard/status` | `online` / `offline` | retained; the panel publishes `offline` on a clean stop or restart, and the broker sets it if the panel drops |
 | `scoreboard/state` | `{state, board, brightness, override}` | retained, on change |
 | `scoreboard/snapshot/<key>` | the data, one topic per snapshot key with dots as slashes: `snapshot/main_event`, `snapshot/nhl/scores`, `snapshot/weather/current`… | retained, on change (see [DATA.md](DATA.md) for shapes). *snapshot keys* (advanced) narrows it to the keys you name |
 | `scoreboard/event/<kind>` | `{kind, team, payload, ts}` — `event/nhl/goal`, `event/nhl/penalty`, `event/nfl/touchdown`, `event/flights/overhead`… | one message per event, not retained |
@@ -173,10 +173,10 @@ with a `value_template` of `{{ value_json.home.score }}`; a switch that turns th
 
 ## Updates
 The Dashboard tells you when a new version is available and updates with one click (the panel goes dark for
-~10 s while it restarts). Nothing else to do.
+~10 s while it restarts; the page reloads itself once the new version is up). Nothing else to do.
 
 ## If something looks wrong
 - Colours swapped / mirrored → Setup → Colours & orientation → Apply.
 - Flicker → Setup → Flicker fix (GPIO slowdown) → Apply; make sure the install ran `pi_tuning.sh`.
 - Stale red dot bottom-right → the data feed is unreachable; last known data is shown until it returns.
-- Reset everything → Settings → *Reset to defaults*.
+- Reset everything → Settings → *Reset to defaults* (the System → web settings are kept, so the page stays reachable).

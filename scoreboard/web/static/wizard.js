@@ -1,6 +1,7 @@
 import { html, useState, useEffect } from './htm-preact.js';
 import { Select } from './select.js';
 import { Tags } from './tags.js';
+import { restartAndWait } from './system.js';
 
 // Every state-changing call carries this header. A page on another site cannot set it
 // without a preflight the scoreboard never answers, which is what stops a drive-by POST
@@ -50,11 +51,10 @@ export function Wizard({ config, save, Preview, onDone }) {
 
   const saveDisplay = (patch) => { setNeedsRestart(true); return save({ display: patch }); };
   const restart = async () => {
-    setBusy(true); setMsg('Restarting the display driver… the panel will go dark for a few seconds.');
-    await api.post('/api/system/restart').catch(() => {});
-    const t0 = Date.now();
-    const poll = async () => { try { await api.get('/api/status'); if (Date.now() - t0 > 3000) { setBusy(false); setNeedsRestart(false); setMsg(''); return; } } catch (e) {} setTimeout(poll, 1000); };
-    setTimeout(poll, 3000);
+    setBusy(true);
+    const ok = await restartAndWait(setMsg);
+    setBusy(false);
+    if (ok) { setNeedsRestart(false); setMsg(''); } else setMsg('Still not back; reload the page in a moment.');
   };
 
   const steps = [

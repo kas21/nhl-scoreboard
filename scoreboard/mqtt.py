@@ -40,6 +40,8 @@ STATE_INTERVAL = 1.0                # how often the panel state is compared and 
 RECONNECT_DELAYS = (2, 5, 15, 30, 60)
 POWER_OFF_BOARD = "blank"
 POWER_OFF_SECONDS = 365 * 24 * 3600.0   # "until told otherwise": an override needs a length
+PENDING_LIMIT = 200                 # events waiting for a flush; a stalled broker keeps the newest
+GOODBYE_SECONDS = 2                 # how long a clean shutdown waits to publish status=offline
 
 
 class MqttBridge:
@@ -78,8 +80,10 @@ class MqttBridge:
         self._poke()
 
     def _on_events(self, events: list[Event]) -> None:
+        if not self.connected:
+            return                  # events are live, not history: nothing to replay on connect
         with self._lock:
-            self._pending.extend(events)
+            self._pending = [*self._pending, *events][-PENDING_LIMIT:]
         self._poke()
 
     def _poke(self) -> None:
@@ -147,6 +151,12 @@ class MqttBridge:
                 inbound.cancel()
                 with contextlib.suppress(BaseException):
                     await inbound
+                # aiomqtt disconnects cleanly on exit, and a clean DISCONNECT makes the broker
+                # drop the will: without this, a restart or shutdown leaves "online" retained
+                # and Home Assistant shows a dark panel as up. Best effort: the connection may
+                # be the thing that just died.
+                with contextlib.suppress(Exception):
+                    await asyncio.wait_for(client.publish(f"{prefix}/status", "offline", retain=True), GOODBYE_SECONDS)
 
     async def _flush(self, client: Any, cfg: MqttConfig, prefix: str) -> None:
         with self._lock:

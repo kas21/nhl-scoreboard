@@ -249,3 +249,45 @@ def test_boards_endpoint_names_the_pace_unit_and_items(tmp_path):
     by_key = {b["key"]: b for b in c.get("/api/boards").json()}
     assert by_key["clock"]["pace_unit"] is None and by_key["clock"]["items"] is None
     assert by_key["nhl.ticker"]["pace_unit"] == "game" and by_key["nhl.ticker"]["items"] == [0, "game"]
+
+
+def test_plugin_sections_are_validated_on_save(tmp_path):
+    """A bad plugin value used to save with a 200 and make the plugin fall back to *all* its
+    defaults at runtime (the NHL source forgetting its favourites over a cleared interval)."""
+    from scoreboard.plugins import load_registry
+    config = ConfigStore(tmp_path / "config.json")
+    snapshots, events = SnapshotStore(), EventBus()
+    reg = load_registry()
+    c = TestClient(create_app(config, snapshots, reg, Director(config, snapshots, reg, events), PreviewHub()), **UI)
+    r = c.patch("/api/config", json={"sources": {"nhl": {"favorites": ["TOR"], "live_interval": None}}})
+    assert r.status_code == 422
+    assert [e["loc"] for e in r.json()["detail"]] == [["sources", "nhl", "live_interval"]]
+    assert "nhl" not in config.get().sources                                    # nothing was written
+    assert c.patch("/api/config", json={"boards": {"clock": {"format": "13h"}}}).status_code == 422
+    assert c.put("/api/config", json={"boards": {"clock": {"format": "13h"}}}).status_code == 422
+    assert c.patch("/api/config", json={"sources": {"nhl": {"favorites": ["TOR"]}}}).status_code == 200
+    # A PATCH is judged as merged: the interval below the minimum is refused even though the
+    # patch itself is only that one key.
+    assert c.patch("/api/config", json={"sources": {"nhl": {"live_interval": 0.1}}}).status_code == 422
+    assert config.get().sources["nhl"] == {"favorites": ["TOR"]}
+    # A section for a plugin that is not loaded (a sport source in follower mode) is left alone.
+    assert c.patch("/api/config", json={"sources": {"not_a_plugin": {"anything": 1}}}).status_code == 200
+
+
+def test_override_rejects_seconds_that_are_not_a_number(tmp_path):
+    c, _ = client(tmp_path)
+    assert c.post("/api/override", json={"board": "clock", "seconds": "soon"}).status_code == 422
+
+
+def test_reset_keeps_the_way_the_box_is_reached(tmp_path):
+    c, config = client(tmp_path)
+    c.patch("/api/config", json={"web": {"allowed_hosts": ["sign.home"]}, "brightness": {"day": 42}})
+    r = c.post("/api/config/reset")
+    assert r.status_code == 200 and r.json()["brightness"]["day"] == 80
+    assert config.get().web.allowed_hosts == ["sign.home"]
+
+
+def test_every_process_has_one_boot_id(tmp_path):
+    c, _ = client(tmp_path)
+    ids = {c.get("/api/status").json()["boot_id"], c.get("/api/system").json()["boot_id"], c.get("/api/system/update").json()["boot_id"]}
+    assert len(ids) == 1 and len(ids.pop()) == 32
