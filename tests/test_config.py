@@ -79,6 +79,7 @@ def test_migration_bumps_version(tmp_path, monkeypatch):
     path.write_text(json.dumps({"version": store_mod.CONFIG_VERSION - 1}))
     cfg = ConfigStore(path).get()
     assert cfg.brightness.day == 55
+    assert json.loads(path.read_text())["version"] == store_mod.CONFIG_VERSION      # persisted, not redone every start
 
 
 def test_migration_folds_disabled_holidays_into_overrides(tmp_path):
@@ -116,3 +117,16 @@ def test_log_level_changes_apply_without_a_restart(tmp_path):
         assert root.level == logging.WARNING
     finally:
         root.setLevel(original)
+
+
+def test_migration_clears_a_big_cap_on_a_paced_board_and_keeps_a_small_one(tmp_path):
+    """Version 3: a ticker's playlist seconds are per game now. 15 was meant that way and stays;
+    a 120 s cap would be 120 s per game, so it goes back to the board's own pace. The clock is
+    not paced and keeps its number."""
+    path = tmp_path / "config.json"
+    path.write_text(json.dumps({"version": 2, "playlists": {"offday": [
+        {"board": "nhl.ticker", "duration": 15}, {"board": "nfl.ticker", "duration": 120},
+        {"board": "clock", "duration": 120}, {"board": "flights.nearby", "duration": None}]}}))
+    entries = ConfigStore(path).get().playlists.offday
+    assert [(e.board, e.duration) for e in entries] == [("nhl.ticker", 15), ("nfl.ticker", None), ("clock", 120), ("flights.nearby", None)]
+    assert json.loads(path.read_text())["version"] == 3

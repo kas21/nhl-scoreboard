@@ -14,7 +14,7 @@ from typing import Any, Literal
 from PIL import Image
 from pydantic import BaseModel, ConfigDict, Field
 
-from ....boards.base import BaseBoard, BoardContext, EventBoard, SequenceMixin
+from ....boards.base import BaseBoard, BoardContext, EventBoard, SequenceMixin, per_item
 from ....data import Event
 from ....isotime import parse_iso
 from ....render import (
@@ -54,7 +54,7 @@ COMPACT_BELOW = 48                      # panels shorter than this get the four-
 
 class AlertsBoardConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid", title="Weather alerts board")
-    seconds_per_alert: float = Field(10.0, ge=3, le=60)
+    seconds_per_alert: float = Field(10.0, ge=3, le=60, description="How long each alert shows when the playlist row leaves the seconds blank")
     page_seconds: float = Field(4.0, ge=2, le=15, description="How long each page of the description holds (128x64)")
 
 
@@ -151,6 +151,7 @@ class AlertsBoard(BaseBoard):
     key = "weather.alerts"
     title = "Weather alerts"
     config_model = AlertsBoardConfig
+    pace_unit = "alert"
     requires = frozenset({ALERTS_KEY})
 
     @staticmethod
@@ -161,14 +162,18 @@ class AlertsBoard(BaseBoard):
         return ctx.elapsed >= self.auto_seconds(ctx, cfg)
 
     def auto_seconds(self, ctx: BoardContext, cfg: AlertsBoardConfig) -> float:
-        return cfg.seconds_per_alert * len(self._in_force(ctx))
+        return per_item(ctx, cfg.seconds_per_alert) * len(self._in_force(ctx))
+
+    def auto_items(self, ctx: BoardContext, cfg: AlertsBoardConfig) -> tuple[int, str]:
+        return len(self._in_force(ctx)), self.pace_unit
 
     def render(self, ctx: BoardContext, cfg: AlertsBoardConfig) -> Image.Image:
         items = self._in_force(ctx)
         if not items:
             return render_tree(Text("NO WEATHER ALERTS", ctx.profile.label_font(), GRAY), ctx.width, ctx.height)
-        idx = min(int(ctx.elapsed // cfg.seconds_per_alert), len(items) - 1)
-        local = ctx.elapsed - idx * cfg.seconds_per_alert
+        per = per_item(ctx, cfg.seconds_per_alert)
+        idx = min(int(ctx.elapsed // per), len(items) - 1)
+        local = ctx.elapsed - idx * per
         counter = f"{idx + 1}/{len(items)}" if len(items) > 1 else ""
         return render_tree(card(items[idx], ctx, counter, cfg.page_seconds), ctx.width, ctx.height, t=local)
 

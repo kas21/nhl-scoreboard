@@ -7,7 +7,9 @@ from __future__ import annotations
 
 import logging
 import time as _time
+from dataclasses import replace
 from datetime import datetime
+from typing import Any
 from zoneinfo import ZoneInfo
 
 from PIL import Image
@@ -15,12 +17,13 @@ from pydantic import BaseModel, ValidationError
 
 from ..boards.base import BaseBoard, BoardContext, EventBoard
 from ..config import AppConfig, ConfigStore
+from ..config.models import PlaylistEntry
 from ..data import Event, Snapshot, SnapshotStore
 from ..data.events import EventBus
 from ..plugins import Registry
 from ..render.profiles import profile_for
 from .brightness import brightness_for
-from .playlist import Cursor, advance, available_entries, clamp
+from .playlist import Cursor, advance, clamp
 from .state import PLAYLIST_STATES, AppState, compute_state, is_offline
 from .transitions import transition
 
@@ -116,6 +119,16 @@ class Director:
             log.debug("auto_seconds failed for board %s", board.key, exc_info=True)
             return None
 
+    def auto_items(self, board: BaseBoard) -> tuple[int, str] | None:
+        """What a run of ``board`` is made of right now, ``(count, unit)``, for the web UI. Read-only."""
+        cfg = self._config.get()
+        try:
+            ctx = self._context(cfg, self._snapshots.get(), _time.monotonic(), None)
+            return board.auto_items(ctx, self._board_config(cfg, board))
+        except Exception:
+            log.debug("auto_items failed for board %s", board.key, exc_info=True)
+            return None
+
     def brightness(self, now: datetime | None = None) -> int:
         cfg = self._config.get()
         now = now or self._now(cfg)
@@ -131,14 +144,14 @@ class Director:
         self._pending.extend(self._events.drain())
         self._sync_state(snap, mono)
 
-        board, key, event = self._select(cfg, snap, mono)
+        board, key, event, entry = self._select(cfg, snap, mono)
         # A new event on the board already showing is a switch too: a second goal must not
         # replay the first one's cached timeline, and a real alert arriving behind a UI
         # preview of the alert board must not play the preview's placeholder.
         switching = key != self._active_key or event is not self._entered_event
         if switching and not isinstance(board, EventBoard) and not self._active_event:
             self._cursor = Cursor(self._cursor.state, self._cursor.index, mono)       # the new board's clock starts now
-        ctx = self._context(cfg, snap, mono, event)
+        ctx = self._context(cfg, snap, mono, event, pace=self._pace(board, entry))
         board_cfg = self._board_config(cfg, board)
         if switching:
             if (self._active_key is not None and self._last_frame is not None and not isinstance(board, EventBoard)
@@ -210,28 +223,121 @@ class Director:
 
     def _entries(self, cfg: AppConfig, snap: Snapshot, state: AppState, usable: set[str]) -> list:
         """Playlist entries that are enabled, loaded, not quarantined, and whose required data is non-empty."""
-        boards = self._registry.boards
-        entries = available_entries(getattr(cfg.playlists, state.value), usable, self._not_playlistable)
-        main = snap.get("main_event") or {}
-        return [e for e in entries
-                if all(snap.get(k) for k in boards[e.board].requires)
-                and (boards[e.board].sport is None or "main_event" not in boards[e.board].requires or main.get("sport") == boards[e.board].sport)]
+        entries = getattr(cfg.playlists, state.value)
+        return [e for e in entries if self._skip_reason(e, snap, usable) is None]
 
-    def _select(self, cfg: AppConfig, snap: Snapshot, mono: float) -> tuple[BaseBoard, str, Event | None]:
+    def _skip_reason(self, entry, snap: Snapshot, usable: set[str]) -> str | None:
+        """Why the director passes ``entry`` over right now, or None when it is in the rotation.
+
+        One place for the rule so the rotation view on the dashboard says exactly what the
+        frame loop does (the first three checks are ``available_entries``; the rest depend
+        on the snapshot).
+        """
+        boards = self._registry.boards
+        if not entry.enabled:
+            return "disabled"
+        if entry.board not in boards:
+            return "not loaded"
+        if entry.board in self._not_playlistable:
+            return "interrupt board, plays on its event"
+        if entry.board not in usable:
+            return "paused after an error"
+        board = boards[entry.board]
+        if not all(snap.get(k) for k in board.requires):
+            return "no data"
+        main = snap.get("main_event") or {}
+        if board.sport is not None and "main_event" in board.requires and main.get("sport") != board.sport:
+            return "another sport's game"
+        return None
+
+    def rotation(self, mono: float | None = None) -> dict[str, Any]:
+        """The current state's playlist as the director sees it, for the dashboard's rotation view.
+
+        Every configured entry is listed in order with its effective length (the fixed
+        duration, or what "auto" works out to right now; for a paced board the number is
+        seconds per item and the length follows), what it is made of, and why it is skipped
+        if it is. ``index`` is the cursor's position among the entries that are not
+        skipped; ``elapsed`` is how long the active one has been up. Read-only, like
+        ``auto_seconds``: it never enters or renders a board.
+        """
+        mono = _time.monotonic() if mono is None else mono
+        cfg = self._config.get()
+        snap = self._snapshots.get()
+        boards = self._registry.boards
+        state = self.state
+        usable = {k for k in boards if self._quarantine.get(k, 0.0) <= mono}
+        configured = getattr(cfg.playlists, state.value, ()) if state in PLAYLIST_STATES else ()
+        try:
+            ctx = self._context(cfg, snap, mono, None)
+        except Exception:
+            ctx = None
+        entries: list[dict[str, Any]] = []
+        for e in configured:
+            reason = self._skip_reason(e, snap, usable)
+            board = boards.get(e.board)
+            paced = board is not None and board.pace_unit is not None
+            seconds: float | None = None if paced else e.duration
+            items = None
+            if board is not None and ctx is not None and reason is None:
+                board_cfg = self._board_config(cfg, board)
+                pctx = replace(ctx, pace=self._pace(board, e))
+                try:
+                    if seconds is None:
+                        seconds = board.auto_seconds(pctx, board_cfg)
+                    items = board.auto_items(pctx, board_cfg)
+                except Exception:       # a board must never be able to break the dashboard
+                    log.debug("rotation probe failed for board %s", e.board, exc_info=True)
+            entries.append({
+                "board": e.board,
+                "title": board.title if board is not None else e.board,
+                "duration": e.duration,
+                "seconds": seconds,
+                "auto": e.duration is None,
+                "pace_unit": board.pace_unit if board is not None else None,
+                "count": items[0] if items else None,
+                "unit": items[1] if items else None,
+                "skipped": reason,
+                "active": False,
+                "elapsed": None,
+            })
+        playing = [x for x in entries if x["skipped"] is None]
+        index: int | None = None
+        cursor = self._cursor
+        if playing and cursor is not None and state in PLAYLIST_STATES and not self._active_event and not self.override:
+            index = min(cursor.index, len(playing) - 1)
+            playing[index]["active"] = True
+            playing[index]["elapsed"] = max(0.0, mono - cursor.entered_at)
+        known = [x["seconds"] for x in playing]
+        event = None
+        if self._active_event:
+            ev, eb, started = self._active_event
+            event = {"board": eb.key, "title": eb.title, "kind": ev.kind, "elapsed": max(0.0, mono - started)}
+        return {
+            "state": state.value,
+            "board": self._active_key,
+            "entries": entries,
+            "index": index,
+            "lap_seconds": sum(known) if playing and all(s is not None for s in known) else None,
+            "event": event,
+            "override": self.override,
+        }
+
+    def _select(self, cfg: AppConfig, snap: Snapshot, mono: float) -> tuple[BaseBoard, str, Event | None, PlaylistEntry | None]:
+        """What to show: (board, key, event, playlist entry); the entry is None off the playlist."""
         boards = self._registry.boards
         usable = self._usable(mono)
         forced = self.override
         if forced:
-            return boards[forced], forced, None
+            return boards[forced], forced, None, None
         if self._active_event:
             event, board, started = self._active_event
-            return board, board.key, event
+            return board, board.key, event, None
         while self._pending:
             event = self._pending.pop(0)
             for eb in self._registry.event_boards:
                 if eb.key in usable and eb.matches(event, self._board_config(cfg, eb)):
                     self._active_event = (event, eb, mono)
-                    return eb, eb.key, event
+                    return eb, eb.key, event, None
         state = self._cursor.state
         if state == AppState.BOOT:
             return self._pinned(BOOT_BOARD)
@@ -242,16 +348,21 @@ class Director:
             return self._pinned(FALLBACK_BOARD)
         self._cursor = clamp(self._cursor, len(entries))
         entry = entries[self._cursor.index]
-        return boards[entry.board], entry.board, None
+        return boards[entry.board], entry.board, None, entry
 
-    def _pinned(self, key: str) -> tuple[BaseBoard, str, Event | None]:
+    def _pinned(self, key: str) -> tuple[BaseBoard, str, Event | None, None]:
         """A board the director shows by name rather than from a playlist, degrading to
         FALLBACK_BOARD and then to a blank frame if neither ever loaded."""
         boards = self._registry.boards
         board = boards.get(key) or boards.get(FALLBACK_BOARD)
         if board is not None:
-            return board, key if key in boards else FALLBACK_BOARD, None
-        return DARK_BOARD, DARK_BOARD.key, None
+            return board, key if key in boards else FALLBACK_BOARD, None, None
+        return DARK_BOARD, DARK_BOARD.key, None, None
+
+    @staticmethod
+    def _pace(board: BaseBoard, entry: PlaylistEntry | None) -> float | None:
+        """The playlist's seconds, reinterpreted as seconds per item for a paced board."""
+        return entry.duration if entry is not None and board.pace_unit is not None else None
 
     def _after_render(self, board: BaseBoard, ctx: BoardContext, board_cfg: BaseModel, cfg: AppConfig, mono: float) -> None:
         if self._active_event:
@@ -266,11 +377,13 @@ class Director:
         if not entries:
             return
         entry = entries[min(self._cursor.index, len(entries) - 1)]
-        expired = entry.duration is not None and ctx.elapsed >= entry.duration
+        # A fixed number is the whole run for most boards; a paced board (ticker, flights...)
+        # gets it as seconds per item through ctx.pace instead and says itself when it is done.
+        expired = entry.duration is not None and board.pace_unit is None and ctx.elapsed >= entry.duration
         if expired or board.done(ctx, board_cfg):
             self._cursor = advance(self._cursor, len(entries), mono)
 
-    def _context(self, cfg: AppConfig, snap: Snapshot, mono: float, event: Event | None) -> BoardContext:
+    def _context(self, cfg: AppConfig, snap: Snapshot, mono: float, event: Event | None, pace: float | None = None) -> BoardContext:
         # `mono` when nothing is on screen yet: the web UI asks for a context (auto_seconds)
         # before the first frame has created the cursor.
         entered = self._active_event[2] if self._active_event else (self._cursor.entered_at if self._cursor else mono)
@@ -283,6 +396,7 @@ class Director:
             now=self._now(cfg),
             elapsed=mono - entered,
             event=event,
+            pace=pace,
         )
 
     def _board_config(self, cfg: AppConfig, board: BaseBoard) -> BaseModel:

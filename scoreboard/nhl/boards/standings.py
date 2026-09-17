@@ -200,3 +200,6 @@ class StandingsBoard(BaseBoard):
 
     def auto_seconds(self, ctx: BoardContext, cfg: StandingsConfig) -> float | None:
         return sum(self._timeline) if self._timeline else None      # known once the board has been built
+
+    def auto_items(self, ctx: BoardContext, cfg: StandingsConfig) -> tuple[int, str]:
+        return len(self._grouped(ctx.snapshot.get(self.standings_key) or {}, cfg)), "page"

@@ -5,6 +5,7 @@ import { Settings } from './settings.js';
 import { Holidays } from './holidays.js';
 import { Simulator } from './sim.js';
 import { GamesCard, AroundCard } from './dashboard.js';
+import { Rotation } from './rotation.js';
 import { Select } from './select.js';
 
 // Every state-changing call carries this header. A page on another site cannot set it
@@ -98,8 +99,19 @@ const autoLabel = (b) => !b ? ''
   : b.auto_seconds == null ? (b.self_timed ? 'auto · length not known yet' : 'auto · until the state changes')
   : b.auto_seconds < 0.5 ? 'auto · skipped, nothing to show'
   : `auto ≈ ${fmtSecs(b.auto_seconds)}`;
+// A paced board (ticker, flights, holidays, alerts) takes the number as seconds per item, so
+// the row shows what that adds up to for what there is to show right now.
+const plural = (n, unit) => `${n} ${n === 1 || unit === 'aircraft' ? unit : unit + 's'}`;
+const pacedLabel = (b, duration) => {
+  if (!b || !b.items) return '';
+  const [count] = b.items;
+  if (!count) return 'nothing to show · skipped';
+  const total = duration == null ? b.auto_seconds : duration * count;
+  return `${duration == null ? 'auto · ' : ''}${plural(count, b.pace_unit)} ≈ ${fmtSecs(total)}`;
+};
 const SKIPPED_HINT = "An interrupt board plays when its event happens (a goal, a flight overhead, a weather alert) and is passed over in the rotation. Remove it from the playlist or leave it; it makes no difference.";
 const AUTO_HINT = "Blank means auto: the board runs its own length instead of a fixed one. That length follows how much there is to show (games, pages, aircraft), so it moves with the data — and a board with no length of its own stays up until the state changes.";
+const PACED_HINT = (unit) => `Seconds each ${unit} stays up; the board goes through every ${unit} and then moves on. Blank uses the board's own setting (Settings → the board's section).`;
 
 function useSources(intervalMs = 3000) {
   const [rows, setRows] = useState(null);
@@ -175,10 +187,11 @@ function Dashboard({ config, save }) {
         ${status.mqtt?.enabled ? html`<div><span>MQTT</span>${status.mqtt.connected ? `connected to ${status.mqtt.host}` : status.mqtt.error ? `not connected: ${status.mqtt.error}` : 'connecting…'}</div>` : ''}
       </div>` : html`<p class="muted">Loading…</p>`}
     </div>
+    <${Updater} />
+    <${Rotation} />
     <${GamesCard} />
     <${AroundCard} />
     <div class="card"><h2>Data sources</h2><${SourcesSummary} /></div>
-    <${Updater} />
     <div class="card"><h2>Brightness</h2>
       <input type="range" min="1" max="100" value=${config.brightness.day}
         onchange=${e => save({ brightness: { day: +e.target.value } })} />
@@ -246,14 +259,16 @@ function Playlist({ state, list, boards, autos, update }) {
   return html`<div class="card playlist"><h2>${state}</h2><ul>
     ${shown.map((e, i) => {
       const skipped = !rotates(byKey[e.board]);
+      const paced = byKey[e.board]?.pace_unit || null;
       return html`<li class=${[drag && drag.to === i ? 'dragging' : '', skipped ? 'skipped' : ''].join(' ').trim()}>
       <span class="grip" title="Drag to reorder" onpointerdown=${ev => grab(ev, i)}>⠿</span>
       <input type="checkbox" checked=${e.enabled} disabled=${skipped} onchange=${ev => edit(i, { enabled: ev.target.checked })} />
       <${Select} value=${e.board} options=${boards.filter(b => rotates(b) || b.key === e.board).map(b => [b.key, b.title])}
         onchange=${ev => edit(i, { board: ev.target.value })} />
-      <input type="number" min="1" placeholder="auto" title=${AUTO_HINT} value=${e.duration ?? ''} style="width:80px" disabled=${skipped}
-        onchange=${ev => edit(i, { duration: ev.target.value === '' ? null : +ev.target.value })} /> s
-      <span class="muted small auto" title=${skipped ? SKIPPED_HINT : AUTO_HINT}>${skipped ? 'not in rotation · plays on its event' : e.duration == null ? autoLabel(autos[e.board]) : ''}</span>
+      <input type="number" min="1" placeholder="auto" title=${paced ? PACED_HINT(paced) : AUTO_HINT} value=${e.duration ?? ''} style="width:80px" disabled=${skipped}
+        onchange=${ev => edit(i, { duration: ev.target.value === '' ? null : +ev.target.value })} /><span class="unit">${paced ? `s per ${paced}` : 's'}</span>
+      <span class="muted small auto" title=${skipped ? SKIPPED_HINT : paced ? PACED_HINT(paced) : AUTO_HINT}>${skipped ? 'not in rotation · plays on its event'
+        : paced ? pacedLabel(autos[e.board], e.duration) : e.duration == null ? autoLabel(autos[e.board]) : ''}</span>
       <button class="secondary" disabled=${i === 0} onclick=${() => move(i, -1)}>↑</button>
       <button class="secondary" disabled=${i === list.length - 1} onclick=${() => move(i, 1)}>↓</button>
       <button class="danger" onclick=${() => update(state, shown.filter((_, j) => j !== i))}>✕</button>
@@ -261,7 +276,7 @@ function Playlist({ state, list, boards, autos, update }) {
     })}
     </ul>
     <button class="secondary" disabled=${!pickable.length}
-      onclick=${() => update(state, [...list, { board: pickable[0].key, duration: 15, enabled: true }])}>+ Add board</button>
+      onclick=${() => update(state, [...list, { board: pickable[0].key, duration: pickable[0].pace_unit ? null : 15, enabled: true }])}>+ Add board</button>
   </div>`;
 }
 
@@ -275,8 +290,8 @@ function Playlists({ config, boards, save }) {
       .catch(() => {});
     tick(); const id = setInterval(tick, 15000); return () => clearInterval(id);
   }, []);
-  return Object.keys(config.playlists).map(state => html`
-    <${Playlist} state=${state} list=${config.playlists[state]} boards=${boards} autos=${autos} update=${update} />`);
+  return [html`<${Rotation} compact />`, ...Object.keys(config.playlists).map(state => html`
+    <${Playlist} state=${state} list=${config.playlists[state]} boards=${boards} autos=${autos} update=${update} />`)];
 }
 
 function Diagnostics() {

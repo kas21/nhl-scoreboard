@@ -8,7 +8,7 @@ from typing import Any
 from PIL import Image
 from pydantic import BaseModel, ConfigDict, Field
 
-from ...boards.base import BaseBoard, BoardContext
+from ...boards.base import BaseBoard, BoardContext, per_item
 from ...render import Absolute, HBox, Img, Sheen, Slide, Text, load_font, render_tree
 from ...render.anim import exponential_in_out, linear
 from ...render.fx import Chip, chip, fit_logo
@@ -36,7 +36,7 @@ def _wrap(text: str, font, width: int) -> list[str]:
 
 class TickerConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid", title="Score ticker")
-    seconds_per_game: float = Field(8.0, ge=2, le=30)
+    seconds_per_game: float = Field(8.0, ge=2, le=30, description="How long each game shows when the playlist row leaves the seconds blank")
     time_24h: bool = False
     skip_finished: bool = Field(False, description="Only show upcoming and live games")
 
@@ -45,6 +45,7 @@ class TickerBoard(BaseBoard):
     key = "nhl.ticker"
     title = "Score ticker"
     config_model = TickerConfig
+    pace_unit = "game"
     requires = frozenset({"nhl.scores"})
     scores_key = "nhl.scores"
 
@@ -64,10 +65,13 @@ class TickerBoard(BaseBoard):
         self._games = self._game_list(ctx, cfg)
 
     def done(self, ctx: BoardContext, cfg: TickerConfig) -> bool:
-        return ctx.elapsed >= cfg.seconds_per_game * max(len(self._games), 1)
+        return ctx.elapsed >= per_item(ctx, cfg.seconds_per_game) * max(len(self._games), 1)
 
     def auto_seconds(self, ctx: BoardContext, cfg: TickerConfig) -> float:
-        return cfg.seconds_per_game * max(len(self._game_list(ctx, cfg)), 1)
+        return per_item(ctx, cfg.seconds_per_game) * max(len(self._game_list(ctx, cfg)), 1)
+
+    def auto_items(self, ctx: BoardContext, cfg: TickerConfig) -> tuple[int, str]:
+        return len(self._game_list(ctx, cfg)), self.pace_unit
 
     def render(self, ctx: BoardContext, cfg: TickerConfig) -> Image.Image:
         if not self._games:
@@ -75,8 +79,9 @@ class TickerBoard(BaseBoard):
         w, h = ctx.width, ctx.height
         if not self._games:
             return render_tree(Text("NO GAMES TODAY", ctx.profile.label_font(), LIGHT), w, h)
-        idx = min(int(ctx.elapsed // cfg.seconds_per_game), len(self._games) - 1)
-        local = ctx.elapsed - idx * cfg.seconds_per_game
+        per = per_item(ctx, cfg.seconds_per_game)
+        idx = min(int(ctx.elapsed // per), len(self._games) - 1)
+        local = ctx.elapsed - idx * per
         return render_tree(Absolute(self._card(self._games[idx], ctx, cfg)), w, h, t=local)
 
     def _date_label(self, g: dict[str, Any], ctx: BoardContext) -> str:

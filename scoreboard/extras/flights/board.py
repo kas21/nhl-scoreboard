@@ -8,7 +8,7 @@ from typing import Any
 from PIL import Image, ImageDraw
 from pydantic import BaseModel, ConfigDict, Field
 
-from ...boards.base import BaseBoard, BoardContext, EventBoard, SequenceMixin
+from ...boards.base import BaseBoard, BoardContext, EventBoard, SequenceMixin, per_item
 from ...data import Event
 from ...imagecache import load as cached_image
 from ...render import Absolute, Img, Sequence, Slide, Text, load_font, render_tree
@@ -34,7 +34,7 @@ SIGHTINGS_HELP = "Add how many times this airframe has been seen to the telemetr
 
 class NearbyConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid", title="Flights nearby")
-    seconds_per_aircraft: float = Field(6.0, ge=2, le=30)
+    seconds_per_aircraft: float = Field(6.0, ge=2, le=30, description="How long each aircraft shows when the playlist row leaves the seconds blank")
     show_sightings: bool = Field(False, description=SIGHTINGS_HELP)
 
 
@@ -203,6 +203,7 @@ class NearbyBoard(BaseBoard):
     key = "flights.nearby"
     title = "Flights nearby"
     config_model = NearbyConfig
+    pace_unit = "aircraft"
     requires = frozenset({"flights.nearby"})
 
     def __init__(self) -> None:
@@ -212,11 +213,14 @@ class NearbyBoard(BaseBoard):
         self._items = list(ctx.snapshot.get("flights.nearby") or [])
 
     def done(self, ctx: BoardContext, cfg: NearbyConfig) -> bool:
-        return ctx.elapsed >= cfg.seconds_per_aircraft * max(len(self._items), 1)
+        return ctx.elapsed >= per_item(ctx, cfg.seconds_per_aircraft) * max(len(self._items), 1)
 
     def auto_seconds(self, ctx: BoardContext, cfg: NearbyConfig) -> float:
         nearby = ctx.snapshot.get("flights.nearby") or []
-        return cfg.seconds_per_aircraft * max(len(nearby), 1)
+        return per_item(ctx, cfg.seconds_per_aircraft) * max(len(nearby), 1)
+
+    def auto_items(self, ctx: BoardContext, cfg: NearbyConfig) -> tuple[int, str]:
+        return len(ctx.snapshot.get("flights.nearby") or []), self.pace_unit
 
     def render(self, ctx: BoardContext, cfg: NearbyConfig) -> Image.Image:
         if not self._items:
@@ -224,8 +228,9 @@ class NearbyBoard(BaseBoard):
         w, h = ctx.width, ctx.height
         if not self._items:
             return render_tree(Text("NO AIRCRAFT NEARBY", ctx.profile.label_font(), LABEL), w, h)
-        idx = min(int(ctx.elapsed // cfg.seconds_per_aircraft), len(self._items) - 1)
-        local = ctx.elapsed - idx * cfg.seconds_per_aircraft
+        per = per_item(ctx, cfg.seconds_per_aircraft)
+        idx = min(int(ctx.elapsed // per), len(self._items) - 1)
+        local = ctx.elapsed - idx * per
         metric = _metric(ctx)
         if h <= 32:
             return render_tree(Absolute(compact_card(self._items[idx], w, h, metric, ctx.profile.label_font())), w, h, t=local)

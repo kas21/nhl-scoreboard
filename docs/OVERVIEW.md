@@ -81,7 +81,7 @@ Think of a newsroom with a wall of screens.
 | Arbiter | Chooses `main_event` across sports: any live game first, then `sports.priority` | `data/arbiter.py` |
 | State | boot / error / offseason / offday / pregame / live / intermission / postgame | `director/state.py` |
 | Playlist | Ordered board entries per state, from config | `config/models.py`, `director/playlist.py` |
-| Board | Pure renderer: `render(ctx, cfg) -> Image`; optional `enter`, `done`, `auto_seconds` | `boards/base.py` |
+| Board | Pure renderer: `render(ctx, cfg) -> Image`; optional `enter`, `done`, `auto_seconds`, `auto_items`, `pace_unit` | `boards/base.py` |
 | Event board | Board that plays for an event; never in a playlist (`playlistable = False`) | `boards/base.py` |
 | Sequence | Pre-rendered finite frame list for whole-frame animation | `render/anim.py` |
 | Layout tree | `HBox` / `VBox` / `Text` / `Img` … measured and placed by Pillow | `render/layout.py` |

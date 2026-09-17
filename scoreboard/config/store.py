@@ -88,14 +88,14 @@ class ConfigStore:
             return self._reset_broken(f"not valid JSON: {exc}")
         if not isinstance(raw, dict):
             return self._reset_broken("top level is not an object")
-        raw = migrate(raw)
-        cfg, dropped = salvage(raw)
+        on_disk = raw.get("version")
+        cfg, dropped = salvage(migrate(raw))
         if cfg is None:
             return self._reset_broken("could not salvage any settings")
         if dropped:
             log.warning("config: dropped invalid settings %s (backup kept as %s)", dropped, self._path.with_suffix(".json.1"))
             self._write(cfg)
-        elif raw.get("version") != cfg.version:
+        elif on_disk != cfg.version:
             self._write(cfg)                                    # persist migration
         return cfg
 
@@ -144,8 +144,34 @@ def _holiday_overrides(doc: dict[str, Any]) -> dict[str, Any]:
     return {**doc, "sources": {**sources, "holidays": {**kept, "overrides": overrides}}}
 
 
+# Bundled boards whose playlist seconds became seconds per item in config version 3.
+PACED_BOARDS = frozenset({"nhl.ticker", "nfl.ticker", "ncaaf.ticker", "mlb.ticker", "flights.nearby",
+                          "holidays.countdown", "weather.alerts"})
+MAX_PACE = 30.0
+
+
+def _paced_durations(doc: dict[str, Any]) -> dict[str, Any]:
+    """2 -> 3: a playlist number on a ticker-style board used to cap the whole run; now it
+    is how long each item shows. Small numbers were almost always meant that way (Kevin set
+    15 expecting 15 s per game) and are kept; a big cap such as 120 would become an
+    absurd per-item length, so it is cleared and the board runs at its own pace."""
+    playlists = doc.get("playlists")
+    if not isinstance(playlists, dict):
+        return doc
+    out = {}
+    for state, entries in playlists.items():
+        if not isinstance(entries, list):
+            out[state] = entries
+            continue
+        out[state] = [{**e, "duration": None} if isinstance(e, dict) and e.get("board") in PACED_BOARDS
+                      and isinstance(e.get("duration"), (int, float)) and e["duration"] > MAX_PACE else e
+                      for e in entries]
+    return {**doc, "playlists": out}
+
+
 MIGRATIONS: dict[int, Callable[[dict[str, Any]], dict[str, Any]]] = {
     1: _holiday_overrides,
+    2: _paced_durations,
 }
 
 

@@ -29,6 +29,7 @@ pre { background:#000; padding:12px; border-radius:8px; overflow:auto; max-heigh
 .playlist li { display:flex; gap:10px; align-items:center; padding:6px 0; list-style:none; }
 .playlist ul { padding:0; margin:0; }
 .playlist .auto { flex:0 0 175px; white-space:nowrap; }   /* fixed column so the buttons line up down the list */
+.playlist .unit { flex:0 0 86px; white-space:nowrap; font-size:12px; color:var(--muted); }   /* "s" or "s per game", same width either way */
 .playlist .grip { cursor:grab; color:var(--muted); user-select:none; padding:0 2px; line-height:1; touch-action:none; }
 .playlist .grip:active { cursor:grabbing; }
 .playlist li.dragging { opacity:0.55; outline:1px dashed var(--muted); outline-offset:2px; border-radius:6px; }
@@ -43,6 +44,40 @@ pre { background:#000; padding:12px; border-radius:8px; overflow:auto; max-heigh
 .tag { background:#2a3340; border-radius:14px; padding:3px 10px; font-size:13px; }
 .tag a { cursor:pointer; color:var(--muted); margin-left:4px; }
 details summary { cursor:pointer; font-weight:600; padding:8px 0; }
+
+/* ---- rotation view: the playlist as one lap ------------------------------- */
+.rotation .rot-head { display:flex; gap:12px; align-items:baseline; flex-wrap:wrap; margin-bottom:10px; }
+.rotation .rot-head h2 { margin:0; }
+.rotation .rot-head .next { margin-left:auto; }
+.rotation .lap { display:flex; gap:3px; }
+.rotation .seg { min-width:0; --fam:#8b94a5; }
+.rotation .seg > div { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; }
+.rotation .count, .rotation .len { font-size:11px; color:var(--muted); }
+.rotation .name { font-size:12px; margin-top:4px; }
+.rotation .bar { position:relative; height:10px; margin-top:4px; border-radius:3px; background:color-mix(in srgb, var(--fam) 30%, transparent); overflow:hidden; }
+.rotation .fill { height:100%; background:var(--fam); border-radius:3px; transition:width .4s linear; }
+.rotation .seg.active .name { color:#fff; font-weight:600; }
+.rotation .seg.active .bar { box-shadow:0 0 0 1px var(--fam); }
+.rotation .seg.open .bar { border-radius:3px 0 0 3px; mask-image:linear-gradient(to right, #000 70%, transparent); }
+.rotation .seg.fam-nhl { --fam:#4f8cff; }
+.rotation .seg.fam-nfl { --fam:#2fbf71; }
+.rotation .seg.fam-ncaaf { --fam:#c78bff; }
+.rotation .seg.fam-mlb { --fam:#ff7a59; }
+.rotation .seg.fam-weather { --fam:#37c4d9; }
+.rotation .seg.fam-flights { --fam:#f2c14e; }
+.rotation .seg.fam-holidays { --fam:#ff6fae; }
+.rotation .seg.fam-season { --fam:#b8c2d0; }
+.rotation .skipped { margin-top:10px; }
+.rotation.compact .count, .rotation.compact .len { font-size:11px; }
+@media (max-width:640px) {
+  .rotation .lap { flex-direction:column; gap:6px; }
+  .rotation .seg { flex:none !important; display:grid; grid-template-columns:1fr auto; column-gap:8px; align-items:center; }
+  .rotation .seg > div { text-align:left; }
+  .rotation .seg .count { grid-column:2; grid-row:2; text-align:right; }
+  .rotation .seg .bar { grid-column:1 / -1; grid-row:3; }
+  .rotation .seg .name { grid-column:1; grid-row:1; margin:0; }
+  .rotation .seg .len { grid-column:2; grid-row:1; text-align:right; }
+}
 
 .map { display: flex; flex-direction: column; gap: 4px; }
 .map-row { display: flex; gap: 6px; align-items: center; }

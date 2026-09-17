@@ -6,7 +6,7 @@ from pathlib import Path
 from PIL import Image
 from pydantic import BaseModel, ConfigDict, Field
 
-from ...boards.base import BaseBoard, BoardContext
+from ...boards.base import BaseBoard, BoardContext, per_item
 from ...imagecache import load as load_image
 from ...render import Absolute, Img, Sheen, Slide, Text, VBox, fit_font, load_font, render_tree
 from ...render.anim import quintic_out
@@ -22,7 +22,7 @@ SEPARATOR = (40, 50, 60, 255)
 
 class CountdownConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid", title="Holiday countdown")
-    seconds_per_holiday: float = Field(5.0, ge=2, le=30)
+    seconds_per_holiday: float = Field(5.0, ge=2, le=30, description="How long each holiday shows when the playlist row leaves the seconds blank")
     max_holidays: int = Field(3, ge=1, le=10, description="How many upcoming holidays to cycle through")
 
 
@@ -39,6 +39,7 @@ class CountdownBoard(BaseBoard):
     key = "holidays.countdown"
     title = "Holiday countdown"
     config_model = CountdownConfig
+    pace_unit = "holiday"
     requires = frozenset({"holidays.upcoming"})
 
     def __init__(self) -> None:
@@ -51,10 +52,13 @@ class CountdownBoard(BaseBoard):
         self._items = self._item_list(ctx, cfg)
 
     def done(self, ctx: BoardContext, cfg: CountdownConfig) -> bool:
-        return ctx.elapsed >= cfg.seconds_per_holiday * max(len(self._items), 1)
+        return ctx.elapsed >= per_item(ctx, cfg.seconds_per_holiday) * max(len(self._items), 1)
 
     def auto_seconds(self, ctx: BoardContext, cfg: CountdownConfig) -> float:
-        return cfg.seconds_per_holiday * max(len(self._item_list(ctx, cfg)), 1)
+        return per_item(ctx, cfg.seconds_per_holiday) * max(len(self._item_list(ctx, cfg)), 1)
+
+    def auto_items(self, ctx: BoardContext, cfg: CountdownConfig) -> tuple[int, str]:
+        return len(self._item_list(ctx, cfg)), self.pace_unit
 
     def render(self, ctx: BoardContext, cfg: CountdownConfig) -> Image.Image:
         if not self._items:
@@ -62,8 +66,9 @@ class CountdownBoard(BaseBoard):
         w, h = ctx.width, ctx.height
         if not self._items:
             return render_tree(Text("NO UPCOMING HOLIDAYS", ctx.profile.label_font(), LABEL), w, h)
-        idx = min(int(ctx.elapsed // cfg.seconds_per_holiday), len(self._items) - 1)
-        local = ctx.elapsed - idx * cfg.seconds_per_holiday
+        per = per_item(ctx, cfg.seconds_per_holiday)
+        idx = min(int(ctx.elapsed // per), len(self._items) - 1)
+        local = ctx.elapsed - idx * per
         item = self._items[idx]
         items = []
         text_x, text_w = 0, w

@@ -82,7 +82,8 @@ class BrightnessConfig(FrozenModel):
 
 class PlaylistEntry(FrozenModel):
     board: str = Field(description="Board key, e.g. 'clock'")
-    duration: float | None = Field(15.0, ge=1, description="Seconds; null = board decides")
+    duration: float | None = Field(15.0, ge=1, description="Seconds the board shows; for a board that shows a list "
+                                    "(games, aircraft, holidays, alerts) seconds per item; null = the board's own length")
     enabled: bool = True
 
 
@@ -235,7 +236,7 @@ class MqttConfig(FrozenModel):
     )
 
 
-CONFIG_VERSION = 2
+CONFIG_VERSION = 3
 
 
 class AppConfig(FrozenModel):

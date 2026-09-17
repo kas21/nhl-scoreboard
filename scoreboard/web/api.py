@@ -205,9 +205,19 @@ def create_app(
                 # known once it has been built, so the UI needs both to word the hint.
                 "self_timed": type(b).done is not BaseBoard.done,
                 "auto_seconds": director.auto_seconds(b),
+                # A paced board takes the playlist's seconds per item (unit named here) and
+                # ends itself; ``items`` is what it would show right now, as (count, unit).
+                "pace_unit": b.pace_unit,
+                "items": director.auto_items(b),
             }
             for b in registry.boards.values()
         ]
+
+    @app.get("/api/rotation")
+    def rotation() -> dict[str, Any]:
+        """The current playlist as the director runs it: each entry's effective length, what it
+        is made of, why it is skipped, and where the cursor is. Drawn on the dashboard."""
+        return director.rotation()
 
     @app.get("/api/snapshot")
     async def snapshot(since: int | None = None, wait: float = 0) -> dict[str, Any]:

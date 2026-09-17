@@ -230,3 +230,22 @@ def test_status_reports_the_link_and_mqtt_state(tmp_path):
     assert st["following"] is None and st["mqtt"] is None
     config.update({"follower": {"enabled": True, "master_url": "http://office.local:8080"}})
     assert c.get("/api/status").json()["following"] is None      # the follower source only exists after a restart
+
+
+def test_rotation_endpoint_is_the_directors_view(tmp_path):
+    c, config = client(tmp_path)
+    config.update({"playlists": {"offday": [{"board": "clock", "duration": 8}, {"board": "nope", "duration": 3}]}})
+    rot = c.get("/api/rotation").json()
+    assert rot["state"] == "boot" and rot["entries"] == [] and rot["index"] is None
+    assert set(rot) == {"state", "board", "entries", "index", "lap_seconds", "event", "override"}
+
+
+def test_boards_endpoint_names_the_pace_unit_and_items(tmp_path):
+    from scoreboard.nhl.boards.ticker import TickerBoard
+    config = ConfigStore(tmp_path / "config.json")
+    snapshots, events = SnapshotStore(), EventBus()
+    reg = Registry(boards={b.key: b for b in (ClockBoard(), SplashBoard(), TickerBoard())})
+    c = TestClient(create_app(config, snapshots, reg, Director(config, snapshots, reg, events), PreviewHub()), **UI)
+    by_key = {b["key"]: b for b in c.get("/api/boards").json()}
+    assert by_key["clock"]["pace_unit"] is None and by_key["clock"]["items"] is None
+    assert by_key["nhl.ticker"]["pace_unit"] == "game" and by_key["nhl.ticker"]["items"] == [0, "game"]

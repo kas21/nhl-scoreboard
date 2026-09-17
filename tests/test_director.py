@@ -288,3 +288,152 @@ def test_a_second_event_on_the_same_board_re_enters_it(tmp_path, monkeypatch):
     wall["now"] = t + 10.5
     d.frame(t + 10.5)                       # override lapsed: the real event plays, freshly entered
     assert d.active_board == "goal" and goal.entered == [1, 2, None, 3]
+
+
+def test_rotation_view_lists_every_entry_with_why_it_is_skipped(tmp_path):
+    """The dashboard draws the lap from this, so it has to say exactly what the frame loop does:
+    fixed lengths, what "auto" works out to, the cursor, and each passed-over entry's reason."""
+
+    class NeedsData(BlankBoard):
+        key = "needs"
+        title = "Needs data"
+        requires = frozenset({"things"})
+
+        def auto_seconds(self, ctx, cfg):
+            return 4.0 * len(ctx.snapshot.get("things") or [])
+
+        def auto_items(self, ctx, cfg):
+            return len(ctx.snapshot.get("things") or []), "thing"
+
+    config = ConfigStore(tmp_path / "config.json")
+    config.update({"transition": {"style": "none"}, "playlists": {"offday": [
+        {"board": "clock", "duration": 5},
+        {"board": "needs", "duration": None},
+        {"board": "blank", "duration": 7, "enabled": False},
+        {"board": "goal", "duration": 5},
+        {"board": "missing", "duration": 5},
+    ]}})
+    snapshots, events = SnapshotStore(), EventBus()
+    reg = Registry(boards={b.key: b for b in (ClockBoard(), SplashBoard(), BlankBoard(), NeedsData(), GoalBoard())})
+    d = Director(config, snapshots, reg, events)
+
+    assert d.rotation(0.0)["entries"] == [] and d.rotation(0.0)["state"] == "boot"    # boot has no playlist
+    t = booted(d)
+    rot = d.rotation(t + 2.0)
+    assert rot["state"] == "offday" and rot["board"] == "clock" and rot["index"] == 0 and rot["event"] is None
+    by = {e["board"]: e for e in rot["entries"]}
+    assert [e["board"] for e in rot["entries"]] == ["clock", "needs", "blank", "goal", "missing"]     # config order, nothing dropped
+    assert by["clock"] == {**by["clock"], "seconds": 5, "auto": False, "skipped": None, "active": True, "count": None}
+    assert abs(by["clock"]["elapsed"] - 2.0) < 1e-6
+    assert by["needs"]["skipped"] == "no data" and by["needs"]["seconds"] is None        # not probed while it cannot play
+    assert by["blank"]["skipped"] == "disabled"
+    assert by["goal"]["skipped"] == "interrupt board, plays on its event"
+    assert by["missing"]["skipped"] == "not loaded" and by["missing"]["title"] == "missing"
+    assert rot["lap_seconds"] == 5
+
+    snapshots.publish("things", [1, 2, 3])
+    rot = d.rotation(t + 2.0)
+    needs = next(e for e in rot["entries"] if e["board"] == "needs")
+    assert needs == {**needs, "skipped": None, "seconds": 12.0, "auto": True, "count": 3, "unit": "thing", "active": False, "elapsed": None}
+    assert rot["lap_seconds"] == 17.0
+
+    d.frame(t + 5.2); d.frame(t + 5.3)                     # clock's 5s are up -> cursor moves to the auto entry
+    rot = d.rotation(t + 6.3)
+    assert rot["index"] == 1 and rot["board"] == "needs"
+    assert [e["active"] for e in rot["entries"]] == [False, True, False, False, False]
+    assert abs(next(e for e in rot["entries"] if e["active"])["elapsed"] - 1.0) < 1e-6
+
+
+def test_rotation_view_reports_an_event_and_an_override_instead_of_a_cursor(tmp_path):
+    _, _, events, d = make(tmp_path)
+    t = booted(d)
+    events._queue.append(Event("goal", team="TOR", ts=t))
+    d.frame(t + 0.1)
+    rot = d.rotation(t + 1.1)
+    assert rot["board"] == "goal" and rot["index"] is None and not any(e["active"] for e in rot["entries"])
+    assert rot["event"] == {**rot["event"], "board": "goal", "title": "Goal", "kind": "goal"} and abs(rot["event"]["elapsed"] - 1.0) < 1e-6
+    d.frame(t + 2.5); d.frame(t + 2.6)
+    assert d.rotation(t + 2.6)["event"] is None and d.rotation(t + 2.6)["index"] == 0
+
+    d.set_override("blank", 30)
+    d.frame(t + 3.0)
+    rot = d.rotation(t + 3.0)
+    assert rot["override"] == "blank" and rot["index"] is None and rot["board"] == "blank"
+
+
+def test_rotation_view_marks_a_board_paused_after_an_error(tmp_path):
+    class Broken(BlankBoard):
+        key = "broken"
+        title = "Broken"
+
+        def render(self, ctx, cfg):
+            raise RuntimeError("boom")
+
+    config = ConfigStore(tmp_path / "config.json")
+    config.update({"transition": {"style": "none"}, "playlists": {"offday": [{"board": "broken", "duration": 5}, {"board": "clock", "duration": 5}]}})
+    snapshots, events = SnapshotStore(), EventBus()
+    reg = Registry(boards={b.key: b for b in (ClockBoard(), SplashBoard(), Broken())})
+    d = Director(config, snapshots, reg, events)
+    t = booted(d)
+    d.frame(t + 0.1)
+    by = {e["board"]: e for e in d.rotation(t + 0.2)["entries"]}
+    assert by["broken"]["skipped"] == "paused after an error" and by["clock"]["active"]
+
+
+class PacedBoard(BlankBoard):
+    """Stands in for a ticker: three items, ctx.pace seconds each (2 s by default)."""
+    key = "paced"
+    title = "Paced"
+    pace_unit = "thing"
+
+    def _per(self, ctx):
+        return 2.0 if ctx.pace is None else ctx.pace
+
+    def done(self, ctx, cfg):
+        return ctx.elapsed >= self._per(ctx) * 3
+
+    def auto_seconds(self, ctx, cfg):
+        return self._per(ctx) * 3
+
+    def auto_items(self, ctx, cfg):
+        return 3, "thing"
+
+
+def _paced_director(tmp_path, duration):
+    config = ConfigStore(tmp_path / "config.json")
+    config.update({"transition": {"style": "none"}, "playlists": {"offday": [{"board": "paced", "duration": duration}, {"board": "clock", "duration": 5}]}})
+    snapshots, events = SnapshotStore(), EventBus()
+    reg = Registry(boards={b.key: b for b in (ClockBoard(), SplashBoard(), PacedBoard())})
+    return config, Director(config, snapshots, reg, events)
+
+
+def test_a_number_on_a_paced_board_is_seconds_per_item_not_a_cap(tmp_path):
+    """Kevin's model: 15 s on a ticker with 3 games means 45 s, every game shown."""
+    _, d = _paced_director(tmp_path, 5)
+    t = booted(d)
+    assert d.active_board == "paced"
+    d.frame(t + 5.5); d.frame(t + 5.6)            # a cap of 5 s would have moved on here
+    assert d.active_board == "paced"
+    d.frame(t + 14.9)
+    assert d.active_board == "paced"
+    d.frame(t + 15.1); d.frame(t + 15.2)          # 3 items x 5 s
+    assert d.active_board == "clock"
+    rot = d.rotation(t + 1.0)
+    paced = rot["entries"][0]
+    assert paced == {**paced, "pace_unit": "thing", "duration": 5, "seconds": 15.0, "count": 3, "auto": False}
+    assert rot["lap_seconds"] == 20.0
+
+
+def test_a_blank_on_a_paced_board_uses_its_own_pace(tmp_path):
+    _, d = _paced_director(tmp_path, None)
+    t = booted(d)
+    d.frame(t + 6.1); d.frame(t + 6.2)            # 3 items x the board's default 2 s
+    assert d.active_board == "clock"
+    assert d.rotation(t + 0.5)["entries"][0]["seconds"] == 6.0
+
+
+def test_a_number_on_an_unpaced_board_is_still_the_whole_run(tmp_path):
+    _, _, _, d = make(tmp_path)                    # clock 5 s, blank 5 s
+    t = booted(d)
+    d.frame(t + 5.2); d.frame(t + 5.3)
+    assert d.active_board == "blank"

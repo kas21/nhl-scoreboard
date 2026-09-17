@@ -42,6 +42,13 @@ class MyBoard(BaseBoard):
         return ctx.elapsed > 10
     def auto_seconds(self, ctx, cfg):       # override alongside done: the same length, as a number
         return 10.0                         # None = never ends itself; the web UI prints this next to "auto"
+    def auto_items(self, ctx, cfg):         # optional: what a run is made of, for the dashboard's rotation view
+        return len(ctx.snapshot.get("my.latest") or []), "item"     # (count, singular unit) or None
+```
+A board that shows a list one item at a time should declare `pace_unit = "item"`: the playlist's seconds
+then mean seconds per item and arrive as `ctx.pace` (None when the row is blank, so fall back to your own
+setting via `per_item(ctx, cfg.seconds_per_item)`), and the board must end itself through `done()`.
+```python
 ```
 Use `enter(ctx, cfg)` to pre-render once when the board becomes active. `SequenceMixin` turns a board
 into `build(ctx, cfg) -> Sequence` for timeline boards. Layout/animation vocabulary: `render/__init__.py`.

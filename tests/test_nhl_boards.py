@@ -180,3 +180,32 @@ def test_game_board_draws_a_not_played_game_without_a_score(world, outcome):
     else:
         assert {"PPD": "POSTPONED", "CANCELLED": "CANCELLED"}[outcome] in words
     assert board.render(ctx, GameConfig()).size == (128, 64)
+
+
+def test_boards_say_what_a_run_is_made_of(world):
+    """The rotation view prints the count above each slice of the lap: games for the
+    ticker, pages for standings, teams for the summary — the same things auto_seconds counts."""
+    ctx = make_ctx(world, 128, 64)
+    n = len(world["store"].get().get("nhl.scores"))
+    assert TickerBoard().auto_items(ctx, TickerConfig()) == (n, "game")
+    assert TeamSummaryBoard().auto_items(ctx, TeamSummaryConfig()) == (1, "team")
+    pages, unit = StandingsBoard().auto_items(ctx, StandingsConfig())
+    assert unit == "page" and pages >= 1
+    empty = replace(ctx, snapshot=SnapshotStore().get())
+    assert TickerBoard().auto_items(empty, TickerConfig()) == (0, "game")
+
+
+def test_ticker_takes_the_playlist_pace_over_its_own_setting(world):
+    """ctx.pace is the playlist row's number, seconds per game; the board's seconds_per_game
+    is only the default for a blank row."""
+    board, cfg = TickerBoard(), TickerConfig(seconds_per_game=2)
+    n = len(world["store"].get().get("nhl.scores"))
+    paced = replace(make_ctx(world, 128, 64), pace=5.0)
+    assert board.pace_unit == "game"
+    assert board.auto_seconds(paced, cfg) == 5.0 * n
+    assert board.auto_seconds(make_ctx(world, 128, 64), cfg) == 2.0 * n
+    board.render(paced, cfg)
+    assert not board.done(replace(paced, elapsed=5.0 * n - 0.1), cfg)
+    assert board.done(replace(paced, elapsed=5.0 * n), cfg)
+    first = board.render(replace(paced, elapsed=4.5), cfg)         # still the first game at 4.5 s in
+    assert first.tobytes() != board.render(replace(paced, elapsed=5.5), cfg).tobytes() or n == 1

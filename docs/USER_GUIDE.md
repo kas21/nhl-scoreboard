@@ -46,7 +46,13 @@ art downloads within a few seconds of saving; until it lands the team keeps its 
 nothing needs a restart.
 
 ## Pages
-- **Dashboard** — live preview of exactly what the panel shows, state, brightness slider, plus two info cards:
+- **Dashboard** — live preview of exactly what the panel shows, state, brightness slider, a *Rotation* card and two info cards.
+  *Rotation* draws the current playlist as one lap: a bar with a slice per board, sized by how long it runs, with what
+  the board is made of above it (7 games, 4 aircraft, 2 pages) and its name and length below; the slice on screen fills
+  as it plays and the header says what comes next. Auto lengths are marked ≈ because they follow the data. Boards the
+  panel is passing over are listed underneath with the reason (no data, disabled, interrupt board, paused after an
+  error, nothing to show), and a goal or other interrupt shows as a banner while it plays. The same card sits at the
+  top of the *Boards* page.
   *Games* lists every game for the next few days per sport (as far ahead as that sport's *show games within days*
   setting; MLB lists only today's games unless you turn off *schedule today only*, with your teams' records and next game,
   and the game the panel is following marked), and *Around you*
@@ -57,13 +63,18 @@ nothing needs a restart.
 - **Boards** — per-state playlists. States: *offseason*, *offday* (season on, no game today), *pregame*,
   *live*, *intermission*, *postgame*. Reorder by dragging a row's grip (⠿) — the list reorders
   under the pointer and saves when you let go, Esc cancels; the arrows still move one place at a
-  time. Enable/disable, set seconds. Leave the seconds blank for "auto" — the board runs its own
-  length, e.g. a ticker goes through every game once. The row then shows what that works out to
-  right now (`auto ≈ 24s`); it follows the data, so it moves as games come and go.
-  A board with no length of its own says `auto · until the state changes` — it holds the screen until the
-  state does (that is what the *live* game board wants), so give it seconds if you want the playlist to
-  move on. Standings and team summary only know their length after they have run once (`auto · length not
-  known yet` until then).
+  time. Enable/disable, set seconds. The seconds mean one of two things, and the row says which:
+  - For a board that shows a list one item at a time — the score tickers, flights nearby, the holiday
+    countdown, weather alerts — the box reads `s per game` (aircraft, holiday, alert) and is how long each
+    item stays up. The board goes through everything it has and then moves on: 15 s per game with 3 games
+    is 45 s. The row shows the total for what there is right now (`15 games ≈ 2:00`). Blank uses the
+    board's own per-item setting from its section on the Settings page.
+  - For every other board the number is how long the board shows, full stop. Leave it blank for "auto" —
+    the board runs its own length. The row then shows what that works out to right now (`auto ≈ 24s`).
+    A board with no length of its own says `auto · until the state changes` — it holds the screen until the
+    state does (that is what the *live* game board wants), so give it seconds if you want the playlist to
+    move on. Standings and team summary only know their length after they have run once (`auto · length not
+    known yet` until then).
 - **Settings** — every option, grouped: Display, Location, Brightness (fixed / sunrise-sunset / hours),
   Transition between boards, Sports (priority, and the game-day rollover hour: last night's finals stay in the
   ticker until then — today's games show as soon as the date turns, and the postgame board still leaves at

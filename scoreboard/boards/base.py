@@ -32,6 +32,7 @@ class BoardContext:
     now: datetime          # local wall-clock time (tz-aware)
     elapsed: float         # seconds since this board was entered
     event: Event | None = None
+    pace: float | None = None      # playlist's seconds per item for a paced board (None = the board's default)
 
 
 @runtime_checkable
@@ -51,6 +52,10 @@ class Board(Protocol):
         """How long a run lasts when the playlist duration is "auto" (None = never ends itself)."""
         ...
 
+    def auto_items(self, ctx: BoardContext, cfg: BaseModel) -> tuple[int, str] | None:
+        """What a run is made of: ``(count, unit)`` such as ``(7, "game")``, or None."""
+        ...
+
 
 class BaseBoard:
     key: ClassVar[str] = ""
@@ -61,6 +66,10 @@ class BaseBoard:
     # False for boards that only draw something with an event behind them: the director keeps
     # them out of the rotation and the web UI out of the playlist pickers.
     playlistable: ClassVar[bool] = True
+    # Set on a board that shows a list one item at a time (games, aircraft, holidays, alerts).
+    # The playlist's seconds then mean seconds per item, handed over as ``ctx.pace``, and the
+    # board decides when it is done; for every other board the seconds are the whole run.
+    pace_unit: ClassVar[str | None] = None
 
     def enter(self, ctx: BoardContext, cfg: BaseModel) -> None:
         """Called once when the board becomes active; pre-render here."""
@@ -80,6 +89,18 @@ class BaseBoard:
         should override this too, with the same length ``done`` waits for.
         """
         return None
+
+    def auto_items(self, ctx: BoardContext, cfg: BaseModel) -> tuple[int, str] | None:
+        """What the run is made of, as ``(count, unit)`` with a singular unit: ``(7, "game")``,
+        ``(4, "aircraft")``, ``(3, "page")``. For the web UI's rotation view, which shows the
+        count above each board's slice of the lap. None for a board with no natural count."""
+        return None
+
+
+def per_item(ctx: BoardContext, default: float) -> float:
+    """Seconds each item stays up: the playlist's number when the entry has one, else the
+    board's own setting. For boards with a ``pace_unit``."""
+    return default if ctx.pace is None else ctx.pace
 
 
 class SequenceMixin:

@@ -203,3 +203,6 @@ class TeamSummaryBoard(BaseBoard):
 
     def auto_seconds(self, ctx: BoardContext, cfg: TeamSummaryConfig) -> float | None:
         return sum(self._timeline) if self._timeline else None      # known once the board has been built
+
+    def auto_items(self, ctx: BoardContext, cfg: TeamSummaryConfig) -> tuple[int, str]:
+        return len(ctx.snapshot.get(self.summary_key) or {}), "team"

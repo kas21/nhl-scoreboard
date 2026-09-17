@@ -129,8 +129,14 @@ Two listeners are wired at startup:
    on; the last good frame is shown meanwhile.
 6. **Post**: blend the transition, add the stale dot when `system.online` is false, then decide what is
    next: an event board ends when `done()` or after 30 s; a playlist entry ends when its `duration`
-   expires or, with `duration: null` ("auto"), when the board says `done()`. `auto_seconds()` reports that
-   same length to the web UI.
+   expires or, with `duration: null` ("auto"), when the board says `done()`. A board with a `pace_unit`
+   (the tickers, flights, holidays, alerts) is different: its entry's `duration` is seconds per item, handed
+   to it as `ctx.pace`, and it always ends itself. `auto_seconds()` reports the resulting length to the web
+   UI, and `auto_items()` what it is made of (`(7, "game")`).
+
+`Director.rotation()` is the read-only view behind the dashboard's Rotation card: every entry of the current
+state's playlist with its effective length, count, why it is skipped (`_skip_reason`, the same rule `_select`
+uses) and where the cursor is. It never enters or renders a board.
 
 Per-board config is validated from `config.boards[key]` once per config version and cached in a map the
 config listener replaces (never clears), so the render thread cannot observe a half-cleared cache.
@@ -248,7 +254,8 @@ than rejecting the whole file.
 ## Web
 FastAPI on `web.port` (8080). Endpoints: `/api/config` (GET effective, PATCH deep-merge, PUT, reset),
 `/api/schema`, `/api/status`, `/api/sources` (per-source health), `/api/boards` (key, title, requires,
-`playlistable`, `self_timed`, `auto_seconds`), `/api/snapshot` (whole, or `?since=&wait=` long-poll for a follower panel), `/api/logs`, `/api/override` (force a board),
+`playlistable`, `self_timed`, `auto_seconds`), `/api/rotation` (the current playlist as the director runs it: lengths,
+counts, skip reasons, cursor), `/api/snapshot` (whole, or `?since=&wait=` long-poll for a follower panel), `/api/logs`, `/api/override` (force a board),
 `/api/system` (+ `/restart`, `/hostname`, `/update`, `/update/check`), `/api/geocode`, `/api/preview.png`,
 `/ws/preview` (PNG frames), `/api/holidays/images/{slug}` (GET the picture, POST your own as the raw body,
 DELETE to put the bundled one back) and `/api/holidays/settings` (GET / PUT), and `/api/sim` (see [Simulation](#simulation)). Those are the only
