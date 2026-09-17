@@ -199,10 +199,15 @@ async def run_source_forever(source: DataSource, ctx: SourceContext) -> None:
             if health is not None:
                 health.set_running(source.key, True)
             await source.run(ctx)
-            log.warning("source %s exited; restarting", source.key)
+            # A return is treated like a crash for pacing: a run() that comes straight back
+            # (a guard clause, nothing to do) would otherwise be re-entered with no await
+            # in between, and nothing else on the loop would get a turn.
+            delay = RESTART_BACKOFF_SECONDS[min(failures, len(RESTART_BACKOFF_SECONDS) - 1)]
+            failures += 1
+            log.warning("source %s exited; restarting in %ss", source.key, delay)
             if health is not None:
                 health.record_crash(source.key, "run() returned")
-            failures = 0
+            await asyncio.sleep(delay)
         except asyncio.CancelledError:
             if health is not None:
                 health.set_running(source.key, False)

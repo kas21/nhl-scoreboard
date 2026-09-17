@@ -5,12 +5,19 @@ The director consumes events to interrupt the playlist (goal animation, etc).
 """
 from __future__ import annotations
 
+import logging
 import threading
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from typing import Any
 
 from .store import Snapshot
+
+log = logging.getLogger(__name__)
+
+
+def _name(fn: Any) -> str:
+    return getattr(fn, "__qualname__", None) or getattr(fn, "__name__", None) or repr(fn)
 
 
 @dataclass(frozen=True)
@@ -61,12 +68,23 @@ class EventBus:
         with self._lock:
             detectors = list(self._detectors)
             taps = list(self._taps)
-        found = [event for detector in detectors for event in detector(prev, new)]
+        found: list[Event] = []
+        for detector in detectors:
+            try:
+                found.extend(detector(prev, new))
+            except Exception:
+                # A detector is plugin code diffing two snapshots. Letting it raise here would
+                # take the publishing source down (it restarts, sees the same data, raises
+                # again) and skip every listener behind this one, the arbiter included.
+                log.exception("detector %s failed; its events for this snapshot are lost", _name(detector))
         if found:
             with self._lock:
                 self._queue.extend(found)
             for tap in taps:
-                tap(found)
+                try:
+                    tap(found)
+                except Exception:
+                    log.exception("event tap %s failed", _name(tap))
 
     def drain(self) -> tuple[Event, ...]:
         """Return queued events, collapsed so a burst (missed polls, restart mid-game)

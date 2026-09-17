@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from ..logovariants import VARIANTS as LOGO_VARIANTS
 
@@ -78,6 +78,19 @@ class BrightnessConfig(FrozenModel):
     night_end: str = Field("07:00", pattern=r"^\d{2}:\d{2}$")
     sunset_offset_minutes: int = Field(0, ge=-180, le=180, description="For 'sun' mode")
     keep_bright_when_live: bool = Field(True, description="Ignore night dimming during live games")
+
+    @field_validator("night_start", "night_end")
+    @classmethod
+    def _real_clock_time(cls, value: str) -> str:
+        """The pattern lets ``24:00`` and ``23:60`` through; ``datetime.time`` does not, and a
+        value that fails there used to raise inside the first frame's brightness lookup, which
+        happens during startup, before the web UI exists to fix it. Accept ``24:00`` as midnight."""
+        hours, minutes = (int(part) for part in value.split(":"))
+        if hours == 24 and minutes == 0:
+            return "00:00"
+        if hours > 23 or minutes > 59:
+            raise ValueError("must be a clock time between 00:00 and 23:59")
+        return value
 
 
 class PlaylistEntry(FrozenModel):

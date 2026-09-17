@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import shutil
 import threading
 from collections.abc import Callable
 from pathlib import Path
@@ -108,21 +109,30 @@ class ConfigStore:
         return cfg
 
     def _write(self, cfg: AppConfig) -> None:
+        """Temp file first, then the backups, then the swap: a write that fails (a full SD
+        card) leaves the current config.json exactly where it was. Rotating first used to
+        move it to ``.1`` before anything was written, so the failure took the file with it
+        and the next start ran the wizard again."""
         self._path.parent.mkdir(parents=True, exist_ok=True)
-        self._rotate_backups()
         tmp = self._path.with_suffix(".json.tmp")
-        tmp.write_text(json.dumps(cfg.model_dump(mode="json"), indent=2) + "\n")
+        with open(tmp, "w") as fh:
+            fh.write(json.dumps(cfg.model_dump(mode="json"), indent=2) + "\n")
+            fh.flush()
+            os.fsync(fh.fileno())
         os.chmod(tmp, 0o600)
+        self._rotate_backups()
         os.replace(tmp, self._path)
 
     def _rotate_backups(self) -> None:
+        """Copy the current file to ``.1`` (never move it: the live config must survive a
+        failure anywhere in here) and shuffle the older backups up."""
         if not self._path.exists():
             return
         for i in range(BACKUP_COUNT - 1, 0, -1):
             src = self._path.with_suffix(f".json.{i}")
             if src.exists():
                 os.replace(src, self._path.with_suffix(f".json.{i + 1}"))
-        os.replace(self._path, self._path.with_suffix(".json.1"))
+        shutil.copy2(self._path, self._path.with_suffix(".json.1"))
 
 
 # -- migration & salvage -------------------------------------------------------
@@ -178,7 +188,10 @@ MIGRATIONS: dict[int, Callable[[dict[str, Any]], dict[str, Any]]] = {
 def migrate(raw: dict[str, Any]) -> dict[str, Any]:
     """Apply versioned migrations to bring an old document up to CONFIG_VERSION."""
     doc = dict(raw)
-    version = int(doc.get("version") or 1)
+    try:
+        version = int(doc.get("version") or 1)
+    except (TypeError, ValueError):
+        version = 1
     while version < CONFIG_VERSION:
         step = MIGRATIONS.get(version)
         doc = step(doc) if step else doc
@@ -202,6 +215,8 @@ def salvage(raw: dict[str, Any], max_rounds: int = 50) -> tuple[AppConfig | None
             progressed = False
             for err in exc.errors():
                 loc = [str(p) for p in err["loc"]]
+                if err.get("type") == "missing":
+                    loc = loc[:-1]              # the leaf is what is absent; the parent is what is broken
                 if not loc:
                     continue
                 if _delete_path(doc, loc):

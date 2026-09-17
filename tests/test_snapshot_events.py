@@ -97,3 +97,21 @@ def test_taps_see_every_detected_event_without_consuming_the_queue():
     store.publish("x", 2)
     assert [e.kind for batch in seen for e in batch] == ["ping", "ping"]
     assert [e.kind for e in bus.drain()] == ["ping"]        # collapsed per kind, still there for the director
+
+
+def test_a_raising_detector_or_listener_does_not_stop_the_others_or_the_publisher():
+    store, bus = SnapshotStore(), EventBus()
+    seen = []
+    store.subscribe(bus.on_snapshot)
+    store.subscribe(lambda prev, new: (_ for _ in ()).throw(RuntimeError("listener boom")))
+    store.subscribe(lambda prev, new: seen.append(new.version))
+
+    def bad(prev, new):
+        raise ValueError("detector boom")
+
+    bus.register(bad)
+    bus.register(lambda prev, new: [Event("ok")])
+    bus.subscribe(lambda events: (_ for _ in ()).throw(RuntimeError("tap boom")))
+    store.publish("game", {"score": 1})                     # must not raise into the source
+    assert seen == [1]                                      # the listener behind the failing one still ran
+    assert [e.kind for e in bus.drain()] == ["ok"]          # the good detector's event survived the bad one

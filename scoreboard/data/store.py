@@ -174,4 +174,9 @@ class SnapshotStore:
 
 def _notify(listeners: list[Listener], prev: Snapshot, new: Snapshot) -> None:
     for listener in listeners:
-        listener(prev, new)
+        try:
+            listener(prev, new)
+        except Exception:
+            # Listeners are the event bus, the arbiter, MQTT: one failing must not stop the
+            # others from seeing this publish, nor crash the source that made it.
+            log.exception("snapshot listener %r failed on a publish", listener)

@@ -130,3 +130,30 @@ async def test_sleep_ends_early_on_wake_and_on_time_otherwise():
         t0 = loop.time()
         await ctx.sleep(0.02)
         assert loop.time() - t0 >= 0.015
+
+
+@pytest.mark.asyncio
+async def test_a_source_that_returns_at_once_yields_to_the_loop():
+    """A run() that comes straight back is restarted with backoff, not spun in a tight loop
+    that would starve every other task."""
+    from scoreboard.data.source import run_source_forever
+
+    class Instant:
+        key = "nfl"
+        config_model = Settings
+        runs = 0
+
+        async def run(self, ctx):
+            self.runs += 1
+
+    store = SnapshotStore()
+    async with httpx.AsyncClient() as http:
+        ctx = SourceContext("nfl", store, Settings, http)
+        src = Instant()
+        task = asyncio.create_task(run_source_forever(src, ctx))
+        try:
+            await asyncio.wait_for(asyncio.sleep(0.05), timeout=1)     # the loop must get this turn
+        finally:
+            task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
+    assert src.runs == 1
