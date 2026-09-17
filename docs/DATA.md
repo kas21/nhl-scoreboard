@@ -35,7 +35,7 @@ but a board or a webhook that must not act on a fake goal can.
 | `nhl.schedule`, `nfl.schedule`, `ncaaf.schedule`, `mlb.schedule`, `ncaah.schedule`, `ahl.schedule` | sources | list of game dicts dated today .. today + `show_games_within_days` (the dashboard's games list; NHL walks `/schedule/{date}` weeks hourly, MLB and NFL come from the slate fetch; MLB narrows it to today unless `schedule_today_only` is off) |
 | `nhl.standings`, `nfl.standings`, `ncaaf.standings`, `mlb.standings`, `ahl.standings` | sources | `{teams:{ABBR:row}, division:{name:[ABBR]}, wildcard:{conf:{group:[ABBR]}}, league:[ABBR]}` (MLB rows add `games_back`, `wildcard_games_back`, `win_pct`, `eliminated`; college football's `division` is one list per conference, `wildcard` the divisions of conferences that still have them, and rows add `conference`, `conf_wins`, `conf_losses`, `conf_record`, `conference_rank`; the AHL's `wildcard` is each conference's two divisions and `otl` folds shootout losses in). There is no `ncaah.standings`: ESPN publishes none for college hockey |
 | `nhl.team_summary`, `nfl.team_summary`, `ncaaf.team_summary`, `mlb.team_summary`, `ncaah.team_summary`, `ahl.team_summary` | sources | `{ABBR: {record:{wins,losses,otl,points,gp,l10,streak,division,division_rank,…}, prev_game, next_game}}` (college football adds `rank`, `conference`, `conf_record`, `conference_rank`; college hockey's record is W-L-T counted from the school's own schedule, with `ties` beside `otl` and `rank`) |
-| `nhl.season`, `nfl.season`, `ncaaf.season`, `mlb.season`, `ncaah.season`, `ahl.season` | sources | `{sport, phase: offseason|preseason|regular|playoffs, …dates, days_to_*, standings_final, first_game, favorite}` |
+| `nhl.season`, `nfl.season`, `ncaaf.season`, `mlb.season`, `ncaah.season`, `ahl.season` | sources | `{sport, phase: offseason|preseason|regular|playoffs, …dates, days_to_*, standings_final, first_game, favorite}` (the ESPN leagues take the phase and the next phase's start dates from the scoreboard's `leagues[0].calendar`, so the summer reads as off-season even though the slate already shows next season's opener) |
 | `system` | NHL source (a follower: relayed from the master, or its own `{online: false, master}` when it cannot reach it) | `{online: bool, failures: n}` |
 | `holidays.upcoming` | holidays | `[{name, display, date, days, image, custom}]` — `display` is the alternate name if one is set, `image` an absolute path or null |
 | `holidays.available` | holidays | `[{name, display, enabled, custom, image, image_name, image_slug, uploaded}]` — every holiday the calendar knows, on or off, for the Holidays page. `image_name` is the stem of the picture it shows now; `image_slug` is where an upload for that row would go, and they differ whenever a row borrows another's art |
@@ -46,8 +46,9 @@ but a board or a webhook that must not act on a fake goal can.
 
 ## Game dict (shared by the NHL, NFL, MLB, college hockey and AHL boards)
 ```
-id, sport, type (1 pre / 2 regular / 3 playoff), state (raw; NHL: PPD/SUSP/CNCL when the schedule state says the game is not
-being played — those are postgame, so a postponed favourite does not sit in pregame all night), schedule_state (NHL: OK|PPD|SUSP|CNCL),
+id, sport, type (1 pre / 2 regular / 3 playoff), state (raw; NHL, football and college hockey: PPD/SUSP/CNCL when the schedule
+state says the game is not being played — those are postgame, so a postponed favourite does not sit in pregame all night;
+football's live states are LIVE and HALF), schedule_state (OK|PPD|SUSP|CNCL),
 phase (pregame|live|intermission|postgame),
 date (YYYY-MM-DD local), start_time_utc, week (NFL),
 away/home: {abbrev, name, city, score, sog, record, color?, accent?, timeouts?, hits?, errors?, probable_pitcher?},
@@ -66,7 +67,7 @@ game_type (S/R/F/D/L/W), series ('SPRING' | 'WILD CARD' | 'NLDS GM2' | …), dec
 | Kind | Detector | Payload |
 |---|---|---|
 | `nhl.goal` / `nhl.goal_overturned` | `nhl/events.py` | side, count, goal {scorer, assists, goals_to_date, …}, score, game |
-| `nhl.penalty` | " | penalty {team, type, desc, player, duration, period, time}, game |
+| `nhl.penalty` | " | penalty {team, type, desc, player, duration, period, time}, game (a penalty is new by identity, not by list position; while the landing feed is unreachable the last penalties and power play are carried, not dropped) |
 | `nhl.state_change`, `nhl.powerplay` | " | old/new |
 | `nfl.touchdown` / `nfl.field_goal` / `nfl.safety` / `nfl.score` (a 4- or 5-point swing) | `nfl/events.py` | side, points, score, last_play, game (classified from `last_play_type` when ESPN names the play, else from the points; a bare +2 is taken as a two-point try, not a safety) |
 | `nfl.state_change` | " | old/new, game |

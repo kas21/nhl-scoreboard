@@ -231,3 +231,24 @@ async def test_discovery_sends_a_user_agent_espn_accepts(cache):
         mock.get(url__regex=r"https://a\.espncdn\.com/.*").mock(return_value=httpx.Response(200, content=png_bytes()))
         await logos.prefetch(http, "nhl", ("TOR",), LOG)
     assert seen["ua"] == espn.API_UA and "nhl-scoreboard" not in seen["ua"]
+
+
+@pytest.mark.asyncio
+async def test_watch_retries_what_a_failed_fetch_left_missing(cache, monkeypatch):
+    """A Pi that boots before the network is up used to show placeholder discs until the next
+    restart: watch only re-fetched when the logo *config* changed."""
+    monkeypatch.setattr(logos, "RETRY_DELAYS", (0.05,))
+    calls = []
+    async with httpx.AsyncClient() as http, respx.mock(assert_all_called=False) as mock:
+        def cdn(request):
+            calls.append(request.url.path)
+            return httpx.Response(503) if len(calls) <= 2 else httpx.Response(200, content=png_bytes())
+        mock.get(url__regex=CDN).mock(side_effect=cdn)
+        task = asyncio.create_task(logos.watch(http, "nhl", ("BOS", "MTL"), LOG, interval=0.02))
+        for _ in range(100):
+            await asyncio.sleep(0.02)
+            if not logos.missing("nhl", ("BOS", "MTL")):
+                break
+        task.cancel()
+    assert not logos.missing("nhl", ("BOS", "MTL"))
+    assert len(calls) == 4                                   # two failures, then both landed on the retry

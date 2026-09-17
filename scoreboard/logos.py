@@ -44,6 +44,10 @@ CONCURRENCY = 4
 FETCH_TIMEOUT = 20.0
 STORE_EDGE = 500        # ESPN's GUID art is 4096px; decoding that on a Pi costs ~67MB
 WATCH_INTERVAL = 10.0
+# When a fetch left art missing (no network yet at boot, a CDN blip, a team index that
+# 503'd), try again after these, then every hour: a team ESPN really has no art for costs
+# one cheap request an hour, a Pi that booted before Wi-Fi was up gets its logos in a minute.
+RETRY_DELAYS = (60.0, 300.0, 1800.0, 3600.0)
 # ESPN's path segment is the lowercased abbreviation, bar a handful of legacy short codes
 ESPN_CODES: dict[str, dict[str, str]] = {"nhl": {"LAK": "la", "SJS": "sj", "TBL": "tb"},
                                          "mlb": {"AZ": "ari", "CWS": "chw"}}     # MLB codes are the Stats API's, ESPN's differ for two
@@ -134,12 +138,36 @@ async def watch(http: httpx.AsyncClient, sport: str, abbrevs: tuple[str, ...], l
     once everything wanted is on disk.
     """
     seen = -1
+    attempts = 0
+    next_retry = 0.0
     while True:
         current = _generation
-        if current != seen:
-            await prefetch(http, sport, abbrevs, log)
+        now = asyncio.get_running_loop().time()
+        if current != seen or (next_retry and now >= next_retry):
+            if current != seen:
+                attempts = 0
+            try:
+                await prefetch(http, sport, abbrevs, log)
+            except Exception:
+                # Artwork is cosmetic: a fetch that fails in a way _fetch did not expect must
+                # not take the sport source down with it. It counts as missing and is retried.
+                log.warning("%s logo fetch failed; will retry", sport, exc_info=True)
             seen = current
+            left = missing(sport, abbrevs)
+            if left:
+                delay = RETRY_DELAYS[min(attempts, len(RETRY_DELAYS) - 1)]
+                attempts += 1
+                log.info("%d %s logos still missing; trying again in %.0fs", len(left), sport, delay)
+                next_retry = asyncio.get_running_loop().time() + delay
+            else:
+                next_retry = 0.0
         await asyncio.sleep(interval)
+
+
+def missing(sport: str, abbrevs: tuple[str, ...]) -> list[tuple[str, str]]:
+    """The (abbrev, variant) pairs a league wants that are not on disk."""
+    wanted = {(a, DEFAULT_VARIANT) for a in abbrevs} | {(a, preference(sport, a)) for a in abbrevs}
+    return sorted({(a, v) for a, v in wanted if not path(sport, a, v).is_file()})
 
 
 async def prefetch(http: httpx.AsyncClient, sport: str, abbrevs: tuple[str, ...], log) -> int:
@@ -147,8 +175,7 @@ async def prefetch(http: httpx.AsyncClient, sport: str, abbrevs: tuple[str, ...]
 
     Safe to call repeatedly: it's a no-op once everything wanted is cached.
     """
-    wanted = {(a, DEFAULT_VARIANT) for a in abbrevs} | {(a, preference(sport, a)) for a in abbrevs}
-    missing = sorted({(a, v) for a, v in wanted if not path(sport, a, v).is_file()})
+    missing = globals()["missing"](sport, abbrevs)
     if not missing:
         return 0
 

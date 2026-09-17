@@ -202,3 +202,28 @@ def test_halftime_game_stays_the_main_event(score):
     # ...and past local midnight a halftime game is still the game being played.
     assert select_main_event([{**live, "date": "2026-04-10"}], ["KC"], today="2026-04-11")["id"] == 1
     assert select_main_event([{**live, "state": "POST", "date": "2026-04-10"}], ["KC"], today="2026-04-11") is None
+
+
+def test_penalties_are_detected_by_identity_not_by_count():
+    from scoreboard.data import SnapshotStore
+    from scoreboard.nhl.events import detect_main_event
+    from scoreboard.nhl.source import _carry_landing
+    store = SnapshotStore()
+
+    def pen(n, t="04:00"):
+        return {"team": "MTL", "type": "MIN", "duration": 2, "desc": f"p{n}", "player": "X", "period": 1, "time": t}
+
+    base = {"id": 7, "state": "LIVE", "away": {"abbrev": "MTL", "score": 0}, "home": {"abbrev": "TOR", "score": 0},
+            "goals": [], "powerplay": {"code": "h54", "clock": "01:00"}, "pulled_goalie": 0}
+    s0 = store.publish("nhl.main_event", {**base, "penalties": [pen(1), pen(2, "09:00")]})
+    # The landing feed failed for one poll: the score feed alone has no penalties. Carried, so
+    # nothing is announced now...
+    carried = _carry_landing({**base, "penalties": [], "powerplay": {"code": "ev", "clock": ""}}, s0.get("nhl.main_event"))
+    assert carried["penalties"] == [pen(1), pen(2, "09:00")] and carried["powerplay"]["code"] == "h54"
+    s1 = store.publish("nhl.main_event", carried)
+    assert [e.kind for e in detect_main_event(s0, s1)] == []
+    # ...and when it comes back with a third penalty, only that one is new, even reordered.
+    s2 = store.publish("nhl.main_event", {**base, "penalties": [pen(3, "12:00"), pen(1), pen(2, "09:00")]})
+    events = [e for e in detect_main_event(s1, s2) if e.kind == "nhl.penalty"]
+    assert [e.payload["penalty"]["desc"] for e in events] == ["p3"]
+    assert _carry_landing({**base, "id": 8, "penalties": []}, s2.get("nhl.main_event"))["penalties"] == []     # another game: nothing carried

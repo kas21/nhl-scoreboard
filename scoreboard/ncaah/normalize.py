@@ -31,9 +31,15 @@ def _stat(c: dict[str, Any], name: str) -> int | None:
     return None
 
 
+# ESPN's *scoreboard* spells a side differently from its team API and standings for a few
+# schools; the registry (and so favourites, records, logos) uses the team API's code.
+SCOREBOARD_ABBREVS = {"STONEHILL": "STO"}
+
+
 def _side(c: dict[str, Any], records: dict[str, str] | None) -> dict[str, Any]:
     t = c.get("team") or {}
     abbrev = str(t.get("abbreviation") or "")
+    abbrev = SCOREBOARD_ABBREVS.get(abbrev, abbrev)
     teams.learn_colors(abbrev, t.get("color"), t.get("alternateColor"))
     primary, alt = teams.colors(abbrev)
     return {

@@ -18,7 +18,7 @@ from ..logos import id_before
 from ..logos import watch as watch_logos
 from ..nhl.select import favorite_side, select_main_event
 from .api import NflApi, NflApiError
-from .normalize import normalize_scoreboard, normalize_standings, team_summary
+from .normalize import normalize_scoreboard, normalize_standings, season_calendar, team_summary
 from .teams import NFL_TEAMS
 
 TeamAbbrev = Literal[NFL_TEAMS]  # type: ignore[valid-type]
@@ -61,9 +61,9 @@ class NflSource:
         """The games worth showing on the ticker and dashboard (the main event is picked from all of them)."""
         return games
 
-    def _season(self, games: list[dict[str, Any]], today: str) -> dict[str, Any]:
-        """The ``<sport>.season`` record from the slate ESPN hands us."""
-        return _season(games, today, self.sport)
+    def _season(self, games: list[dict[str, Any]], today: str, calendar: list[dict[str, str]] | None = None) -> dict[str, Any]:
+        """The ``<sport>.season`` record from the slate ESPN hands us and its league calendar."""
+        return _season(games, today, self.sport, calendar)
 
     def _check_teams(self, ctx: SourceContext, listed: dict[str, str]) -> None:
         """Called with ESPN's abbreviation -> id map once per standings refresh."""
@@ -88,8 +88,10 @@ class NflSource:
 
     async def run(self, ctx: SourceContext) -> None:
         api = self._api(ctx)
-        await asyncio.gather(watch_logos(ctx.http, self.sport, self.teams, ctx.log),
-                             self._scores_loop(ctx, api), self._standings_loop(ctx, api))
+        async with asyncio.TaskGroup() as tg:        # one loop failing restarts all of them together
+            tg.create_task(watch_logos(ctx.http, self.sport, self.teams, ctx.log))
+            tg.create_task(self._scores_loop(ctx, api))
+            tg.create_task(self._standings_loop(ctx, api))
 
     async def _scores_loop(self, ctx: SourceContext, api: NflApi) -> None:
         while True:
@@ -99,10 +101,11 @@ class NflSource:
                 continue
             main = None
             try:
-                games = self._scoreboard(await api.scoreboard(), _tz(ctx))      # current week
+                payload = await api.scoreboard()                                  # current week
+                games = self._scoreboard(payload, _tz(ctx))
                 today = _today(ctx)
                 games = sorted(games, key=lambda g: g["start_time_utc"])
-                ctx.publish(self._season(games, today), subkey="season")
+                ctx.publish(self._season(games, today, calendar=season_calendar(payload)), subkey="season")
                 slate = self._slate(games, cfg)
                 ctx.publish([g for g in slate if 0 <= _days(today, g["date"]) <= cfg.show_games_within_days], subkey="schedule")
                 upcoming = [g for g in games if g["phase"] != "postgame"]
@@ -177,12 +180,28 @@ def _days(today: str, other: str) -> int:
         return 0
 
 
-def _season(games: list, today: str, sport: str = "nfl") -> dict:
-    """Phase from the slate ESPN hands us: no games = offseason; season.type 1/2/3 = pre/regular/playoffs."""
-    if not games:
-        return {"sport": sport, "phase": "offseason", "week": None, "next_game_date": None, "days_to_next": None}
-    types = {g["type"] for g in games}
-    phase = "playoffs" if 3 in types else "regular" if 2 in types else "preseason"
+def _season(games: list, today: str, sport: str = "nfl", calendar: list[dict[str, str]] | None = None) -> dict:
+    """Season phase, and what the countdown board counts down to.
+
+    ESPN's default scoreboard points at the *next* scheduled week as soon as a schedule
+    exists, so the slate alone said "preseason" all summer and the off-season state (and the
+    countdown board) never came. The league ``calendar`` in the same payload says which
+    phase today falls in and when the next ones start; the slate is the fallback."""
     nxt = min((g for g in games if g["phase"] != "postgame"), key=lambda g: g["start_time_utc"], default=None)
-    return {"sport": sport, "phase": phase, "week": games[0].get("week"),
-            "next_game_date": nxt["date"] if nxt else None, "days_to_next": _days(today, nxt["date"]) if nxt else None}
+    info: dict = {"sport": sport, "week": games[0].get("week") if games else None,
+                  "next_game_date": nxt["date"] if nxt else None, "days_to_next": _days(today, nxt["date"]) if nxt else None}
+    current = next((c for c in calendar or () if c["start"] <= today <= c["end"]), None)
+    if current is not None:
+        label = current["label"].lower()
+        phase = ("offseason" if "off" in label else "preseason" if "pre" in label
+                 else "playoffs" if "post" in label or "playoff" in label else "regular")
+        starts = {c["label"].lower(): c["start"] for c in calendar or () if c["start"] > today}
+        pre = next((s for lbl, s in starts.items() if "pre" in lbl), None)
+        reg = next((s for lbl, s in starts.items() if "regular" in lbl), None)
+        return {**info, "phase": phase,
+                "preseason_start": pre, "days_to_preseason": _days(today, pre) if pre else None,
+                "regular_start": reg, "days_to_regular": _days(today, reg) if reg else None}
+    if not games:
+        return {**info, "phase": "offseason"}
+    types = {g["type"] for g in games}
+    return {**info, "phase": "playoffs" if 3 in types else "regular" if 2 in types else "preseason"}

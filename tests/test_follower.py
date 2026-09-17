@@ -134,3 +134,36 @@ def test_teams_in_ignores_shapes_it_does_not_know():
 
 async def _no_prefetch(http, sport, abbrevs, log):
     return 0
+
+
+@pytest.mark.asyncio
+async def test_teams_that_arrive_during_a_logo_fetch_get_fetched_afterwards(monkeypatch):
+    """The scores name two teams and a prefetch starts; the standings name thirty a moment
+    later. Those used to wait for the *next* new team to show up."""
+    batches = []
+    release = asyncio.Event()
+
+    async def slow_prefetch(http, sport, abbrevs, log):
+        batches.append(set(abbrevs))
+        if len(batches) == 1:
+            await release.wait()
+        return 0
+
+    monkeypatch.setattr(mod.logos, "prefetch", slow_prefetch)
+    src = mod.FollowerSource(lambda: FollowerConfig(enabled=True, master_url="http://m"))
+    store = SnapshotStore()
+    async with httpx.AsyncClient() as http:
+        ctx = SourceContext("follower", store, mod._NoSettings, http)
+        src._want_logos(ctx, {"nhl.scores": [{"away": {"abbrev": "TOR"}, "home": {"abbrev": "BOS"}}]})
+        await asyncio.sleep(0)
+        src._want_logos(ctx, {"nhl.standings": {"teams": {"TOR": {}, "BOS": {}, "MTL": {}, "OTT": {}}}})
+        await asyncio.sleep(0)
+        assert batches == [{"TOR", "BOS"}]                   # the second batch waits its turn
+        release.set()
+        for _ in range(20):
+            await asyncio.sleep(0.01)
+            if len(batches) == 2:
+                break
+        assert batches[1] == {"TOR", "BOS", "MTL", "OTT"}
+        for t in src._logo_tasks.values():
+            t.cancel()

@@ -199,3 +199,19 @@ async def test_record_loop_learns_records_and_merges_them_into_the_slate(monkeyp
     assert "ncaah.standings" not in store.get().data                      # no standings feed, no standings key
     games = src._scoreboard(load("espn_scoreboard_2026-01-10.json"), None)
     assert next(g for g in games if g["home"]["abbrev"] == "MICH")["home"]["record"] == "30-8-2"
+
+
+def test_stonehill_is_spelled_the_registry_way_on_the_scoreboard():
+    """ESPN's scoreboard says STONEHILL where its team API (and so the registry, favourites,
+    logos and records) says STO; a STO favourite could never match its own games."""
+    games = normalize_scoreboard(load("espn_scoreboard_2026-03-07.json"), {"STO": "10-20-2"})
+    sides = [s for g in games for s in (g["away"], g["home"]) if s["id"] == "284"]
+    assert sides and all(s["abbrev"] == "STO" and s["record"] == "10-20-2" for s in sides)
+
+
+def test_a_mid_season_day_with_only_upcoming_games_is_not_the_offseason():
+    src = NcaahSource()
+    games = [{"phase": "pregame", "type": 2, "date": "2027-01-15", "start_time_utc": "2027-01-15T23:00:00Z", "week": None}]
+    cal = [{"label": "Regular Season", "start": "2026-10-01", "end": "2027-03-20"}]
+    assert src._season(games, "2027-01-12", calendar=cal)["phase"] == "regular"
+    assert src._season(games, "2027-01-12")["phase"] == "offseason"                     # the old rule, without a calendar

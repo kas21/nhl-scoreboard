@@ -26,10 +26,11 @@ async def test_source_publishes_scores_main_event_standings_and_summary(monkeypa
     monkeypatch.setattr(src, "_local_today", lambda ctx: "2026-04-11")     # fixture game day
     store = SnapshotStore()
     cfg = NhlConfig(favorites=["TOR"], idle_interval=15, standings_interval=300)
-    async with httpx.AsyncClient() as http, respx.mock(base_url=BASE_URL) as mock:
+    async with httpx.AsyncClient() as http, respx.mock(base_url=BASE_URL, assert_all_called=False) as mock:
         mock.get("/score/now").mock(return_value=httpx.Response(200, json=load("score_2026-04-11.json")))
         mock.get("/standings/now").mock(return_value=httpx.Response(200, json=load("standings_2026-04-10.json")))
         mock.get("/club-schedule-season/TOR/now").mock(return_value=httpx.Response(200, json=load("club_schedule_TOR_week.json")))
+        _fallback(mock)
         ctx = SourceContext("nhl", store, lambda: cfg, http)
         task = asyncio.create_task(NhlSource().run(ctx))
         for _ in range(50):
@@ -53,9 +54,10 @@ async def test_source_marks_offline_on_failure(monkeypatch):
     import scoreboard.nhl.source as src
     api_mod.RETRY_DELAYS = (0, 0, 0)
     monkeypatch.setattr(src, "OFFLINE_AFTER_FAILURES", 1)       # threshold itself is covered below
-    async with httpx.AsyncClient() as http, respx.mock(base_url=BASE_URL) as mock:
+    async with httpx.AsyncClient() as http, respx.mock(base_url=BASE_URL, assert_all_called=False) as mock:
         mock.get("/score/now").mock(return_value=httpx.Response(503))
         mock.get("/standings/now").mock(return_value=httpx.Response(503))
+        _fallback(mock)
         ctx = SourceContext("nhl", store, lambda: cfg, http)
         task = asyncio.create_task(NhlSource().run(ctx))
         for _ in range(50):
@@ -94,6 +96,14 @@ def _standard(mock, score):
     for unknown in ("QCN", "ZZZ"):
         mock.get(f"/club-schedule-season/{unknown}/now").mock(return_value=httpx.Response(404))
     mock.get("/schedule/now").mock(return_value=httpx.Response(200, json=load("schedule_now.json")))
+    _fallback(mock)
+
+
+def _fallback(mock):
+    """Every other request to the league answers 404: a real-looking failure the loops handle.
+    (An unmocked route raises respx's assertion instead, which the source has no business
+    catching; with the loops in one task group, that would restart the whole source.)"""
+    mock.route(host="api-web.nhle.com").mock(return_value=httpx.Response(404))
 
 
 @pytest.mark.asyncio

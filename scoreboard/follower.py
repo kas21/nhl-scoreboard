@@ -55,6 +55,9 @@ class FollowerSource:
         self._config = config_getter
         self._teams: dict[str, set[str]] = {}          # sport -> abbrevs whose logos we want
         self._logo_tasks: dict[str, asyncio.Task[Any]] = {}
+        self._logo_again: set[str] = set()              # sports whose team set grew while a fetch was running
+        self._logo_retry_at: dict[str, float] = {}      # sport -> loop time before which missing art is not retried
+        self._logo_attempts: dict[str, int] = {}
         self._logo_generation = -1
 
     async def run(self, ctx: SourceContext) -> None:
@@ -112,13 +115,40 @@ class FollowerSource:
             found = teams_in(sport, data)
             new = found - self._teams.setdefault(sport, set())
             self._teams[sport] |= found
-            if not self._teams[sport] or (not new and not refresh_all):
+            due = (asyncio.get_running_loop().time() >= self._logo_retry_at.get(sport, 0.0)
+                   and logos.missing(sport, tuple(self._teams[sport])))
+            if not self._teams[sport] or (not new and not refresh_all and not due):
                 continue
-            running = self._logo_tasks.get(sport)
-            if running is not None and not running.done():
-                continue                                # this batch's teams are already in the set it works from
-            self._logo_tasks[sport] = asyncio.create_task(
-                logos.prefetch(ctx.http, sport, tuple(sorted(self._teams[sport])), ctx.log), name=f"logos:{sport}")
+            self._fetch_logos(ctx, sport)
+
+    def _fetch_logos(self, ctx: SourceContext, sport: str) -> None:
+        """One prefetch per sport at a time. A running one works from the team set it was
+        given, so teams that arrive meanwhile (standings landing a moment after the scores)
+        are noted and fetched by a second run when it finishes; anything still missing
+        after that (no network yet) is retried on the next relayed change."""
+        running = self._logo_tasks.get(sport)
+        if running is not None and not running.done():
+            self._logo_again.add(sport)
+            return
+        self._logo_again.discard(sport)
+        task = asyncio.create_task(
+            logos.prefetch(ctx.http, sport, tuple(sorted(self._teams[sport])), ctx.log), name=f"logos:{sport}")
+        self._logo_tasks[sport] = task
+
+        def again(done: asyncio.Task[Any]) -> None:
+            if done.cancelled():
+                return
+            if sport in self._logo_again:
+                self._fetch_logos(ctx, sport)
+                return
+            if logos.missing(sport, tuple(self._teams[sport])):       # no network yet, a CDN blip: same backoff as a source
+                attempts = self._logo_attempts.get(sport, 0)
+                self._logo_attempts[sport] = attempts + 1
+                self._logo_retry_at[sport] = asyncio.get_running_loop().time() + logos.RETRY_DELAYS[min(attempts, len(logos.RETRY_DELAYS) - 1)]
+            else:
+                self._logo_attempts.pop(sport, None)
+
+        task.add_done_callback(again)
 
 
 def master_url(cfg: FollowerConfig) -> str | None:

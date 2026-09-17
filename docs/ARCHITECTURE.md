@@ -215,7 +215,7 @@ source with a fixture replay and needs a restart to leave.
 | Decoded images (logos, holiday art) | `imagecache._decode`, 256 entries | path + size + file mtime, so a file that lands after a miss is picked up |
 | Board configs | `Director._board_cfg_cache` | (board key, config version); replaced on config change |
 | Built sequences | the board instance (`SequenceMixin._seq`) | until re-entered or the panel size changes |
-| Team logos | `$SCOREBOARD_CACHE_DIR/logos/{sport}/{ABBREV}.png` (+ `__variant`) | fetched once from ESPN's CDN by the sport source on startup and when the logo config changes; boards only read; delete to re-fetch, drop a PNG to override |
+| Team logos | `$SCOREBOARD_CACHE_DIR/logos/{sport}/{ABBREV}.png` (+ `__variant`) | fetched from ESPN's CDN by the sport source on startup and when the logo config changes, with anything still missing retried after 1, 5 and 30 minutes and then hourly (a Pi that boots before the network is up gets its art within a minute); boards only read; delete to re-fetch, drop a PNG to override |
 | Airline logos | `$SCOREBOARD_CACHE_DIR/airline-logos/` | once per operator code, misses retried weekly |
 | Callsign → route/airline | flights source, in memory | 6 h positive, 1 h negative |
 | Last alerts fetch | weather alerts source, in memory | re-filtered between polls |

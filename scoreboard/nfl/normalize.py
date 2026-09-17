@@ -17,6 +17,10 @@ from . import teams as nfl_teams
 from .teams import DIVISION_OF
 
 PERIOD_LABELS = {1: "1st", 2: "2nd", 3: "3rd", 4: "4th"}
+# ESPN status names for a game that is not being played; the same table the hockey normaliser
+# keeps. Without it a postponed game read as a permanent pregame card (or "FINAL 0-0").
+NOT_PLAYED = {"STATUS_POSTPONED": ("PPD", "PPD"), "STATUS_CANCELED": ("CNCL", "CANCELLED"), "STATUS_CANCELLED": ("CNCL", "CANCELLED"),
+              "STATUS_SUSPENDED": ("SUSP", "SUSPENDED")}
 UNRANKED = 99           # ESPN's ``curatedRank.current`` outside the top 25
 LAST_PLAY_CHARS = 80    # a play description longer than this scrolls past the board's dwell time
 
@@ -93,10 +97,15 @@ def normalize_game(event: dict[str, Any], *, sport: str = "nfl", teams: ModuleTy
     outcome = ""
     if state == "post":
         outcome = "FINAL/OT" if period > 4 else "FINAL"
+    game_state = state.upper() if state != "in" else ("HALF" if halftime else "LIVE")
+    schedule_state = "OK"
+    if name in NOT_PLAYED:
+        schedule_state, outcome = NOT_PLAYED[name]
+        game_state, phase = schedule_state, "postgame"
     return {
         "id": str(event.get("id", "")), "sport": sport, "type": _season_type(event),
         "week": ((event.get("week") or {}).get("number")),
-        "state": state.upper() if state != "in" else ("HALF" if halftime else "LIVE"),
+        "state": game_state, "schedule_state": schedule_state,
         "phase": phase, "date": local_date, "start_time_utc": start,
         "away": a, "home": h,
         "period": period_label(period, state, name), "period_number": period,
@@ -112,6 +121,20 @@ def normalize_game(event: dict[str, Any], *, sport: str = "nfl", teams: ModuleTy
             "last_play_type": (((sit.get("lastPlay") or {}).get("type") or {}).get("text") or ""),
         },
     }
+
+
+def season_calendar(payload: dict[str, Any]) -> list[dict[str, str]]:
+    """ESPN's ``leagues[0].calendar``: one entry per season phase with its dates, e.g.
+    ``[{"label": "Regular Season", "start": "2026-09-06", "end": "2027-01-13"}, ...]``."""
+    out = []
+    for entry in ((payload.get("leagues") or [{}])[0].get("calendar") or []):
+        if not isinstance(entry, dict):
+            continue
+        start, end = parse_iso(str(entry.get("startDate") or "")), parse_iso(str(entry.get("endDate") or ""))
+        if start is None or end is None:
+            continue
+        out.append({"label": str(entry.get("label") or ""), "start": start.date().isoformat(), "end": end.date().isoformat()})
+    return out
 
 
 def _last_play(sit: dict[str, Any]) -> str:

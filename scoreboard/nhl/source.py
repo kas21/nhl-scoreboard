@@ -82,8 +82,12 @@ class NhlSource:
         self._standings_ready = asyncio.Event()
         cfg: NhlConfig = ctx.config  # type: ignore[assignment]
         logo_teams = tuple(dict.fromkeys((*NHL_TEAMS, *cfg.favorites)))    # a favourite outside the registry still gets its logo
-        await asyncio.gather(watch_logos(ctx.http, "nhl", logo_teams, ctx.log),
-                             self._scores_loop(ctx, api), self._standings_loop(ctx, api))
+        # A task group, not gather: gather leaves the other loops running when one raises,
+        # and the supervisor's restart of run() then starts a second set beside them.
+        async with asyncio.TaskGroup() as tg:
+            tg.create_task(watch_logos(ctx.http, "nhl", logo_teams, ctx.log))
+            tg.create_task(self._scores_loop(ctx, api))
+            tg.create_task(self._standings_loop(ctx, api))
 
     # -- scores + main event ------------------------------------------------
 
@@ -152,7 +156,7 @@ class NhlSource:
             landing = await api.landing(main["id"])
         except NhlApiError as exc:
             log.debug("landing fetch failed for %s: %s", main["id"], exc)
-            return main
+            return _carry_landing(main, ctx.snapshot().get("nhl.main_event"))
         _report(ctx, check_landing(landing))
         try:
             return normalize_game(_score_shape(main, landing), records, landing)
@@ -211,6 +215,17 @@ class NhlSource:
                 ctx.log.warning("standings poll failed: %s", exc)
                 self._standings_ready.set()
             await ctx.nap(cfg.standings_interval)
+
+
+def _carry_landing(main: dict[str, Any], previous: dict[str, Any] | None) -> dict[str, Any]:
+    """The score feed alone has no penalties, power play or goal details. While the landing
+    feed is unreachable, keep the last ones for the same game rather than publishing them as
+    gone: an empty penalty list followed by the full one replayed every penalty alert, and
+    the power-play chip blinked off and on."""
+    if not previous or previous.get("id") != main.get("id"):
+        return main
+    carried = {k: previous[k] for k in ("penalties", "powerplay", "pulled_goalie", "goals") if k in previous}
+    return {**main, **carried}
 
 
 def _report(ctx: SourceContext, notes: list[str]) -> None:

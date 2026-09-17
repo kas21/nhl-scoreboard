@@ -257,3 +257,33 @@ def test_two_point_conversion_is_not_a_safety():
     assert classify(8, "") == "touchdown" and classify(3, "Field Goal Good") == "field_goal"
     assert classify(6, "Two Point Pass") is None and classify(1, "Extra Point Good") is None
     assert classify(4, "") == "score"
+
+
+def test_season_phase_comes_from_the_league_calendar():
+    from scoreboard.nfl.normalize import season_calendar
+    from scoreboard.nfl.source import _season
+    payload = load("espn_scoreboard.json")
+    cal = season_calendar(payload)
+    assert [c["label"] for c in cal] == ["Preseason", "Regular Season", "Postseason", "Off Season"]
+    games = normalize_scoreboard(payload)
+    # A June day: ESPN's slate is next season's opener, which used to read as "preseason" all
+    # summer and keep the countdown board off the panel.
+    summer = _season(games, "2027-06-01", "nfl", [{"label": "Off Season", "start": "2027-02-16", "end": "2027-08-01"},
+                                                {"label": "Preseason", "start": "2027-08-05", "end": "2027-09-05"},
+                                                {"label": "Regular Season", "start": "2027-09-06", "end": "2028-01-12"}])
+    assert summer["phase"] == "offseason"
+    assert summer["preseason_start"] == "2027-08-05" and summer["days_to_preseason"] == 65
+    assert summer["regular_start"] == "2027-09-06" and summer["days_to_regular"] == 97
+    assert _season(games, "2026-09-20", "nfl", cal)["phase"] == "regular"
+    assert _season(games, "2027-01-20", "nfl", cal)["phase"] == "playoffs"
+    assert _season(games, "2026-08-20", "nfl", [])["phase"] == "preseason"          # no calendar: the slate's own type
+
+
+def test_a_postponed_game_is_not_a_permanent_pregame_card():
+    ev = load("espn_scoreboard.json")["events"][0]
+    ev = {**ev, "competitions": [{**ev["competitions"][0], "status": {"type": {"state": "pre", "name": "STATUS_POSTPONED"}, "period": 0}}]}
+    g = normalize_game(ev)
+    assert g["state"] == "PPD" and g["schedule_state"] == "PPD" and g["phase"] == "postgame" and g["outcome"] == "PPD"
+    from scoreboard.nhl.select import select_main_event
+    live = {"id": 2, "state": "PRE", "date": g["date"], "away": {"abbrev": g["away"]["abbrev"]}, "home": {"abbrev": "ZZZ"}}
+    assert select_main_event([g, live], [g["away"]["abbrev"]], today=g["date"]) is live       # ranks below a game that will be played
