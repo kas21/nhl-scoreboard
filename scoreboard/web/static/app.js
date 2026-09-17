@@ -171,6 +171,8 @@ function Dashboard({ config, save }) {
         <div><span>Board</span>${status.board}</div>
         <div><span>Brightness</span>${status.brightness}%</div>
         <div><span>Version</span>${status.version}</div>
+        ${status.following ? html`<div><span>Following</span>${status.following}</div>` : ''}
+        ${status.mqtt?.enabled ? html`<div><span>MQTT</span>${status.mqtt.connected ? `connected to ${status.mqtt.host}` : status.mqtt.error ? `not connected: ${status.mqtt.error}` : 'connecting…'}</div>` : ''}
       </div>` : html`<p class="muted">Loading…</p>`}
     </div>
     <${GamesCard} />

@@ -67,7 +67,8 @@ nothing needs a restart.
 - **Settings** — every option, grouped: Display, Location, Brightness (fixed / sunrise-sunset / hours),
   Transition between boards, Sports (priority, and the game-day rollover hour: last night's finals stay in the
   ticker until then — today's games show as soon as the date turns, and the postgame board still leaves at
-  midnight), per-board settings, per-data-source settings.
+  midnight), per-board settings, per-data-source settings, Integrations (follow another panel, MQTT — see
+  below).
 - **Simulator** — run a game by hand to see what the panel does: pick two teams, drop the puck, start and stop
   the clock, score (with or without naming the scorer), call penalties, pull a goalie, end periods. The panel
   follows it exactly as it would a real game — the live board, the goal and penalty alerts, the ticker, the
@@ -115,6 +116,36 @@ the far end of your county shows too.
 ## Off-season behaviour
 Standings from a finished season carry a FINAL banner; far-off game days don't show as "tonight";
 the countdown board takes the front. This is all automatic from the league calendars.
+
+## More than one panel
+One scoreboard on the network can do all the fetching and feed the others. On the second panel, Settings →
+Integrations → *Follower*: tick *enabled*, put the first panel's web address in *master url*
+(`http://nhl-led-scoreboard-office.local:8080`, say) and restart it (Setup → restart, or power-cycle). From
+then on it fetches nothing itself: every score, standing, forecast and plane comes from the master, the
+moment the master has it. It still has its own display settings, brightness schedule, playlists and board
+settings, so one panel can rotate through everything while another sits on the game. Team logos are the one
+thing a follower still downloads itself. The Dashboard says which panel it is following, and the Diagnostics
+sources table shows the link as a single `follower` row. If the master goes away the follower keeps its last
+data, shows the stale dot after a few failed rounds, and picks up where it left off when the master is back.
+Starting a simulation on the master runs it on every follower too.
+
+## MQTT (Home Assistant and friends)
+Settings → Integrations → *MQTT*: tick *enabled*, give it the broker's host (and port, user and password if
+it wants them). The Dashboard status card says whether it is connected. Everything is published under
+*topic prefix* (`scoreboard` by default; give each panel its own):
+
+| Topic | What | Notes |
+|---|---|---|
+| `scoreboard/status` | `online` / `offline` | retained; `offline` is set by the broker if the panel drops |
+| `scoreboard/state` | `{state, board, brightness, override}` | retained, on change |
+| `scoreboard/snapshot/<key>` | the data, one topic per snapshot key with dots as slashes: `snapshot/main_event`, `snapshot/nhl/scores`, `snapshot/weather/current`… | retained, on change (see [DATA.md](DATA.md) for shapes). *snapshot keys* (advanced) narrows it to the keys you name |
+| `scoreboard/event/<kind>` | `{kind, team, payload, ts}` — `event/nhl/goal`, `event/nhl/penalty`, `event/nfl/touchdown`, `event/flights/overhead`… | one message per event, not retained |
+| `scoreboard/cmd/power` ← | `off` blanks the panel until `on` | an override; a restart clears it |
+| `scoreboard/cmd/board` ← | a board key (`clock`), or `{"board": "nhl.standings", "seconds": 120}`; empty or `none` clears | forces a board, like the *preview* button |
+
+A Home Assistant sensor for the score, for instance, is an `mqtt` sensor on `scoreboard/snapshot/main_event`
+with a `value_template` of `{{ value_json.home.score }}`; a switch that turns the panel off overnight publishes
+`off` / `on` to `scoreboard/cmd/power`.
 
 ## Updates
 The Dashboard tells you when a new version is available and updates with one click (the panel goes dark for

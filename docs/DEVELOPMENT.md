@@ -73,5 +73,6 @@ snapshot it is rendered from, which doubles as a catalogue.
 ## Backlog
 OTA/installer (needs public repo) · own rgbmatrix wheels · 64x32 design pass · MLB fixtures from real
 captures (the shipped ones are generated) · "preview this board" button (override API exists) · per-board "in every rotation" toggle ·
-sheen-speed settings on more boards · previous-season LAST game in the off-season · MQTT/webhook publisher.
+sheen-speed settings on more boards · previous-season LAST game in the off-season · Home Assistant MQTT discovery ·
+a follower that takes logos from the master too (no internet needed on followers).
 

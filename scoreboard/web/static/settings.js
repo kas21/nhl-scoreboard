@@ -86,6 +86,8 @@ const CATEGORIES = [
   { id: 'appearance', label: 'Appearance', keys: ['transition', 'ticker', 'logos', 'sports'] },
   { id: 'boards', label: 'Boards', plugin: 'boards' },
   { id: 'sources', label: 'Data sources', plugin: 'sources' },
+  { id: 'integrations', label: 'Integrations', keys: ['follower', 'mqtt'],
+    note: 'Link panels together and talk to the rest of your home. A follower takes every piece of data from another scoreboard (restart after turning it on); MQTT publishes to a broker such as the Home Assistant one.' },
   { id: 'system', label: 'System', keys: ['web', 'log_level'] },
 ];
 
@@ -194,7 +196,7 @@ function Editor({ field, onChange }) {
         step=${s.type === 'integer' ? 1 : 'any'}
         onchange=${e => onChange(e.target.value === '' ? null : +e.target.value)} />`;
     case 'string':
-      return html`<input type="text" id=${id} value=${value ?? ''} onchange=${e => onChange(e.target.value)} />`;
+      return html`<input type=${s.format === 'password' ? 'password' : 'text'} id=${id} value=${value ?? ''} onchange=${e => onChange(e.target.value)} />`;
     case 'color': {
       const rgb = Array.isArray(value) && value.length === 3 ? value : [0, 0, 0];
       const hex = '#' + rgb.map(v => Number(v).toString(16).padStart(2, '0')).join('');

@@ -72,3 +72,28 @@ def test_drain_loses_nothing_to_the_thread_it_races():
     for t in threads:
         t.join()
     assert len(drained) == total
+
+
+def test_each_key_remembers_the_version_it_was_published_at():
+    store = SnapshotStore()
+    store.publish("a", 1)
+    store.publish("b", 2)
+    store.publish("a", 3)
+    snap = store.get()
+    assert snap.version == 3 and dict(snap.versions) == {"a": 3, "b": 2}
+    assert snap.changed_since(2) == {"a": 3}
+    assert snap.changed_since(3) == {}
+    assert snap.changed_since(-1) == {"a": 3, "b": 2}       # a fresh follower wants everything
+    assert snap.changed_since(99) == {"a": 3, "b": 2}       # ...and so does one that followed us across a restart
+
+
+def test_taps_see_every_detected_event_without_consuming_the_queue():
+    store, bus = SnapshotStore(), EventBus()
+    store.subscribe(bus.on_snapshot)
+    bus.register(lambda prev, new: [Event("ping")] if new.get("x") else [])
+    seen = []
+    bus.subscribe(seen.append)
+    store.publish("x", 1)
+    store.publish("x", 2)
+    assert [e.kind for batch in seen for e in batch] == ["ping", "ping"]
+    assert [e.kind for e in bus.drain()] == ["ping"]        # collapsed per kind, still there for the director

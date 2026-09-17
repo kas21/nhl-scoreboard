@@ -19,6 +19,8 @@ from .data.events import EventBus
 from .data.health import SourceHealth
 from .data.source import SourceContext, run_source_forever
 from .director import Director
+from .follower import FollowerSource
+from .mqtt import MqttBridge
 from .output import PreviewHub, create_output
 from .plugins import load_registry
 from .sim import SimulatorHub
@@ -55,11 +57,17 @@ class Application:
 
             log.warning("DEMO MODE: replaying a recorded game")
             self.registry.sources = {**self.registry.sources, "nhl": DemoSource()}
+        elif self.config.get().follower.enabled:
+            # A follower fetches nothing itself: every key comes from the master panel.
+            log.info("FOLLOWER MODE: taking data from %s", self.config.get().follower.master_url or "(no master set)")
+            self.registry.sources = {"follower": FollowerSource(lambda: self.config.get().follower)}
         for detector in self.registry.detectors:
             self.events.register(detector)
         self.director = Director(self.config, self.snapshots, self.registry, self.events)
         # Drives boards by hand from the browser; idle until a simulation is started.
         self.simulator = SimulatorHub(self.snapshots, self.config.get, self.registry.sims)
+        # Idle until mqtt.enabled; then mirrors the snapshot, events and panel state to a broker.
+        self.mqtt = MqttBridge(lambda: self.config.get().mqtt, self.snapshots, self.events, self.director)
         self.preview = PreviewHub(self.config.get().web.preview_fps)
         self.config.subscribe(lambda c: self.preview.set_fps(c.web.preview_fps))
         self.output = create_output(self.config.get().display, output_mode, self.director.brightness())
@@ -127,7 +135,7 @@ class Application:
             server = uvicorn.Server(uvicorn.Config(
                 create_app(self.config, self.snapshots, self.registry, self.director, self.preview, self.logs,
                            system=SystemControl(self.request_restart), updater=self.updater, health=self.health,
-                           simulator=self.simulator),
+                           simulator=self.simulator, mqtt=self.mqtt),
                 host=web.host, port=web.port, log_level="warning", loop="asyncio",
             ))
             server.install_signal_handlers = lambda: None  # we handle signals ourselves
@@ -163,6 +171,7 @@ class Application:
 
             tasks.append(asyncio.create_task(update_checker(), name="update-checker"))
             tasks.append(asyncio.create_task(self.simulator.run(), name="simulator"))
+            tasks.append(asyncio.create_task(self.mqtt.run(), name="mqtt"))
             await stop.wait()
             log.info("shutting down")
             server.should_exit = True
