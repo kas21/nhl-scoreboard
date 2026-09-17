@@ -35,7 +35,7 @@ SOG_Y = 43
 
 
 class GameConfig(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid", title="Game board")
+    model_config = ConfigDict(frozen=True, extra="forbid", title="NHL game board")
     show_sog: bool = Field(True, description="Show shots on goal")
     show_records: bool = Field(True, description="Show team records before/after the game")
     time_24h: bool = False
@@ -136,7 +136,7 @@ class GameBoard(BaseBoard):
         date = fmt_date(g["date"]).replace(" ", "")
         return self._teams_info(g, cfg, f6) + self._pre_chip(g, f6) + [
             (Chip(date, f6, BLACK, WHITE), 39, 14, 50, 7),
-            (Text(fmt_time(start, cfg.time_24h).upper() or "TBD", f6, WHITE), 39, 22, 50, 5),
+            (Text("TBD" if g.get("time_tbd") else fmt_time(start, cfg.time_24h).upper() or "TBD", f6, WHITE), 39, 22, 50, 5),
             (Text("VS", load_font("score", 15), WHITE), 39, 31, 50, 12),
         ]
 

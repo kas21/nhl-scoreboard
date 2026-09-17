@@ -38,7 +38,7 @@ MIN_ROUND_SECONDS = 0.25                # never ask faster than this: a master t
 OFFLINE_AFTER_FAILURES = 3              # consecutive failed rounds before the panel says offline
 RETRY_DELAYS = (2, 5, 10, 30)
 IDLE_RECHECK_SECONDS = 5                # how often a disabled follower looks at its config again
-LOGO_SPORTS = ("nhl", "nfl", "ncaaf", "mlb")
+LOGO_SPORTS = ("nhl", "nfl", "ncaaf", "mlb", "ncaah")      # the AHL's art is not on ESPN; a follower shows its placeholders
 
 
 class _NoSettings(BaseModel):

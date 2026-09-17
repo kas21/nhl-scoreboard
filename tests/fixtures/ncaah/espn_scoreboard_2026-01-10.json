@@ -1,0 +1,2976 @@
+{
+ "leagues": [
+  {
+   "id": "91",
+   "uid": "s:70~l:91",
+   "name": "NCAA Men's Ice Hockey",
+   "abbreviation": "NCAAH",
+   "slug": "mens-college-hockey",
+   "season": {
+    "year": 2026,
+    "startDate": "2025-09-01T07:00Z",
+    "endDate": "2026-05-01T06:59Z",
+    "displayName": "2025-26",
+    "type": {
+     "id": "2",
+     "type": 2,
+     "name": "Regular Season",
+     "abbreviation": "reg"
+    }
+   },
+   "logos": [
+    {
+     "href": "https://a.espncdn.com/redesign/assets/img/icons/ESPN-icon-hockey.png",
+     "width": 500,
+     "height": 500,
+     "alt": "",
+     "rel": [
+      "full",
+      "default"
+     ],
+     "lastUpdated": "2021-07-12T15:09Z"
+    },
+    {
+     "href": "https://a.espncdn.com/redesign/assets/img/icons/ESPN-icon-hockey.png",
+     "width": 500,
+     "height": 500,
+     "alt": "",
+     "rel": [
+      "full",
+      "dark"
+     ],
+     "lastUpdated": "2021-07-12T15:09Z"
+    }
+   ],
+   "calendarType": "day",
+   "calendarIsWhitelist": true,
+   "calendarStartDate": "2025-09-01T07:00Z",
+   "calendarEndDate": "2026-05-01T06:59Z"
+  }
+ ],
+ "events": [
+  {
+   "id": "401821496",
+   "uid": "s:70~l:91~e:401821496",
+   "date": "2026-01-10T21:00Z",
+   "name": "St. Lawrence Saints at Brown Bears",
+   "shortName": "USL @ BRWN",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821496",
+     "uid": "s:70~l:91~e:401821496~c:401821496",
+     "date": "2026-01-10T21:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "225",
+       "uid": "s:70~l:91~t:225",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "225",
+        "uid": "s:70~l:91~t:225",
+        "location": "Brown",
+        "name": "Bears",
+        "abbreviation": "BRWN",
+        "displayName": "Brown Bears",
+        "shortDisplayName": "Brown",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/225.png"
+       },
+       "score": "4",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "2779",
+       "uid": "s:70~l:91~t:2779",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "2779",
+        "uid": "s:70~l:91~t:2779",
+        "location": "St. Lawrence",
+        "name": "Saints",
+        "abbreviation": "USL",
+        "displayName": "St. Lawrence Saints",
+        "shortDisplayName": "St. Lawrence",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2779.png"
+       },
+       "score": "1",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-10T21:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821873",
+   "uid": "s:70~l:91~e:401821873",
+   "date": "2026-01-10T22:00Z",
+   "name": "Michigan State Spartans at Ohio State Buckeyes",
+   "shortName": "MSU @ OSU",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821873",
+     "uid": "s:70~l:91~e:401821873~c:401821873",
+     "date": "2026-01-10T22:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "194",
+       "uid": "s:70~l:91~t:194",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "194",
+        "uid": "s:70~l:91~t:194",
+        "location": "Ohio State",
+        "name": "Buckeyes",
+        "abbreviation": "OSU",
+        "displayName": "Ohio State Buckeyes",
+        "shortDisplayName": "Ohio State",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/194.png"
+       },
+       "score": "2",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "127",
+       "uid": "s:70~l:91~t:127",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "127",
+        "uid": "s:70~l:91~t:127",
+        "location": "Michigan State",
+        "name": "Spartans",
+        "abbreviation": "MSU",
+        "displayName": "Michigan State Spartans",
+        "shortDisplayName": "Michigan State",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/127.png"
+       },
+       "score": "1",
+       "curatedRank": {
+        "current": 2
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-10T22:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821985",
+   "uid": "s:70~l:91~e:401821985",
+   "date": "2026-01-10T22:00Z",
+   "name": "Army Black Knights at Mercyhurst Lakers",
+   "shortName": "ARMY @ MERC",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821985",
+     "uid": "s:70~l:91~e:401821985~c:401821985",
+     "date": "2026-01-10T22:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "2385",
+       "uid": "s:70~l:91~t:2385",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "2385",
+        "uid": "s:70~l:91~t:2385",
+        "location": "Mercyhurst",
+        "name": "Lakers",
+        "abbreviation": "MERC",
+        "displayName": "Mercyhurst Lakers",
+        "shortDisplayName": "Mercyhurst",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2385.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "349",
+       "uid": "s:70~l:91~t:349",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "349",
+        "uid": "s:70~l:91~t:349",
+        "location": "Army",
+        "name": "Black Knights",
+        "abbreviation": "ARMY",
+        "displayName": "Army Black Knights",
+        "shortDisplayName": "Army",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/349.png"
+       },
+       "score": "5",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-10T22:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401822074",
+   "uid": "s:70~l:91~e:401822074",
+   "date": "2026-01-10T22:00Z",
+   "name": "Sacred Heart Pioneers at Niagara Purple Eagles",
+   "shortName": "SHU @ NIA",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401822074",
+     "uid": "s:70~l:91~e:401822074~c:401822074",
+     "date": "2026-01-10T22:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "315",
+       "uid": "s:70~l:91~t:315",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "315",
+        "uid": "s:70~l:91~t:315",
+        "location": "Niagara",
+        "name": "Purple Eagles",
+        "abbreviation": "NIA",
+        "displayName": "Niagara Purple Eagles",
+        "shortDisplayName": "Niagara",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/315.png"
+       },
+       "score": "2",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "2529",
+       "uid": "s:70~l:91~t:2529",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "2529",
+        "uid": "s:70~l:91~t:2529",
+        "location": "Sacred Heart",
+        "name": "Pioneers",
+        "abbreviation": "SHU",
+        "displayName": "Sacred Heart Pioneers",
+        "shortDisplayName": "Sacred Heart",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2529.png"
+       },
+       "score": "4",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-10T22:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401822085",
+   "uid": "s:70~l:91~e:401822085",
+   "date": "2026-01-10T22:05Z",
+   "name": "Robert Morris Colonials at RIT Tigers",
+   "shortName": "RMU @ RIT",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401822085",
+     "uid": "s:70~l:91~e:401822085~c:401822085",
+     "date": "2026-01-10T22:05Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "178",
+       "uid": "s:70~l:91~t:178",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "178",
+        "uid": "s:70~l:91~t:178",
+        "location": "RIT",
+        "name": "Tigers",
+        "abbreviation": "RIT",
+        "displayName": "RIT Tigers",
+        "shortDisplayName": "RIT",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/178.png"
+       },
+       "score": "3",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "2523",
+       "uid": "s:70~l:91~t:2523",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "2523",
+        "uid": "s:70~l:91~t:2523",
+        "location": "Robert Morris",
+        "name": "Colonials",
+        "abbreviation": "RMU",
+        "displayName": "Robert Morris Colonials",
+        "shortDisplayName": "Robert Morris",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2523.png"
+       },
+       "score": "2",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 4,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final/OT",
+       "shortDetail": "Final/OT",
+       "altDetail": "OT"
+      }
+     },
+     "startDate": "2026-01-10T22:05Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 4,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final/OT",
+     "shortDetail": "Final/OT",
+     "altDetail": "OT"
+    }
+   }
+  },
+  {
+   "id": "401821146",
+   "uid": "s:70~l:91~e:401821146",
+   "date": "2026-01-10T23:00Z",
+   "name": "Massachusetts Minutemen at Boston University Terriers",
+   "shortName": "MASS @ BU",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821146",
+     "uid": "s:70~l:91~e:401821146~c:401821146",
+     "date": "2026-01-10T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "104",
+       "uid": "s:70~l:91~t:104",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "104",
+        "uid": "s:70~l:91~t:104",
+        "location": "Boston University",
+        "name": "Terriers",
+        "abbreviation": "BU",
+        "displayName": "Boston University Terriers",
+        "shortDisplayName": "Boston University",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/104.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 19
+       },
+       "statistics": []
+      },
+      {
+       "id": "113",
+       "uid": "s:70~l:91~t:113",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "113",
+        "uid": "s:70~l:91~t:113",
+        "location": "Massachusetts",
+        "name": "Minutemen",
+        "abbreviation": "MASS",
+        "displayName": "Massachusetts Minutemen",
+        "shortDisplayName": "Massachusetts",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/113.png"
+       },
+       "score": "2",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-10T23:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821175",
+   "uid": "s:70~l:91~e:401821175",
+   "date": "2026-01-10T23:00Z",
+   "name": "Maine Black Bears at Providence Friars",
+   "shortName": "ME @ PROV",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821175",
+     "uid": "s:70~l:91~e:401821175~c:401821175",
+     "date": "2026-01-10T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "2507",
+       "uid": "s:70~l:91~t:2507",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "2507",
+        "uid": "s:70~l:91~t:2507",
+        "location": "Providence",
+        "name": "Friars",
+        "abbreviation": "PROV",
+        "displayName": "Providence Friars",
+        "shortDisplayName": "Providence",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2507.png"
+       },
+       "score": "3",
+       "curatedRank": {
+        "current": 18
+       },
+       "statistics": []
+      },
+      {
+       "id": "311",
+       "uid": "s:70~l:91~t:311",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "311",
+        "uid": "s:70~l:91~t:311",
+        "location": "Maine",
+        "name": "Black Bears",
+        "abbreviation": "ME",
+        "displayName": "Maine Black Bears",
+        "shortDisplayName": "Maine",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/311.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 12
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-10T23:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821897",
+   "uid": "s:70~l:91~e:401821897",
+   "date": "2026-01-10T23:00Z",
+   "name": "Minnesota Golden Gophers at Penn State Nittany Lions",
+   "shortName": "MINN @ PSU",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821897",
+     "uid": "s:70~l:91~e:401821897~c:401821897",
+     "date": "2026-01-10T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "213",
+       "uid": "s:70~l:91~t:213",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "213",
+        "uid": "s:70~l:91~t:213",
+        "location": "Penn State",
+        "name": "Nittany Lions",
+        "abbreviation": "PSU",
+        "displayName": "Penn State Nittany Lions",
+        "shortDisplayName": "Penn State",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/213.png"
+       },
+       "score": "5",
+       "curatedRank": {
+        "current": 9
+       },
+       "statistics": []
+      },
+      {
+       "id": "135",
+       "uid": "s:70~l:91~t:135",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "135",
+        "uid": "s:70~l:91~t:135",
+        "location": "Minnesota",
+        "name": "Golden Gophers",
+        "abbreviation": "MINN",
+        "displayName": "Minnesota Golden Gophers",
+        "shortDisplayName": "Minnesota",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/135.png"
+       },
+       "score": "2",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-10T23:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821938",
+   "uid": "s:70~l:91~e:401821938",
+   "date": "2026-01-10T23:00Z",
+   "name": "Alaska Anchorage Seawolves at Wisconsin Badgers",
+   "shortName": "UAA @ WISC",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821938",
+     "uid": "s:70~l:91~e:401821938~c:401821938",
+     "date": "2026-01-10T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "275",
+       "uid": "s:70~l:91~t:275",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "275",
+        "uid": "s:70~l:91~t:275",
+        "location": "Wisconsin",
+        "name": "Badgers",
+        "abbreviation": "WISC",
+        "displayName": "Wisconsin Badgers",
+        "shortDisplayName": "Wisconsin",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/275.png"
+       },
+       "score": "3",
+       "curatedRank": {
+        "current": 3
+       },
+       "statistics": []
+      },
+      {
+       "id": "1",
+       "uid": "s:70~l:91~t:1",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "1",
+        "uid": "s:70~l:91~t:1",
+        "location": "Alaska Anchorage",
+        "name": "Seawolves",
+        "abbreviation": "UAA",
+        "displayName": "Alaska Anchorage Seawolves",
+        "shortDisplayName": "Alaska Anchorage",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/1.png"
+       },
+       "score": "2",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-10T23:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821619",
+   "uid": "s:70~l:91~e:401821619",
+   "date": "2026-01-10T23:07Z",
+   "name": "Augustana University (SD) Vikings at Northern Michigan Wildcats",
+   "shortName": "AUSD @ NMI",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821619",
+     "uid": "s:70~l:91~e:401821619~c:401821619",
+     "date": "2026-01-10T23:07Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "128",
+       "uid": "s:70~l:91~t:128",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "128",
+        "uid": "s:70~l:91~t:128",
+        "location": "Northern Michigan",
+        "name": "Wildcats",
+        "abbreviation": "NMI",
+        "displayName": "Northern Michigan Wildcats",
+        "shortDisplayName": "Northern Michigan",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/128.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "2043",
+       "uid": "s:70~l:91~t:2043",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "2043",
+        "uid": "s:70~l:91~t:2043",
+        "location": "Augustana University (SD)",
+        "name": "Vikings",
+        "abbreviation": "AUSD",
+        "displayName": "Augustana University (SD) Vikings",
+        "shortDisplayName": "Augustana (SD)",
+        "color": "NULL",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2043.png"
+       },
+       "score": "2",
+       "curatedRank": {
+        "current": 17
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-10T23:07Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821231",
+   "uid": "s:70~l:91~e:401821231",
+   "date": "2026-01-11T00:00Z",
+   "name": "UConn Huskies at UMass Lowell  River Hawks",
+   "shortName": "CONN @ UML",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821231",
+     "uid": "s:70~l:91~e:401821231~c:401821231",
+     "date": "2026-01-11T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "2349",
+       "uid": "s:70~l:91~t:2349",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "2349",
+        "uid": "s:70~l:91~t:2349",
+        "location": "UMass Lowell ",
+        "name": "River Hawks",
+        "abbreviation": "UML",
+        "displayName": "UMass Lowell  River Hawks",
+        "shortDisplayName": "UMass Lowell",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2349.png"
+       },
+       "score": "1",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "41",
+       "uid": "s:70~l:91~t:41",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "41",
+        "uid": "s:70~l:91~t:41",
+        "location": "UConn",
+        "name": "Huskies",
+        "abbreviation": "CONN",
+        "displayName": "UConn Huskies",
+        "shortDisplayName": "UConn",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/41.png"
+       },
+       "score": "5",
+       "curatedRank": {
+        "current": 10
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-11T00:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821304",
+   "uid": "s:70~l:91~e:401821304",
+   "date": "2026-01-11T00:00Z",
+   "name": "Northeastern Huskies at Vermont Catamounts ",
+   "shortName": "NE @ UVM",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821304",
+     "uid": "s:70~l:91~e:401821304~c:401821304",
+     "date": "2026-01-11T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "261",
+       "uid": "s:70~l:91~t:261",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "261",
+        "uid": "s:70~l:91~t:261",
+        "location": "Vermont",
+        "name": "Catamounts ",
+        "abbreviation": "UVM",
+        "displayName": "Vermont Catamounts",
+        "shortDisplayName": "Vermont",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/261.png"
+       },
+       "score": "5",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "111",
+       "uid": "s:70~l:91~t:111",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "111",
+        "uid": "s:70~l:91~t:111",
+        "location": "Northeastern",
+        "name": "Huskies",
+        "abbreviation": "NE",
+        "displayName": "Northeastern Huskies",
+        "shortDisplayName": "Northeastern",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/111.png"
+       },
+       "score": "3",
+       "curatedRank": {
+        "current": 16
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-11T00:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821388",
+   "uid": "s:70~l:91~e:401821388",
+   "date": "2026-01-11T00:00Z",
+   "name": "Miami (OH) RedHawks at Arizona State Sun Devils",
+   "shortName": "M-OH @ ASU",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821388",
+     "uid": "s:70~l:91~e:401821388~c:401821388",
+     "date": "2026-01-11T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "9",
+       "uid": "s:70~l:91~t:9",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "9",
+        "uid": "s:70~l:91~t:9",
+        "location": "Arizona State",
+        "name": "Sun Devils",
+        "abbreviation": "ASU",
+        "displayName": "Arizona State Sun Devils",
+        "shortDisplayName": "Arizona State",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9.png"
+       },
+       "score": "1",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "193",
+       "uid": "s:70~l:91~t:193",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "193",
+        "uid": "s:70~l:91~t:193",
+        "location": "Miami (OH)",
+        "name": "RedHawks",
+        "abbreviation": "M-OH",
+        "displayName": "Miami (OH) RedHawks",
+        "shortDisplayName": "Miami (OH)",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/193.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-11T00:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821437",
+   "uid": "s:70~l:91~e:401821437",
+   "date": "2026-01-11T00:00Z",
+   "name": "Clarkson Golden Knights at Yale Bulldogs",
+   "shortName": "CLAR @ YALE",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821437",
+     "uid": "s:70~l:91~e:401821437~c:401821437",
+     "date": "2026-01-11T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "43",
+       "uid": "s:70~l:91~t:43",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "43",
+        "uid": "s:70~l:91~t:43",
+        "location": "Yale",
+        "name": "Bulldogs",
+        "abbreviation": "YALE",
+        "displayName": "Yale Bulldogs",
+        "shortDisplayName": "Yale",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/43.png"
+       },
+       "score": "2",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "2137",
+       "uid": "s:70~l:91~t:2137",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "2137",
+        "uid": "s:70~l:91~t:2137",
+        "location": "Clarkson",
+        "name": "Golden Knights",
+        "abbreviation": "CLAR",
+        "displayName": "Clarkson Golden Knights",
+        "shortDisplayName": "Clarkson",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2137.png"
+       },
+       "score": "3",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-11T00:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821468",
+   "uid": "s:70~l:91~e:401821468",
+   "date": "2026-01-11T00:00Z",
+   "name": "Union Dutchmen at Princeton Tigers",
+   "shortName": "UNNY @ PRIN",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821468",
+     "uid": "s:70~l:91~e:401821468~c:401821468",
+     "date": "2026-01-11T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "163",
+       "uid": "s:70~l:91~t:163",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "163",
+        "uid": "s:70~l:91~t:163",
+        "location": "Princeton",
+        "name": "Tigers",
+        "abbreviation": "PRIN",
+        "displayName": "Princeton Tigers",
+        "shortDisplayName": "Princeton",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/163.png"
+       },
+       "score": "2",
+       "curatedRank": {
+        "current": 20
+       },
+       "statistics": []
+      },
+      {
+       "id": "2785",
+       "uid": "s:70~l:91~t:2785",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "2785",
+        "uid": "s:70~l:91~t:2785",
+        "location": "Union",
+        "name": "Dutchmen",
+        "abbreviation": "UNNY",
+        "displayName": "Union Dutchmen",
+        "shortDisplayName": "Union",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2785.png"
+       },
+       "score": "4",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-11T00:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821519",
+   "uid": "s:70~l:91~e:401821519",
+   "date": "2026-01-11T00:00Z",
+   "name": "Rensselaer Engineers at Quinnipiac Bobcats",
+   "shortName": "RPI @ QUIN",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821519",
+     "uid": "s:70~l:91~e:401821519~c:401821519",
+     "date": "2026-01-11T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "2514",
+       "uid": "s:70~l:91~t:2514",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "2514",
+        "uid": "s:70~l:91~t:2514",
+        "location": "Quinnipiac",
+        "name": "Bobcats",
+        "abbreviation": "QUIN",
+        "displayName": "Quinnipiac Bobcats",
+        "shortDisplayName": "Quinnipiac",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2514.png"
+       },
+       "score": "4",
+       "curatedRank": {
+        "current": 8
+       },
+       "statistics": []
+      },
+      {
+       "id": "2528",
+       "uid": "s:70~l:91~t:2528",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "2528",
+        "uid": "s:70~l:91~t:2528",
+        "location": "Rensselaer",
+        "name": "Engineers",
+        "abbreviation": "RPI",
+        "displayName": "Rensselaer Engineers",
+        "shortDisplayName": "Rensselaer",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2528.png"
+       },
+       "score": "3",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 148.0,
+      "displayClock": "2:28",
+      "period": 4,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final/OT",
+       "shortDetail": "Final/OT",
+       "altDetail": "OT"
+      }
+     },
+     "startDate": "2026-01-11T00:00Z"
+    }
+   ],
+   "status": {
+    "clock": 148.0,
+    "displayClock": "2:28",
+    "period": 4,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final/OT",
+     "shortDetail": "Final/OT",
+     "altDetail": "OT"
+    }
+   }
+  },
+  {
+   "id": "401821815",
+   "uid": "s:70~l:91~e:401821815",
+   "date": "2026-01-11T00:00Z",
+   "name": "Alaska Bulldogs at Cornell Big Red",
+   "shortName": "AKFB @ COR",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821815",
+     "uid": "s:70~l:91~e:401821815~c:401821815",
+     "date": "2026-01-11T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "172",
+       "uid": "s:70~l:91~t:172",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "172",
+        "uid": "s:70~l:91~t:172",
+        "location": "Cornell",
+        "name": "Big Red",
+        "abbreviation": "COR",
+        "displayName": "Cornell Big Red",
+        "shortDisplayName": "Cornell",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/172.png"
+       },
+       "score": "5",
+       "curatedRank": {
+        "current": 14
+       },
+       "statistics": []
+      },
+      {
+       "id": "298",
+       "uid": "s:70~l:91~t:298",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "298",
+        "uid": "s:70~l:91~t:298",
+        "location": "Alaska",
+        "name": "Bulldogs",
+        "abbreviation": "AKFB",
+        "displayName": "Alaska Bulldogs",
+        "shortDisplayName": "Alaska",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/298.png"
+       },
+       "score": "2",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-11T00:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821853",
+   "uid": "s:70~l:91~e:401821853",
+   "date": "2026-01-11T00:00Z",
+   "name": "Notre Dame Fighting Irish at Michigan Wolverines",
+   "shortName": "ND @ MICH",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821853",
+     "uid": "s:70~l:91~e:401821853~c:401821853",
+     "date": "2026-01-11T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "130",
+       "uid": "s:70~l:91~t:130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "uid": "s:70~l:91~t:130",
+        "location": "Michigan",
+        "name": "Wolverines",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png"
+       },
+       "score": "7",
+       "curatedRank": {
+        "current": 1
+       },
+       "statistics": []
+      },
+      {
+       "id": "87",
+       "uid": "s:70~l:91~t:87",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "87",
+        "uid": "s:70~l:91~t:87",
+        "location": "Notre Dame",
+        "name": "Fighting Irish",
+        "abbreviation": "ND",
+        "displayName": "Notre Dame Fighting Irish",
+        "shortDisplayName": "Notre Dame",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/87.png"
+       },
+       "score": "4",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-11T00:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401822048",
+   "uid": "s:70~l:91~e:401822048",
+   "date": "2026-01-11T00:00Z",
+   "name": "Merrimack Warriors at Holy Cross Crusaders",
+   "shortName": "MRMK @ HC",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401822048",
+     "uid": "s:70~l:91~e:401822048~c:401822048",
+     "date": "2026-01-11T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "107",
+       "uid": "s:70~l:91~t:107",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "107",
+        "uid": "s:70~l:91~t:107",
+        "location": "Holy Cross",
+        "name": "Crusaders",
+        "abbreviation": "HC",
+        "displayName": "Holy Cross Crusaders",
+        "shortDisplayName": "Holy Cross",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/107.png"
+       },
+       "score": "2",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "2771",
+       "uid": "s:70~l:91~t:2771",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "2771",
+        "uid": "s:70~l:91~t:2771",
+        "location": "Merrimack",
+        "name": "Warriors",
+        "abbreviation": "MRMK",
+        "displayName": "Merrimack Warriors",
+        "shortDisplayName": "Merrimack",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2771.png"
+       },
+       "score": "5",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-11T00:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821956",
+   "uid": "s:70~l:91~e:401821956",
+   "date": "2026-01-11T00:05Z",
+   "name": "Bentley Falcons at Air Force Falcons",
+   "shortName": "BENT @ AFA",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821956",
+     "uid": "s:70~l:91~e:401821956~c:401821956",
+     "date": "2026-01-11T00:05Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "2005",
+       "uid": "s:70~l:91~t:2005",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "2005",
+        "uid": "s:70~l:91~t:2005",
+        "location": "Air Force",
+        "name": "Falcons",
+        "abbreviation": "AFA",
+        "displayName": "Air Force Falcons",
+        "shortDisplayName": "Air Force",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2005.png"
+       },
+       "score": "1",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "2060",
+       "uid": "s:70~l:91~t:2060",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "2060",
+        "uid": "s:70~l:91~t:2060",
+        "location": "Bentley",
+        "name": "Falcons",
+        "abbreviation": "BENT",
+        "displayName": "Bentley Falcons",
+        "shortDisplayName": "Bentley",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2060.png"
+       },
+       "score": "3",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-11T00:05Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821330",
+   "uid": "s:70~l:91~e:401821330",
+   "date": "2026-01-11T00:07Z",
+   "name": "Lindenwood Lions at Minnesota Duluth Bulldogs",
+   "shortName": "LIN @ UMD",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821330",
+     "uid": "s:70~l:91~e:401821330~c:401821330",
+     "date": "2026-01-11T00:07Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "134",
+       "uid": "s:70~l:91~t:134",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "134",
+        "uid": "s:70~l:91~t:134",
+        "location": "Minnesota Duluth",
+        "name": "Bulldogs",
+        "abbreviation": "UMD",
+        "displayName": "Minnesota Duluth Bulldogs",
+        "shortDisplayName": "Minnesota Duluth",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/134.png"
+       },
+       "score": "8",
+       "curatedRank": {
+        "current": 5
+       },
+       "statistics": []
+      },
+      {
+       "id": "2815",
+       "uid": "s:70~l:91~t:2815",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "2815",
+        "uid": "s:70~l:91~t:2815",
+        "location": "Lindenwood",
+        "name": "Lions",
+        "abbreviation": "LIN",
+        "displayName": "Lindenwood Lions",
+        "shortDisplayName": "Lindenwood",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2815.png"
+       },
+       "score": "4",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-11T00:07Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821588",
+   "uid": "s:70~l:91~e:401821588",
+   "date": "2026-01-11T00:07Z",
+   "name": "St. Thomas - Minnesota Tommies at Minnesota State Mavericks",
+   "shortName": "STMN @ MNST",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821588",
+     "uid": "s:70~l:91~e:401821588~c:401821588",
+     "date": "2026-01-11T00:07Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "2364",
+       "uid": "s:70~l:91~t:2364",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "2364",
+        "uid": "s:70~l:91~t:2364",
+        "location": "Minnesota State",
+        "name": "Mavericks",
+        "abbreviation": "MNST",
+        "displayName": "Minnesota State Mavericks",
+        "shortDisplayName": "Minnesota State",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2364.png"
+       },
+       "score": "2",
+       "curatedRank": {
+        "current": 15
+       },
+       "statistics": []
+      },
+      {
+       "id": "2900",
+       "uid": "s:70~l:91~t:2900",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "2900",
+        "uid": "s:70~l:91~t:2900",
+        "location": "St. Thomas - Minnesota",
+        "name": "Tommies",
+        "abbreviation": "STMN",
+        "displayName": "St. Thomas - Minnesota Tommies",
+        "shortDisplayName": "St. Thomas - Minnesota",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2900.png"
+       },
+       "score": "4",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-11T00:07Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821642",
+   "uid": "s:70~l:91~e:401821642",
+   "date": "2026-01-11T00:07Z",
+   "name": "Michigan Tech Huskies at Bemidji State Beavers",
+   "shortName": "MTU @ BST",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821642",
+     "uid": "s:70~l:91~e:401821642~c:401821642",
+     "date": "2026-01-11T00:07Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "132",
+       "uid": "s:70~l:91~t:132",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "132",
+        "uid": "s:70~l:91~t:132",
+        "location": "Bemidji State",
+        "name": "Beavers",
+        "abbreviation": "BST",
+        "displayName": "Bemidji State Beavers",
+        "shortDisplayName": "Bemidji State",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/132.png"
+       },
+       "score": "3",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "2392",
+       "uid": "s:70~l:91~t:2392",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "2392",
+        "uid": "s:70~l:91~t:2392",
+        "location": "Michigan Tech",
+        "name": "Huskies",
+        "abbreviation": "MTU",
+        "displayName": "Michigan Tech Huskies",
+        "shortDisplayName": "Michigan Tech",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2392.png"
+       },
+       "score": "4",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-11T00:07Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821791",
+   "uid": "s:70~l:91~e:401821791",
+   "date": "2026-01-11T00:07Z",
+   "name": "Bowling Green Falcons at Ferris State Bulldogs",
+   "shortName": "BGSU @ FRST",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821791",
+     "uid": "s:70~l:91~e:401821791~c:401821791",
+     "date": "2026-01-11T00:07Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "2222",
+       "uid": "s:70~l:91~t:2222",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "2222",
+        "uid": "s:70~l:91~t:2222",
+        "location": "Ferris State",
+        "name": "Bulldogs",
+        "abbreviation": "FRST",
+        "displayName": "Ferris State Bulldogs",
+        "shortDisplayName": "Ferris State",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2222.png"
+       },
+       "score": "1",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "189",
+       "uid": "s:70~l:91~t:189",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "189",
+        "uid": "s:70~l:91~t:189",
+        "location": "Bowling Green",
+        "name": "Falcons",
+        "abbreviation": "BGSU",
+        "displayName": "Bowling Green Falcons",
+        "shortDisplayName": "Bowling Green",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/189.png"
+       },
+       "score": "5",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-11T00:07Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821362",
+   "uid": "s:70~l:91~e:401821362",
+   "date": "2026-01-11T01:00Z",
+   "name": "Western Michigan Broncos at Denver Pioneers",
+   "shortName": "WMU @ DEN",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821362",
+     "uid": "s:70~l:91~e:401821362~c:401821362",
+     "date": "2026-01-11T01:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "2172",
+       "uid": "s:70~l:91~t:2172",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "2172",
+        "uid": "s:70~l:91~t:2172",
+        "location": "Denver",
+        "name": "Pioneers",
+        "abbreviation": "DEN",
+        "displayName": "Denver Pioneers",
+        "shortDisplayName": "Denver",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2172.png"
+       },
+       "score": "2",
+       "curatedRank": {
+        "current": 7
+       },
+       "statistics": []
+      },
+      {
+       "id": "2711",
+       "uid": "s:70~l:91~t:2711",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "2711",
+        "uid": "s:70~l:91~t:2711",
+        "location": "Western Michigan",
+        "name": "Broncos",
+        "abbreviation": "WMU",
+        "displayName": "Western Michigan Broncos",
+        "shortDisplayName": "Western Michigan",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2711.png"
+       },
+       "score": "6",
+       "curatedRank": {
+        "current": 6
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-11T01:00Z",
+     "series": {
+      "type": "playoff",
+      "title": "Playoff Series",
+      "summary": "",
+      "completed": false,
+      "totalCompetitions": 7,
+      "competitors": [
+       {
+        "id": "2172",
+        "uid": "s:70~l:91~t:2172",
+        "wins": 0,
+        "ties": 0,
+        "href": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/mens-college-hockey/seasons/2026/teams/2172?lang=en&region=us"
+       },
+       {
+        "id": "2711",
+        "uid": "s:70~l:91~t:2711",
+        "wins": 0,
+        "ties": 0,
+        "href": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/mens-college-hockey/seasons/2026/teams/2711?lang=en&region=us"
+       }
+      ]
+     }
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821741",
+   "uid": "s:70~l:91~e:401821741",
+   "date": "2026-01-11T01:00Z",
+   "name": "St. Cloud State Huskies at Omaha Mavericks",
+   "shortName": "SCSU @ OMA",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821741",
+     "uid": "s:70~l:91~e:401821741~c:401821741",
+     "date": "2026-01-11T01:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "2437",
+       "uid": "s:70~l:91~t:2437",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "2437",
+        "uid": "s:70~l:91~t:2437",
+        "location": "Omaha",
+        "name": "Mavericks",
+        "abbreviation": "OMA",
+        "displayName": "Omaha Mavericks",
+        "shortDisplayName": "Omaha",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2437.png"
+       },
+       "score": "1",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "2594",
+       "uid": "s:70~l:91~t:2594",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "2594",
+        "uid": "s:70~l:91~t:2594",
+        "location": "St. Cloud State",
+        "name": "Huskies",
+        "abbreviation": "SCSU",
+        "displayName": "St. Cloud State Huskies",
+        "shortDisplayName": "St. Cloud State",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2594.png"
+       },
+       "score": "2",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-11T01:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  },
+  {
+   "id": "401821416",
+   "uid": "s:70~l:91~e:401821416",
+   "date": "2026-01-11T02:00Z",
+   "name": "North Dakota Fighting Hawks at Colorado College Tigers",
+   "shortName": "UND @ COLC",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401821416",
+     "uid": "s:70~l:91~e:401821416~c:401821416",
+     "date": "2026-01-11T02:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "2144",
+       "uid": "s:70~l:91~t:2144",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "2144",
+        "uid": "s:70~l:91~t:2144",
+        "location": "Colorado College",
+        "name": "Tigers",
+        "abbreviation": "COLC",
+        "displayName": "Colorado College Tigers",
+        "shortDisplayName": "Colorado College",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2144.png"
+       },
+       "score": "2",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "155",
+       "uid": "s:70~l:91~t:155",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "155",
+        "uid": "s:70~l:91~t:155",
+        "location": "North Dakota",
+        "name": "Fighting Hawks",
+        "abbreviation": "UND",
+        "displayName": "North Dakota Fighting Hawks",
+        "shortDisplayName": "North Dakota",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/155.png"
+       },
+       "score": "5",
+       "curatedRank": {
+        "current": 4
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "startDate": "2026-01-11T02:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 3,
+    "type": {
+     "id": "3",
+     "name": "STATUS_FINAL",
+     "state": "post",
+     "completed": true,
+     "description": "Final",
+     "detail": "Final",
+     "shortDetail": "Final"
+    }
+   }
+  }
+ ],
+ "provider": {
+  "id": "100",
+  "name": "Draft Kings",
+  "displayName": "Draft Kings",
+  "priority": 1
+ }
+}

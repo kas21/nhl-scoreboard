@@ -1,0 +1,714 @@
+{
+ "SiteKit": {
+  "Parameters": {
+   "feed": "modulekit",
+   "view": "seasons",
+   "key": "ccb91f29d6744675",
+   "client_code": "ahl",
+   "fmt": "json",
+   "league_id": "4",
+   "season_id": "94"
+  },
+  "Seasons": [
+   {
+    "season_id": "94",
+    "season_name": "2026-27 Regular Season",
+    "shortname": "2026-27",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2026-10-02",
+    "end_date": "2027-04-11"
+   },
+   {
+    "season_id": "93",
+    "season_name": "2026 Preseason",
+    "shortname": "26 Pre",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2026-09-24",
+    "end_date": "2026-09-30"
+   },
+   {
+    "season_id": "92",
+    "season_name": "2026 Calder Cup Playoffs",
+    "shortname": "26 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2026-04-20",
+    "end_date": "2026-06-20"
+   },
+   {
+    "season_id": "91",
+    "season_name": "2026 All-Star Challenge",
+    "shortname": "26 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2026-02-10",
+    "end_date": "2026-02-12"
+   },
+   {
+    "season_id": "90",
+    "season_name": "2025-26 Regular Season",
+    "shortname": "2025-26",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2025-10-07",
+    "end_date": "2026-04-19"
+   },
+   {
+    "season_id": "88",
+    "season_name": "2025 Calder Cup Playoffs",
+    "shortname": "25 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2025-04-21",
+    "end_date": "2025-06-24"
+   },
+   {
+    "season_id": "87",
+    "season_name": "2025 All-Star Challenge",
+    "shortname": "25 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2025-02-03",
+    "end_date": "2025-02-04"
+   },
+   {
+    "season_id": "86",
+    "season_name": "2024-25 Regular Season",
+    "shortname": "2024-25",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2024-10-09",
+    "end_date": "2025-04-20"
+   },
+   {
+    "season_id": "84",
+    "season_name": "2024 Calder Cup Playoffs",
+    "shortname": "24 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2024-04-22",
+    "end_date": "2024-06-27"
+   },
+   {
+    "season_id": "83",
+    "season_name": "2024 All-Star Challenge",
+    "shortname": "24 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2024-02-05",
+    "end_date": "2024-02-06"
+   },
+   {
+    "season_id": "81",
+    "season_name": "2023-24 Regular Season",
+    "shortname": "2023-24",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2023-10-12",
+    "end_date": "2024-04-22"
+   },
+   {
+    "season_id": "80",
+    "season_name": "2023 Calder Cup Playoffs",
+    "shortname": "23 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2023-04-17",
+    "end_date": "2023-06-23"
+   },
+   {
+    "season_id": "79",
+    "season_name": "2023 All-Star Challenge",
+    "shortname": "23 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2023-02-05",
+    "end_date": "2023-02-07"
+   },
+   {
+    "season_id": "77",
+    "season_name": "2022-23 Regular Season",
+    "shortname": "2022-23",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2022-10-11",
+    "end_date": "2023-04-17"
+   },
+   {
+    "season_id": "76",
+    "season_name": "2022 Calder Cup Playoffs",
+    "shortname": "22 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2022-05-01",
+    "end_date": "2022-06-30"
+   },
+   {
+    "season_id": "73",
+    "season_name": "2021-22 Regular Season",
+    "shortname": "2021-22",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2021-10-14",
+    "end_date": "2022-05-03"
+   },
+   {
+    "season_id": "72",
+    "season_name": "2021 Pacific Division Playoffs",
+    "shortname": "21 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2021-05-18",
+    "end_date": "2021-05-30"
+   },
+   {
+    "season_id": "68",
+    "season_name": "2020-21 Regular Season",
+    "shortname": "2020-21",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2021-02-04",
+    "end_date": "2021-05-20"
+   },
+   {
+    "season_id": "67",
+    "season_name": "2020 All-Star Challenge",
+    "shortname": "20 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2020-01-27",
+    "end_date": "2020-01-28"
+   },
+   {
+    "season_id": "65",
+    "season_name": "2019-20 Regular Season",
+    "shortname": "2019-20",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2019-10-01",
+    "end_date": "2020-05-08"
+   },
+   {
+    "season_id": "64",
+    "season_name": "2019 Calder Cup Playoffs",
+    "shortname": "19 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2019-04-16",
+    "end_date": "2019-06-09"
+   },
+   {
+    "season_id": "63",
+    "season_name": "2019 All-Star Challenge",
+    "shortname": "19 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2019-01-28",
+    "end_date": "2019-01-29"
+   },
+   {
+    "season_id": "61",
+    "season_name": "2018-19 Regular Season",
+    "shortname": "2018-19",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2018-10-02",
+    "end_date": "2019-04-15"
+   },
+   {
+    "season_id": "60",
+    "season_name": "2018 Calder Cup Playoffs",
+    "shortname": "18 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2018-04-18",
+    "end_date": "2018-06-17"
+   },
+   {
+    "season_id": "58",
+    "season_name": "2017-18 Exhibition",
+    "shortname": "17-18 Ex",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2018-02-13",
+    "end_date": "2018-09-29"
+   },
+   {
+    "season_id": "59",
+    "season_name": "2018 All-Star Challenge",
+    "shortname": "18 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2018-01-29",
+    "end_date": "2018-01-30"
+   },
+   {
+    "season_id": "57",
+    "season_name": "2017-18 Regular Season",
+    "shortname": "2017-18",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2017-10-03",
+    "end_date": "2018-04-18"
+   },
+   {
+    "season_id": "56",
+    "season_name": "2017 Calder Cup Playoffs",
+    "shortname": "17 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2017-04-19",
+    "end_date": "2017-06-14"
+   },
+   {
+    "season_id": "55",
+    "season_name": "2017 All-Star Challenge",
+    "shortname": "17 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2017-01-29",
+    "end_date": "2017-01-31"
+   },
+   {
+    "season_id": "54",
+    "season_name": "2016-17 Regular Season",
+    "shortname": "2016-17",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2016-10-12",
+    "end_date": "2017-04-18"
+   },
+   {
+    "season_id": "53",
+    "season_name": "2016 Calder Cup Playoffs",
+    "shortname": "16 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2016-04-20",
+    "end_date": "2016-06-12"
+   },
+   {
+    "season_id": "52",
+    "season_name": "2016 All-Star Challenge",
+    "shortname": "16 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2016-02-01",
+    "end_date": "2016-02-02"
+   },
+   {
+    "season_id": "51",
+    "season_name": "2015-16 Regular Season",
+    "shortname": "2015-16",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2015-10-07",
+    "end_date": "2016-04-20"
+   },
+   {
+    "season_id": "50",
+    "season_name": "2015 Calder Cup Playoffs",
+    "shortname": "15 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2015-04-22",
+    "end_date": "2015-06-16"
+   },
+   {
+    "season_id": "49",
+    "season_name": "2015 All-Star Game",
+    "shortname": "15 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2015-01-26",
+    "end_date": "2015-01-27"
+   },
+   {
+    "season_id": "48",
+    "season_name": "2014-15 Regular Season",
+    "shortname": "2014-15",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2014-10-07",
+    "end_date": "2015-04-22"
+   },
+   {
+    "season_id": "47",
+    "season_name": "2014 Calder Cup Playoffs",
+    "shortname": "14 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2014-04-23",
+    "end_date": "2014-06-20"
+   },
+   {
+    "season_id": "45",
+    "season_name": "2013-14 Exhibition",
+    "shortname": "13-14 Ex",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2014-02-15",
+    "end_date": "2014-02-15"
+   },
+   {
+    "season_id": "44",
+    "season_name": "2014 All-Star Game",
+    "shortname": "14 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2014-02-10",
+    "end_date": "2014-02-13"
+   },
+   {
+    "season_id": "43",
+    "season_name": "2013-14 Regular Season",
+    "shortname": "2013-14",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2013-10-01",
+    "end_date": "2014-04-24"
+   },
+   {
+    "season_id": "42",
+    "season_name": "2013 Calder Cup Playoffs",
+    "shortname": "13 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2013-04-24",
+    "end_date": "2013-06-21"
+   },
+   {
+    "season_id": "41",
+    "season_name": "2013 All-Star Game",
+    "shortname": "13 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2013-01-27",
+    "end_date": "2013-01-29"
+   },
+   {
+    "season_id": "40",
+    "season_name": "2012-13 Regular Season",
+    "shortname": "2012-13",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2012-10-10",
+    "end_date": "2013-04-29"
+   },
+   {
+    "season_id": "39",
+    "season_name": "2012 Calder Cup Playoffs",
+    "shortname": "12 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2012-04-18",
+    "end_date": "2012-06-11"
+   },
+   {
+    "season_id": "38",
+    "season_name": "2012 All-Star Game",
+    "shortname": "12 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2012-01-24",
+    "end_date": "2012-01-31"
+   },
+   {
+    "season_id": "37",
+    "season_name": "2011-12 Regular Season",
+    "shortname": "2011-12",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2011-10-05",
+    "end_date": "2012-04-18"
+   },
+   {
+    "season_id": "36",
+    "season_name": "2011 Calder Cup Playoffs",
+    "shortname": "11 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2011-04-11",
+    "end_date": "2011-06-10"
+   },
+   {
+    "season_id": "35",
+    "season_name": "2011 All-Star Game",
+    "shortname": "11 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2011-01-30",
+    "end_date": "2011-02-01"
+   },
+   {
+    "season_id": "34",
+    "season_name": "2010-11 Regular Season",
+    "shortname": "2010-11",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2010-10-06",
+    "end_date": "2011-04-11"
+   },
+   {
+    "season_id": "33",
+    "season_name": "2010 Calder Cup Playoffs",
+    "shortname": "10 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2010-04-12",
+    "end_date": "2010-06-19"
+   },
+   {
+    "season_id": "31",
+    "season_name": "2010 All-Star Game",
+    "shortname": "10 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2010-01-17",
+    "end_date": "2010-01-20"
+   },
+   {
+    "season_id": "30",
+    "season_name": "2009-10 Regular Season",
+    "shortname": "2009-10",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2009-10-01",
+    "end_date": "2010-04-12"
+   },
+   {
+    "season_id": "29",
+    "season_name": "2009 Calder Cup Playoffs",
+    "shortname": "09 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2009-04-13",
+    "end_date": "2009-06-14"
+   },
+   {
+    "season_id": "28",
+    "season_name": "2009 All-Star Game",
+    "shortname": "09 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2009-01-23",
+    "end_date": "2009-01-27"
+   },
+   {
+    "season_id": "16",
+    "season_name": "2008-09 Regular Season",
+    "shortname": "2008-09",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2008-10-06",
+    "end_date": "2009-04-13"
+   },
+   {
+    "season_id": "15",
+    "season_name": "2008 Calder Cup Playoffs",
+    "shortname": "08 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2008-04-14",
+    "end_date": "2008-06-30"
+   },
+   {
+    "season_id": "14",
+    "season_name": "2008 All-Star Game",
+    "shortname": "08 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2008-01-16",
+    "end_date": "2008-01-29"
+   },
+   {
+    "season_id": "12",
+    "season_name": "2007-08 Regular Season",
+    "shortname": "2007-08",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2007-10-01",
+    "end_date": "2008-04-14"
+   },
+   {
+    "season_id": "10",
+    "season_name": "2007 Calder Cup Playoffs",
+    "shortname": "07 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2007-04-17",
+    "end_date": "2007-07-17"
+   },
+   {
+    "season_id": "9",
+    "season_name": "2007 All-Star Game",
+    "shortname": "07 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2007-01-28",
+    "end_date": "2007-01-30"
+   },
+   {
+    "season_id": "8",
+    "season_name": "2006-07 Regular Season",
+    "shortname": "2006-07",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2006-10-01",
+    "end_date": "2007-04-16"
+   },
+   {
+    "season_id": "7",
+    "season_name": "2006 Calder Cup Playoffs",
+    "shortname": "06 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2006-04-17",
+    "end_date": "2006-07-17"
+   },
+   {
+    "season_id": "2",
+    "season_name": "2006 All-Star Game",
+    "shortname": "06 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2006-02-01",
+    "end_date": "2006-02-02"
+   },
+   {
+    "season_id": "1",
+    "season_name": "2005-06 Regular Season",
+    "shortname": "2005-06",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2005-10-04",
+    "end_date": "2006-04-20"
+   },
+   {
+    "season_id": "69",
+    "season_name": "2005 Calder Cup Playoffs",
+    "shortname": "05 Playoffs",
+    "career": "1",
+    "playoff": "1",
+    "start_date": "2005-04-19",
+    "end_date": "2005-06-11"
+   },
+   {
+    "season_id": "17",
+    "season_name": "2005 All-Star Game",
+    "shortname": "05 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2005-02-13",
+    "end_date": "2005-02-15"
+   },
+   {
+    "season_id": "46",
+    "season_name": "2004-05 Regular Season",
+    "shortname": "2004-05",
+    "career": "1",
+    "playoff": "0",
+    "start_date": "2004-10-13",
+    "end_date": "2005-04-17"
+   },
+   {
+    "season_id": "18",
+    "season_name": "2004 All-Star Game",
+    "shortname": "04 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2004-02-08",
+    "end_date": "2004-02-10"
+   },
+   {
+    "season_id": "19",
+    "season_name": "2003 All-Star Game",
+    "shortname": "03 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2003-02-02",
+    "end_date": "2003-02-04"
+   },
+   {
+    "season_id": "20",
+    "season_name": "2002 All-Star Game",
+    "shortname": "02 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2002-02-13",
+    "end_date": "2002-02-15"
+   },
+   {
+    "season_id": "21",
+    "season_name": "2001 All-Star Game",
+    "shortname": "01 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2001-01-14",
+    "end_date": "2001-01-16"
+   },
+   {
+    "season_id": "22",
+    "season_name": "2000 All-Star Game",
+    "shortname": "00 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "2000-01-16",
+    "end_date": "2000-01-18"
+   },
+   {
+    "season_id": "23",
+    "season_name": "1999 All-Star Game",
+    "shortname": "99 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "1999-01-24",
+    "end_date": "1999-01-26"
+   },
+   {
+    "season_id": "24",
+    "season_name": "1998 All-Star Game",
+    "shortname": "98 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "1998-02-10",
+    "end_date": "1998-02-12"
+   },
+   {
+    "season_id": "25",
+    "season_name": "1997 All-Star Game",
+    "shortname": "97 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "1997-01-15",
+    "end_date": "1997-01-17"
+   },
+   {
+    "season_id": "26",
+    "season_name": "1996 All-Star Game",
+    "shortname": "96 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "1996-01-15",
+    "end_date": "1996-01-17"
+   },
+   {
+    "season_id": "27",
+    "season_name": "1995 All-Star Game",
+    "shortname": "95 All-Star",
+    "career": "0",
+    "playoff": "0",
+    "start_date": "1995-01-15",
+    "end_date": "1995-01-18"
+   }
+  ],
+  "Copyright": {
+   "required_copyright": "Official statistics provided by American Hockey League",
+   "required_link": "http://leaguestat.com",
+   "powered_by": "Powered by HockeyTech.com",
+   "powered_by_url": "http://hockeytech.com"
+  }
+ }
+}

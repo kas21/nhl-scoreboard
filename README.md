@@ -1,7 +1,7 @@
 # nhl-scoreboard
 
 Standalone LED matrix scoreboard for Raspberry Pi. One process, one config
-file, configured from a browser — no broker, no SSH. NHL first; NFL, college football, MLB, weather
+file, configured from a browser — no broker, no SSH. NHL first; NFL, college football, MLB, college hockey, the AHL, weather
 (with watches and warnings), flights and holiday countdowns are bundled extras.
 
 ## Documentation
@@ -62,7 +62,7 @@ scoreboard/
   boards/           board contract + generic boards (clock, splash, blank, test pattern, season countdown)
   output/           matrix (rgbmatrix | RGBMatrixEmulator | null) and the browser preview hub
   web/              FastAPI API + Preact/HTM UI (no build step): dashboard, boards/playlists, settings, wizard, diagnostics
-  nhl/ nfl/ ncaaf/ mlb/   one package per league: API client, normaliser, source, detectors, boards
+  nhl/ nfl/ ncaaf/ mlb/ ncaah/ ahl/   one package per league: API client, normaliser, source, detectors, boards
   extras/           holidays, flights, weather and weather alerts — same plugin contract as the sports
   imagecache.py logos.py  runtime image cache and team logos fetched from ESPN's CDN (no artwork in the repo)
   demo.py           replays tests/fixtures/nhl as a live game

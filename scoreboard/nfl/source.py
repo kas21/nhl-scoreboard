@@ -61,6 +61,10 @@ class NflSource:
         """The games worth showing on the ticker and dashboard (the main event is picked from all of them)."""
         return games
 
+    def _season(self, games: list[dict[str, Any]], today: str) -> dict[str, Any]:
+        """The ``<sport>.season`` record from the slate ESPN hands us."""
+        return _season(games, today, self.sport)
+
     def _check_teams(self, ctx: SourceContext, listed: dict[str, str]) -> None:
         """Called with ESPN's abbreviation -> id map once per standings refresh."""
 
@@ -98,7 +102,7 @@ class NflSource:
                 games = self._scoreboard(await api.scoreboard(), _tz(ctx))      # current week
                 today = _today(ctx)
                 games = sorted(games, key=lambda g: g["start_time_utc"])
-                ctx.publish(_season(games, today, self.sport), subkey="season")
+                ctx.publish(self._season(games, today), subkey="season")
                 slate = self._slate(games, cfg)
                 ctx.publish([g for g in slate if 0 <= _days(today, g["date"]) <= cfg.show_games_within_days], subkey="schedule")
                 upcoming = [g for g in games if g["phase"] != "postgame"]

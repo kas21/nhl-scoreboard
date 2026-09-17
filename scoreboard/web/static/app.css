@@ -66,6 +66,8 @@ details summary { cursor:pointer; font-weight:600; padding:8px 0; }
 .rotation .seg.fam-nfl { --fam:#2fbf71; }
 .rotation .seg.fam-ncaaf { --fam:#c78bff; }
 .rotation .seg.fam-mlb { --fam:#ff7a59; }
+.rotation .seg.fam-ncaah { --fam:#8fb8ff; }
+.rotation .seg.fam-ahl { --fam:#7fd1a8; }
 .rotation .seg.fam-weather { --fam:#37c4d9; }
 .rotation .seg.fam-flights { --fam:#f2c14e; }
 .rotation .seg.fam-holidays { --fam:#ff6fae; }
@@ -134,6 +136,7 @@ input[type=color] { padding:2px; width:52px; height:32px; }
 .dot.starting { background:var(--accent); animation:pulse 2s infinite; }
 .dot.degraded { background:#e0a542; }
 .dot.offline, .dot.crashed { background:var(--err); }
+.dot.disabled { background:var(--muted); opacity:.5; }
 .sources-summary { display:flex; gap:8px; flex-wrap:wrap; }
 .source-chip { display:flex; gap:8px; align-items:center; background:#0e1116; border:1px solid #2a3340; border-radius:8px; padding:6px 12px; color:var(--fg); text-decoration:none; }
 .source-chip:hover { border-color:var(--accent); }

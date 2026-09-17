@@ -1,0 +1,1535 @@
+{
+ "leagues": [
+  {
+   "id": "91",
+   "uid": "s:70~l:91",
+   "name": "NCAA Men's Ice Hockey",
+   "abbreviation": "NCAAH",
+   "slug": "mens-college-hockey",
+   "season": {
+    "year": 2027,
+    "startDate": "2026-09-01T07:00Z",
+    "endDate": "2027-05-01T06:59Z",
+    "displayName": "2026-27",
+    "type": {
+     "id": "2",
+     "type": 2,
+     "name": "Regular Season",
+     "abbreviation": "reg"
+    }
+   },
+   "logos": [
+    {
+     "href": "https://a.espncdn.com/redesign/assets/img/icons/ESPN-icon-hockey.png",
+     "width": 500,
+     "height": 500,
+     "alt": "",
+     "rel": [
+      "full",
+      "default"
+     ],
+     "lastUpdated": "2021-07-12T15:09Z"
+    },
+    {
+     "href": "https://a.espncdn.com/redesign/assets/img/icons/ESPN-icon-hockey.png",
+     "width": 500,
+     "height": 500,
+     "alt": "",
+     "rel": [
+      "full",
+      "dark"
+     ],
+     "lastUpdated": "2021-07-12T15:09Z"
+    }
+   ],
+   "calendarType": "day",
+   "calendarIsWhitelist": true,
+   "calendarStartDate": "2026-09-01T07:00Z",
+   "calendarEndDate": "2027-05-01T06:59Z"
+  }
+ ],
+ "season": {
+  "type": 2,
+  "year": 2027
+ },
+ "day": {
+  "date": "2026-10-02"
+ },
+ "events": [
+  {
+   "id": "401904580",
+   "uid": "s:70~l:91~e:401904580",
+   "date": "2026-10-02T04:00Z",
+   "name": "Bowling Green Falcons at Michigan Wolverines",
+   "shortName": "BGSU @ MICH",
+   "season": {
+    "year": 2027,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401904580",
+     "uid": "s:70~l:91~e:401904580~c:401904580",
+     "date": "2026-10-02T04:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": false,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "130",
+       "uid": "s:70~l:91~t:130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "team": {
+        "id": "130",
+        "uid": "s:70~l:91~t:130",
+        "location": "Michigan",
+        "name": "Wolverines",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "189",
+       "uid": "s:70~l:91~t:189",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "team": {
+        "id": "189",
+        "uid": "s:70~l:91~t:189",
+        "location": "Bowling Green",
+        "name": "Falcons",
+        "abbreviation": "BGSU",
+        "displayName": "Bowling Green Falcons",
+        "shortDisplayName": "Bowling Green",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/189.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "10/2 - TBD",
+       "shortDetail": "TBD"
+      }
+     },
+     "startDate": "2026-10-02T04:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "10/2 - TBD",
+     "shortDetail": "TBD"
+    }
+   }
+  },
+  {
+   "id": "401912409",
+   "uid": "s:70~l:91~e:401912409",
+   "date": "2026-10-02T22:00Z",
+   "name": "Maryville (Mo) Saints at St. Lawrence Saints",
+   "shortName": "MAR @ USL",
+   "season": {
+    "year": 2027,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401912409",
+     "uid": "s:70~l:91~e:401912409~c:401912409",
+     "date": "2026-10-02T22:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "2779",
+       "uid": "s:70~l:91~t:2779",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "team": {
+        "id": "2779",
+        "uid": "s:70~l:91~t:2779",
+        "location": "St. Lawrence",
+        "name": "Saints",
+        "abbreviation": "USL",
+        "displayName": "St. Lawrence Saints",
+        "shortDisplayName": "St. Lawrence",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2779.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "132633",
+       "uid": "s:70~l:91~t:132633",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "team": {
+        "id": "132633",
+        "uid": "s:70~l:91~t:132633",
+        "location": "Maryville (Mo)",
+        "name": "Saints",
+        "abbreviation": "MAR",
+        "displayName": "Maryville (Mo) Saints",
+        "shortDisplayName": "Maryville (Mo)",
+        "isActive": false
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Fri, October 2nd at 6:00 PM EDT",
+       "shortDetail": "10/2 - 6:00 PM EDT"
+      }
+     },
+     "startDate": "2026-10-02T22:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Fri, October 2nd at 6:00 PM EDT",
+     "shortDetail": "10/2 - 6:00 PM EDT"
+    }
+   }
+  },
+  {
+   "id": "401904431",
+   "uid": "s:70~l:91~e:401904431",
+   "date": "2026-10-02T23:00Z",
+   "name": "Maine Black Bears at Holy Cross Crusaders",
+   "shortName": "ME @ HC",
+   "season": {
+    "year": 2027,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401904431",
+     "uid": "s:70~l:91~e:401904431~c:401904431",
+     "date": "2026-10-02T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "107",
+       "uid": "s:70~l:91~t:107",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "team": {
+        "id": "107",
+        "uid": "s:70~l:91~t:107",
+        "location": "Holy Cross",
+        "name": "Crusaders",
+        "abbreviation": "HC",
+        "displayName": "Holy Cross Crusaders",
+        "shortDisplayName": "Holy Cross",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/107.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "311",
+       "uid": "s:70~l:91~t:311",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "team": {
+        "id": "311",
+        "uid": "s:70~l:91~t:311",
+        "location": "Maine",
+        "name": "Black Bears",
+        "abbreviation": "ME",
+        "displayName": "Maine Black Bears",
+        "shortDisplayName": "Maine",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/311.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Fri, October 2nd at 7:00 PM EDT",
+       "shortDetail": "10/2 - 7:00 PM EDT"
+      }
+     },
+     "startDate": "2026-10-02T23:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Fri, October 2nd at 7:00 PM EDT",
+     "shortDetail": "10/2 - 7:00 PM EDT"
+    }
+   }
+  },
+  {
+   "id": "401904456",
+   "uid": "s:70~l:91~e:401904456",
+   "date": "2026-10-02T23:00Z",
+   "name": "RIT Tigers at Niagara Purple Eagles",
+   "shortName": "RIT @ NIA",
+   "season": {
+    "year": 2027,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401904456",
+     "uid": "s:70~l:91~e:401904456~c:401904456",
+     "date": "2026-10-02T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "315",
+       "uid": "s:70~l:91~t:315",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "team": {
+        "id": "315",
+        "uid": "s:70~l:91~t:315",
+        "location": "Niagara",
+        "name": "Purple Eagles",
+        "abbreviation": "NIA",
+        "displayName": "Niagara Purple Eagles",
+        "shortDisplayName": "Niagara",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/315.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "178",
+       "uid": "s:70~l:91~t:178",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "team": {
+        "id": "178",
+        "uid": "s:70~l:91~t:178",
+        "location": "RIT",
+        "name": "Tigers",
+        "abbreviation": "RIT",
+        "displayName": "RIT Tigers",
+        "shortDisplayName": "RIT",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/178.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Fri, October 2nd at 7:00 PM EDT",
+       "shortDetail": "10/2 - 7:00 PM EDT"
+      }
+     },
+     "startDate": "2026-10-02T23:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Fri, October 2nd at 7:00 PM EDT",
+     "shortDetail": "10/2 - 7:00 PM EDT"
+    }
+   }
+  },
+  {
+   "id": "401904792",
+   "uid": "s:70~l:91~e:401904792",
+   "date": "2026-10-02T23:00Z",
+   "name": "New Hampshire Wildcats at Quinnipiac Bobcats",
+   "shortName": "UNH @ QUIN",
+   "season": {
+    "year": 2027,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401904792",
+     "uid": "s:70~l:91~e:401904792~c:401904792",
+     "date": "2026-10-02T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "2514",
+       "uid": "s:70~l:91~t:2514",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "team": {
+        "id": "2514",
+        "uid": "s:70~l:91~t:2514",
+        "location": "Quinnipiac",
+        "name": "Bobcats",
+        "abbreviation": "QUIN",
+        "displayName": "Quinnipiac Bobcats",
+        "shortDisplayName": "Quinnipiac",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2514.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "160",
+       "uid": "s:70~l:91~t:160",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "team": {
+        "id": "160",
+        "uid": "s:70~l:91~t:160",
+        "location": "New Hampshire",
+        "name": "Wildcats",
+        "abbreviation": "UNH",
+        "displayName": "New Hampshire Wildcats",
+        "shortDisplayName": "New Hampshire",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/160.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Fri, October 2nd at 7:00 PM EDT",
+       "shortDetail": "10/2 - 7:00 PM EDT"
+      }
+     },
+     "startDate": "2026-10-02T23:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Fri, October 2nd at 7:00 PM EDT",
+     "shortDetail": "10/2 - 7:00 PM EDT"
+    }
+   }
+  },
+  {
+   "id": "401904403",
+   "uid": "s:70~l:91~e:401904403",
+   "date": "2026-10-02T23:07Z",
+   "name": "Ferris State Bulldogs at Canisius Golden Griffins",
+   "shortName": "FRST @ CAN",
+   "season": {
+    "year": 2027,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401904403",
+     "uid": "s:70~l:91~e:401904403~c:401904403",
+     "date": "2026-10-02T23:07Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "2099",
+       "uid": "s:70~l:91~t:2099",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "team": {
+        "id": "2099",
+        "uid": "s:70~l:91~t:2099",
+        "location": "Canisius",
+        "name": "Golden Griffins",
+        "abbreviation": "CAN",
+        "displayName": "Canisius Golden Griffins",
+        "shortDisplayName": "Canisius",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2099.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "2222",
+       "uid": "s:70~l:91~t:2222",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "team": {
+        "id": "2222",
+        "uid": "s:70~l:91~t:2222",
+        "location": "Ferris State",
+        "name": "Bulldogs",
+        "abbreviation": "FRST",
+        "displayName": "Ferris State Bulldogs",
+        "shortDisplayName": "Ferris State",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2222.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Fri, October 2nd at 7:07 PM EDT",
+       "shortDetail": "10/2 - 7:07 PM EDT"
+      }
+     },
+     "startDate": "2026-10-02T23:07Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Fri, October 2nd at 7:07 PM EDT",
+     "shortDetail": "10/2 - 7:07 PM EDT"
+    }
+   }
+  },
+  {
+   "id": "401904641",
+   "uid": "s:70~l:91~e:401904641",
+   "date": "2026-10-02T23:07Z",
+   "name": "Minnesota Golden Gophers at Michigan Tech Huskies",
+   "shortName": "MINN @ MTU",
+   "season": {
+    "year": 2027,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401904641",
+     "uid": "s:70~l:91~e:401904641~c:401904641",
+     "date": "2026-10-02T23:07Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "2392",
+       "uid": "s:70~l:91~t:2392",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "team": {
+        "id": "2392",
+        "uid": "s:70~l:91~t:2392",
+        "location": "Michigan Tech",
+        "name": "Huskies",
+        "abbreviation": "MTU",
+        "displayName": "Michigan Tech Huskies",
+        "shortDisplayName": "Michigan Tech",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2392.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "135",
+       "uid": "s:70~l:91~t:135",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "team": {
+        "id": "135",
+        "uid": "s:70~l:91~t:135",
+        "location": "Minnesota",
+        "name": "Golden Gophers",
+        "abbreviation": "MINN",
+        "displayName": "Minnesota Golden Gophers",
+        "shortDisplayName": "Minnesota",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/135.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Fri, October 2nd at 7:07 PM EDT",
+       "shortDetail": "10/2 - 7:07 PM EDT"
+      }
+     },
+     "startDate": "2026-10-02T23:07Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Fri, October 2nd at 7:07 PM EDT",
+     "shortDetail": "10/2 - 7:07 PM EDT"
+    }
+   }
+  },
+  {
+   "id": "401904667",
+   "uid": "s:70~l:91~e:401904667",
+   "date": "2026-10-02T23:07Z",
+   "name": "Miami (OH) RedHawks at Northern Michigan Wildcats",
+   "shortName": "M-OH @ NMI",
+   "season": {
+    "year": 2027,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401904667",
+     "uid": "s:70~l:91~e:401904667~c:401904667",
+     "date": "2026-10-02T23:07Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "128",
+       "uid": "s:70~l:91~t:128",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "team": {
+        "id": "128",
+        "uid": "s:70~l:91~t:128",
+        "location": "Northern Michigan",
+        "name": "Wildcats",
+        "abbreviation": "NMI",
+        "displayName": "Northern Michigan Wildcats",
+        "shortDisplayName": "Northern Michigan",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/128.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "193",
+       "uid": "s:70~l:91~t:193",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "team": {
+        "id": "193",
+        "uid": "s:70~l:91~t:193",
+        "location": "Miami (OH)",
+        "name": "RedHawks",
+        "abbreviation": "M-OH",
+        "displayName": "Miami (OH) RedHawks",
+        "shortDisplayName": "Miami (OH)",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/193.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Fri, October 2nd at 7:07 PM EDT",
+       "shortDetail": "10/2 - 7:07 PM EDT"
+      }
+     },
+     "startDate": "2026-10-02T23:07Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Fri, October 2nd at 7:07 PM EDT",
+     "shortDetail": "10/2 - 7:07 PM EDT"
+    }
+   }
+  },
+  {
+   "id": "401904916",
+   "uid": "s:70~l:91~e:401904916",
+   "date": "2026-10-03T00:00Z",
+   "name": "Arizona State Sun Devils at Lindenwood Lions",
+   "shortName": "ASU @ LIN",
+   "season": {
+    "year": 2027,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401904916",
+     "uid": "s:70~l:91~e:401904916~c:401904916",
+     "date": "2026-10-03T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "2815",
+       "uid": "s:70~l:91~t:2815",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "team": {
+        "id": "2815",
+        "uid": "s:70~l:91~t:2815",
+        "location": "Lindenwood",
+        "name": "Lions",
+        "abbreviation": "LIN",
+        "displayName": "Lindenwood Lions",
+        "shortDisplayName": "Lindenwood",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2815.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "9",
+       "uid": "s:70~l:91~t:9",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "team": {
+        "id": "9",
+        "uid": "s:70~l:91~t:9",
+        "location": "Arizona State",
+        "name": "Sun Devils",
+        "abbreviation": "ASU",
+        "displayName": "Arizona State Sun Devils",
+        "shortDisplayName": "Arizona State",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/9.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Fri, October 2nd at 8:00 PM EDT",
+       "shortDetail": "10/2 - 8:00 PM EDT"
+      }
+     },
+     "startDate": "2026-10-03T00:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Fri, October 2nd at 8:00 PM EDT",
+     "shortDetail": "10/2 - 8:00 PM EDT"
+    }
+   }
+  },
+  {
+   "id": "401905039",
+   "uid": "s:70~l:91~e:401905039",
+   "date": "2026-10-03T00:07Z",
+   "name": "Long Island University Long Island University at Minnesota Duluth Bulldogs",
+   "shortName": "LIU @ UMD",
+   "season": {
+    "year": 2027,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401905039",
+     "uid": "s:70~l:91~e:401905039~c:401905039",
+     "date": "2026-10-03T00:07Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "134",
+       "uid": "s:70~l:91~t:134",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "team": {
+        "id": "134",
+        "uid": "s:70~l:91~t:134",
+        "location": "Minnesota Duluth",
+        "name": "Bulldogs",
+        "abbreviation": "UMD",
+        "displayName": "Minnesota Duluth Bulldogs",
+        "shortDisplayName": "Minnesota Duluth",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/134.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "110133",
+       "uid": "s:70~l:91~t:110133",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "team": {
+        "id": "110133",
+        "uid": "s:70~l:91~t:110133",
+        "location": "Long Island University",
+        "name": "Long Island University",
+        "abbreviation": "LIU",
+        "displayName": "Long Island University Long Island University",
+        "shortDisplayName": "Long Island University",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/110133.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Fri, October 2nd at 8:07 PM EDT",
+       "shortDetail": "10/2 - 8:07 PM EDT"
+      }
+     },
+     "startDate": "2026-10-03T00:07Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Fri, October 2nd at 8:07 PM EDT",
+     "shortDetail": "10/2 - 8:07 PM EDT"
+    }
+   }
+  },
+  {
+   "id": "401904766",
+   "uid": "s:70~l:91~e:401904766",
+   "date": "2026-10-03T01:00Z",
+   "name": "Massachusetts Minutemen at Colorado College Tigers",
+   "shortName": "MASS @ COLC",
+   "season": {
+    "year": 2027,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401904766",
+     "uid": "s:70~l:91~e:401904766~c:401904766",
+     "date": "2026-10-03T01:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "2144",
+       "uid": "s:70~l:91~t:2144",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "team": {
+        "id": "2144",
+        "uid": "s:70~l:91~t:2144",
+        "location": "Colorado College",
+        "name": "Tigers",
+        "abbreviation": "COLC",
+        "displayName": "Colorado College Tigers",
+        "shortDisplayName": "Colorado College",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2144.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "113",
+       "uid": "s:70~l:91~t:113",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "team": {
+        "id": "113",
+        "uid": "s:70~l:91~t:113",
+        "location": "Massachusetts",
+        "name": "Minutemen",
+        "abbreviation": "MASS",
+        "displayName": "Massachusetts Minutemen",
+        "shortDisplayName": "Massachusetts",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/113.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Fri, October 2nd at 9:00 PM EDT",
+       "shortDetail": "10/2 - 9:00 PM EDT"
+      }
+     },
+     "startDate": "2026-10-03T01:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Fri, October 2nd at 9:00 PM EDT",
+     "shortDetail": "10/2 - 9:00 PM EDT"
+    }
+   }
+  },
+  {
+   "id": "401913698",
+   "uid": "s:70~l:91~e:401913698",
+   "date": "2026-10-03T01:00Z",
+   "name": "Robert Morris Colonials at Wisconsin Badgers",
+   "shortName": "RMU @ WISC",
+   "season": {
+    "year": 2027,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401913698",
+     "uid": "s:70~l:91~e:401913698~c:401913698",
+     "date": "2026-10-03T01:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "275",
+       "uid": "s:70~l:91~t:275",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "team": {
+        "id": "275",
+        "uid": "s:70~l:91~t:275",
+        "location": "Wisconsin",
+        "name": "Badgers",
+        "abbreviation": "WISC",
+        "displayName": "Wisconsin Badgers",
+        "shortDisplayName": "Wisconsin",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/275.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "2523",
+       "uid": "s:70~l:91~t:2523",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "team": {
+        "id": "2523",
+        "uid": "s:70~l:91~t:2523",
+        "location": "Robert Morris",
+        "name": "Colonials",
+        "abbreviation": "RMU",
+        "displayName": "Robert Morris Colonials",
+        "shortDisplayName": "Robert Morris",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2523.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Fri, October 2nd at 9:00 PM EDT",
+       "shortDetail": "10/2 - 9:00 PM EDT"
+      }
+     },
+     "startDate": "2026-10-03T01:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Fri, October 2nd at 9:00 PM EDT",
+     "shortDetail": "10/2 - 9:00 PM EDT"
+    }
+   }
+  },
+  {
+   "id": "401904860",
+   "uid": "s:70~l:91~e:401904860",
+   "date": "2026-10-03T03:00Z",
+   "name": "Denver Pioneers at Alaska Anchorage Seawolves",
+   "shortName": "DEN @ UAA",
+   "season": {
+    "year": 2027,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401904860",
+     "uid": "s:70~l:91~e:401904860~c:401904860",
+     "date": "2026-10-03T03:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "1",
+       "uid": "s:70~l:91~t:1",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "team": {
+        "id": "1",
+        "uid": "s:70~l:91~t:1",
+        "location": "Alaska Anchorage",
+        "name": "Seawolves",
+        "abbreviation": "UAA",
+        "displayName": "Alaska Anchorage Seawolves",
+        "shortDisplayName": "Alaska Anchorage",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/1.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "2172",
+       "uid": "s:70~l:91~t:2172",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "team": {
+        "id": "2172",
+        "uid": "s:70~l:91~t:2172",
+        "location": "Denver",
+        "name": "Pioneers",
+        "abbreviation": "DEN",
+        "displayName": "Denver Pioneers",
+        "shortDisplayName": "Denver",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2172.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Fri, October 2nd at 11:00 PM EDT",
+       "shortDetail": "10/2 - 11:00 PM EDT"
+      }
+     },
+     "startDate": "2026-10-03T03:00Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Fri, October 2nd at 11:00 PM EDT",
+     "shortDetail": "10/2 - 11:00 PM EDT"
+    }
+   }
+  },
+  {
+   "id": "401904701",
+   "uid": "s:70~l:91~e:401904701",
+   "date": "2026-10-03T03:07Z",
+   "name": "Boston University Terriers at Alaska Bulldogs",
+   "shortName": "BU @ AKFB",
+   "season": {
+    "year": 2027,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "competitions": [
+    {
+     "id": "401904701",
+     "uid": "s:70~l:91~e:401904701~c:401904701",
+     "date": "2026-10-03T03:07Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "abbreviation": "STD"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "playByPlayAvailable": false,
+     "recent": false,
+     "competitors": [
+      {
+       "id": "298",
+       "uid": "s:70~l:91~t:298",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "team": {
+        "id": "298",
+        "uid": "s:70~l:91~t:298",
+        "location": "Alaska",
+        "name": "Bulldogs",
+        "abbreviation": "AKFB",
+        "displayName": "Alaska Bulldogs",
+        "shortDisplayName": "Alaska",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/298.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      },
+      {
+       "id": "104",
+       "uid": "s:70~l:91~t:104",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "team": {
+        "id": "104",
+        "uid": "s:70~l:91~t:104",
+        "location": "Boston University",
+        "name": "Terriers",
+        "abbreviation": "BU",
+        "displayName": "Boston University Terriers",
+        "shortDisplayName": "Boston University",
+        "isActive": true,
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/104.png"
+       },
+       "score": "0",
+       "curatedRank": {
+        "current": 99
+       },
+       "statistics": []
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "1",
+       "name": "STATUS_SCHEDULED",
+       "state": "pre",
+       "completed": false,
+       "description": "Scheduled",
+       "detail": "Fri, October 2nd at 11:07 PM EDT",
+       "shortDetail": "10/2 - 11:07 PM EDT"
+      }
+     },
+     "startDate": "2026-10-03T03:07Z"
+    }
+   ],
+   "status": {
+    "clock": 0.0,
+    "displayClock": "0:00",
+    "period": 0,
+    "type": {
+     "id": "1",
+     "name": "STATUS_SCHEDULED",
+     "state": "pre",
+     "completed": false,
+     "description": "Scheduled",
+     "detail": "Fri, October 2nd at 11:07 PM EDT",
+     "shortDetail": "10/2 - 11:07 PM EDT"
+    }
+   }
+  }
+ ],
+ "provider": {
+  "id": "100",
+  "name": "Draft Kings",
+  "displayName": "Draft Kings",
+  "priority": 1
+ }
+}

@@ -16,6 +16,24 @@ from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from scoreboard.ahl.api import _decode as ahl_decode
+from scoreboard.ahl.boards.game import AhlGameBoard, AhlGameConfig
+from scoreboard.ahl.boards.others import (
+    AhlGoalBoard,
+    AhlGoalConfig,
+    AhlPenaltyBoard,
+    AhlPenaltyConfig,
+    AhlStandingsBoard,
+    AhlStandingsConfig,
+    AhlTeamSummaryBoard,
+    AhlTickerBoard,
+)
+from scoreboard.ahl.normalize import enrich_from_summary as ahl_enrich
+from scoreboard.ahl.normalize import normalize_game as ahl_game
+from scoreboard.ahl.normalize import normalize_scorebar as ahl_scorebar
+from scoreboard.ahl.normalize import normalize_standings as ahl_standings
+from scoreboard.ahl.normalize import season_types as ahl_season_types
+from scoreboard.ahl.normalize import team_summary as ahl_team_summary
 from scoreboard.boards.base import BaseBoard, BoardContext, EmptyConfig
 from scoreboard.boards.blank import BlankBoard
 from scoreboard.boards.clock import ClockBoard, ClockConfig
@@ -63,6 +81,16 @@ from scoreboard.ncaaf.boards.others import (
 from scoreboard.ncaaf.normalize import normalize_scoreboard as ncaaf_scoreboard
 from scoreboard.ncaaf.normalize import normalize_standings as ncaaf_standings
 from scoreboard.ncaaf.normalize import team_summary as ncaaf_team_summary
+from scoreboard.ncaah.boards.game import NcaahGameBoard, NcaahGameConfig
+from scoreboard.ncaah.boards.others import (
+    NcaahGoalBoard,
+    NcaahGoalConfig,
+    NcaahTeamSummaryBoard,
+    NcaahTickerBoard,
+)
+from scoreboard.ncaah.normalize import normalize_game as ncaah_game
+from scoreboard.ncaah.normalize import normalize_scoreboard as ncaah_scoreboard
+from scoreboard.ncaah.normalize import team_summary as ncaah_team_summary
 from scoreboard.nfl.boards.game import NflGameBoard, NflGameConfig
 from scoreboard.nfl.boards.others import (
     NflScoreBoard,
@@ -263,6 +291,99 @@ def mlb_scenes() -> list[Scene]:
     ]
 
 
+# -- College hockey ---------------------------------------------------------------
+
+
+def ncaah_scenes() -> list[Scene]:
+    """Real ESPN captures: the 2026-01-10 slate (all finals) and Michigan's 2025-26 schedule; the live
+    game is the ND @ MICH final wound back to the second period, with goalie statistics for the shots."""
+    records = {"MICH": "16-3-1", "ND": "8-10-2"}
+    payload = _load("ncaah", "espn_scoreboard_2026-01-10.json")
+    games = ncaah_scoreboard(payload, records)
+    raw = next(e for e in payload["events"] if e["shortName"] == "ND @ MICH")
+    comp = raw["competitions"][0]
+    comp["status"] = {"period": 2, "displayClock": "12:34", "type": {"state": "in", "name": "STATUS_IN_PROGRESS", "shortDetail": "12:34 - 2nd"}}
+    for c in comp["competitors"]:
+        c["score"] = "2" if c["homeAway"] == "home" else "1"
+        c["curatedRank"] = {"current": 3 if c["homeAway"] == "home" else 99}
+        c["statistics"] = [{"name": "saves", "displayValue": "11" if c["homeAway"] == "home" else "18"}]
+    live = {**ncaah_game(raw, records), "favorite_side": "home"}
+    final = {**next(g for g in games if g["home"]["abbrev"] == "MICH"), "favorite_side": "home"}
+    pre = {**ncaah_scoreboard(_load("ncaah", "espn_scoreboard_upcoming.json"), records)[0], "favorite_side": "home"}
+    store = SnapshotStore()
+    store.publish("ncaah.scores", games)
+    store.publish("ncaah.team_summary", {"MICH": ncaah_team_summary("MICH", _load("ncaah", "espn_schedule_MICH_2025-26.json"), "2026-04-12")})
+    now = datetime(2026, 1, 10, 21, 30, tzinfo=TORONTO)
+
+    def with_game(game: dict[str, Any]) -> Snapshot:
+        return store.publish("main_event", game)
+
+    goal = {"team": "MICH", "period": 2, "time": "07:26", "scorer": "T.J. Hughes", "first_name": "T.J.", "last_name": "Hughes",
+            "goals_to_date": 12, "strength": "ev", "assists": ["Michael Hage", "Will Horcoff"], "away_score": 1, "home_score": 2}
+    fav_goal = Event("ncaah.goal", team="MICH", payload={"side": "home", "game": live, "score": "1-2", "goal": goal})
+    opp_goal = Event("ncaah.goal", team="ND", payload={"side": "away", "game": live, "score": "1-2", "goal": None})
+    cfg = NcaahGoalConfig()
+    return [
+        Scene("ncaah.game/pregame", NcaahGameBoard(), NcaahGameConfig(), with_game(pre), now, 2.0, sizes=ALL_SIZES),
+        Scene("ncaah.game/live", NcaahGameBoard(), NcaahGameConfig(), with_game(live), now, 3.0, sizes=ALL_SIZES),
+        Scene("ncaah.game/final", NcaahGameBoard(), NcaahGameConfig(), with_game(final), now, 2.0, sizes=ALL_SIZES),
+        Scene("ncaah.ticker/slate", NcaahTickerBoard(), TickerConfig(), with_game(final), now, 2.0),
+        Scene("ncaah.team_summary/mich", NcaahTeamSummaryBoard(), TeamSummaryConfig(), with_game(final), now, 2.0),
+        Scene("ncaah.goal/favorite", NcaahGoalBoard(), cfg, with_game(live), now, 2.0, event=fav_goal),
+        Scene("ncaah.goal/summary", NcaahGoalBoard(), cfg, with_game(live), now, cfg.duration + 1.0, event=fav_goal, sizes=((128, 64),)),
+        Scene("ncaah.goal/who_cares", NcaahGoalBoard(), cfg, with_game(live), now, 1.5, event=opp_goal),
+    ]
+
+
+# -- AHL ----------------------------------------------------------------------------
+
+
+def ahl_scenes() -> list[Scene]:
+    """Real HockeyTech captures (tests/fixtures/ahl/README.md); the live game is the CLT @ ABB
+    summary with the score bar wound back to the first period, inside a Charlotte minor."""
+    seasons = _load("ahl", "seasons.json")["SiteKit"]
+    types = ahl_season_types(seasons)
+    games = ahl_scorebar(_load("ahl", "scorebar.json")["SiteKit"], types)
+    st = ahl_standings(ahl_decode(FIXTURES.joinpath("ahl", "standings_2025-26.json").read_text()))
+    summary = _load("ahl", "gamesummary_1027771.json")["GC"]["Gamesummary"]
+    row = {"ID": "1027771", "SeasonID": "88", "game_letter": "V", "Date": "2025-06-21", "GameDateISO8601": "2025-06-21T18:00:00-07:00",
+           "HomeID": "440", "HomeCode": "ABB", "HomeNickname": "Canucks", "HomeCity": "Abbotsford", "HomeGoals": "1",
+           "VisitorID": "384", "VisitorCode": "CLT", "VisitorNickname": "Checkers", "VisitorCity": "Charlotte", "VisitorGoals": "1",
+           "HomeWins": "3", "HomeRegulationLosses": "1", "HomeOTLosses": "0", "HomeShootoutLosses": "0",
+           "VisitorWins": "1", "VisitorRegulationLosses": "3", "VisitorOTLosses": "0", "VisitorShootoutLosses": "0",
+           "Period": "1", "PeriodNameShort": "1", "GameClock": "05:30", "GameStatus": "2", "Intermission": "0", "GameStatusString": "1st 05:30"}
+    live = {**ahl_enrich(ahl_game(row, types), summary), "favorite_side": "home"}
+    final = {**next(g for g in games if g["outcome"] == "FINAL/OT"), "favorite_side": "home"}
+    pre = {**next(g for g in games if g["phase"] == "pregame" and g["type"] == 2), "favorite_side": "home"}
+    store = SnapshotStore()
+    store.publish("ahl.scores", games)
+    store.publish("ahl.standings", st)
+    store.publish("ahl.season", {"sport": "ahl", "phase": "regular", "standings_final": False})
+    store.publish("ahl.team_summary", {"ABB": ahl_team_summary("ABB", st, _load("ahl", "schedule_ABB.json")["SiteKit"], "2026-09-17")})
+    now = datetime(2026, 4, 19, 16, 30, tzinfo=TORONTO)
+
+    def with_game(game: dict[str, Any]) -> Snapshot:
+        return store.publish("main_event", game)
+
+    fav_goal = Event("ahl.goal", team="ABB", payload={"side": "home", "game": live, "score": "1-1", "goal": live["goals"][1]})
+    opp_goal = Event("ahl.goal", team="CLT", payload={"side": "away", "game": live, "score": "1-1", "goal": live["goals"][0]})
+    penalty = Event("ahl.penalty", team="CLT", payload={"penalty": live["penalties"][0], "game": live})
+    cfg = AhlGoalConfig()
+    return [
+        Scene("ahl.game/pregame", AhlGameBoard(), AhlGameConfig(), with_game(pre), now, 2.0, sizes=ALL_SIZES),
+        Scene("ahl.game/live", AhlGameBoard(), AhlGameConfig(), with_game(live), now, 3.0, sizes=ALL_SIZES),
+        Scene("ahl.game/final", AhlGameBoard(), AhlGameConfig(), with_game(final), now, 2.0, sizes=ALL_SIZES),
+        Scene("ahl.ticker/slate", AhlTickerBoard(), TickerConfig(), with_game(final), now, 2.0),
+        Scene("ahl.standings/division", AhlStandingsBoard(), AhlStandingsConfig(), with_game(final), now, 3.0),
+        Scene("ahl.standings/conference", AhlStandingsBoard(), AhlStandingsConfig(view="wildcard"), with_game(final), now, 3.0, sizes=((128, 64),)),
+        Scene("ahl.team_summary/abb", AhlTeamSummaryBoard(), TeamSummaryConfig(), with_game(final), now, 2.0),
+        Scene("ahl.goal/favorite", AhlGoalBoard(), cfg, with_game(live), now, 2.0, event=fav_goal),
+        Scene("ahl.goal/summary", AhlGoalBoard(), cfg, with_game(live), now, cfg.duration + 1.0, event=fav_goal, sizes=((128, 64),)),
+        Scene("ahl.goal/who_cares", AhlGoalBoard(), cfg, with_game(live), now, cfg.summary_duration + 1.5, event=opp_goal),
+        Scene("ahl.penalty/live", AhlPenaltyBoard(), AhlPenaltyConfig(), with_game(live), now, 1.0, event=penalty),
+    ]
+
+
 # -- extras -----------------------------------------------------------------------
 
 
@@ -328,4 +449,5 @@ def generic_scenes() -> list[Scene]:
 
 
 def all_scenes() -> list[Scene]:
-    return [*generic_scenes(), *nhl_scenes(), *nfl_scenes(), *ncaaf_scenes(), *mlb_scenes(), *extras_scenes()]
+    return [*generic_scenes(), *nhl_scenes(), *nfl_scenes(), *ncaaf_scenes(), *mlb_scenes(), *ncaah_scenes(), *ahl_scenes(),
+            *extras_scenes()]

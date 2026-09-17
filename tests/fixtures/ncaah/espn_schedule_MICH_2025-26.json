@@ -1,0 +1,4566 @@
+{
+ "timestamp": "2026-09-17T15:07:31Z",
+ "status": "success",
+ "season": {
+  "year": 2027,
+  "type": 2,
+  "name": "Regular Season",
+  "displayName": "2026-27",
+  "half": 1
+ },
+ "team": {
+  "id": "130",
+  "abbreviation": "MICH",
+  "location": "Michigan",
+  "name": "Wolverines",
+  "displayName": "Michigan Wolverines",
+  "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/130.png",
+  "seasonSummary": "2026-27",
+  "groups": {
+   "id": "62",
+   "parent": {
+    "id": "51"
+   },
+   "isConference": true
+  }
+ },
+ "events": [
+  {
+   "id": "401821838",
+   "date": "2025-10-03T23:00Z",
+   "name": "Mercyhurst Lakers at Michigan Wolverines",
+   "shortName": "MERC @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821838",
+     "date": "2025-10-03T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 11.0,
+        "displayValue": "11"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 12
+       }
+      },
+      {
+       "id": "2385",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "2385",
+        "location": "Mercyhurst",
+        "nickname": "Mercyhurst",
+        "abbreviation": "MERC",
+        "displayName": "Mercyhurst Lakers",
+        "shortDisplayName": "Mercyhurst"
+       },
+       "score": {
+        "value": 1.0,
+        "displayValue": "1"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 99
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821839",
+   "date": "2025-10-04T23:00Z",
+   "name": "Mercyhurst Lakers at Michigan Wolverines",
+   "shortName": "MERC @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821839",
+     "date": "2025-10-04T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 7.0,
+        "displayValue": "7"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 12
+       }
+      },
+      {
+       "id": "2385",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "2385",
+        "location": "Mercyhurst",
+        "nickname": "Mercyhurst",
+        "abbreviation": "MERC",
+        "displayName": "Mercyhurst Lakers",
+        "shortDisplayName": "Mercyhurst"
+       },
+       "score": {
+        "value": 0.0,
+        "displayValue": "0"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 99
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821237",
+   "date": "2025-10-10T23:00Z",
+   "name": "Michigan Wolverines at Providence Friars",
+   "shortName": "MICH @ PROV",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821237",
+     "date": "2025-10-10T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "2507",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "2507",
+        "location": "Providence",
+        "nickname": "Providence",
+        "abbreviation": "PROV",
+        "displayName": "Providence Friars",
+        "shortDisplayName": "Providence"
+       },
+       "score": {
+        "value": 1.0,
+        "displayValue": "1"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 6
+       }
+      },
+      {
+       "id": "130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 5.0,
+        "displayValue": "5"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 7
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821238",
+   "date": "2025-10-11T23:00Z",
+   "name": "Michigan Wolverines at Providence Friars",
+   "shortName": "MICH @ PROV",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821238",
+     "date": "2025-10-11T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "2507",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "2507",
+        "location": "Providence",
+        "nickname": "Providence",
+        "abbreviation": "PROV",
+        "displayName": "Providence Friars",
+        "shortDisplayName": "Providence"
+       },
+       "score": {
+        "value": 1.0,
+        "displayValue": "1"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 6
+       }
+      },
+      {
+       "id": "130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 3.0,
+        "displayValue": "3"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 7
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821840",
+   "date": "2025-10-16T23:00Z",
+   "name": "Robert Morris Colonials at Michigan Wolverines",
+   "shortName": "RMU @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821840",
+     "date": "2025-10-16T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 4.0,
+        "displayValue": "4"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 3
+       }
+      },
+      {
+       "id": "2523",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "2523",
+        "location": "Robert Morris",
+        "nickname": "Robert Morris",
+        "abbreviation": "RMU",
+        "displayName": "Robert Morris Colonials",
+        "shortDisplayName": "Robert Morris"
+       },
+       "score": {
+        "value": 2.0,
+        "displayValue": "2"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 99
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821841",
+   "date": "2025-10-17T23:00Z",
+   "name": "Robert Morris Colonials at Michigan Wolverines",
+   "shortName": "RMU @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821841",
+     "date": "2025-10-17T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 10.0,
+        "displayValue": "10"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 3
+       }
+      },
+      {
+       "id": "2523",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "2523",
+        "location": "Robert Morris",
+        "nickname": "Robert Morris",
+        "abbreviation": "RMU",
+        "displayName": "Robert Morris Colonials",
+        "shortDisplayName": "Robert Morris"
+       },
+       "score": {
+        "value": 2.0,
+        "displayValue": "2"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 99
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821720",
+   "date": "2025-10-23T23:00Z",
+   "name": "Western Michigan Broncos at Michigan Wolverines",
+   "shortName": "WMU @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821720",
+     "date": "2025-10-23T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 4.0,
+        "displayValue": "4"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 3
+       }
+      },
+      {
+       "id": "2711",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "2711",
+        "location": "Western Michigan",
+        "nickname": "Western Michigan",
+        "abbreviation": "WMU",
+        "displayName": "Western Michigan Broncos",
+        "shortDisplayName": "Western Michigan"
+       },
+       "score": {
+        "value": 0.0,
+        "displayValue": "0"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 2
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821721",
+   "date": "2025-10-24T23:00Z",
+   "name": "Michigan Wolverines at Western Michigan Broncos",
+   "shortName": "MICH @ WMU",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821721",
+     "date": "2025-10-24T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "2711",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "2711",
+        "location": "Western Michigan",
+        "nickname": "Western Michigan",
+        "abbreviation": "WMU",
+        "displayName": "Western Michigan Broncos",
+        "shortDisplayName": "Western Michigan"
+       },
+       "score": {
+        "value": 5.0,
+        "displayValue": "5"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 2
+       }
+      },
+      {
+       "id": "130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 2.0,
+        "displayValue": "2"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 3
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821842",
+   "date": "2025-10-31T23:00Z",
+   "name": "Michigan Wolverines at Notre Dame Fighting Irish",
+   "shortName": "MICH @ ND",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821842",
+     "date": "2025-10-31T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "87",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "87",
+        "location": "Notre Dame",
+        "nickname": "Notre Dame",
+        "abbreviation": "ND",
+        "displayName": "Notre Dame Fighting Irish",
+        "shortDisplayName": "Notre Dame"
+       },
+       "score": {
+        "value": 3.0,
+        "displayValue": "3"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 99
+       }
+      },
+      {
+       "id": "130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 5.0,
+        "displayValue": "5"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 2
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821843",
+   "date": "2025-11-01T22:00Z",
+   "name": "Michigan Wolverines at Notre Dame Fighting Irish",
+   "shortName": "MICH @ ND",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821843",
+     "date": "2025-11-01T22:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "87",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "87",
+        "location": "Notre Dame",
+        "nickname": "Notre Dame",
+        "abbreviation": "ND",
+        "displayName": "Notre Dame Fighting Irish",
+        "shortDisplayName": "Notre Dame"
+       },
+       "score": {
+        "value": 1.0,
+        "displayValue": "1"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 99
+       }
+      },
+      {
+       "id": "130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 2.0,
+        "displayValue": "2"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 2
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 4,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final/OT",
+       "shortDetail": "Final/OT",
+       "altDetail": "OT"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821844",
+   "date": "2025-11-08T00:00Z",
+   "name": "Wisconsin Badgers at Michigan Wolverines",
+   "shortName": "WISC @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821844",
+     "date": "2025-11-08T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 7.0,
+        "displayValue": "7"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 2
+       }
+      },
+      {
+       "id": "275",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "275",
+        "location": "Wisconsin",
+        "nickname": "Wisconsin",
+        "abbreviation": "WISC",
+        "displayName": "Wisconsin Badgers",
+        "shortDisplayName": "Wisconsin"
+       },
+       "score": {
+        "value": 4.0,
+        "displayValue": "4"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 9
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821845",
+   "date": "2025-11-09T01:00Z",
+   "name": "Wisconsin Badgers at Michigan Wolverines",
+   "shortName": "WISC @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821845",
+     "date": "2025-11-09T01:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 1.0,
+        "displayValue": "1"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 2
+       }
+      },
+      {
+       "id": "275",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "275",
+        "location": "Wisconsin",
+        "nickname": "Wisconsin",
+        "abbreviation": "WISC",
+        "displayName": "Wisconsin Badgers",
+        "shortDisplayName": "Wisconsin"
+       },
+       "score": {
+        "value": 6.0,
+        "displayValue": "6"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 9
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821846",
+   "date": "2025-11-15T00:00Z",
+   "name": "Michigan Wolverines at Penn State Nittany Lions",
+   "shortName": "MICH @ PSU",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821846",
+     "date": "2025-11-15T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "213",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "213",
+        "location": "Penn State",
+        "nickname": "Penn State",
+        "abbreviation": "PSU",
+        "displayName": "Penn State Nittany Lions",
+        "shortDisplayName": "Penn State"
+       },
+       "score": {
+        "value": 1.0,
+        "displayValue": "1"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 5
+       }
+      },
+      {
+       "id": "130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 7.0,
+        "displayValue": "7"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 2
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821847",
+   "date": "2025-11-15T23:00Z",
+   "name": "Michigan Wolverines at Penn State Nittany Lions",
+   "shortName": "MICH @ PSU",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821847",
+     "date": "2025-11-15T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "213",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "213",
+        "location": "Penn State",
+        "nickname": "Penn State",
+        "abbreviation": "PSU",
+        "displayName": "Penn State Nittany Lions",
+        "shortDisplayName": "Penn State"
+       },
+       "score": {
+        "value": 4.0,
+        "displayValue": "4"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 5
+       }
+      },
+      {
+       "id": "130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 2.0,
+        "displayValue": "2"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 2
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821848",
+   "date": "2025-11-22T00:00Z",
+   "name": "Ohio State Buckeyes at Michigan Wolverines",
+   "shortName": "OSU @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821848",
+     "date": "2025-11-22T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 5.0,
+        "displayValue": "5"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 2
+       }
+      },
+      {
+       "id": "194",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "194",
+        "location": "Ohio State",
+        "nickname": "Ohio State",
+        "abbreviation": "OSU",
+        "displayName": "Ohio State Buckeyes",
+        "shortDisplayName": "Ohio State"
+       },
+       "score": {
+        "value": 2.0,
+        "displayValue": "2"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 99
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821849",
+   "date": "2025-11-23T00:00Z",
+   "name": "Ohio State Buckeyes at Michigan Wolverines",
+   "shortName": "OSU @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821849",
+     "date": "2025-11-23T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 8.0,
+        "displayValue": "8"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 2
+       }
+      },
+      {
+       "id": "194",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "194",
+        "location": "Ohio State",
+        "nickname": "Ohio State",
+        "abbreviation": "OSU",
+        "displayName": "Ohio State Buckeyes",
+        "shortDisplayName": "Ohio State"
+       },
+       "score": {
+        "value": 1.0,
+        "displayValue": "1"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 99
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821829",
+   "date": "2025-11-29T00:00Z",
+   "name": "Michigan Wolverines at Harvard Crimson",
+   "shortName": "MICH @ HARV",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821829",
+     "date": "2025-11-29T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "108",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "108",
+        "location": "Harvard",
+        "nickname": "Harvard",
+        "abbreviation": "HARV",
+        "displayName": "Harvard Crimson",
+        "shortDisplayName": "Harvard"
+       },
+       "score": {
+        "value": 1.0,
+        "displayValue": "1"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 18
+       }
+      },
+      {
+       "id": "130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 5.0,
+        "displayValue": "5"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 1
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821830",
+   "date": "2025-11-30T00:00Z",
+   "name": "Michigan Wolverines at Harvard Crimson",
+   "shortName": "MICH @ HARV",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821830",
+     "date": "2025-11-30T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "108",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "108",
+        "location": "Harvard",
+        "nickname": "Harvard",
+        "abbreviation": "HARV",
+        "displayName": "Harvard Crimson",
+        "shortDisplayName": "Harvard"
+       },
+       "score": {
+        "value": 3.0,
+        "displayValue": "3"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 18
+       }
+      },
+      {
+       "id": "130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 4.0,
+        "displayValue": "4"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 1
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 4,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final/OT",
+       "shortDetail": "Final/OT",
+       "altDetail": "OT"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821850",
+   "date": "2025-12-06T01:30Z",
+   "name": "Michigan Wolverines at Michigan State Spartans",
+   "shortName": "MICH @ MSU",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821850",
+     "date": "2025-12-06T01:30Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "127",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "127",
+        "location": "Michigan State",
+        "nickname": "Michigan State",
+        "abbreviation": "MSU",
+        "displayName": "Michigan State Spartans",
+        "shortDisplayName": "Michigan State"
+       },
+       "score": {
+        "value": 0.0,
+        "displayValue": "0"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 3
+       }
+      },
+      {
+       "id": "130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 0.0,
+        "displayValue": "0"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 1
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 0,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821851",
+   "date": "2025-12-07T00:00Z",
+   "name": "Michigan State Spartans at Michigan Wolverines",
+   "shortName": "MSU @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821851",
+     "date": "2025-12-07T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 1.0,
+        "displayValue": "1"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 1
+       }
+      },
+      {
+       "id": "127",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "127",
+        "location": "Michigan State",
+        "nickname": "Michigan State",
+        "abbreviation": "MSU",
+        "displayName": "Michigan State Spartans",
+        "shortDisplayName": "Michigan State"
+       },
+       "score": {
+        "value": 3.0,
+        "displayValue": "3"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 3
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821852",
+   "date": "2026-01-10T00:00Z",
+   "name": "Notre Dame Fighting Irish at Michigan Wolverines",
+   "shortName": "ND @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821852",
+     "date": "2026-01-10T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 5.0,
+        "displayValue": "5"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 1
+       }
+      },
+      {
+       "id": "87",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "87",
+        "location": "Notre Dame",
+        "nickname": "Notre Dame",
+        "abbreviation": "ND",
+        "displayName": "Notre Dame Fighting Irish",
+        "shortDisplayName": "Notre Dame"
+       },
+       "score": {
+        "value": 2.0,
+        "displayValue": "2"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 99
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821853",
+   "date": "2026-01-11T00:00Z",
+   "name": "Notre Dame Fighting Irish at Michigan Wolverines",
+   "shortName": "ND @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821853",
+     "date": "2026-01-11T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 7.0,
+        "displayValue": "7"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 1
+       }
+      },
+      {
+       "id": "87",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "87",
+        "location": "Notre Dame",
+        "nickname": "Notre Dame",
+        "abbreviation": "ND",
+        "displayName": "Notre Dame Fighting Irish",
+        "shortDisplayName": "Notre Dame"
+       },
+       "score": {
+        "value": 4.0,
+        "displayValue": "4"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 99
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821854",
+   "date": "2026-01-17T01:00Z",
+   "name": "Michigan Wolverines at Minnesota Golden Gophers",
+   "shortName": "MICH @ MINN",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821854",
+     "date": "2026-01-17T01:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "135",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "135",
+        "location": "Minnesota",
+        "nickname": "Minnesota",
+        "abbreviation": "MINN",
+        "displayName": "Minnesota Golden Gophers",
+        "shortDisplayName": "Minnesota"
+       },
+       "score": {
+        "value": 1.0,
+        "displayValue": "1"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 99
+       }
+      },
+      {
+       "id": "130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 5.0,
+        "displayValue": "5"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 1
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821855",
+   "date": "2026-01-18T00:00Z",
+   "name": "Michigan Wolverines at Minnesota Golden Gophers",
+   "shortName": "MICH @ MINN",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821855",
+     "date": "2026-01-18T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "135",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "135",
+        "location": "Minnesota",
+        "nickname": "Minnesota",
+        "abbreviation": "MINN",
+        "displayName": "Minnesota Golden Gophers",
+        "shortDisplayName": "Minnesota"
+       },
+       "score": {
+        "value": 2.0,
+        "displayValue": "2"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 99
+       }
+      },
+      {
+       "id": "130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 3.0,
+        "displayValue": "3"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 1
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 4,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final/OT",
+       "shortDetail": "Final/OT",
+       "altDetail": "OT"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821856",
+   "date": "2026-01-30T23:30Z",
+   "name": "Michigan Wolverines at Ohio State Buckeyes",
+   "shortName": "MICH @ OSU",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821856",
+     "date": "2026-01-30T23:30Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "194",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "194",
+        "location": "Ohio State",
+        "nickname": "Ohio State",
+        "abbreviation": "OSU",
+        "displayName": "Ohio State Buckeyes",
+        "shortDisplayName": "Ohio State"
+       },
+       "score": {
+        "value": 4.0,
+        "displayValue": "4"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 99
+       }
+      },
+      {
+       "id": "130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 6.0,
+        "displayValue": "6"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 1
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821857",
+   "date": "2026-01-31T22:00Z",
+   "name": "Michigan Wolverines at Ohio State Buckeyes",
+   "shortName": "MICH @ OSU",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821857",
+     "date": "2026-01-31T22:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "194",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "194",
+        "location": "Ohio State",
+        "nickname": "Ohio State",
+        "abbreviation": "OSU",
+        "displayName": "Ohio State Buckeyes",
+        "shortDisplayName": "Ohio State"
+       },
+       "score": {
+        "value": 2.0,
+        "displayValue": "2"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 99
+       }
+      },
+      {
+       "id": "130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 3.0,
+        "displayValue": "3"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 1
+       }
+      }
+     ],
+     "status": {
+      "clock": 130.0,
+      "displayClock": "2:10",
+      "period": 4,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final/OT",
+       "shortDetail": "Final/OT",
+       "altDetail": "OT"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821858",
+   "date": "2026-02-07T00:00Z",
+   "name": "Michigan State Spartans at Michigan Wolverines",
+   "shortName": "MSU @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821858",
+     "date": "2026-02-07T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 4.0,
+        "displayValue": "4"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 1
+       }
+      },
+      {
+       "id": "127",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "127",
+        "location": "Michigan State",
+        "nickname": "Michigan State",
+        "abbreviation": "MSU",
+        "displayName": "Michigan State Spartans",
+        "shortDisplayName": "Michigan State"
+       },
+       "score": {
+        "value": 3.0,
+        "displayValue": "3"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 2
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 4,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final/OT",
+       "shortDetail": "Final/OT",
+       "altDetail": "OT"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821859",
+   "date": "2026-02-07T23:30Z",
+   "name": "Michigan Wolverines at Michigan State Spartans",
+   "shortName": "MICH @ MSU",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821859",
+     "date": "2026-02-07T23:30Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "127",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "127",
+        "location": "Michigan State",
+        "nickname": "Michigan State",
+        "abbreviation": "MSU",
+        "displayName": "Michigan State Spartans",
+        "shortDisplayName": "Michigan State"
+       },
+       "score": {
+        "value": 5.0,
+        "displayValue": "5"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 2
+       }
+      },
+      {
+       "id": "130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 2.0,
+        "displayValue": "2"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 1
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821860",
+   "date": "2026-02-13T23:30Z",
+   "name": "Penn State Nittany Lions at Michigan Wolverines",
+   "shortName": "PSU @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821860",
+     "date": "2026-02-13T23:30Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 4.0,
+        "displayValue": "4"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 2
+       }
+      },
+      {
+       "id": "213",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "213",
+        "location": "Penn State",
+        "nickname": "Penn State",
+        "abbreviation": "PSU",
+        "displayName": "Penn State Nittany Lions",
+        "shortDisplayName": "Penn State"
+       },
+       "score": {
+        "value": 4.0,
+        "displayValue": "4"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 6
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 4,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final/OT",
+       "shortDetail": "Final/OT",
+       "altDetail": "OT"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821861",
+   "date": "2026-02-14T22:00Z",
+   "name": "Penn State Nittany Lions at Michigan Wolverines",
+   "shortName": "PSU @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821861",
+     "date": "2026-02-14T22:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 6.0,
+        "displayValue": "6"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 2
+       }
+      },
+      {
+       "id": "213",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "213",
+        "location": "Penn State",
+        "nickname": "Penn State",
+        "abbreviation": "PSU",
+        "displayName": "Penn State Nittany Lions",
+        "shortDisplayName": "Penn State"
+       },
+       "score": {
+        "value": 3.0,
+        "displayValue": "3"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 6
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821862",
+   "date": "2026-02-21T01:00Z",
+   "name": "Michigan Wolverines at Wisconsin Badgers",
+   "shortName": "MICH @ WISC",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821862",
+     "date": "2026-02-21T01:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "275",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "275",
+        "location": "Wisconsin",
+        "nickname": "Wisconsin",
+        "abbreviation": "WISC",
+        "displayName": "Wisconsin Badgers",
+        "shortDisplayName": "Wisconsin"
+       },
+       "score": {
+        "value": 4.0,
+        "displayValue": "4"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 13
+       }
+      },
+      {
+       "id": "130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 1.0,
+        "displayValue": "1"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 2
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821863",
+   "date": "2026-02-22T00:00Z",
+   "name": "Michigan Wolverines at Wisconsin Badgers",
+   "shortName": "MICH @ WISC",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821863",
+     "date": "2026-02-22T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "275",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "275",
+        "location": "Wisconsin",
+        "nickname": "Wisconsin",
+        "abbreviation": "WISC",
+        "displayName": "Wisconsin Badgers",
+        "shortDisplayName": "Wisconsin"
+       },
+       "score": {
+        "value": 1.0,
+        "displayValue": "1"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 13
+       }
+      },
+      {
+       "id": "130",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 3.0,
+        "displayValue": "3"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 2
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821864",
+   "date": "2026-02-26T23:30Z",
+   "name": "Minnesota Golden Gophers at Michigan Wolverines",
+   "shortName": "MINN @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821864",
+     "date": "2026-02-26T23:30Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 2.0,
+        "displayValue": "2"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 2
+       }
+      },
+      {
+       "id": "135",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "135",
+        "location": "Minnesota",
+        "nickname": "Minnesota",
+        "abbreviation": "MINN",
+        "displayName": "Minnesota Golden Gophers",
+        "shortDisplayName": "Minnesota"
+       },
+       "score": {
+        "value": 4.0,
+        "displayValue": "4"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 99
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401821865",
+   "date": "2026-02-27T23:00Z",
+   "name": "Minnesota Golden Gophers at Michigan Wolverines",
+   "shortName": "MINN @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401821865",
+     "date": "2026-02-27T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "1",
+      "text": "Standard",
+      "abbreviation": "STD",
+      "slug": "standard",
+      "type": "standard"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 4.0,
+        "displayValue": "4"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 2
+       }
+      },
+      {
+       "id": "135",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "135",
+        "location": "Minnesota",
+        "nickname": "Minnesota",
+        "abbreviation": "MINN",
+        "displayName": "Minnesota Golden Gophers",
+        "shortDisplayName": "Minnesota"
+       },
+       "score": {
+        "value": 2.0,
+        "displayValue": "2"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 99
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401859748",
+   "date": "2026-03-11T23:00Z",
+   "name": "Notre Dame Fighting Irish at Michigan Wolverines",
+   "shortName": "ND @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401859748",
+     "date": "2026-03-11T23:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "9",
+      "text": "Qualifier Round Robin",
+      "abbreviation": "QRR",
+      "slug": "qualifier-round-robin",
+      "type": "qualifier-round-robin"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 6.0,
+        "displayValue": "6"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 1
+       }
+      },
+      {
+       "id": "87",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "87",
+        "location": "Notre Dame",
+        "nickname": "Notre Dame",
+        "abbreviation": "ND",
+        "displayName": "Notre Dame Fighting Irish",
+        "shortDisplayName": "Notre Dame"
+       },
+       "score": {
+        "value": 1.0,
+        "displayValue": "1"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 99
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401859751",
+   "date": "2026-03-14T21:00Z",
+   "name": "Penn State Nittany Lions at Michigan Wolverines",
+   "shortName": "PSU @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401859751",
+     "date": "2026-03-14T21:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "9",
+      "text": "Qualifier Round Robin",
+      "abbreviation": "QRR",
+      "slug": "qualifier-round-robin",
+      "type": "qualifier-round-robin"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 5.0,
+        "displayValue": "5"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 1
+       }
+      },
+      {
+       "id": "213",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "213",
+        "location": "Penn State",
+        "nickname": "Penn State",
+        "abbreviation": "PSU",
+        "displayName": "Penn State Nittany Lions",
+        "shortDisplayName": "Penn State"
+       },
+       "score": {
+        "value": 2.0,
+        "displayValue": "2"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 10
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401859752",
+   "date": "2026-03-22T00:00Z",
+   "name": "Ohio State Buckeyes at Michigan Wolverines",
+   "shortName": "OSU @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "2",
+    "type": 2,
+    "name": "Regular Season",
+    "abbreviation": "reg"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401859752",
+     "date": "2026-03-22T00:00Z",
+     "attendance": 0,
+     "type": {
+      "id": "9",
+      "text": "Qualifier Round Robin",
+      "abbreviation": "QRR",
+      "slug": "qualifier-round-robin",
+      "type": "qualifier-round-robin"
+     },
+     "timeValid": true,
+     "neutralSite": false,
+     "boxscoreAvailable": false,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 7.0,
+        "displayValue": "7"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 1
+       }
+      },
+      {
+       "id": "194",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "194",
+        "location": "Ohio State",
+        "nickname": "Ohio State",
+        "abbreviation": "OSU",
+        "displayName": "Ohio State Buckeyes",
+        "shortDisplayName": "Ohio State"
+       },
+       "score": {
+        "value": 3.0,
+        "displayValue": "3"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 19
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401866188",
+   "date": "2026-03-27T21:30Z",
+   "name": "Bentley Falcons at Michigan Wolverines",
+   "shortName": "BENT @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "3",
+    "type": 3,
+    "name": "Postseason",
+    "abbreviation": "post"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401866188",
+     "date": "2026-03-27T21:30Z",
+     "attendance": 5237,
+     "type": {
+      "id": "9",
+      "text": "Qualifier Round Robin",
+      "abbreviation": "QRR",
+      "slug": "qualifier-round-robin",
+      "type": "qualifier-round-robin"
+     },
+     "timeValid": true,
+     "neutralSite": true,
+     "boxscoreAvailable": true,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 5.0,
+        "displayValue": "5"
+       },
+       "leaders": {
+        "name": "rating",
+        "displayName": "Rating",
+        "abbreviation": "RAT",
+        "leaders": [
+         {
+          "displayValue": "4.9",
+          "value": 4.9,
+          "athlete": {
+           "id": "5136616",
+           "lastName": "Hughes",
+           "displayName": "T.J. Hughes",
+           "shortName": "T.J. Hughes",
+           "links": [
+            {
+             "rel": [
+              "stats",
+              "sportscenter",
+              "app",
+              "athlete"
+             ],
+             "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5136616&section=stats"
+            },
+            {
+             "rel": [
+              "gamelog",
+              "sportscenter",
+              "app",
+              "athlete"
+             ],
+             "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5136616&section=gamelog"
+            },
+            {
+             "rel": [
+              "news",
+              "sportscenter",
+              "app",
+              "athlete"
+             ],
+             "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5136616&section=news"
+            },
+            {
+             "rel": [
+              "bio",
+              "sportscenter",
+              "app",
+              "athlete"
+             ],
+             "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5136616&section=bio"
+            },
+            {
+             "rel": [
+              "overview",
+              "sportscenter",
+              "app",
+              "athlete"
+             ],
+             "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5136616"
+            }
+           ]
+          },
+          "statistics": [
+           {
+            "name": "goals",
+            "displayName": "Goals",
+            "shortDisplayName": "Goals",
+            "description": "Total goals scored.",
+            "abbreviation": "G",
+            "value": 1.0,
+            "displayValue": "1"
+           },
+           {
+            "name": "assists",
+            "displayName": "Assists",
+            "shortDisplayName": "Assists",
+            "description": "Total goal assists.",
+            "abbreviation": "A",
+            "value": 2.0,
+            "displayValue": "2"
+           },
+           {
+            "name": "points",
+            "displayName": "Points",
+            "shortDisplayName": "Points",
+            "description": "Points",
+            "abbreviation": "PTS",
+            "value": 3.0,
+            "displayValue": "3"
+           },
+           {
+            "name": "powerPlayGoals",
+            "displayName": "Power Play Goals",
+            "shortDisplayName": "Power Play Goals",
+            "description": "Total power play goals.",
+            "abbreviation": "PPG",
+            "value": 0.0,
+            "displayValue": "0"
+           },
+           {
+            "name": "powerPlayOpportunities",
+            "displayName": "Power Play Opportunities",
+            "shortDisplayName": "Power Play Ops",
+            "description": "Total power play opportunities.",
+            "abbreviation": "PPO",
+            "displayValue": "0"
+           },
+           {
+            "name": "shotsTotal",
+            "displayName": "Shots",
+            "shortDisplayName": "Shots",
+            "description": "Total shots.",
+            "abbreviation": "S",
+            "value": 4.0,
+            "displayValue": "4"
+           },
+           {
+            "name": "savePct",
+            "displayName": "Save Percentage",
+            "shortDisplayName": "Save Percentage",
+            "description": "Percentage of shots saved.",
+            "abbreviation": "SV%",
+            "value": 0.0,
+            "displayValue": ".000"
+           }
+          ]
+         }
+        ]
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 1
+       }
+      },
+      {
+       "id": "2060",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "2060",
+        "location": "Bentley",
+        "nickname": "Bentley",
+        "abbreviation": "BENT",
+        "displayName": "Bentley Falcons",
+        "shortDisplayName": "Bentley"
+       },
+       "score": {
+        "value": 1.0,
+        "displayValue": "1"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 99
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      },
+      "featuredAthletes": [
+       {
+        "name": "winningGoalie",
+        "displayName": "Winning Goalie",
+        "shortDisplayName": "Winning Goalie",
+        "abbreviation": "W",
+        "playerId": 5291998,
+        "athlete": {
+         "id": "5291998",
+         "lastName": "Ivankovic",
+         "displayName": "Jack Ivankovic",
+         "shortName": "J. Ivankovic",
+         "links": [
+          {
+           "rel": [
+            "stats",
+            "sportscenter",
+            "app",
+            "athlete"
+           ],
+           "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5291998&section=stats"
+          },
+          {
+           "rel": [
+            "gamelog",
+            "sportscenter",
+            "app",
+            "athlete"
+           ],
+           "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5291998&section=gamelog"
+          },
+          {
+           "rel": [
+            "news",
+            "sportscenter",
+            "app",
+            "athlete"
+           ],
+           "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5291998&section=news"
+          },
+          {
+           "rel": [
+            "bio",
+            "sportscenter",
+            "app",
+            "athlete"
+           ],
+           "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5291998&section=bio"
+          },
+          {
+           "rel": [
+            "overview",
+            "sportscenter",
+            "app",
+            "athlete"
+           ],
+           "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5291998"
+          }
+         ]
+        },
+        "team": {
+         "id": "130",
+         "name": "Wolverines"
+        }
+       },
+       {
+        "name": "losingGoalie",
+        "displayName": "Losing Goalie",
+        "shortDisplayName": "Losing Goalie",
+        "abbreviation": "L",
+        "playerId": 5342623,
+        "athlete": {
+         "id": "5342623",
+         "lastName": "Swedin",
+         "displayName": "Lukas Swedin",
+         "shortName": "L. Swedin",
+         "links": [
+          {
+           "rel": [
+            "stats",
+            "sportscenter",
+            "app",
+            "athlete"
+           ],
+           "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5342623&section=stats"
+          },
+          {
+           "rel": [
+            "gamelog",
+            "sportscenter",
+            "app",
+            "athlete"
+           ],
+           "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5342623&section=gamelog"
+          },
+          {
+           "rel": [
+            "news",
+            "sportscenter",
+            "app",
+            "athlete"
+           ],
+           "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5342623&section=news"
+          },
+          {
+           "rel": [
+            "bio",
+            "sportscenter",
+            "app",
+            "athlete"
+           ],
+           "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5342623&section=bio"
+          },
+          {
+           "rel": [
+            "overview",
+            "sportscenter",
+            "app",
+            "athlete"
+           ],
+           "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5342623"
+          }
+         ]
+        },
+        "team": {
+         "id": "2060",
+         "name": "Falcons"
+        }
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "401866192",
+   "date": "2026-03-29T21:30Z",
+   "name": "Minnesota Duluth Bulldogs at Michigan Wolverines",
+   "shortName": "UMD @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "3",
+    "type": 3,
+    "name": "Postseason",
+    "abbreviation": "post"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401866192",
+     "date": "2026-03-29T21:30Z",
+     "attendance": 0,
+     "type": {
+      "id": "9",
+      "text": "Qualifier Round Robin",
+      "abbreviation": "QRR",
+      "slug": "qualifier-round-robin",
+      "type": "qualifier-round-robin"
+     },
+     "timeValid": true,
+     "neutralSite": true,
+     "boxscoreAvailable": true,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": true,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 4.0,
+        "displayValue": "4"
+       },
+       "leaders": {
+        "name": "rating",
+        "displayName": "Rating",
+        "abbreviation": "RAT",
+        "leaders": [
+         {
+          "displayValue": "2.5",
+          "value": 2.5,
+          "athlete": {
+           "id": "5188418",
+           "lastName": "Moldenhauer",
+           "displayName": "Nick Moldenhauer",
+           "shortName": "N. Moldenhauer",
+           "links": [
+            {
+             "rel": [
+              "stats",
+              "sportscenter",
+              "app",
+              "athlete"
+             ],
+             "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5188418&section=stats"
+            },
+            {
+             "rel": [
+              "gamelog",
+              "sportscenter",
+              "app",
+              "athlete"
+             ],
+             "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5188418&section=gamelog"
+            },
+            {
+             "rel": [
+              "news",
+              "sportscenter",
+              "app",
+              "athlete"
+             ],
+             "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5188418&section=news"
+            },
+            {
+             "rel": [
+              "bio",
+              "sportscenter",
+              "app",
+              "athlete"
+             ],
+             "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5188418&section=bio"
+            },
+            {
+             "rel": [
+              "overview",
+              "sportscenter",
+              "app",
+              "athlete"
+             ],
+             "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5188418"
+            }
+           ]
+          },
+          "statistics": [
+           {
+            "name": "goals",
+            "displayName": "Goals",
+            "shortDisplayName": "Goals",
+            "description": "Total goals scored.",
+            "abbreviation": "G",
+            "value": 0.0,
+            "displayValue": "0"
+           },
+           {
+            "name": "assists",
+            "displayName": "Assists",
+            "shortDisplayName": "Assists",
+            "description": "Total goal assists.",
+            "abbreviation": "A",
+            "value": 1.0,
+            "displayValue": "1"
+           },
+           {
+            "name": "points",
+            "displayName": "Points",
+            "shortDisplayName": "Points",
+            "description": "Points",
+            "abbreviation": "PTS",
+            "value": 1.0,
+            "displayValue": "1"
+           },
+           {
+            "name": "powerPlayGoals",
+            "displayName": "Power Play Goals",
+            "shortDisplayName": "Power Play Goals",
+            "description": "Total power play goals.",
+            "abbreviation": "PPG",
+            "value": 0.0,
+            "displayValue": "0"
+           },
+           {
+            "name": "powerPlayOpportunities",
+            "displayName": "Power Play Opportunities",
+            "shortDisplayName": "Power Play Ops",
+            "description": "Total power play opportunities.",
+            "abbreviation": "PPO",
+            "displayValue": "0"
+           },
+           {
+            "name": "shotsTotal",
+            "displayName": "Shots",
+            "shortDisplayName": "Shots",
+            "description": "Total shots.",
+            "abbreviation": "S",
+            "value": 2.0,
+            "displayValue": "2"
+           },
+           {
+            "name": "savePct",
+            "displayName": "Save Percentage",
+            "shortDisplayName": "Save Percentage",
+            "description": "Percentage of shots saved.",
+            "abbreviation": "SV%",
+            "value": 0.0,
+            "displayValue": ".000"
+           }
+          ]
+         }
+        ]
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 1
+       }
+      },
+      {
+       "id": "134",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": false,
+       "team": {
+        "id": "134",
+        "location": "Minnesota Duluth",
+        "nickname": "Minnesota Duluth",
+        "abbreviation": "UMD",
+        "displayName": "Minnesota Duluth Bulldogs",
+        "shortDisplayName": "Minnesota Duluth"
+       },
+       "score": {
+        "value": 3.0,
+        "displayValue": "3"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 99
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 3,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "401862340",
+   "date": "2026-04-10T00:30Z",
+   "name": "Denver Pioneers at Michigan Wolverines",
+   "shortName": "DEN @ MICH",
+   "season": {
+    "year": 2026,
+    "displayName": "2025-26"
+   },
+   "seasonType": {
+    "id": "3",
+    "type": 3,
+    "name": "Postseason",
+    "abbreviation": "post"
+   },
+   "timeValid": true,
+   "competitions": [
+    {
+     "id": "401862340",
+     "date": "2026-04-10T00:30Z",
+     "attendance": 17942,
+     "type": {
+      "id": "9",
+      "text": "Qualifier Round Robin",
+      "abbreviation": "QRR",
+      "slug": "qualifier-round-robin",
+      "type": "qualifier-round-robin"
+     },
+     "timeValid": true,
+     "neutralSite": true,
+     "boxscoreAvailable": true,
+     "ticketsAvailable": false,
+     "competitors": [
+      {
+       "id": "130",
+       "type": "team",
+       "order": 0,
+       "homeAway": "home",
+       "winner": false,
+       "team": {
+        "id": "130",
+        "location": "Michigan",
+        "nickname": "Michigan",
+        "abbreviation": "MICH",
+        "displayName": "Michigan Wolverines",
+        "shortDisplayName": "Michigan"
+       },
+       "score": {
+        "value": 3.0,
+        "displayValue": "3"
+       },
+       "leaders": {
+        "name": "rating",
+        "displayName": "Rating",
+        "abbreviation": "RAT",
+        "leaders": [
+         {
+          "displayValue": "2.2",
+          "value": 2.2,
+          "athlete": {
+           "id": "4697687",
+           "lastName": "Draper",
+           "displayName": "Kienan Draper",
+           "shortName": "K. Draper",
+           "links": [
+            {
+             "rel": [
+              "stats",
+              "sportscenter",
+              "app",
+              "athlete"
+             ],
+             "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:4697687&section=stats"
+            },
+            {
+             "rel": [
+              "gamelog",
+              "sportscenter",
+              "app",
+              "athlete"
+             ],
+             "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:4697687&section=gamelog"
+            },
+            {
+             "rel": [
+              "news",
+              "sportscenter",
+              "app",
+              "athlete"
+             ],
+             "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:4697687&section=news"
+            },
+            {
+             "rel": [
+              "bio",
+              "sportscenter",
+              "app",
+              "athlete"
+             ],
+             "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:4697687&section=bio"
+            },
+            {
+             "rel": [
+              "overview",
+              "sportscenter",
+              "app",
+              "athlete"
+             ],
+             "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:4697687"
+            }
+           ]
+          },
+          "statistics": [
+           {
+            "name": "goals",
+            "displayName": "Goals",
+            "shortDisplayName": "Goals",
+            "description": "Total goals scored.",
+            "abbreviation": "G",
+            "value": 0.0,
+            "displayValue": "0"
+           },
+           {
+            "name": "assists",
+            "displayName": "Assists",
+            "shortDisplayName": "Assists",
+            "description": "Total goal assists.",
+            "abbreviation": "A",
+            "value": 1.0,
+            "displayValue": "1"
+           },
+           {
+            "name": "points",
+            "displayName": "Points",
+            "shortDisplayName": "Points",
+            "description": "Points",
+            "abbreviation": "PTS",
+            "value": 1.0,
+            "displayValue": "1"
+           },
+           {
+            "name": "powerPlayGoals",
+            "displayName": "Power Play Goals",
+            "shortDisplayName": "Power Play Goals",
+            "description": "Total power play goals.",
+            "abbreviation": "PPG",
+            "value": 0.0,
+            "displayValue": "0"
+           },
+           {
+            "name": "powerPlayOpportunities",
+            "displayName": "Power Play Opportunities",
+            "shortDisplayName": "Power Play Ops",
+            "description": "Total power play opportunities.",
+            "abbreviation": "PPO",
+            "displayValue": "0"
+           },
+           {
+            "name": "shotsTotal",
+            "displayName": "Shots",
+            "shortDisplayName": "Shots",
+            "description": "Total shots.",
+            "abbreviation": "S",
+            "value": 4.0,
+            "displayValue": "4"
+           },
+           {
+            "name": "savePct",
+            "displayName": "Save Percentage",
+            "shortDisplayName": "Save Percentage",
+            "description": "Percentage of shots saved.",
+            "abbreviation": "SV%",
+            "value": 0.0,
+            "displayValue": ".000"
+           }
+          ]
+         }
+        ]
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 1
+       }
+      },
+      {
+       "id": "2172",
+       "type": "team",
+       "order": 1,
+       "homeAway": "away",
+       "winner": true,
+       "team": {
+        "id": "2172",
+        "location": "Denver",
+        "nickname": "Denver",
+        "abbreviation": "DEN",
+        "displayName": "Denver Pioneers",
+        "shortDisplayName": "Denver"
+       },
+       "score": {
+        "value": 4.0,
+        "displayValue": "4"
+       },
+       "record": [],
+       "curatedRank": {
+        "current": 99
+       }
+      }
+     ],
+     "status": {
+      "clock": 0.0,
+      "displayClock": "0:00",
+      "period": 5,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final/2OT",
+       "shortDetail": "Final/2OT",
+       "altDetail": "2OT"
+      },
+      "featuredAthletes": [
+       {
+        "name": "winningGoalie",
+        "displayName": "Winning Goalie",
+        "shortDisplayName": "Winning Goalie",
+        "abbreviation": "W",
+        "playerId": 5342471,
+        "athlete": {
+         "id": "5342471",
+         "lastName": "Hicks",
+         "displayName": "Johnny Hicks",
+         "shortName": "J. Hicks",
+         "links": [
+          {
+           "rel": [
+            "stats",
+            "sportscenter",
+            "app",
+            "athlete"
+           ],
+           "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5342471&section=stats"
+          },
+          {
+           "rel": [
+            "gamelog",
+            "sportscenter",
+            "app",
+            "athlete"
+           ],
+           "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5342471&section=gamelog"
+          },
+          {
+           "rel": [
+            "news",
+            "sportscenter",
+            "app",
+            "athlete"
+           ],
+           "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5342471&section=news"
+          },
+          {
+           "rel": [
+            "bio",
+            "sportscenter",
+            "app",
+            "athlete"
+           ],
+           "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5342471&section=bio"
+          },
+          {
+           "rel": [
+            "overview",
+            "sportscenter",
+            "app",
+            "athlete"
+           ],
+           "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5342471"
+          }
+         ]
+        },
+        "team": {
+         "id": "2172",
+         "name": "Pioneers"
+        }
+       },
+       {
+        "name": "losingGoalie",
+        "displayName": "Losing Goalie",
+        "shortDisplayName": "Losing Goalie",
+        "abbreviation": "L",
+        "playerId": 5291998,
+        "athlete": {
+         "id": "5291998",
+         "lastName": "Ivankovic",
+         "displayName": "Jack Ivankovic",
+         "shortName": "J. Ivankovic",
+         "links": [
+          {
+           "rel": [
+            "stats",
+            "sportscenter",
+            "app",
+            "athlete"
+           ],
+           "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5291998&section=stats"
+          },
+          {
+           "rel": [
+            "gamelog",
+            "sportscenter",
+            "app",
+            "athlete"
+           ],
+           "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5291998&section=gamelog"
+          },
+          {
+           "rel": [
+            "news",
+            "sportscenter",
+            "app",
+            "athlete"
+           ],
+           "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5291998&section=news"
+          },
+          {
+           "rel": [
+            "bio",
+            "sportscenter",
+            "app",
+            "athlete"
+           ],
+           "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5291998&section=bio"
+          },
+          {
+           "rel": [
+            "overview",
+            "sportscenter",
+            "app",
+            "athlete"
+           ],
+           "href": "sportscenter://x-callback-url/showClubhouse?uid=s:70~l:91~a:5291998"
+          }
+         ]
+        },
+        "team": {
+         "id": "130",
+         "name": "Wolverines"
+        }
+       }
+      ]
+     }
+    }
+   ]
+  }
+ ],
+ "requestedSeason": {
+  "year": 2026,
+  "type": 2,
+  "name": "Regular Season",
+  "displayName": "2025-26"
+ }
+}
