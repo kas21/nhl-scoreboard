@@ -1,5 +1,8 @@
 # nhl-scoreboard
 
+[![CI](https://github.com/kas21/nhl-scoreboard/actions/workflows/ci.yml/badge.svg)](https://github.com/kas21/nhl-scoreboard/actions/workflows/ci.yml)
+[![NHL feed contract](https://github.com/kas21/nhl-scoreboard/actions/workflows/nhl-contract.yml/badge.svg)](https://github.com/kas21/nhl-scoreboard/actions/workflows/nhl-contract.yml)
+
 Standalone LED matrix scoreboard for Raspberry Pi. One process, one config
 file, configured from a browser — no broker, no SSH. NHL first; NFL, college football, MLB, college hockey, the AHL, weather
 (with watches and warnings), flights and holiday countdowns are bundled extras.

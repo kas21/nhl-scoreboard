@@ -34,14 +34,14 @@ Think of a newsroom with a wall of screens.
 
 ```
  asyncio thread                                     render thread (30 fps)
- ┌──────────────┐  publish(key, value)   ┌────────┐   frame()    ┌──────────┐  show()   ┌────────┐
- │ NHL source   │ ─────────────────────▶ │Snapshot│ ───────────▶ │ Director │ ────────▶ │ matrix │
- │ NFL source   │                        │ store  │              │          │           └────────┘
- │ weather …    │                        └───┬────┘              │ state    │  submit() ┌────────┐
- └──────────────┘                            │ listeners         │ playlist │ ────────▶ │preview │
-                                             ▼                   │ events   │           └────────┘
-                                    EventBus (detectors)  ─────▶ │ boards   │
-                                    MainEventArbiter      ─────▶ └──────────┘
+ +--------------+  publish(key, value)   +--------+   frame()    +----------+  show()   +--------+
+ | NHL source   | ---------------------> |Snapshot| -----------> | Director | --------> | matrix |
+ | NFL source   |                        | store  |              |          |           +--------+
+ | weather ...  |                        +---+----+              | state    |  submit() +--------+
+ +--------------+                            | listeners         | playlist | --------> |preview |
+                                             v                   | events   |           +--------+
+                                    EventBus (detectors)  -----> | boards   |
+                                    MainEventArbiter      -----> +----------+
 ```
 
 1. A source wakes up on its own timer, calls its API through `ctx.http`, normalises the answer into plain

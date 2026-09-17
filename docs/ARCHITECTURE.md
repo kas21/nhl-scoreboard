@@ -3,15 +3,16 @@
 Start with [OVERVIEW.md](OVERVIEW.md) if you have not read it: this page is the mechanics behind that picture.
 
 ```
- sources (asyncio tasks)          store              director (render thread, 30 fps)          output
- nhl / nfl / ncaaf / mlb  ──▶  Snapshot (immutable, ──▶  state ← main_event/season          ──▶ matrix
- ncaah / ahl                    versioned dict)
- holidays / flights / weather                            playlist cursor, transitions,           preview ws
-        │                           │                    event interrupts, brightness
-        │                     EventBus: detectors(prev,new) ─▶ events queue ─▶ event boards
-        └── MainEventArbiter: <sport>.main_event ─▶ main_event (live first, then sports.priority)
- config.json ⇄ ConfigStore ⇄ FastAPI (/api/config, schema, status, sources, override, system) ⇄ Preact UI
-        └── SourceHealth: per-source fetch/publish/crash stats (fed by ctx.http, ctx.publish, the runner)
+ sources (asyncio tasks)           store                    director (render thread, 30 fps)     output
+ nhl / nfl / ncaaf / mlb                                    state <- main_event / season
+ ncaah / ahl                -->    Snapshot (immutable, -->  playlist cursor, transitions,   -->  matrix
+ holidays / flights / weather      versioned dict)          event interrupts, brightness         preview ws
+       |                              |
+       |                              +-- EventBus: detectors(prev, new) --> events queue --> event boards
+       |                              +-- MainEventArbiter: <sport>.main_event --> main_event (live first, then sports.priority)
+       +-- SourceHealth: per-source fetch / publish / crash stats (fed by ctx.http, ctx.publish, the runner)
+
+ config.json <-> ConfigStore <-> FastAPI (/api/config, schema, status, sources, override, system) <-> Preact UI
 ```
 
 ## Principles
