@@ -248,7 +248,7 @@ than rejecting the whole file.
 ## Web
 FastAPI on `web.port` (8080). Endpoints: `/api/config` (GET effective, PATCH deep-merge, PUT, reset),
 `/api/schema`, `/api/status`, `/api/sources` (per-source health), `/api/boards` (key, title, requires,
-`playlistable`, `self_timed`, `auto_seconds`), `/api/snapshot`, `/api/logs`, `/api/override` (force a board),
+`playlistable`, `self_timed`, `auto_seconds`), `/api/snapshot` (whole, or `?since=&wait=` long-poll for a follower panel), `/api/logs`, `/api/override` (force a board),
 `/api/system` (+ `/restart`, `/hostname`, `/update`, `/update/check`), `/api/geocode`, `/api/preview.png`,
 `/ws/preview` (PNG frames), `/api/holidays/images/{slug}` (GET the picture, POST your own as the raw body,
 DELETE to put the bundled one back) and `/api/holidays/settings` (GET / PUT), and `/api/sim` (see [Simulation](#simulation)). Those are the only
@@ -263,6 +263,18 @@ State-changing calls need `X-Requested-With: scoreboard-ui` and a `Host` the box
 (no build step): `app.js` (shell, boards, playlists), `dashboard.js`, `settings.js` (schema-driven forms),
 `holidays.js`, `sim.js` (the Simulator page: start forms from each engine's schema, buttons from its action
 specs — nothing in it knows hockey), `wizard.js` (first-run flow), `select.js` (the one `<select>` component: its options are memoised so a poll's re-render leaves them untouched, otherwise Chrome shuts a menu that is open).
+
+## Integrations
+Two things sit beside the sources and touch nothing downstream. **Follower** (`follower.py`): with
+`follower.enabled`, `app.py` starts that one source instead of the sport and extras sources; it long-polls the
+master's `/api/snapshot?since=` and republishes each key it gets, so detectors, director and boards run
+exactly as on the master, on this box's config. It prefetches logos for the teams it sees, since no sport
+source runs to do it. **MQTT** (`mqtt.py`): an asyncio task fed by a snapshot listener and an event-bus tap
+(`EventBus.subscribe`); both hooks run on the publishing thread, so they only mark keys dirty and wake the
+task, which publishes retained `snapshot/<key>` topics, `event/<kind>` messages and the panel `state`, and
+turns `cmd/board` / `cmd/power` into `Director.set_override`. Settings changes reconnect; a broker that is
+down is retried with backoff and reported on `/api/status`. Both are configured from `AppConfig`
+(`follower`, `mqtt`), so they appear in the settings form like everything else.
 
 ## Plugins
 `plugins.load_registry()` reads four entry-point groups — `scoreboard.boards`, `scoreboard.sources`,

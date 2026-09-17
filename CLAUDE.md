@@ -56,6 +56,8 @@ scoreboard/
                     with a baseball centre column (inning arrow, bases, count, outs, pitcher/batter strip)
   extras/           holidays, flights (adsb.lol + adsbdb + airline logos), weather (Open-Meteo; weather/alerts: NWS + Environment
                     Canada watches/warnings, an interrupt board and a playlist board) — same plugin contract
+  follower.py       display-only panel: long-polls a master's /api/snapshot?since= and republishes every key (replaces all sources)
+  mqtt.py           bridge to a broker: retained snapshot/<key> + event/<kind> + state out, cmd/board + cmd/power in (aiomqtt)
   imagecache.py logos.py  runtime image cache ($SCOREBOARD_CACHE_DIR) + team logos fetched from ESPN's CDN
   assets/           fonts under render/fonts, holiday images, penalty gif (team logos are fetched at runtime)
 tests/              pytest; fixtures/ are real API captures (NHL 2026-04-11 game day, ESPN, adsb.lol, Open-Meteo);
@@ -79,6 +81,9 @@ docs/               OVERVIEW (start here), USER_GUIDE, HARDWARE, ARCHITECTURE, D
   `display.*` driver options (need a restart — the wizard has a button).
 - **Plugins**: `scoreboard.boards` / `scoreboard.sources` / `scoreboard.detectors` / `scoreboard.sims` entry points; bundled
   extras use the same mechanism. A board may declare `sport` and `requires` (snapshot keys, must be non-empty).
+- **Multi-panel / MQTT**: `follower.enabled` makes a panel relay another's snapshot instead of fetching (own display config,
+  needs a restart); `mqtt.enabled` mirrors the snapshot, events and state to a broker and takes a couple of commands. Both live
+  beside the sources and change nothing downstream.
 - **Simulator**: `SnapshotStore.claim()` lets one owner take keys over (other publishers are shadowed, the freshest
   real value comes back on release); `SimulatorHub` runs engines that publish real-shaped data under those keys, so
   detectors/boards/interrupts are exercised for real. No mocks in boards; add a sim engine, not a fake mode.

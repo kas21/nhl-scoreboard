@@ -32,6 +32,9 @@ class Snapshot:
     version: int = 0
     data: Mapping[str, Any] = field(default_factory=lambda: MappingProxyType({}))
     updated: Mapping[str, float] = field(default_factory=lambda: MappingProxyType({}))
+    versions: Mapping[str, int] = field(default_factory=lambda: MappingProxyType({}))
+    """Snapshot version at which each key was last published: what a follower panel asks
+    for changes ``since``, and what a listener compares to know which key a publish touched."""
 
     def get(self, key: str, default: Any = None) -> Any:
         return self.data.get(key, default)
@@ -51,7 +54,16 @@ class Snapshot:
         data[key] = value
         updated = dict(self.updated)
         updated[key] = ts if ts is not None else time.time()
-        return Snapshot(self.version + 1, MappingProxyType(data), MappingProxyType(updated))
+        versions = dict(self.versions)
+        versions[key] = self.version + 1
+        return Snapshot(self.version + 1, MappingProxyType(data), MappingProxyType(updated), MappingProxyType(versions))
+
+    def changed_since(self, version: int) -> dict[str, Any]:
+        """The keys published after snapshot ``version`` — everything, for a version this
+        store has not reached (a fresh reader, or one that followed us across a restart)."""
+        if version < 0 or version > self.version:
+            return dict(self.data)
+        return {k: v for k, v in self.data.items() if self.versions.get(k, 0) > version}
 
 
 class ClaimError(Exception):

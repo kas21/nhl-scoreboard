@@ -66,3 +66,14 @@ def test_an_occasional_bad_frame_is_absorbed(app):
     assert not run(app).is_alive()
     assert app.exit_code == 0, "a loop that keeps recovering must never trip the limit"
     assert len(calls) >= LIMIT * 6                  # far more total failures than the limit
+
+
+def test_a_follower_runs_no_sport_sources(tmp_path):
+    from scoreboard.config import ConfigStore
+    ConfigStore(tmp_path / "f.json").update({"follower": {"enabled": True, "master_url": "http://office.local:8080"}})
+    a = Application(tmp_path / "f.json", output_mode="none")
+    try:
+        assert list(a.registry.sources) == ["follower"]
+        assert a.mqtt.status()["enabled"] is False
+    finally:
+        a._stop.set()

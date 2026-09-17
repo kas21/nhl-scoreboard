@@ -192,6 +192,49 @@ class WebConfig(FrozenModel):
     )
 
 
+class FollowerConfig(FrozenModel):
+    """Make this panel a display-only follower of another scoreboard.
+
+    One scoreboard on the network does the fetching; a follower takes every snapshot key
+    from it over HTTP and renders with its own display, brightness, playlists and board
+    settings. Team logos are still fetched by the follower itself.
+    """
+
+    enabled: bool = Field(
+        False,
+        description="Take all data from another scoreboard on your network instead of fetching it "
+                    "here. This panel keeps its own display, brightness and playlists. Takes effect "
+                    "on the next restart",
+    )
+    master_url: str = Field(
+        "",
+        description="The other scoreboard's web address, e.g. http://nhl-led-scoreboard-office.local:8080",
+    )
+
+
+class MqttConfig(FrozenModel):
+    """Publish what the panel knows to an MQTT broker (Home Assistant and friends) and take
+    a few commands back. Topics live under ``topic_prefix``: ``status``, ``state``,
+    ``snapshot/<key>`` (retained), ``event/<kind>``, and ``cmd/board`` / ``cmd/power`` inbound.
+    """
+
+    model_config = ConfigDict(frozen=True, extra="forbid", title="MQTT")
+
+    enabled: bool = False
+    host: str = Field("", description="Broker hostname or IP; blank keeps MQTT off")
+    port: int = Field(1883, ge=1, le=65535)
+    username: str = ""
+    password: str = Field("", json_schema_extra={"format": "password"})
+    topic_prefix: str = Field("scoreboard", pattern=r"^[^#+/\s][^#+\s]*$",
+                              description="Every topic starts with this; use a different one per panel")
+    snapshot_keys: list[str] = Field(
+        default_factory=list,
+        description="Only publish these snapshot keys (a prefix such as 'nhl' takes the whole "
+                    "sport); empty publishes everything",
+        json_schema_extra=ADVANCED,
+    )
+
+
 CONFIG_VERSION = 2
 
 
@@ -208,6 +251,8 @@ class AppConfig(FrozenModel):
     sports: SportsConfig = SportsConfig()
     logos: LogosConfig = LogosConfig()
     web: WebConfig = WebConfig()
+    follower: FollowerConfig = FollowerConfig()
+    mqtt: MqttConfig = MqttConfig()
     boards: dict[str, dict[str, Any]] = Field(
         default_factory=dict, description="Per-board settings, validated by each board's model"
     )

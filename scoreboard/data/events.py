@@ -22,6 +22,7 @@ class Event:
 
 
 Detector = Callable[[Snapshot, Snapshot], Iterable[Event]]
+Tap = Callable[[list[Event]], None]
 
 
 class EventBus:
@@ -40,6 +41,7 @@ class EventBus:
 
     def __init__(self) -> None:
         self._detectors: list[Detector] = []
+        self._taps: list[Tap] = []
         self._queue: list[Event] = []
         self._lock = threading.Lock()
 
@@ -47,13 +49,24 @@ class EventBus:
         with self._lock:
             self._detectors.append(detector)
 
+    def subscribe(self, tap: Tap) -> None:
+        """Also hand every batch of detected events to ``tap`` (the MQTT publisher, say).
+
+        The director's queue is untouched: taps observe, they do not consume. A tap runs on
+        whichever thread published the snapshot, so it must hand off, not block."""
+        with self._lock:
+            self._taps.append(tap)
+
     def on_snapshot(self, prev: Snapshot, new: Snapshot) -> None:
         with self._lock:
             detectors = list(self._detectors)
+            taps = list(self._taps)
         found = [event for detector in detectors for event in detector(prev, new)]
         if found:
             with self._lock:
                 self._queue.extend(found)
+            for tap in taps:
+                tap(found)
 
     def drain(self) -> tuple[Event, ...]:
         """Return queued events, collapsed so a burst (missed polls, restart mid-game)

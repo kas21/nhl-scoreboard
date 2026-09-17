@@ -45,6 +45,9 @@ STATIC = Path(__file__).parent / "static"
 # that a cheap 304, so this costs a conditional request, not a re-download.
 NO_CACHE = "no-cache"
 
+SNAPSHOT_WAIT_MAX = 60.0            # a follower's long-poll is never held longer than this
+SNAPSHOT_POLL_INTERVAL = 0.2        # how often a held request looks for a new snapshot version
+
 
 class RevalidatingStatic(StaticFiles):
     """Static assets that must be revalidated before reuse. See NO_CACHE."""
@@ -116,6 +119,7 @@ def create_app(
     updater: Updater | None = None,
     health: SourceHealth | None = None,
     simulator: SimulatorHub | None = None,
+    mqtt: Any = None,
 ) -> FastAPI:
     app = FastAPI(title="scoreboard", version=__version__)
     system = system or SystemControl()
@@ -133,6 +137,8 @@ def create_app(
             "sources": {k: snap.age(k) for k in snap.data},
             "setup_complete": config.get().setup_complete,
             "simulating": simulator.running() if simulator is not None else [],
+            "following": config.get().follower.master_url if config.get().follower.enabled and "follower" in registry.sources else None,
+            "mqtt": mqtt.status() if mqtt is not None else None,
         }
 
     @app.get("/api/sources")
@@ -204,9 +210,21 @@ def create_app(
         ]
 
     @app.get("/api/snapshot")
-    def snapshot() -> dict[str, Any]:
+    async def snapshot(since: int | None = None, wait: float = 0) -> dict[str, Any]:
+        """The whole snapshot — or, with ``since``, only the keys published after that version.
+
+        A follower panel asks with ``since`` and a ``wait``: the answer is held back until
+        something changes (or the wait runs out), so a goal reaches it within a round trip.
+        ``since`` beyond our version (this box restarted) gets everything again.
+        """
         snap = snapshots.get()
-        return {"version": snap.version, "data": dict(snap.data)}
+        if since is None:
+            return {"version": snap.version, "data": dict(snap.data)}
+        deadline = asyncio.get_running_loop().time() + min(max(wait, 0), SNAPSHOT_WAIT_MAX)
+        while since == snap.version and asyncio.get_running_loop().time() < deadline:
+            await asyncio.sleep(SNAPSHOT_POLL_INTERVAL)
+            snap = snapshots.get()
+        return {"version": snap.version, "data": snap.changed_since(since)}
 
     @app.post("/api/override")
     def set_override(body: dict[str, Any]) -> dict[str, Any]:

@@ -197,3 +197,36 @@ def test_ui_assets_must_revalidate(tmp_path):
         assert r.status_code == 200, path
         assert r.headers["cache-control"] == "no-cache", path
         assert r.headers.get("etag"), f"{path} still needs an ETag to make 304s cheap"
+
+
+def test_snapshot_since_returns_only_what_changed_and_waits_for_it(tmp_path):
+    """A follower panel long-polls this: only the keys past its version, held until there are some."""
+    import threading
+    import time
+
+    config = ConfigStore(tmp_path / "config.json")
+    snapshots, events = SnapshotStore(), EventBus()
+    reg = Registry(boards={b.key: b for b in (ClockBoard(),)})
+    c = TestClient(create_app(config, snapshots, reg, Director(config, snapshots, reg, events), PreviewHub()), **UI)
+    snapshots.publish("nhl.scores", [1])
+    snapshots.publish("weather.current", {"t": 1})
+    full = c.get("/api/snapshot").json()
+    assert full["version"] == 2 and set(full["data"]) == {"nhl.scores", "weather.current"}
+    assert c.get("/api/snapshot", params={"since": 1}).json() == {"version": 2, "data": {"weather.current": {"t": 1}}}
+    assert c.get("/api/snapshot", params={"since": -1}).json()["data"] == full["data"]
+    assert c.get("/api/snapshot", params={"since": 50}).json()["data"] == full["data"]     # we restarted; start over
+    assert c.get("/api/snapshot", params={"since": 2, "wait": 0}).json() == {"version": 2, "data": {}}
+
+    threading.Timer(0.3, lambda: snapshots.publish("nhl.scores", [2])).start()
+    started = time.monotonic()
+    body = c.get("/api/snapshot", params={"since": 2, "wait": 5}).json()
+    assert body == {"version": 3, "data": {"nhl.scores": [2]}}
+    assert time.monotonic() - started < 3, "the wait should end at the publish, not at the timeout"
+
+
+def test_status_reports_the_link_and_mqtt_state(tmp_path):
+    c, config = client(tmp_path)
+    st = c.get("/api/status").json()
+    assert st["following"] is None and st["mqtt"] is None
+    config.update({"follower": {"enabled": True, "master_url": "http://office.local:8080"}})
+    assert c.get("/api/status").json()["following"] is None      # the follower source only exists after a restart
