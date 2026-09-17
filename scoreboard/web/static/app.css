@@ -43,6 +43,9 @@ pre { background:#000; padding:12px; border-radius:8px; overflow:auto; max-heigh
 .tags { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
 .tag { background:#2a3340; border-radius:14px; padding:3px 10px; font-size:13px; }
 .tag a { cursor:pointer; color:var(--muted); margin-left:4px; }
+.tags.sortable .tag { cursor:grab; user-select:none; touch-action:none; }
+.tags.sortable .tag:active { cursor:grabbing; }
+.tags.sortable .tag.dragging { opacity:0.55; outline:1px dashed var(--muted); outline-offset:2px; }
 details summary { cursor:pointer; font-weight:600; padding:8px 0; }
 
 /* ---- rotation view: the playlist as one lap ------------------------------- */

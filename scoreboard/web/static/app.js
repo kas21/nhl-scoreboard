@@ -177,6 +177,7 @@ function Dashboard({ config, save }) {
   }, []);
   return html`
     <div class="card"><h2>Live preview</h2><${Preview} /></div>
+    <${Rotation} />
     <div class="card"><h2>Status</h2>
       ${status ? html`<div class="status">
         <div><span>State</span>${status.state}</div>
@@ -188,7 +189,6 @@ function Dashboard({ config, save }) {
       </div>` : html`<p class="muted">Loading…</p>`}
     </div>
     <${Updater} />
-    <${Rotation} />
     <${GamesCard} />
     <${AroundCard} />
     <div class="card"><h2>Data sources</h2><${SourcesSummary} /></div>

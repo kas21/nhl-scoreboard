@@ -14,7 +14,8 @@ NHL is the main event; NFL, college football (FBS) and MLB work the same way. Ev
    - **Your panel** — pick the size and driver board. The panel shows a test pattern.
    - **Colours & orientation** — fix the colour order / rotation by looking at the panel; press
      *Apply* (restarts the display driver, ~5 s).
-   - **Your team** — favourites in priority order; the first one is followed. The list offers the teams the
+   - **Your team** — favourites in priority order; the first one is followed. Drag a pill to change the
+     order (here and on the Settings page). The list offers the teams the
      scoreboard knows; a new or relocated team can be typed as its code before the app catches up (it shows
      with neutral colours until then, and the diagnostics page says so).
    - **Where you are** — search your town (sets timezone, and location for weather/flights/sunset dimming).

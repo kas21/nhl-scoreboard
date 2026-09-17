@@ -1,5 +1,6 @@
 import { html, useState, useEffect } from './htm-preact.js';
 import { Select } from './select.js';
+import { Tags } from './tags.js';
 
 // Every state-changing call carries this header. A page on another site cannot set it
 // without a preflight the scoreboard never answers, which is what stops a drive-by POST
@@ -108,12 +109,7 @@ export function Wizard({ config, save, Preview, onDone }) {
 }
 
 function Favourites({ value, onChange }) {
-  return html`<div class="tags">
-    ${value.map((v, i) => html`<span class="tag">${i + 1}. ${v} <a onclick=${() => onChange(value.filter((_, j) => j !== i))}>✕</a></span>`)}
-    <${Select} options=${[['', '+ add team'], ...NHL.filter(t => !value.includes(t))]}
-      onchange=${e => { if (e.target.value) onChange([...value, e.target.value]); e.target.value = ''; }} />
-    <input type="text" class="code" maxlength="4" placeholder="or type a code" title="A team code the list does not have yet, e.g. a new or relocated team"
-      onchange=${e => { const v = e.target.value.trim().toUpperCase(); if (v && !value.includes(v)) onChange([...value, v]); e.target.value = ''; }} /></div>`;
+  return html`<${Tags} value=${value} onChange=${onChange} options=${NHL} typed numbered addLabel="+ add team" />`;
 }
 
 function Hostname() {
