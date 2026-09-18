@@ -359,6 +359,10 @@ def create_app(
                 await ws.send_bytes(data)
         except (TimeoutError, WebSocketDisconnect):
             pass
+        except RuntimeError:
+            # A frame sent after the browser closed the socket (a tab closed mid-stream):
+            # uvicorn raises rather than disconnecting. Nothing to do but stop.
+            pass
         finally:
             preview.unsubscribe(queue)
 

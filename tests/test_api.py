@@ -353,3 +353,27 @@ def test_a_rotated_panel_is_described_to_the_driver_on_its_side(monkeypatch):
     assert seen == {"rows": 128, "cols": 32, "mapper": "Rotate:90"}      # two 32x128 panels? no: the 64x128 physical panel, chained in two
     MatrixOutput(DisplayConfig(width=128, height=64, chain=2), emulator=False).close()
     assert seen["rows"] == 64 and seen["cols"] == 64
+
+
+def test_preview_websocket_streams_frames_and_lets_go_on_close(tmp_path):
+    import time
+
+    from PIL import Image
+    config = ConfigStore(tmp_path / "config.json")
+    snapshots, events = SnapshotStore(), EventBus()
+    reg = Registry(boards={b.key: b for b in (ClockBoard(), SplashBoard())})
+    hub = PreviewHub(fps=30)
+    c = TestClient(create_app(config, snapshots, reg, Director(config, snapshots, reg, events), hub), **UI)
+    hub.submit(Image.new("RGB", (128, 64), (0, 0, 200)))
+    for _ in range(50):                                 # the encoder thread needs a moment
+        if hub.latest():
+            break
+        time.sleep(0.01)
+    with c.websocket_connect("/ws/preview", headers={"host": "localhost"}) as ws:     # the guard checks Host on sockets too
+        first = ws.receive_bytes()
+        assert first[:8] == b"\\x89PNG\\r\\n\\x1a\\n" and hub.watching
+    for _ in range(50):
+        if not hub.watching:
+            break
+        time.sleep(0.01)
+    assert not hub.watching                             # unsubscribed on close, whatever ended the loop

@@ -82,9 +82,17 @@ function Preview() {
   </div>`;
 }
 
+// The process this page was loaded against. A different boot_id later means the server was
+// restarted or updated by something other than this page (the API from a script, Settings on
+// another device): reload, so the UI in memory is the one the new server ships.
+let bootSeen = null;
+
 function Updater() {
   const [st, setSt] = useState(null);
-  const refresh = () => api.get('/api/system/update').then(setSt).catch(() => {});
+  const refresh = () => api.get('/api/system/update').then(s => {
+    if (s.boot_id) { if (bootSeen && s.boot_id !== bootSeen) { location.reload(); return; } bootSeen = s.boot_id; }
+    setSt(s);
+  }).catch(() => {});
   useEffect(() => { refresh(); const id = setInterval(refresh, 3000); return () => clearInterval(id); }, []);
   // An update restarts the server under this page. The module scripts in memory are the
   // old UI; reload once the new process answers so the page matches the API it talks to.
