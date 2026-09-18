@@ -371,7 +371,7 @@ def test_preview_websocket_streams_frames_and_lets_go_on_close(tmp_path):
         time.sleep(0.01)
     with c.websocket_connect("/ws/preview", headers={"host": "localhost"}) as ws:     # the guard checks Host on sockets too
         first = ws.receive_bytes()
-        assert first[:8] == b"\\x89PNG\\r\\n\\x1a\\n" and hub.watching
+        assert first[:8] == b"\x89PNG\r\n\x1a\n" and hub.watching
     for _ in range(50):
         if not hub.watching:
             break
