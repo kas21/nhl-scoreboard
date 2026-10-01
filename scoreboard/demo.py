@@ -13,6 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from .data.source import SourceContext
 from .nhl.normalize import normalize_game, normalize_standings, records_from_standings, team_summary
+from .nhl.replay import replays_from_files
 from .nhl.select import favorite_side
 
 FIXTURES = Path(__file__).parent.parent / "tests" / "fixtures" / "nhl"
@@ -40,6 +41,8 @@ class DemoSource:
         ctx.publish_to("system", {"online": True})
         raw = next(g for g in score["games"] if g["homeTeam"]["abbrev"] == "TOR")
         final = normalize_game(raw, recs, landing)
+        sprites = {ev: json.loads((FIXTURES / f"ppt_replay_2025021270_ev{ev}.json").read_text()) for ev in (101, 950)}
+        ctx.publish(replays_from_files(landing, sprites, ctx.config.favorites), subkey="goal_replays")
         while True:
             for step in _script(final):
                 cfg: DemoConfig = ctx.config  # type: ignore[assignment]

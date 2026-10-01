@@ -104,6 +104,7 @@ from scoreboard.nfl.normalize import normalize_standings as nfl_standings
 from scoreboard.nfl.normalize import team_summary as nfl_team_summary
 from scoreboard.nhl.boards.events import GoalBoard, GoalConfig, PenaltyBoard, PenaltyConfig
 from scoreboard.nhl.boards.game import GameBoard, GameConfig
+from scoreboard.nhl.boards.replay import GoalReplayBoard, ReplayConfig
 from scoreboard.nhl.boards.standings import StandingsBoard, StandingsConfig
 from scoreboard.nhl.boards.team_summary import TeamSummaryBoard, TeamSummaryConfig
 from scoreboard.nhl.boards.ticker import TickerBoard, TickerConfig
@@ -113,6 +114,7 @@ from scoreboard.nhl.normalize import (
     records_from_standings,
     team_summary,
 )
+from scoreboard.nhl.replay import replays_from_files
 from scoreboard.nhl.season import season_info
 from scoreboard.render.profiles import PROFILES, profile_for
 
@@ -162,6 +164,8 @@ def _nhl_world() -> dict[str, Any]:
     store.publish("nhl.standings", standings)
     store.publish("nhl.team_summary",
                   {"TOR": team_summary("TOR", standings, _load("nhl", "club_schedule_TOR_week.json"), "2026-04-11")})
+    sprites = {ev: _load("nhl", f"ppt_replay_2025021270_ev{ev}.json") for ev in (101, 950)}
+    store.publish("nhl.goal_replays", replays_from_files(_load("nhl", "landing_2025021270.json"), sprites, ["TOR"]))
     return {"store": store, "final": final, "live": live, "pre": pre, "ppd": ppd}
 
 
@@ -192,6 +196,8 @@ def nhl_scenes() -> list[Scene]:
         Scene("nhl.goal/opponent", GoalBoard(), goal_cfg, with_game("live"), now, 1.0, event=opp_goal),
         Scene("nhl.goal/who_cares", GoalBoard(), goal_cfg, with_game("live"), now, goal_cfg.summary_duration + 1.5, event=opp_goal),
         Scene("nhl.penalty/live", PenaltyBoard(), PenaltyConfig(), with_game("live"), now, 1.0, event=penalty),
+        Scene("nhl.goal_replay/clip", GoalReplayBoard(), ReplayConfig(), with_game("final"), now, 12.0),
+        Scene("nhl.goal_replay/hold", GoalReplayBoard(), ReplayConfig(), with_game("final"), now, 14.2, sizes=((128, 64),)),
     ]
 
 

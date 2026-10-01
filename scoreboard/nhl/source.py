@@ -5,6 +5,7 @@ Snapshot keys published:
   main_event        the favourite game to show, or None (drives the app state)
   nhl.standings     normalised standings
   nhl.team_summary  {abbrev: summary} for each favourite
+  nhl.goal_replays  the tracking clip behind each goal of the favourite's last game (see replay.py)
   system            {"online": bool}
 """
 from __future__ import annotations
@@ -30,6 +31,7 @@ from .normalize import (
     records_from_standings,
     team_summary,
 )
+from .replay import ReplayFetcher, replay_candidate
 from .schedule import fetch_weeks, schedule_games
 from .season import season_info
 from .select import favorite_side, select_main_event
@@ -40,6 +42,7 @@ log = logging.getLogger(__name__)
 OFFLINE_AFTER_FAILURES = 3      # consecutive score-poll failures before we report offline
 ABBREV = re.compile(r"[A-Z]{2,4}")   # what an NHL team code looks like; the registry is not the last word on which exist
 NORMALISE_ERRORS = (KeyError, TypeError, ValueError, AttributeError)   # a game the feed shaped in a way normalize cannot read
+REPLAY_LOOKUP_SECONDS = 5.0     # how often the replay loop looks at the snapshot for a game to recap (no network)
 
 
 class NhlConfig(BaseModel):
@@ -55,6 +58,9 @@ class NhlConfig(BaseModel):
     delay_seconds: float = Field(0.0, ge=0, le=120, description="Delay live updates to match your TV broadcast")
     show_games_within_days: int = Field(2, ge=0, le=30, description="Only show the league slate (ticker) when it is this close; further-out games stay off the panel")
     follow_preseason: bool = Field(True, description="Treat your team's preseason games like any other game")
+    goal_replays: bool = Field(True, description="After your team's game, fetch the league's player-tracking replay of each goal for the goal replay board (the files appear a few minutes after the final horn)")
+    replay_interval: float = Field(120.0, ge=30, le=900, description="Seconds between looks for replay files that are not there yet", json_schema_extra=ADVANCED)
+    replay_retry_hours: float = Field(3.0, ge=0.5, le=24, description="Give up on a goal's replay this long after the game", json_schema_extra=ADVANCED)
 
     @field_validator("favorites", mode="before")
     @classmethod
@@ -89,6 +95,7 @@ class NhlSource:
             tg.create_task(watch_logos(ctx.http, "nhl", logo_teams, ctx.log))
             tg.create_task(self._scores_loop(ctx, api))
             tg.create_task(self._standings_loop(ctx, api))
+            tg.create_task(self._replay_loop(ctx, api))
 
     # -- scores + main event ------------------------------------------------
 
@@ -242,6 +249,55 @@ class NhlSource:
                 ctx.log.warning("standings poll failed: %s", exc)
                 self._standings_ready.set()
             await ctx.nap(cfg.standings_interval)
+
+
+    # -- goal replays ---------------------------------------------------------
+
+    async def _replay_loop(self, ctx: SourceContext, api: NhlApi) -> None:
+        """Fetch the tracking clip behind each goal once the favourite's game is over.
+
+        The files are written in one batch a few minutes after the final horn, and a goal
+        without one answers exactly like a goal whose file is late, so the loop asks again
+        every ``replay_interval`` until every goal has a clip or ``replay_retry_hours`` is up.
+        The value is published once the first clip is in (goals without one ride along with
+        ``clip: None``) and withdrawn when the game it describes is no longer the one to show."""
+        fetcher: ReplayFetcher | None = None
+        started = 0.0
+        published = False
+        loop = asyncio.get_event_loop()
+        while True:
+            cfg: NhlConfig = ctx.config  # type: ignore[assignment]
+            snap = ctx.snapshot()
+            candidate = replay_candidate(snap, cfg.favorites) if cfg.goal_replays else None
+            if candidate is None:
+                main = snap.get("nhl.main_event") or {}
+                if published and (not cfg.goal_replays or main.get("phase") not in ("live", "intermission")):
+                    ctx.publish(None, subkey="goal_replays")      # nothing to recap any more (a live game keeps the last one)
+                    published, fetcher = False, None
+                await ctx.nap(REPLAY_LOOKUP_SECONDS)
+                continue
+            if fetcher is None or fetcher.game_id != candidate["id"]:
+                if published:
+                    ctx.publish(None, subkey="goal_replays")      # a new result: the old recap is stale
+                    published = False
+                fetcher, started = ReplayFetcher(int(candidate["id"])), loop.time()
+            attempts = max(1, int(cfg.replay_retry_hours * 3600 / cfg.replay_interval))
+            expired = loop.time() - started > cfg.replay_retry_hours * 3600
+            if not expired and fetcher.pending(attempts):
+                try:
+                    value = await fetcher.refresh(api, ctx.http, cfg.favorites, attempts)
+                except NhlApiError as exc:
+                    ctx.log.debug("replay landing fetch failed for %s: %s", fetcher.game_id, exc)
+                    value = None
+                except Exception as exc:        # a recap must never take the scores loop down with it
+                    ctx.log.warning("replay fetch for %s failed: %s", fetcher.game_id, exc)
+                    value = None
+                if value is not None and any(g.get("clip") for g in value["goals"]):
+                    ctx.publish(value, subkey="goal_replays")
+                    published = True
+                await ctx.nap(cfg.replay_interval)
+            else:
+                await ctx.nap(REPLAY_LOOKUP_SECONDS)
 
 
 def _carry_landing(main: dict[str, Any], previous: dict[str, Any] | None) -> dict[str, Any]:
