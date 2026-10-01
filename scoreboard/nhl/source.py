@@ -31,7 +31,7 @@ from .normalize import (
     records_from_standings,
     team_summary,
 )
-from .replay import ReplayFetcher, replay_candidate
+from .replay import ReplayFetcher, keeps_recap, replay_candidate
 from .schedule import fetch_weeks, schedule_games
 from .season import season_info
 from .select import favorite_side, select_main_event
@@ -270,9 +270,8 @@ class NhlSource:
             snap = ctx.snapshot()
             candidate = replay_candidate(snap, cfg.favorites) if cfg.goal_replays else None
             if candidate is None:
-                main = snap.get("nhl.main_event") or {}
-                if published and (not cfg.goal_replays or main.get("phase") not in ("live", "intermission")):
-                    ctx.publish(None, subkey="goal_replays")      # nothing to recap any more (a live game keeps the last one)
+                if published and (not cfg.goal_replays or not keeps_recap(snap.get("nhl.main_event"))):
+                    ctx.publish(None, subkey="goal_replays")      # nothing to recap any more (a live or simulated game keeps the last one)
                     published, fetcher = False, None
                 await ctx.nap(REPLAY_LOOKUP_SECONDS)
                 continue

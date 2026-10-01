@@ -20,6 +20,7 @@ from scoreboard.nhl.replay import (
     SpriteUnavailable,
     compact_replay,
     fetch_sprite,
+    keeps_recap,
     replay_candidate,
     replays_from_files,
 )
@@ -117,6 +118,17 @@ def test_candidate_is_the_favourites_final_then_its_last_result():
     assert replay_candidate(_snap(nhl__main_event={**final, "outcome": "PPD"}, nhl__team_summary=summary), ["TOR"]) == {"id": 7, "date": "2026-04-10"}
     assert replay_candidate(_snap(nhl__main_event=None, nhl__team_summary={"TOR": {"prev_game": {"id": 7, "result": ""}}}), ["TOR"]) is None
     assert replay_candidate(_snap(nhl__main_event=None), ["TOR"]) is None
+    simulated = {**final, "id": 2099990001, "simulated": True}
+    assert replay_candidate(_snap(nhl__main_event=simulated, nhl__team_summary=summary), ["TOR"]) is None   # not a real game, and not a reason to drop the real recap
+    assert replay_candidate(_snap(nhl__main_event={**simulated, "phase": "live"}, nhl__team_summary=summary), ["TOR"]) is None
+
+
+def test_a_live_or_simulated_game_keeps_the_last_recap_up():
+    assert keeps_recap({"phase": "live"}) and keeps_recap({"phase": "intermission"})
+    assert keeps_recap({"phase": "postgame", "outcome": "FINAL", "simulated": True})
+    assert keeps_recap({"phase": "pregame", "simulated": True})
+    assert not keeps_recap({"phase": "pregame"}) and not keeps_recap(None)           # tonight's game is not on yet: nothing to hold for
+    assert not keeps_recap({"phase": "postgame", "outcome": "PPD"})
 
 
 # -- the fetch ----------------------------------------------------------------------

@@ -140,6 +140,8 @@ def replay_candidate(snapshot: Any, favorites: list[str]) -> dict[str, Any] | No
     if not snapshot.has("nhl.main_event"):
         return None
     main = snapshot.get("nhl.main_event") or {}
+    if main.get("simulated"):
+        return None                 # the Simulator's game has no landing and no files: nothing to fetch, nothing to stale
     if main.get("phase") == "postgame" and main.get("id") and main.get("outcome", "").startswith("FINAL"):
         return {"id": main["id"], "date": main.get("date", "")}
     if main.get("phase") in ("live", "intermission"):
@@ -150,6 +152,14 @@ def replay_candidate(snapshot: Any, favorites: list[str]) -> dict[str, Any] | No
         if prev.get("id") and prev.get("result"):
             return {"id": prev["id"], "date": prev.get("date", "")}
     return None
+
+
+def keeps_recap(main: dict[str, Any] | None) -> bool:
+    """Whether a main event that is not a candidate should leave the published recap up:
+    a live game (last night's goals until tonight's are in) and the Simulator's game, which
+    is no reason to forget a real result."""
+    main = main or {}
+    return bool(main.get("simulated")) or main.get("phase") in ("live", "intermission")
 
 
 def build_value(game_id: int, landing: dict[str, Any], clips: dict[int, dict[str, Any] | None],
