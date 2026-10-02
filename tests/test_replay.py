@@ -544,3 +544,19 @@ def test_board_is_registered_and_in_the_postgame_rotation():
     assert "nhl.goal_replay" in registry.boards and "nhl.goal_replay_alert" in registry.boards
     assert any(getattr(d, "__name__", "") == "detect_replays" for d in registry.detectors.values()) if isinstance(registry.detectors, dict) else True
     assert "nhl.goal_replay" in [e.board for e in Playlists().postgame]
+
+
+def test_side_colors_read_on_the_ice_and_never_go_black():
+    from scoreboard.nhl.boards.replay import NEUTRAL, lift, side_colors
+
+    fla, tor = side_colors("FLA", "TOR")
+    assert fla == (200, 16, 46)                        # a red is left exactly as branded
+    assert tor != (0, 32, 91) and tor[2] > 150         # the navy is lifted along its hue, not swapped
+    assert tor == lift((0, 32, 91))
+    assert lift((0, 0, 0)) is None
+    assert side_colors("CGY", "CAR")[1] == NEUTRAL     # same red both sides, and Carolina's accent is black
+    assert side_colors("BOS", "PIT")[1] == NEUTRAL     # two golds, and Pittsburgh's accent is black
+    assert side_colors("TOR", "VAN")[1] == (151, 153, 155)   # same navy: the home accent still wins when it reads
+    for a, h in (("FLA", "TOR"), ("TOR", "FLA"), ("DET", "CHI"), ("SEA", "NSH")):
+        away_c, home_c = side_colors(a, h)
+        assert sum(abs(x - y) for x, y in zip(away_c, home_c)) >= 150

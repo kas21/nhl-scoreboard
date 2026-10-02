@@ -46,6 +46,9 @@ BLINK_SECONDS = 0.3
 LAMP_LEVELS = (0.45, 0.75, 1.0, 0.75)      # the goal light's pulse, one step per blink of the scorer
 LAMP_SPAN_FT = 12           # how far along the end boards the light reaches, either side of the net
 LAMP_GLOW = (90, 0, 0)      # the ice behind the goal line, under the lamp
+MIN_DOT_LUMINANCE = 55      # dimmer than this and a dot is lost on the ice: the reds clear it, the navies sit near 30
+MIN_SIDE_DISTANCE = 150     # channel-sum distance under which two sides look alike on a panel
+NEUTRAL = (190, 190, 190)   # the home side when neither of its colours reads against the away one
 STOPPAGE, INTERMISSION, FINAL = "nhl.replay_stoppage", "nhl.replay_intermission", "nhl.replay_final"
 
 
@@ -129,13 +132,37 @@ def rink_image(width: int, height: int) -> Image.Image:
     return img
 
 
+def _luminance(c: RGB) -> float:
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+
+
+def _distance(a: RGB, b: RGB) -> int:
+    return sum(abs(x - y) for x, y in zip(a, b))
+
+
+def lift(c: RGB) -> RGB | None:
+    """``c`` bright enough to read as a dot on the black ice: a dim shade (the navies) is scaled
+    up along its own hue until it is, and black, which has no hue to scale, is None."""
+    lum = _luminance(c)
+    if lum >= MIN_DOT_LUMINANCE:
+        return c
+    if max(c) == 0:
+        return None
+    k = min(MIN_DOT_LUMINANCE / lum, 255 / max(c))
+    return tuple(min(255, round(v * k)) for v in c)  # type: ignore[return-value]
+
+
 def side_colors(away: str, home: str) -> tuple[RGB, RGB]:
-    """A colour per side, the home side falling back to its accent when the two primaries
-    would be hard to tell apart on a panel."""
+    """A colour per side that reads on the ice and tells the sides apart: the away side's
+    primary (its accent if that is black), the home side's primary unless it is too close to
+    the away colour, then its accent, then a neutral grey (two golds, two reds)."""
     a, h = team(away), team(home)
-    if sum(abs(x - y) for x, y in zip(a.primary, h.primary)) < 150:
-        return a.primary, h.accent
-    return a.primary, h.primary
+    away_c = lift(a.primary) or lift(a.accent) or NEUTRAL
+    for candidate in (h.primary, h.accent):
+        home_c = lift(candidate)
+        if home_c and _distance(home_c, away_c) >= MIN_SIDE_DISTANCE:
+            return away_c, home_c
+    return away_c, NEUTRAL
 
 
 @lru_cache(maxsize=16)
