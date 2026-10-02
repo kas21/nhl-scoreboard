@@ -102,8 +102,7 @@ class GameStatsBoard(BaseBoard):
     key = "nhl.game_stats"
     title = "NHL game stats"
     config_model = GameStatsConfig
-    requires = frozenset({"nhl.game_stats", "main_event"})
-    sport = "nhl"
+    requires = frozenset({"nhl.game_stats"})       # not main_event: last night's numbers are a recap the next morning
     pace_unit = "page"
 
     def rows(self, ctx: BoardContext, cfg: GameStatsConfig) -> list[dict[str, Any]]:
@@ -142,7 +141,9 @@ class GameStatsBoard(BaseBoard):
         page_t = ctx.elapsed - index * secs
         away, home = value.get("away", {}).get("abbrev", ""), value.get("home", {}).get("abbrev", "")
         main = ctx.snapshot.get("main_event") or {}
-        score = f"{(main.get('away') or {}).get('score', value.get('away', {}).get('score', 0))}-{(main.get('home') or {}).get('score', value.get('home', {}).get('score', 0))}"
+        live = main.get("id") == value.get("game_id") and main.get("phase") in ("live", "intermission")
+        score = (f"{main['away'].get('score', 0)}-{main['home'].get('score', 0)}" if live     # mid-game: the score feed is fresher than the rail
+                 else f"{value.get('away', {}).get('score', 0)}-{value.get('home', {}).get('score', 0)}")
         img.paste(header_image(ctx.width, away, home, score), (0, 0))
         away_c, home_c = side_colors(away, home)
         d = ImageDraw.Draw(img)

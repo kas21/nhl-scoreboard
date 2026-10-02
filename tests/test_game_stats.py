@@ -70,14 +70,23 @@ def test_normalise_shrugs_at_an_empty_or_odd_rail():
     assert [(r["label"], r["share"]) for r in value["shots_by_period"]] == [("SHOTS OT", 1.0), ("SHOTS 2OT", 0.5)]
 
 
-def test_candidate_is_the_main_event_on_or_over():
+def test_candidate_is_the_main_event_on_or_over_then_the_last_result():
     store = SnapshotStore()
     game = {"id": 5, "phase": "live", "away": {"abbrev": "FLA"}, "home": {"abbrev": "TOR"}}
-    assert stats_candidate(store.publish("nhl.main_event", game)) == {"id": 5, "phase": "live", "away": "FLA", "home": "TOR"}
-    assert stats_candidate(store.publish("nhl.main_event", {**game, "phase": "postgame"}))["phase"] == "postgame"
-    assert stats_candidate(store.publish("nhl.main_event", {**game, "phase": "pregame"})) is None
-    assert stats_candidate(store.publish("nhl.main_event", {**game, "simulated": True})) is None
-    assert stats_candidate(store.publish("nhl.main_event", None)) is None
+    assert stats_candidate(store.get(), ["TOR"]) is None                                   # the scores loop has not spoken yet
+    assert stats_candidate(store.publish("nhl.main_event", game), ["TOR"]) == {"id": 5, "phase": "live", "away": "FLA", "home": "TOR"}
+    assert stats_candidate(store.publish("nhl.main_event", {**game, "phase": "postgame"}), ["TOR"])["phase"] == "postgame"
+    assert stats_candidate(store.publish("nhl.main_event", {**game, "phase": "pregame"}), ["TOR"]) is None     # no result to fall back on yet
+    assert stats_candidate(store.publish("nhl.main_event", {**game, "simulated": True}), ["TOR"]) is None
+    assert stats_candidate(store.publish("nhl.main_event", None), ["TOR"]) is None
+    summary = {"TOR": {"prev_game": {"id": 7, "result": "L", "home": True, "opponent": "FLA"}}}
+    snap = store.publish("nhl.team_summary", summary)
+    assert stats_candidate(snap, ["TOR"]) == {"id": 7, "phase": "postgame", "away": "FLA", "home": "TOR"}  # the morning after
+    assert stats_candidate(store.publish("nhl.main_event", {**game, "phase": "pregame"}), ["TOR"])["id"] == 7   # until tonight's game starts
+    assert stats_candidate(store.publish("nhl.main_event", game), ["TOR"])["id"] == 5
+    away_game = {"TOR": {"prev_game": {"id": 8, "result": "W", "home": False, "opponent": "BOS"}}}
+    assert stats_candidate(store.publish("nhl.team_summary", away_game) and store.publish("nhl.main_event", None), ["TOR"]) == {"id": 8, "phase": "postgame", "away": "TOR", "home": "BOS"}
+    assert stats_candidate(store.publish("nhl.team_summary", {"TOR": {"prev_game": {"id": 8, "result": ""}}}), ["TOR"]) is None
 
 
 # -- the source ---------------------------------------------------------------------
@@ -151,6 +160,19 @@ def snap(rail):
     store.publish("main_event", {"id": GAME, "sport": "nhl", "phase": "intermission",
                                  "away": {"abbrev": "FLA", "score": 3}, "home": {"abbrev": "TOR", "score": 1}})
     return store.publish("nhl.game_stats", normalize_game_stats(rail, GAME, "FLA", "TOR"))
+
+
+def test_header_score_follows_the_live_feed_mid_game_and_the_rail_after(snap, rail):
+    from scoreboard.nhl.boards.stats import header_image
+    board, cfg = GameStatsBoard(), GameStatsConfig()
+    mid_game = board.render(_ctx(snap, 128, 64, 2.0), cfg).crop((0, 0, 128, HEADER_H))
+    assert mid_game.tobytes() == header_image(128, "FLA", "TOR", "3-1").tobytes()          # the main event's score, fresher than the rail
+    store = SnapshotStore()
+    store.publish("main_event", None)                                                     # the morning after: no main event at all
+    recap = store.publish("nhl.game_stats", normalize_game_stats(rail, GAME, "FLA", "TOR"))
+    morning = board.render(_ctx(recap, 128, 64, 2.0), cfg).crop((0, 0, 128, HEADER_H))
+    assert morning.tobytes() == header_image(128, "FLA", "TOR", "6-2").tobytes()           # the rail's final
+    assert "main_event" not in GameStatsBoard.requires and GameStatsBoard.sport is None     # so it can sit in the offday rotation
 
 
 def test_pages_split_evenly():

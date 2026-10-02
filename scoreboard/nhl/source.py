@@ -262,14 +262,14 @@ class NhlSource:
 
     async def _stats_loop(self, ctx: SourceContext, api: NhlApi) -> None:
         """Team stats for the favourite's game from the right rail: every ``STATS_LIVE_SECONDS``
-        while it is on, every ``STATS_FINAL_SECONDS`` once it is over, withdrawn when the main
-        event is no longer that game. A failure here is logged and retried; it never reaches
-        the scores loop."""
+        while it is on, every ``STATS_FINAL_SECONDS`` once it is over (last night's game stays
+        up until the next one starts), withdrawn when there is no game to show. A failure here
+        is logged and retried; it never reaches the scores loop."""
         published: int | None = None          # the game id the published value describes
         while True:
             cfg: NhlConfig = ctx.config  # type: ignore[assignment]
             snap = ctx.snapshot()
-            candidate = stats_candidate(snap) if cfg.game_stats else None
+            candidate = stats_candidate(snap, cfg.favorites) if cfg.game_stats else None
             if candidate is None:
                 if published is not None and not keeps_recap(snap.get("nhl.main_event")):
                     ctx.publish(None, subkey="game_stats")

@@ -119,10 +119,24 @@ def _period_name(descriptor: dict[str, Any]) -> str:
     return PERIOD_NAMES.get(number, f"{number}TH")
 
 
-def stats_candidate(snapshot: Any) -> dict[str, Any] | None:
-    """The game whose stats to show: the main event while it is on or over. Not the Simulator's
-    (no right rail behind it), not a game that has not started (nothing to show)."""
-    main = snapshot.get("nhl.main_event") or {}
-    if main.get("simulated") or not main.get("id") or main.get("phase") not in ("live", "intermission", "postgame"):
+def stats_candidate(snapshot: Any, favorites: list[str]) -> dict[str, Any] | None:
+    """The game whose stats to show: the main event while it is on or over, else the favourite's
+    most recent result from its team summary (last night's numbers, the morning after; the
+    right rail of a finished game stays up). Not the Simulator's game (no right rail behind
+    it), not a game that has not started (nothing to show), and nothing until the scores loop
+    has published at all."""
+    if not snapshot.has("nhl.main_event"):
         return None
-    return {"id": main["id"], "phase": main["phase"], "away": main["away"]["abbrev"], "home": main["home"]["abbrev"]}
+    main = snapshot.get("nhl.main_event") or {}
+    if main.get("simulated"):
+        return None
+    if main.get("id") and main.get("phase") in ("live", "intermission", "postgame"):
+        return {"id": main["id"], "phase": main["phase"], "away": main["away"]["abbrev"], "home": main["home"]["abbrev"]}
+    summaries = snapshot.get("nhl.team_summary") or {}
+    for fav in favorites:
+        prev = (summaries.get(fav) or {}).get("prev_game") or {}
+        if prev.get("id") and prev.get("result"):
+            us, them = fav, prev.get("opponent", "")
+            away, home = (them, us) if prev.get("home") else (us, them)
+            return {"id": prev["id"], "phase": "postgame", "away": away, "home": home}
+    return None
