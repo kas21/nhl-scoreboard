@@ -111,6 +111,7 @@ from scoreboard.nhl.boards.replay import (
     ReplayConfig,
 )
 from scoreboard.nhl.boards.standings import StandingsBoard, StandingsConfig
+from scoreboard.nhl.boards.stats import GameStatsBoard, GameStatsConfig
 from scoreboard.nhl.boards.team_summary import TeamSummaryBoard, TeamSummaryConfig
 from scoreboard.nhl.boards.ticker import TickerBoard, TickerConfig
 from scoreboard.nhl.normalize import (
@@ -121,6 +122,7 @@ from scoreboard.nhl.normalize import (
 )
 from scoreboard.nhl.replay import replays_from_files
 from scoreboard.nhl.season import season_info
+from scoreboard.nhl.stats import normalize_game_stats
 from scoreboard.render.profiles import PROFILES, profile_for
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -171,6 +173,7 @@ def _nhl_world() -> dict[str, Any]:
                   {"TOR": team_summary("TOR", standings, _load("nhl", "club_schedule_TOR_week.json"), "2026-04-11")})
     sprites = {ev: _load("nhl", f"ppt_replay_2025021270_ev{ev}.json") for ev in (101, 950)}
     store.publish("nhl.goal_replays", replays_from_files(_load("nhl", "landing_2025021270.json"), sprites, ["TOR"]))
+    store.publish("nhl.game_stats", normalize_game_stats(_load("nhl", "right_rail_2025021270.json"), 2025021270, "FLA", "TOR"))
     return {"store": store, "final": final, "live": live, "pre": pre, "ppd": ppd}
 
 
@@ -205,6 +208,9 @@ def nhl_scenes() -> list[Scene]:
         Scene("nhl.goal_replay/clip", GoalReplayBoard(), ReplayConfig(), with_game("final"), now, 12.0),
         Scene("nhl.goal_replay/hold", GoalReplayBoard(), ReplayConfig(), with_game("final"), now, 14.2, sizes=((128, 64),)),
         Scene("nhl.goal_replay_alert/stoppage", GoalReplayAlert(), ReplayAlertConfig(), with_game("live"), now, 6.0, event=stoppage, sizes=((128, 64),)),
+        Scene("nhl.game_stats/settled", GameStatsBoard(), GameStatsConfig(), with_game("live"), now, 2.0),
+        Scene("nhl.game_stats/sliding", GameStatsBoard(), GameStatsConfig(), with_game("live"), now, 0.3, sizes=((128, 64),)),
+        Scene("nhl.game_stats/page2", GameStatsBoard(), GameStatsConfig(), with_game("final"), now, 8.0, sizes=((128, 64),)),
     ]
 
 

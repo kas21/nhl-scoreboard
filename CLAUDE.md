@@ -50,7 +50,8 @@ scoreboard/
   sim/              simulator hub + contract: an engine claims a source's snapshot keys and publishes on demand from the
                     web UI (Simulator page, /api/sim); entry-point group scoreboard.sims; nhl/sim.py is the NHL game engine
   nhl/              api-web.nhle.com client, normaliser, source, season phase, event detectors, boards (ported old designs), sim;
-                    replay.py fetches the tracking clip behind each goal (wsr.nhle.com, post-game) for boards/replay.py
+                    replay.py fetches the tracking clip behind each goal (wsr.nhle.com, 3-4 min after the goal) for boards/replay.py;
+                    stats.py normalises the right rail's team stats for boards/stats.py
   nfl/              ESPN site API, normaliser, source, detectors; boards subclass the NHL ones
   ncaaf/            college football (FBS) on the same ESPN API: subclasses the NFL source/client/boards; owns the
                     138-team registry (teams.py, ESPN abbrevs by conference), conference standings, ranks, slate filter

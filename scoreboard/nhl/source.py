@@ -6,6 +6,7 @@ Snapshot keys published:
   nhl.standings     normalised standings
   nhl.team_summary  {abbrev: summary} for each favourite
   nhl.goal_replays  the tracking clip behind each goal of the favourite's last game (see replay.py)
+  nhl.game_stats    team stats of the favourite's game, live and after (see stats.py)
   system            {"online": bool}
 """
 from __future__ import annotations
@@ -35,6 +36,7 @@ from .replay import ReplayFetcher, keeps_recap, replay_candidate
 from .schedule import fetch_weeks, schedule_games
 from .season import season_info
 from .select import favorite_side, select_main_event
+from .stats import normalize_game_stats, stats_candidate
 from .teams import NHL_TEAMS
 
 log = logging.getLogger(__name__)
@@ -44,6 +46,8 @@ ABBREV = re.compile(r"[A-Z]{2,4}")   # what an NHL team code looks like; the reg
 NORMALISE_ERRORS = (KeyError, TypeError, ValueError, AttributeError)   # a game the feed shaped in a way normalize cannot read
 REPLAY_LOOKUP_SECONDS = 5.0     # how often the replay loop looks at the snapshot for a game to recap (no network)
 REPLAY_LIVE_SECONDS = 30.0      # how often it re-reads the landing while the game is on (a goal's file lands 3-4 min after the goal)
+STATS_LIVE_SECONDS = 30.0       # how often the right rail is re-read while the game is on
+STATS_FINAL_SECONDS = 600.0     # ...and after it (the numbers are settled; one late correction is all this catches)
 
 
 class NhlConfig(BaseModel):
@@ -60,6 +64,7 @@ class NhlConfig(BaseModel):
     show_games_within_days: int = Field(2, ge=0, le=30, description="Only show the league slate (ticker) when it is this close; further-out games stay off the panel")
     follow_preseason: bool = Field(True, description="Treat your team's preseason games like any other game")
     goal_replays: bool = Field(True, description="Fetch the league's player-tracking replay of each goal in your team's game for the goal replay boards (a goal's file appears three to four minutes after the goal)")
+    game_stats: bool = Field(True, description="Fetch team stats (shots, faceoffs, hits, power play…) for your team's game, for the game stats board")
     replay_interval: float = Field(120.0, ge=30, le=900, description="Seconds between looks for replay files that are not there yet", json_schema_extra=ADVANCED)
     replay_retry_hours: float = Field(3.0, ge=0.5, le=24, description="Give up on a goal's replay this long after the game", json_schema_extra=ADVANCED)
 
@@ -97,6 +102,7 @@ class NhlSource:
             tg.create_task(self._scores_loop(ctx, api))
             tg.create_task(self._standings_loop(ctx, api))
             tg.create_task(self._replay_loop(ctx, api))
+            tg.create_task(self._stats_loop(ctx, api))
 
     # -- scores + main event ------------------------------------------------
 
@@ -251,6 +257,39 @@ class NhlSource:
                 self._standings_ready.set()
             await ctx.nap(cfg.standings_interval)
 
+
+    # -- game stats -----------------------------------------------------------
+
+    async def _stats_loop(self, ctx: SourceContext, api: NhlApi) -> None:
+        """Team stats for the favourite's game from the right rail: every ``STATS_LIVE_SECONDS``
+        while it is on, every ``STATS_FINAL_SECONDS`` once it is over, withdrawn when the main
+        event is no longer that game. A failure here is logged and retried; it never reaches
+        the scores loop."""
+        published: int | None = None          # the game id the published value describes
+        while True:
+            cfg: NhlConfig = ctx.config  # type: ignore[assignment]
+            snap = ctx.snapshot()
+            candidate = stats_candidate(snap) if cfg.game_stats else None
+            if candidate is None:
+                if published is not None and not keeps_recap(snap.get("nhl.main_event")):
+                    ctx.publish(None, subkey="game_stats")
+                    published = None
+                await ctx.nap(REPLAY_LOOKUP_SECONDS)
+                continue
+            try:
+                rail = await api.right_rail(candidate["id"])
+                value = normalize_game_stats(rail, candidate["id"], candidate["away"], candidate["home"])
+                if value["stats"] or value["shots_by_period"]:
+                    if value != snap.get("nhl.game_stats"):
+                        ctx.publish(value, subkey="game_stats")
+                    published = candidate["id"]
+                elif published != candidate["id"]:
+                    ctx.drift("the right rail has no team stats for the game; the stats board stays off")
+            except NhlApiError as exc:
+                ctx.log.debug("right rail fetch failed for %s: %s", candidate["id"], exc)
+            except NORMALISE_ERRORS as exc:
+                ctx.drift(f"the right rail could not be normalised ({type(exc).__name__}: {exc})")
+            await ctx.nap(STATS_LIVE_SECONDS if candidate["phase"] != "postgame" else STATS_FINAL_SECONDS)
 
     # -- goal replays ---------------------------------------------------------
 

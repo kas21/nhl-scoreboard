@@ -15,6 +15,7 @@ from .data.source import SourceContext
 from .nhl.normalize import normalize_game, normalize_standings, records_from_standings, team_summary
 from .nhl.replay import replays_from_files
 from .nhl.select import favorite_side
+from .nhl.stats import normalize_game_stats
 
 FIXTURES = Path(__file__).parent.parent / "tests" / "fixtures" / "nhl"
 
@@ -43,6 +44,8 @@ class DemoSource:
         final = normalize_game(raw, recs, landing)
         sprites = {ev: json.loads((FIXTURES / f"ppt_replay_2025021270_ev{ev}.json").read_text()) for ev in (101, 950)}
         ctx.publish(replays_from_files(landing, sprites, ctx.config.favorites), subkey="goal_replays")
+        rail = json.loads((FIXTURES / "right_rail_2025021270.json").read_text())
+        ctx.publish(normalize_game_stats(rail, 2025021270, "FLA", "TOR"), subkey="game_stats")
         while True:
             for step in _script(final):
                 cfg: DemoConfig = ctx.config  # type: ignore[assignment]

@@ -156,6 +156,7 @@ class Playlists(FrozenModel):
     intermission: tuple[PlaylistEntry, ...] = (
         PlaylistEntry(board="weather.alerts", duration=None),
         PlaylistEntry(board="nhl.game", duration=15),
+        PlaylistEntry(board="nhl.game_stats", duration=None),
         PlaylistEntry(board="nfl.game", duration=15),
         PlaylistEntry(board="ncaaf.game", duration=15),
         PlaylistEntry(board="mlb.game", duration=15),
@@ -168,6 +169,7 @@ class Playlists(FrozenModel):
         PlaylistEntry(board="weather.alerts", duration=None),
         PlaylistEntry(board="nhl.game", duration=20),
         PlaylistEntry(board="nhl.goal_replay", duration=None),
+        PlaylistEntry(board="nhl.game_stats", duration=None),
         PlaylistEntry(board="nfl.game", duration=20),
         PlaylistEntry(board="ncaaf.game", duration=20),
         PlaylistEntry(board="mlb.game", duration=20),
