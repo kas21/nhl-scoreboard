@@ -10,15 +10,26 @@ import pytest
 import respx
 
 from scoreboard.boards.base import BoardContext
-from scoreboard.data import SnapshotStore
+from scoreboard.data import Event, SnapshotStore
 from scoreboard.data.source import SourceContext
 from scoreboard.nhl.api import BASE_URL, NhlApi
-from scoreboard.nhl.boards.replay import GoalReplayBoard, ReplayConfig, Rink, header_image
+from scoreboard.nhl.boards.replay import (
+    FINAL,
+    INTERMISSION,
+    STOPPAGE,
+    GoalReplayAlert,
+    GoalReplayBoard,
+    ReplayAlertConfig,
+    ReplayConfig,
+    Rink,
+    header_image,
+)
 from scoreboard.nhl.replay import (
     SPRITE_HEADERS,
     ReplayFetcher,
     SpriteUnavailable,
     compact_replay,
+    detect_replays,
     fetch_sprite,
     keeps_recap,
     replay_candidate,
@@ -107,15 +118,17 @@ def _snap(**keys):
     return snap
 
 
-def test_candidate_is_the_favourites_final_then_its_last_result():
+def test_candidate_is_the_favourites_game_on_or_over_then_its_last_result():
     final = {"id": 5, "date": "2026-04-11", "phase": "postgame", "outcome": "FINAL"}
-    assert replay_candidate(_snap(nhl__main_event=final), ["TOR"]) == {"id": 5, "date": "2026-04-11"}
+    assert replay_candidate(_snap(nhl__main_event=final), ["TOR"]) == {"id": 5, "date": "2026-04-11", "phase": "postgame"}
     live = {**final, "phase": "live", "outcome": ""}
-    assert replay_candidate(_snap(nhl__main_event=live), ["TOR"]) is None            # not written until the horn
+    assert replay_candidate(_snap(nhl__main_event=live), ["TOR"]) == {"id": 5, "date": "2026-04-11", "phase": "live"}      # files land during the game
+    assert replay_candidate(_snap(nhl__main_event={**live, "phase": "intermission"}), ["TOR"])["phase"] == "intermission"
     summary = {"TOR": {"prev_game": {"id": 7, "date": "2026-04-10", "result": "W"}}}
-    assert replay_candidate(_snap(nhl__main_event=None, nhl__team_summary=summary), ["TOR"]) == {"id": 7, "date": "2026-04-10"}
+    assert replay_candidate(_snap(nhl__main_event=None, nhl__team_summary=summary), ["TOR"]) == {"id": 7, "date": "2026-04-10", "phase": "postgame"}
     assert replay_candidate(_snap(nhl__team_summary=summary), ["TOR"]) is None             # the scores loop has not spoken yet
-    assert replay_candidate(_snap(nhl__main_event={**final, "outcome": "PPD"}, nhl__team_summary=summary), ["TOR"]) == {"id": 7, "date": "2026-04-10"}
+    assert replay_candidate(_snap(nhl__main_event={**final, "phase": "pregame", "outcome": ""}, nhl__team_summary=summary), ["TOR"])["id"] == 7
+    assert replay_candidate(_snap(nhl__main_event={**final, "outcome": "PPD"}, nhl__team_summary=summary), ["TOR"])["id"] == 7
     assert replay_candidate(_snap(nhl__main_event=None, nhl__team_summary={"TOR": {"prev_game": {"id": 7, "result": ""}}}), ["TOR"]) is None
     assert replay_candidate(_snap(nhl__main_event=None), ["TOR"]) is None
     simulated = {**final, "id": 2099990001, "simulated": True}
@@ -123,15 +136,78 @@ def test_candidate_is_the_favourites_final_then_its_last_result():
     assert replay_candidate(_snap(nhl__main_event={**simulated, "phase": "live"}, nhl__team_summary=summary), ["TOR"]) is None
 
 
-def test_a_live_or_simulated_game_keeps_the_last_recap_up():
-    assert keeps_recap({"phase": "live"}) and keeps_recap({"phase": "intermission"})
+def test_only_a_simulated_game_keeps_the_last_recap_up():
     assert keeps_recap({"phase": "postgame", "outcome": "FINAL", "simulated": True})
     assert keeps_recap({"phase": "pregame", "simulated": True})
-    assert not keeps_recap({"phase": "pregame"}) and not keeps_recap(None)           # tonight's game is not on yet: nothing to hold for
+    assert not keeps_recap({"phase": "pregame"}) and not keeps_recap(None)           # a real game that is not a candidate: nothing to hold for
     assert not keeps_recap({"phase": "postgame", "outcome": "PPD"})
 
 
-# -- the fetch ----------------------------------------------------------------------
+# -- the detector: when a clip is worth interrupting for ------------------------------
+
+
+def _game(**over):
+    base = {"id": GAME, "sport": "nhl", "phase": "live", "clock_running": True, "period_number": 1, "outcome": "",
+            "away": {"abbrev": "FLA"}, "home": {"abbrev": "TOR"}}
+    return {**base, **over}
+
+
+def _recap(*event_ids, periods=None):
+    periods = periods or {}
+    return {"game_id": GAME, "away": {"abbrev": "FLA"}, "home": {"abbrev": "TOR"},
+            "goals": [{"event_id": ev, "period": periods.get(ev, 1), "clip": {"fps": 10, "players": [], "frames": [{"t": 0, "puck": None, "on_ice": []}]}}
+                      for ev in event_ids]}
+
+
+def _diff(before: dict, after: dict):
+    store = SnapshotStore()
+    prev = store.get()
+    for k, v in before.items():
+        prev = store.publish(k, v)
+    new = prev
+    for k, v in after.items():
+        new = store.publish(k, v)
+    return list(detect_replays(prev, new))
+
+
+def test_whistle_with_a_clip_in_hand_is_a_stoppage_event():
+    running = {"nhl.main_event": _game(), "nhl.goal_replays": _recap(101)}
+    events = _diff(running, {"nhl.main_event": _game(clock_running=False)})
+    assert [e.kind for e in events] == [STOPPAGE] and events[0].payload["clips"] == [101]
+    assert "frames" not in json.dumps(events[0].payload)                                 # ids only, no clip data: the MQTT bridge mirrors events
+    assert _diff(running, {"nhl.main_event": _game(clock_running=True)}) == []          # play goes on: nothing
+    assert _diff({"nhl.main_event": _game(clock_running=False), "nhl.goal_replays": _recap(101)},
+                 {"nhl.main_event": _game(clock_running=False)}) == []                   # still stopped, nothing new
+    assert _diff({"nhl.main_event": _game()}, {"nhl.main_event": _game(clock_running=False)}) == []     # whistle, no clips yet
+
+
+def test_a_clip_arriving_during_a_stoppage_plays_at_once():
+    stopped = {"nhl.main_event": _game(clock_running=False), "nhl.goal_replays": _recap(101)}
+    events = _diff(stopped, {"nhl.goal_replays": _recap(101, 152)})
+    assert [e.kind for e in events] == [STOPPAGE] and events[0].payload["clips"] == [101, 152]
+    assert _diff({"nhl.main_event": _game(), "nhl.goal_replays": _recap(101)}, {"nhl.goal_replays": _recap(101, 152)}) == []   # in play: wait for the whistle
+
+
+def test_intermission_and_final_events():
+    live = {"nhl.main_event": _game(period_number=1), "nhl.goal_replays": _recap(101, 152)}
+    events = _diff(live, {"nhl.main_event": _game(phase="intermission", clock_running=False, period_number=1)})
+    assert [e.kind for e in events] == [INTERMISSION] and events[0].payload["period"] == 1
+    inter = {"nhl.main_event": _game(phase="intermission", clock_running=False), "nhl.goal_replays": _recap(101)}
+    assert _diff(inter, {"nhl.main_event": _game(phase="intermission", clock_running=False)}) == []       # same intermission, nothing new
+    late = _diff(inter, {"nhl.goal_replays": _recap(101, 152)})
+    assert [e.kind for e in late] == [INTERMISSION] and late[0].payload["clips"] == [101, 152]           # a late clip plays by itself
+    over = _diff({"nhl.main_event": _game(phase="live"), "nhl.goal_replays": _recap(101)},
+                 {"nhl.main_event": _game(phase="postgame", outcome="FINAL/OT", clock_running=False)})
+    assert [e.kind for e in over] == [FINAL]
+    assert _diff({"nhl.main_event": _game(phase="live"), "nhl.goal_replays": _recap(101)},
+                 {"nhl.main_event": _game(phase="postgame", outcome="PPD")}) == []
+    assert _diff({"nhl.main_event": _game(simulated=True), "nhl.goal_replays": _recap(101)},
+                 {"nhl.main_event": _game(simulated=True, clock_running=False)}) == []
+    assert _diff({"nhl.main_event": _game(), "nhl.goal_replays": {**_recap(101), "game_id": 1}},
+                 {"nhl.main_event": _game(clock_running=False)}) == []                                   # a recap of another game
+
+
+# -- the fetch# -- the fetch ----------------------------------------------------------------------
 
 
 @pytest.mark.asyncio
@@ -179,6 +255,25 @@ async def test_fetcher_keeps_asking_until_the_batch_lands(landing, raw_101):
 
 
 @pytest.mark.asyncio
+async def test_fetcher_refetches_once_after_the_final(landing, raw_101):
+    """A clip fetched during the game is fetched again after the final, since the league rewrites the files."""
+    async with httpx.AsyncClient() as http, respx.mock(assert_all_called=False) as mock:
+        mock.get(f"{BASE_URL}/gamecenter/{GAME}/landing").mock(return_value=httpx.Response(200, json=landing))
+        sprite = mock.get(f"{SPRITES}/ev101.json").mock(return_value=httpx.Response(200, json=raw_101))
+        mock.get(url__regex=rf"{SPRITES}/ev\d+\.json").mock(return_value=httpx.Response(403))
+        fetcher = ReplayFetcher(GAME)
+        await fetcher.refresh(NhlApi(http), http, ["TOR"], max_attempts=1, in_play=True)
+        assert sprite.call_count == 1 and fetcher.fetched_in_play
+        assert fetcher.rewrite() is True and fetcher.clips == {}
+        assert fetcher.rewrite() is False                                   # once
+        await fetcher.refresh(NhlApi(http), http, ["TOR"], max_attempts=1)
+        assert sprite.call_count == 2 and 101 in fetcher.clips
+        fresh = ReplayFetcher(GAME)
+        await fresh.refresh(NhlApi(http), http, ["TOR"], max_attempts=1)
+        assert fresh.rewrite() is False                                     # fetched after the final already: nothing to redo
+
+
+@pytest.mark.asyncio
 async def test_source_publishes_replays_for_the_favourites_final(monkeypatch, landing, raw_101):
     """The fixture day: the Leafs' game is over, so the replay loop fetches the landing and the sprites."""
     import scoreboard.nhl.source as src
@@ -209,6 +304,44 @@ async def test_source_publishes_replays_for_the_favourites_final(monkeypatch, la
     value = snap.get("nhl.goal_replays")
     assert value["game_id"] == GAME and value["favorite"] == "TOR"
     assert [g["event_id"] for g in value["goals"] if g["clip"]] == [101]
+
+
+@pytest.mark.asyncio
+async def test_source_fetches_during_the_game(monkeypatch, landing, raw_101):
+    """The score feed says the Leafs' game is live: the clips are fetched now, not after the horn."""
+    import scoreboard.nhl.source as src
+    monkeypatch.setattr(src, "_local_today", lambda ctx: "2026-04-11")
+    monkeypatch.setattr(src, "carry_last_night", lambda ctx: False)
+    monkeypatch.setattr(src, "REPLAY_LOOKUP_SECONDS", 0.02)
+    score = load("score_2026-04-11.json")
+    for g in score["games"]:
+        if g["homeTeam"]["abbrev"] == "TOR":
+            g["gameState"] = "LIVE"
+            g["clock"] = {"timeRemaining": "12:34", "running": True, "inIntermission": False}
+            g["periodDescriptor"] = {"number": 2, "periodType": "REG"}
+    live_landing = {**landing, "gameState": "LIVE", "clock": {"timeRemaining": "12:34", "running": True, "inIntermission": False},
+                    "periodDescriptor": {"number": 2, "periodType": "REG"}}
+    store = SnapshotStore()
+    cfg = NhlConfig(favorites=["TOR"], idle_interval=15, standings_interval=300)
+    async with httpx.AsyncClient() as http, respx.mock(assert_all_called=False) as mock:
+        mock.get(f"{BASE_URL}/score/now").mock(return_value=httpx.Response(200, json=score))
+        mock.get(f"{BASE_URL}/standings/now").mock(return_value=httpx.Response(200, json=load("standings_2026-04-10.json")))
+        mock.get(f"{BASE_URL}/club-schedule-season/TOR/now").mock(return_value=httpx.Response(200, json=load("club_schedule_TOR_week.json")))
+        mock.get(f"{BASE_URL}/schedule/now").mock(return_value=httpx.Response(200, json=load("schedule_now.json")))
+        mock.get(url__regex=rf"{BASE_URL}/schedule/\d{{4}}-\d\d-\d\d").mock(return_value=httpx.Response(200, json={"gameWeek": []}))
+        mock.get(f"{BASE_URL}/gamecenter/{GAME}/landing").mock(return_value=httpx.Response(200, json=live_landing))
+        mock.get(f"{SPRITES}/ev101.json").mock(return_value=httpx.Response(200, json=raw_101))
+        mock.get(url__regex=rf"{SPRITES}/ev\d+\.json").mock(return_value=httpx.Response(403))
+        ctx = SourceContext("nhl", store, lambda: cfg, http)
+        task = asyncio.create_task(NhlSource().run(ctx))
+        for _ in range(200):
+            await asyncio.sleep(0.01)
+            if store.get().get("nhl.goal_replays"):
+                break
+        task.cancel()
+        snap = store.get()
+    assert snap.get("nhl.main_event")["phase"] == "live"
+    assert [g["event_id"] for g in snap.get("nhl.goal_replays")["goals"] if g["clip"]] == [101]
 
 
 @pytest.mark.asyncio
@@ -317,8 +450,67 @@ def test_favourite_only_filter_and_empty_value(landing, raw_101):
     assert board.done(_ctx(_snap(nhl__goal_replays=None), 128, 64, 0.0), ReplayConfig())
 
 
+def _event(kind, clips, game=None, **extra):
+    return Event(kind, ts=1.0, payload={"game": game or _game(), "clips": list(clips), **extra})
+
+
+def test_alert_plays_what_the_viewer_has_not_seen_at_a_whistle(replays):
+    board, cfg = GoalReplayAlert(), ReplayAlertConfig()
+    first = _event(STOPPAGE, [101])
+    assert board.matches(first, cfg)
+    ctx = _ctx(replays, 128, 64, 1.0); ctx = BoardContext(**{**ctx.__dict__, "event": first})
+    board.enter(ctx, cfg)
+    assert [g["event_id"] for g in board._playing] == [101]
+    assert board.auto_seconds(ctx, cfg) == pytest.approx(14.0 + cfg.hold_seconds)
+    assert board.render(ctx, cfg).crop((0, 0, 128, 7)).tobytes() == header_image(128, "FLA", "LUOSTARINEN", "1-0").tobytes()
+    assert not board.done(ctx, cfg) and board.done(BoardContext(**{**ctx.__dict__, "elapsed": 16.0}), cfg)
+    assert not board.matches(_event(STOPPAGE, [101]), cfg)                 # the next whistle: nothing new
+    second = _event(STOPPAGE, [101, 950])
+    assert board.matches(second, cfg)                                       # a second goal's clip: that one only
+    board.enter(BoardContext(**{**ctx.__dict__, "event": second}), cfg)
+    assert [g["event_id"] for g in board._playing] == [950]
+    assert board.matches(_event(STOPPAGE, [101, 950], game=_game(id=1)), cfg)      # another game starts afresh
+
+
+def test_alert_switches_and_occasions(replays):
+    board = GoalReplayAlert()
+    off = ReplayAlertConfig(at_stoppage=False)
+    assert not board.matches(_event(STOPPAGE, [101]), off)
+    assert not board.matches(_event(FINAL, [101]), ReplayAlertConfig())             # off by default: the playlist board covers it
+    assert board.matches(_event(FINAL, [101]), ReplayAlertConfig(at_final=True))
+    assert not board.matches(_event(STOPPAGE, [101]), ReplayAlertConfig(enabled=False))
+    # the intermission replays the period even after the whistle showed the goal, and only that period
+    inter = _event(INTERMISSION, [101, 950], period=1)
+    ctx = BoardContext(**{**_ctx(replays, 128, 64, 0.5).__dict__, "event": _event(STOPPAGE, [101, 950])})
+    board.enter(ctx, ReplayAlertConfig())
+    assert board.matches(inter, ReplayAlertConfig())
+    board.enter(BoardContext(**{**ctx.__dict__, "event": inter}), ReplayAlertConfig())
+    assert [g["event_id"] for g in board._playing] == [101]                         # 950 is a third-period goal
+    assert not board.matches(inter, ReplayAlertConfig())
+    assert board.matches(_event(INTERMISSION, [101, 950], period=3), ReplayAlertConfig())
+    # favourite-only keeps the Panthers' goals off, and does not re-arm the next whistle with them
+    fav = ReplayAlertConfig(favorite_goals_only=True)
+    fav_ctx = BoardContext(**{**ctx.__dict__, "event": _event(STOPPAGE, [101], game=_game(id=GAME))})
+    fresh = GoalReplayAlert()
+    assert fresh.matches(fav_ctx.event, fav)
+    fresh.enter(fav_ctx, fav)
+    assert fresh._playing == [] and fresh.done(fav_ctx, fav)
+    assert not fresh.matches(_event(STOPPAGE, [101]), fav)
+
+
+def test_alert_renders_without_enter_and_outlives_the_default_event_cap(replays):
+    from scoreboard.director.director import EVENT_MAX_SECONDS
+    board, cfg = GoalReplayAlert(), ReplayAlertConfig()
+    ctx = BoardContext(**{**_ctx(replays, 64, 32, 3.0).__dict__, "event": _event(STOPPAGE, [101, 950])})
+    img = board.render(ctx, cfg)                                             # the golden harness and a UI preview enter through render
+    assert img.size == (64, 32) and img.getbbox()
+    assert board.auto_seconds(ctx, cfg) > EVENT_MAX_SECONDS <= board.max_seconds   # two clips outrun the default cap; the board raises its own
+
+
 def test_board_is_registered_and_in_the_postgame_rotation():
     from scoreboard.config.models import Playlists
     from scoreboard.plugins import load_registry
-    assert "nhl.goal_replay" in load_registry().boards
+    registry = load_registry()
+    assert "nhl.goal_replay" in registry.boards and "nhl.goal_replay_alert" in registry.boards
+    assert any(getattr(d, "__name__", "") == "detect_replays" for d in registry.detectors.values()) if isinstance(registry.detectors, dict) else True
     assert "nhl.goal_replay" in [e.board for e in Playlists().postgame]

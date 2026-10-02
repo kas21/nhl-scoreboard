@@ -142,6 +142,9 @@ class EventBoard(BaseBoard):
 
     event_kinds: ClassVar[frozenset[str]] = frozenset()
     playlistable: ClassVar[bool] = False
+    # The longest one run may hold the panel, for a board whose alert is longer than the
+    # director's default cap (a replay of every goal of a period); None takes the default.
+    max_seconds: ClassVar[float | None] = None
 
     def matches(self, event: Event, cfg: BaseModel) -> bool:
         return event.kind in self.event_kinds

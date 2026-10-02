@@ -104,7 +104,12 @@ from scoreboard.nfl.normalize import normalize_standings as nfl_standings
 from scoreboard.nfl.normalize import team_summary as nfl_team_summary
 from scoreboard.nhl.boards.events import GoalBoard, GoalConfig, PenaltyBoard, PenaltyConfig
 from scoreboard.nhl.boards.game import GameBoard, GameConfig
-from scoreboard.nhl.boards.replay import GoalReplayBoard, ReplayConfig
+from scoreboard.nhl.boards.replay import (
+    GoalReplayAlert,
+    GoalReplayBoard,
+    ReplayAlertConfig,
+    ReplayConfig,
+)
 from scoreboard.nhl.boards.standings import StandingsBoard, StandingsConfig
 from scoreboard.nhl.boards.team_summary import TeamSummaryBoard, TeamSummaryConfig
 from scoreboard.nhl.boards.ticker import TickerBoard, TickerConfig
@@ -182,6 +187,7 @@ def nhl_scenes() -> list[Scene]:
     fav_goal = Event("nhl.goal", team="TOR", payload={"side": "home", "game": live, "score": "1-3", "goal": live["goals"][-1]})
     opp_goal = Event("nhl.goal", team="FLA", payload={"side": "away", "game": live, "score": "2-3", "goal": live["goals"][0]})
     penalty = Event("nhl.penalty", team="TOR", payload={"penalty": w["final"]["penalties"][0], "game": live})
+    stoppage = Event("nhl.replay_stoppage", payload={"game": live, "clips": [101]})
     goal_cfg = GoalConfig()
     return [
         Scene("nhl.game/pregame", GameBoard(), GameConfig(), with_game("pre"), now, 2.0, sizes=ALL_SIZES),
@@ -198,6 +204,7 @@ def nhl_scenes() -> list[Scene]:
         Scene("nhl.penalty/live", PenaltyBoard(), PenaltyConfig(), with_game("live"), now, 1.0, event=penalty),
         Scene("nhl.goal_replay/clip", GoalReplayBoard(), ReplayConfig(), with_game("final"), now, 12.0),
         Scene("nhl.goal_replay/hold", GoalReplayBoard(), ReplayConfig(), with_game("final"), now, 14.2, sizes=((128, 64),)),
+        Scene("nhl.goal_replay_alert/stoppage", GoalReplayAlert(), ReplayAlertConfig(), with_game("live"), now, 6.0, event=stoppage, sizes=((128, 64),)),
     ]
 
 

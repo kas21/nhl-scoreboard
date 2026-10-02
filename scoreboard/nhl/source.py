@@ -43,6 +43,7 @@ OFFLINE_AFTER_FAILURES = 3      # consecutive score-poll failures before we repo
 ABBREV = re.compile(r"[A-Z]{2,4}")   # what an NHL team code looks like; the registry is not the last word on which exist
 NORMALISE_ERRORS = (KeyError, TypeError, ValueError, AttributeError)   # a game the feed shaped in a way normalize cannot read
 REPLAY_LOOKUP_SECONDS = 5.0     # how often the replay loop looks at the snapshot for a game to recap (no network)
+REPLAY_LIVE_SECONDS = 30.0      # how often it re-reads the landing while the game is on (a goal's file lands 3-4 min after the goal)
 
 
 class NhlConfig(BaseModel):
@@ -58,7 +59,7 @@ class NhlConfig(BaseModel):
     delay_seconds: float = Field(0.0, ge=0, le=120, description="Delay live updates to match your TV broadcast")
     show_games_within_days: int = Field(2, ge=0, le=30, description="Only show the league slate (ticker) when it is this close; further-out games stay off the panel")
     follow_preseason: bool = Field(True, description="Treat your team's preseason games like any other game")
-    goal_replays: bool = Field(True, description="After your team's game, fetch the league's player-tracking replay of each goal for the goal replay board (the files appear a few minutes after the final horn)")
+    goal_replays: bool = Field(True, description="Fetch the league's player-tracking replay of each goal in your team's game for the goal replay boards (a goal's file appears three to four minutes after the goal)")
     replay_interval: float = Field(120.0, ge=30, le=900, description="Seconds between looks for replay files that are not there yet", json_schema_extra=ADVANCED)
     replay_retry_hours: float = Field(3.0, ge=0.5, le=24, description="Give up on a goal's replay this long after the game", json_schema_extra=ADVANCED)
 
@@ -254,15 +255,18 @@ class NhlSource:
     # -- goal replays ---------------------------------------------------------
 
     async def _replay_loop(self, ctx: SourceContext, api: NhlApi) -> None:
-        """Fetch the tracking clip behind each goal once the favourite's game is over.
+        """Fetch the tracking clip behind each goal of the favourite's game.
 
-        The files are written in one batch a few minutes after the final horn, and a goal
-        without one answers exactly like a goal whose file is late, so the loop asks again
-        every ``replay_interval`` until every goal has a clip or ``replay_retry_hours`` is up.
-        The value is published once the first clip is in (goals without one ride along with
-        ``clip: None``) and withdrawn when the game it describes is no longer the one to show."""
+        During the game the landing is re-read every ``REPLAY_LIVE_SECONDS`` (a goal's file is
+        written three to four minutes after the goal; the alert boards play it at the next
+        whistle). After the final every file is fetched once more, since the league rewrites
+        them, and a goal still without one is asked for every ``replay_interval`` until
+        ``replay_retry_hours`` is up. A goal without a file answers exactly like a goal whose
+        file is late, hence the bounded retry. The value is published once the first clip is in
+        (goals without one ride along with ``clip: None``) and withdrawn when the game it
+        describes is no longer the one to show."""
         fetcher: ReplayFetcher | None = None
-        started = 0.0
+        final_at: float | None = None
         published = False
         loop = asyncio.get_event_loop()
         while True:
@@ -271,20 +275,25 @@ class NhlSource:
             candidate = replay_candidate(snap, cfg.favorites) if cfg.goal_replays else None
             if candidate is None:
                 if published and (not cfg.goal_replays or not keeps_recap(snap.get("nhl.main_event"))):
-                    ctx.publish(None, subkey="goal_replays")      # nothing to recap any more (a live or simulated game keeps the last one)
+                    ctx.publish(None, subkey="goal_replays")      # nothing to recap any more (the Simulator's game keeps the last one)
                     published, fetcher = False, None
                 await ctx.nap(REPLAY_LOOKUP_SECONDS)
                 continue
             if fetcher is None or fetcher.game_id != candidate["id"]:
                 if published:
-                    ctx.publish(None, subkey="goal_replays")      # a new result: the old recap is stale
+                    ctx.publish(None, subkey="goal_replays")      # a new game: the old recap is stale
                     published = False
-                fetcher, started = ReplayFetcher(int(candidate["id"])), loop.time()
+                fetcher, final_at = ReplayFetcher(int(candidate["id"])), None
+            in_play = candidate["phase"] in ("live", "intermission")
+            if not in_play and final_at is None:
+                final_at = loop.time()
+                if fetcher.rewrite():
+                    ctx.log.debug("game %s is over; fetching the rewritten replay files", fetcher.game_id)
             attempts = max(1, int(cfg.replay_retry_hours * 3600 / cfg.replay_interval))
-            expired = loop.time() - started > cfg.replay_retry_hours * 3600
-            if not expired and fetcher.pending(attempts):
+            expired = final_at is not None and loop.time() - final_at > cfg.replay_retry_hours * 3600
+            if in_play or (not expired and fetcher.pending(attempts)):
                 try:
-                    value = await fetcher.refresh(api, ctx.http, cfg.favorites, attempts)
+                    value = await fetcher.refresh(api, ctx.http, cfg.favorites, attempts, in_play=in_play)
                 except NhlApiError as exc:
                     ctx.log.debug("replay landing fetch failed for %s: %s", fetcher.game_id, exc)
                     value = None
@@ -294,7 +303,7 @@ class NhlSource:
                 if value is not None and any(g.get("clip") for g in value["goals"]):
                     ctx.publish(value, subkey="goal_replays")
                     published = True
-                await ctx.nap(cfg.replay_interval)
+                await ctx.nap(REPLAY_LIVE_SECONDS if in_play else cfg.replay_interval)
             else:
                 await ctx.nap(REPLAY_LOOKUP_SECONDS)
 

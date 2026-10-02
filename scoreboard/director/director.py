@@ -386,7 +386,7 @@ class Director:
     def _after_render(self, board: BaseBoard, ctx: BoardContext, board_cfg: BaseModel, cfg: AppConfig, mono: float) -> None:
         if self._active_event:
             _, eb, started = self._active_event
-            if eb.done(ctx, board_cfg) or mono - started > EVENT_MAX_SECONDS:
+            if eb.done(ctx, board_cfg) or mono - started > (eb.max_seconds or EVENT_MAX_SECONDS):
                 self._active_event = None
                 self._cursor = Cursor(self._cursor.state, self._cursor.index, mono)
             return

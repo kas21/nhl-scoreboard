@@ -4,8 +4,9 @@ Game Center's goal animation is not a video. For every goal the landing feed car
 ``pptReplayUrl`` (PPT: puck and player tracking) pointing at a JSON file on
 ``wsr.nhle.com``: about fourteen seconds of positions at ten frames a second for the
 twelve skaters and goalies on the ice and the puck, in inches from a corner of a 200 by
-85 foot rink. The files are written in one batch a few minutes after the final horn, so
-this is a recap, not a live feed; the loop below keeps asking until they are there.
+85 foot rink. The file is written three to four minutes after the goal, during the game
+(tools/probe_replays.py measured it), and every goal's file is rewritten once more a few
+minutes after the final horn — so the loop fetches during the game, then once more after it.
 
 The bucket sits behind Cloudflare and answers a bare client with 403; a browser-shaped
 request is let through. A goal without a file (the feed skips some) answers the same 403
@@ -15,9 +16,12 @@ retry rather than a verdict.
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterable
 from typing import Any
 
 import httpx
+
+from ..data import Event, Snapshot
 
 log = logging.getLogger(__name__)
 
@@ -31,6 +35,9 @@ RINK_LENGTH_IN = 2400       # 200 ft, the x axis of the tracking coordinates
 RINK_WIDTH_IN = 1020        # 85 ft, the y axis
 PUCK_ID = "1"               # the one entity in a frame with no player behind it
 FRAME_DECISECONDS = 1       # the feed's timestamps are tenths of a second, one per frame
+MAIN_EVENT = "nhl.main_event"
+REPLAYS = "nhl.goal_replays"
+IN_PLAY = ("live", "intermission")
 
 
 class SpriteUnavailable(Exception):
@@ -132,34 +139,31 @@ def goal_entry(goal: dict[str, Any], clip: dict[str, Any] | None) -> dict[str, A
 
 
 def replay_candidate(snapshot: Any, favorites: list[str]) -> dict[str, Any] | None:
-    """Which game to fetch replays for: the favourite's game once it is over, else the most
-    recent result in its team summary (last night's game, the morning after). None while a
-    game is on — the files are not written until it ends — or with nothing to show, or until
-    the scores loop has published at all (the team summary can land first; its last result
-    may be a game the slate is about to say is on)."""
-    if not snapshot.has("nhl.main_event"):
+    """Which game to fetch replays for, with its phase: the favourite's game while it is on
+    or once it is over, else the most recent result in its team summary (last night's game,
+    the morning after). None with nothing to show, or until the scores loop has published
+    at all (the team summary can land first; its last result may be a game the slate is
+    about to say is on). The Simulator's game is never one: it has no landing and no files."""
+    if not snapshot.has(MAIN_EVENT):
         return None
-    main = snapshot.get("nhl.main_event") or {}
+    main = snapshot.get(MAIN_EVENT) or {}
     if main.get("simulated"):
-        return None                 # the Simulator's game has no landing and no files: nothing to fetch, nothing to stale
-    if main.get("phase") == "postgame" and main.get("id") and main.get("outcome", "").startswith("FINAL"):
-        return {"id": main["id"], "date": main.get("date", "")}
-    if main.get("phase") in ("live", "intermission"):
         return None
+    if main.get("id") and (main.get("phase") in IN_PLAY
+                           or (main.get("phase") == "postgame" and main.get("outcome", "").startswith("FINAL"))):
+        return {"id": main["id"], "date": main.get("date", ""), "phase": main["phase"]}
     summaries = snapshot.get("nhl.team_summary") or {}
     for fav in favorites:
         prev = (summaries.get(fav) or {}).get("prev_game") or {}
         if prev.get("id") and prev.get("result"):
-            return {"id": prev["id"], "date": prev.get("date", "")}
+            return {"id": prev["id"], "date": prev.get("date", ""), "phase": "postgame"}
     return None
 
 
 def keeps_recap(main: dict[str, Any] | None) -> bool:
-    """Whether a main event that is not a candidate should leave the published recap up:
-    a live game (last night's goals until tonight's are in) and the Simulator's game, which
-    is no reason to forget a real result."""
-    main = main or {}
-    return bool(main.get("simulated")) or main.get("phase") in ("live", "intermission")
+    """Whether a main event that is not a candidate should leave the published recap up: the
+    Simulator's game is no reason to forget a real result."""
+    return bool((main or {}).get("simulated"))
 
 
 def build_value(game_id: int, landing: dict[str, Any], clips: dict[int, dict[str, Any] | None],
@@ -191,17 +195,21 @@ def replays_from_files(landing: dict[str, Any], sprites: dict[int, list[dict[str
 class ReplayFetcher:
     """Fetches the clips for one game and remembers which goals it still owes.
 
-    ``refresh`` fetches the landing again (goals are added to it after the horn, and the URLs
-    appear with the batch) and tries every goal that has a URL and no clip yet, a bounded
-    number of times each. Returns the publishable value, or None when nothing changed."""
+    ``refresh`` fetches the landing again (goals are added to it as they happen, and a goal's
+    URL appears a few minutes later) and tries every goal that has a URL and no clip yet, a
+    bounded number of times each. Returns the publishable value, or None when nothing changed.
+    ``rewrite`` forgets every clip once, for the league's post-game rewrite of the files."""
 
     def __init__(self, game_id: int) -> None:
         self.game_id = game_id
         self.clips: dict[int, dict[str, Any] | None] = {}      # event id -> clip (None: a file with nothing in it)
         self.attempts: dict[int, int] = {}
         self.last_value: dict[str, Any] | None = None
+        self.fetched_in_play = False        # a clip came in during the game: the post-game rewrite is worth a second look
+        self.rewritten = False
 
-    async def refresh(self, api: Any, http: httpx.AsyncClient, favorites: list[str], max_attempts: int) -> dict[str, Any] | None:
+    async def refresh(self, api: Any, http: httpx.AsyncClient, favorites: list[str], max_attempts: int,
+                      in_play: bool = False) -> dict[str, Any] | None:
         landing = await api.landing(self.game_id)
         away, home = landing.get("awayTeam") or {}, landing.get("homeTeam") or {}
         for g in landing_goals(landing):
@@ -219,19 +227,74 @@ class ReplayFetcher:
                 log.debug("replay fetch for goal %s failed: %s", ev, exc)
                 continue
             self.clips[ev] = compact_replay(raw, _int(away.get("id")), _int(home.get("id")))
+            self.fetched_in_play = self.fetched_in_play or in_play
         value = build_value(self.game_id, landing, self.clips, favorites)
         if value == self.last_value:
             return None
         self.last_value = value
         return value
 
+    def rewrite(self) -> bool:
+        """Once, after the final: drop the clips fetched during the game so the next refresh
+        picks up the league's rewritten files. False when there is nothing to redo."""
+        if self.rewritten or not self.fetched_in_play:
+            return False
+        self.rewritten = True
+        self.clips.clear()
+        self.attempts.clear()
+        return True
+
     def pending(self, max_attempts: int) -> bool:
         """Still owes a clip: a goal without a file so far that has attempts left, or a goal
-        the landing has not given a URL for yet (the batch has not run)."""
+        the landing has not given a URL for yet."""
         goals = (self.last_value or {}).get("goals") or []
         if not goals:
             return True
         return any(g.get("event_id") not in self.clips and self.attempts.get(g.get("event_id"), 0) < max_attempts for g in goals)
+
+
+# -- events: when a clip is worth interrupting for ---------------------------------------------
+
+
+def detect_replays(prev: Snapshot, new: Snapshot) -> Iterable[Event]:
+    """Diff the main event and the replays: a stoppage with clips in hand, an intermission,
+    a final — and a clip arriving while any of those is already on.
+
+    Payloads carry the game, the ids of the goals that have a clip (the board reads the
+    clips themselves from the snapshot, so the event stays small enough for the MQTT
+    bridge) and, for an intermission, the period that just ended. The board decides what
+    is new to the viewer; a detector keeps no state."""
+    a, b = prev.get(MAIN_EVENT), new.get(MAIN_EVENT)
+    ra, rb = prev.get(REPLAYS), new.get(REPLAYS)
+    if not b or not rb or rb.get("game_id") != b.get("id") or b.get("simulated"):
+        return []
+    clips = [g["event_id"] for g in rb.get("goals") or [] if g.get("clip") and g.get("event_id") is not None]
+    if not clips:
+        return []
+    before = {g.get("event_id") for g in (ra or {}).get("goals") or [] if g.get("clip")} if ra and ra.get("game_id") == b.get("id") else set()
+    arrived = any(ev not in before for ev in clips)
+    same_game = bool(a) and a.get("id") == b.get("id")
+    phase = b.get("phase")
+    ts = max(new.updated.get(MAIN_EVENT, 0.0), new.updated.get(REPLAYS, 0.0))
+
+    def event(kind: str, **extra: Any) -> Event:
+        return Event(kind, ts=ts, payload={"game": b, "clips": clips, **extra})
+
+    if phase == "live":
+        stopped = not b.get("clock_running")
+        whistle = same_game and a.get("phase") == "live" and a.get("clock_running") and stopped
+        if whistle or (arrived and stopped):
+            return [event("nhl.replay_stoppage")]
+    elif phase == "intermission":
+        began = not same_game or a.get("phase") != "intermission"
+        if began or arrived:
+            period = b.get("period_number") or max((g.get("period") or 0 for g in rb.get("goals") or [] if g.get("clip")), default=0)
+            return [event("nhl.replay_intermission", period=period)]
+    elif phase == "postgame" and (b.get("outcome") or "").startswith("FINAL"):
+        began = not same_game or a.get("phase") != "postgame"
+        if began or arrived:
+            return [event("nhl.replay_final")]
+    return []
 
 
 def _abbrev(team: dict[str, Any]) -> str:
