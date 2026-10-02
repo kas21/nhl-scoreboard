@@ -34,6 +34,10 @@ SPRITE_HEADERS = {
 RINK_LENGTH_IN = 2400       # 200 ft, the x axis of the tracking coordinates
 RINK_WIDTH_IN = 1020        # 85 ft, the y axis
 PUCK_ID = "1"               # the one entity in a frame with no player behind it
+GOAL_LINE_IN = 132          # 11 ft from each end board
+POST_HALF_IN = 36           # the goal mouth is 6 ft wide, centred on the rink
+NET_SLACK_IN = 12           # a tracked puck against a post reads a little outside it
+NET_MIN_FRAMES = 3          # a stretch in the net shorter than this is a tracking blip
 FRAME_DECISECONDS = 1       # the feed's timestamps are tenths of a second, one per frame
 MAIN_EVENT = "nhl.main_event"
 REPLAYS = "nhl.goal_replays"
@@ -65,7 +69,9 @@ def compact_replay(raw: list[dict[str, Any]], away_id: int | None, home_id: int 
     ``players`` lists everyone who appears in the clip (a line change mid-clip adds to it) with
     the side they play for; each frame carries the puck and ``[player index, x, y]`` for whoever
     is on the ice in it, as integer inches. Timestamps are kept as frame offsets from the first,
-    so a gap in the feed is a gap on the panel too. None when the file has nothing to draw."""
+    so a gap in the feed is a gap on the panel too. ``goal_at`` is the offset of the frame the
+    puck crossed the line (see ``goal_frame_offset``), None when the track never shows it.
+    None when the file has nothing to draw."""
     if not raw:
         return None
     index: dict[str, int] = {}
@@ -102,7 +108,36 @@ def compact_replay(raw: list[dict[str, Any]], away_id: int | None, home_id: int 
         frames.append({"t": offset, "puck": puck, "on_ice": placed})
     if not frames or not players:
         return None
-    return {"fps": 10, "players": players, "frames": frames}
+    return {"fps": 10, "players": players, "frames": frames, "goal_at": goal_frame_offset(frames)}
+
+
+def in_net(puck: list[int] | None) -> bool:
+    """Whether a tracked puck is over a goal line between the posts (the net is open at the
+    back, so anything from the line to the end boards counts)."""
+    if not puck:
+        return False
+    x, y = puck
+    return (x <= GOAL_LINE_IN or x >= RINK_LENGTH_IN - GOAL_LINE_IN) and abs(y - RINK_WIDTH_IN / 2) <= POST_HALF_IN + NET_SLACK_IN
+
+
+def goal_frame_offset(frames: list[dict[str, Any]]) -> int | None:
+    """When the goal went in: the file has no marker, but the puck's track does. After the goal
+    the puck sits in the net until a referee fishes it out, so the goal is the first frame of
+    the longest stretch the puck spent in a net; a stretch shorter than ``NET_MIN_FRAMES`` is a
+    tracking blip, and a puck that went past the goal line outside the posts, or stopped in the
+    crease, never counts. None when the track never shows the puck in a net."""
+    best: tuple[int, int] | None = None       # (length, offset)
+    start, length = None, 0
+    for fr in frames + [{"puck": None}]:
+        if in_net(fr.get("puck")):
+            if start is None:
+                start, length = fr["t"], 0
+            length += 1
+        elif start is not None:
+            if length >= NET_MIN_FRAMES and (best is None or length > best[0]):
+                best = (length, start)
+            start = None
+    return None if best is None else best[1]
 
 
 def _int(value: Any) -> int | None:

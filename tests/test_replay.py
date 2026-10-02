@@ -31,6 +31,7 @@ from scoreboard.nhl.replay import (
     compact_replay,
     detect_replays,
     fetch_sprite,
+    goal_frame_offset,
     keeps_recap,
     replay_candidate,
     replays_from_files,
@@ -74,6 +75,19 @@ def test_compact_replay_keeps_players_puck_and_frame_offsets(raw_101):
     assert all(0 <= x <= 2400 and 0 <= y <= 1020 for _, x, y in first["on_ice"])
     luostarinen = next(i for i, p in enumerate(clip["players"]) if p["player_id"] == 8480185)
     assert clip["players"][luostarinen]["sweater"] == 27
+
+
+def test_goal_frame_is_where_the_puck_settles_in_the_net(raw_101):
+    # ev101: the puck rings around behind the net (past the goal line, outside the posts) at
+    # frames 71-78, then crosses between the posts at 85 and sits there until a referee
+    # fishes it out at 110. ev950 goes straight in at 94.
+    assert compact_replay(raw_101, 13, 10)["goal_at"] == 85
+    assert compact_replay(load("ppt_replay_2025021270_ev950.json"), 13, 10)["goal_at"] == 94
+    net, crease, out = [2290, 530], [2250, 530], [2300, 700]
+    assert goal_frame_offset([{"t": t, "puck": p} for t, p in enumerate([crease, out, net, net])]) is None
+    assert goal_frame_offset([{"t": t, "puck": p} for t, p in enumerate([net, net, net, crease, net, net, net, net, out])]) == 4
+    assert goal_frame_offset([{"t": t, "puck": [100, 500]} for t in range(5)]) == 0           # the other net
+    assert goal_frame_offset([{"t": 0, "puck": None}]) is None
 
 
 def test_compact_replay_follows_a_line_change():
@@ -427,6 +441,22 @@ def test_board_moves_the_dots_between_frames(replays):
     held_later = board.render(_ctx(replays, 128, 64, 14.8), cfg).crop((0, 8, 128, 64))
     assert held.tobytes() != held_again.tobytes()                 # the puck and scorer blink during the hold...
     assert held.tobytes() == held_later.tobytes()                 # ...and nothing else moves
+
+
+def test_goal_light_comes_on_as_the_puck_crosses_the_line(replays):
+    board = GoalReplayBoard()
+    r = Rink(128, 64)
+    lamp = (r.x + r.w - 1, r.y + r.h // 2)            # the end boards behind the right-hand net
+    before = board.render(_ctx(replays, 128, 64, 8.0), ReplayConfig())
+    after = board.render(_ctx(replays, 128, 64, 9.0), ReplayConfig())
+    held = board.render(_ctx(replays, 128, 64, 14.2), ReplayConfig())
+    assert before.getpixel(lamp) == (110, 110, 110)
+    for img in (after, held):
+        red, g, b = img.getpixel(lamp)
+        assert red >= 110 and g == 0 and b == 0
+        assert img.getpixel((lamp[0] - 2, lamp[1]))[0] > 0           # the glow on the ice behind the goal line
+    assert board.render(_ctx(replays, 128, 64, 9.0), ReplayConfig(goal_light=False)).getpixel(lamp) == (110, 110, 110)
+    assert board.render(_ctx(replays, 64, 32, 9.0), ReplayConfig()).getpixel((Rink(64, 32).x + Rink(64, 32).w - 1, Rink(64, 32).y + Rink(64, 32).h // 2))[1:] == (0, 0)
 
 
 def test_playlist_seconds_squeeze_the_clip_to_fit(replays):

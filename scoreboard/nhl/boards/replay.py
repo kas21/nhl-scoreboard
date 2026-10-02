@@ -2,7 +2,9 @@
 
 What Game Center animates after a goal — twelve players and the puck for the fourteen
 seconds before it went in — drawn the way an LED panel can: the rink in outline, a dot
-per player in the team's colour, the scorer blinking, the puck white with a short tail.
+per player in the team's colour, the scorer blinking, the puck white with a short tail,
+and a goal light behind the net that comes on as the puck crosses the line (the file has
+no marker for the moment; ``nhl/replay.py`` reads it off the puck's track).
 A header chip names the team, the scorer and the score after the goal.
 
 Two boards share the drawing. ``GoalReplayBoard`` sits in a playlist and plays every goal
@@ -26,7 +28,7 @@ from ...boards.base import BaseBoard, BoardContext, EventBoard, per_item
 from ...data import Event
 from ...render import Text, load_font, render_tree
 from ...render.fx import chip
-from ..replay import RINK_LENGTH_IN, RINK_WIDTH_IN
+from ..replay import GOAL_LINE_IN, RINK_LENGTH_IN, RINK_WIDTH_IN
 from ..teams import team
 
 RGB = tuple[int, int, int]
@@ -41,6 +43,9 @@ TRAIL = ((160, 160, 160), (110, 110, 110), (70, 70, 70), (40, 40, 40))
 HEADER_H = 7
 RINK_FT = (200, 85)
 BLINK_SECONDS = 0.3
+LAMP_LEVELS = (0.45, 0.75, 1.0, 0.75)      # the goal light's pulse, one step per blink of the scorer
+LAMP_SPAN_FT = 12           # how far along the end boards the light reaches, either side of the net
+LAMP_GLOW = (90, 0, 0)      # the ice behind the goal line, under the lamp
 STOPPAGE, INTERMISSION, FINAL = "nhl.replay_stoppage", "nhl.replay_intermission", "nhl.replay_final"
 
 
@@ -50,6 +55,7 @@ class ReplayConfig(BaseModel):
     hold_seconds: float = Field(1.5, ge=0, le=5, description="Freeze on the goal this long before the next one")
     favorite_goals_only: bool = Field(False, description="Replay your team's goals only")
     puck_trail: bool = Field(True, description="Leave a short tail behind the puck")
+    goal_light: bool = Field(True, description="Flash a red goal light behind the net as the puck crosses the line")
 
 
 class ReplayAlertConfig(BaseModel):
@@ -62,6 +68,7 @@ class ReplayAlertConfig(BaseModel):
     seconds_per_goal: float = Field(0.0, ge=0, le=60, description="Seconds each goal plays (0: the clip's own length, about 14 s)")
     hold_seconds: float = Field(1.5, ge=0, le=5, description="Freeze on the goal this long before the next one")
     puck_trail: bool = Field(True, description="Leave a short tail behind the puck")
+    goal_light: bool = Field(True, description="Flash a red goal light behind the net as the puck crosses the line")
 
 
 # -- the rink -----------------------------------------------------------------------------
@@ -185,18 +192,20 @@ def total_seconds(line: Timeline, hold: float) -> float:
     return sum(play + hold for _, play, _ in line)
 
 
-def frame_at(ctx: BoardContext, away: str, home: str, line: Timeline, hold: float, puck_trail: bool) -> Image.Image:
+def frame_at(ctx: BoardContext, away: str, home: str, line: Timeline, hold: float, puck_trail: bool,
+             goal_light: bool = True) -> Image.Image:
     """The frame for ``ctx.elapsed`` into a timeline: black once it has run out."""
     t = ctx.elapsed
     for goal, play, speed in line:
         if t < play + hold:
-            return goal_frame(ctx, away, home, goal, min(t, play) * speed, holding=t >= play, puck_trail=puck_trail)
+            return goal_frame(ctx, away, home, goal, min(t, play) * speed, holding=t >= play, puck_trail=puck_trail,
+                              goal_light=goal_light)
         t -= play + hold
     return Image.new("RGB", (ctx.width, ctx.height), (0, 0, 0))
 
 
 def goal_frame(ctx: BoardContext, away: str, home: str, goal: dict[str, Any], clip_t: float, holding: bool,
-               puck_trail: bool) -> Image.Image:
+               puck_trail: bool, goal_light: bool = True) -> Image.Image:
     clip = goal["clip"]
     frames = clip["frames"]
     fps = max(clip.get("fps") or 10, 1)
@@ -205,6 +214,11 @@ def goal_frame(ctx: BoardContext, away: str, home: str, goal: dict[str, Any], cl
     img = rink_image(ctx.width, ctx.height).copy()
     r = Rink(ctx.width, ctx.height)
     d = ImageDraw.Draw(img)
+    goal_at = clip.get("goal_at")
+    if goal_light and goal_at is not None and times[i] >= goal_at:
+        end = scored_end(frames, times, goal_at)
+        if end:
+            lamp(d, r, end, ctx.elapsed)
     away_c, home_c = side_colors(away, home)
     players = clip["players"]
     blink_on = int(ctx.elapsed / BLINK_SECONDS) % 2 == 0
@@ -230,6 +244,39 @@ def goal_frame(ctx: BoardContext, away: str, home: str, goal: dict[str, Any], cl
                           f"{goal.get('away_score', 0)}-{goal.get('home_score', 0)}")
     img.paste(header, (0, 0))
     return img
+
+
+def scored_end(frames: list[dict[str, Any]], times: list[int], goal_at: int) -> str:
+    """Which net the puck went into, ``left`` or ``right``, from where it was at the goal frame
+    (empty when that frame has no puck)."""
+    j = max(bisect_right(times, goal_at) - 1, 0)
+    puck = frames[j].get("puck")
+    if not puck:
+        return ""
+    return "left" if puck[0] < RINK_LENGTH_IN / 2 else "right"
+
+
+def lamp(d: ImageDraw.ImageDraw, r: Rink, end: str, elapsed: float) -> None:
+    """The goal light: the end boards behind the net go red, pulsing on the scorer's blink
+    clock (so a frame looks the same at the same blink phase whatever the playback speed),
+    with a glow on the ice between the goal line and the boards. Drawn under the players
+    and the puck."""
+    level = LAMP_LEVELS[int(elapsed / BLINK_SECONDS) % len(LAMP_LEVELS)]
+    span = max(int(LAMP_SPAN_FT * r.scale), 1)
+    radius = int(28 * r.scale)
+    cy = r.y + r.h // 2
+    top = max(cy - span, r.y + radius, r.y + 1)
+    bottom = min(cy + span, r.y + r.h - 1 - radius, r.y + r.h - 2)
+    goal_line = int(GOAL_LINE_IN / 12 * r.scale)
+    if end == "left":
+        board_x, inner = r.x, (r.x + 1, r.x + goal_line - 1)
+    else:
+        board_x, inner = r.x + r.w - 1, (r.x + r.w - goal_line, r.x + r.w - 2)
+    if inner[1] >= inner[0] and bottom >= top:
+        glow = tuple(int(c * level) for c in LAMP_GLOW)
+        d.rectangle((inner[0], top, inner[1], bottom), fill=glow)
+    if bottom >= top:
+        d.line((board_x, top, board_x, bottom), fill=(int(255 * level), 0, 0))
 
 
 def _dot(d: ImageDraw.ImageDraw, at: tuple[int, int], size: int, color: RGB) -> None:
@@ -273,7 +320,7 @@ class GoalReplayBoard(BaseBoard):
     def render(self, ctx: BoardContext, cfg: ReplayConfig) -> Image.Image:
         value = ctx.snapshot.get("nhl.goal_replays") or {}
         return frame_at(ctx, value.get("away", {}).get("abbrev", ""), value.get("home", {}).get("abbrev", ""),
-                        self._timeline(ctx, cfg), cfg.hold_seconds, cfg.puck_trail)
+                        self._timeline(ctx, cfg), cfg.hold_seconds, cfg.puck_trail, cfg.goal_light)
 
 
 class GoalReplayAlert(EventBoard):
@@ -350,7 +397,7 @@ class GoalReplayAlert(EventBoard):
     def render(self, ctx: BoardContext, cfg: ReplayAlertConfig) -> Image.Image:
         if ctx.event is not self._entered:
             self.enter(ctx, cfg)
-        return frame_at(ctx, *self._sides, self._line, cfg.hold_seconds, cfg.puck_trail)
+        return frame_at(ctx, *self._sides, self._line, cfg.hold_seconds, cfg.puck_trail, cfg.goal_light)
 
     def done(self, ctx: BoardContext, cfg: ReplayAlertConfig) -> bool:
         if ctx.event is not self._entered:
