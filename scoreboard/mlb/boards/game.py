@@ -2,8 +2,8 @@
 diamond, count and outs, pitcher / batter strip, due-up during inning breaks, probable
 pitchers before the game, hits and pitching decisions after it.
 
-The bases / outs / count cluster is MLB-LED-Scoreboard's (the sister project), squeezed into
-the 60px centre column between the two logos.
+The bases / outs / count cluster is MLB-LED-Scoreboard's (the sister project), stacked in the
+narrow gap between the two logos: the diamond under the score, count and outs beneath it.
 """
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ GREY = (190, 190, 190)
 DIM = (110, 110, 110)
 AMBER = (255, 200, 0)
 GREEN = (0, 255, 0)
-STATS_Y = 40                    # top of the count / bases / outs cluster
+STATS_Y = 39                    # top of the bases diamond; count + outs sit under it
 STRIP_Y = 57                    # pitcher / batter strip (below the logos, full width)
 
 
@@ -68,7 +68,7 @@ def arrow_image(up: bool, color: tuple[int, int, int] = WHITE) -> Image.Image:
 
 
 def outs_node(outs: int):
-    return HBox([Box(3, 3, (255, 255, 255, 255) if i < outs else (70, 70, 70, 255)) for i in range(3)], spacing=2)
+    return HBox([Box(3, 3, (255, 255, 255, 255) if i < outs else (70, 70, 70, 255)) for i in range(3)], spacing=1)
 
 
 class MlbGameBoard(NhlGameBoard):
@@ -150,15 +150,16 @@ class MlbGameBoard(NhlGameBoard):
         return items
 
     def _live_stats_row(self, g: dict[str, Any], cfg, f6) -> list:
-        """Count, bases diamond and outs where the NHL board shows SOG (only while a half is in play)."""
+        """Bases diamond with the count and outs under it, kept in the gap between the logos so a
+        wide logo (MIL's glove) never sits behind them; only while a half is in play."""
         sit = g.get("situation") or {}
         if not getattr(cfg, "show_bases", True) or sit.get("half") not in ("top", "bottom"):
             return []
         runners = tuple(bool(r) for r in (sit.get("runners") or [False, False, False])[:3])
         return [
-            (Anchor(Text(f"{sit.get('balls', 0)}-{sit.get('strikes', 0)}", f6, WHITE), h="end"), 35, STATS_Y + 3, 16, 6),
             (Img(bases_image(runners)), 55, STATS_Y, 17, 10),
-            (Anchor(outs_node(int(sit.get("outs") or 0)), h="start"), 78, STATS_Y + 4, 13, 3),
+            (HBox([Text(f"{sit.get('balls', 0)}-{sit.get('strikes', 0)}", f6, WHITE), outs_node(int(sit.get("outs") or 0))],
+                  spacing=3), 52, STATS_Y + 11, 25, 5),
         ]
 
     def _strip_parts(self, g: dict[str, Any], cfg, f6) -> list[list]:
