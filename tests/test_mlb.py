@@ -1,7 +1,7 @@
 import asyncio
 import json
 from dataclasses import replace
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -495,3 +495,14 @@ async def test_spring_uses_last_seasons_table(monkeypatch):
     assert years[:2] == ["2026", "2025"]
     assert snap.get("mlb.season")["phase"] == "preseason" and snap.get("mlb.season")["standings_final"] and snap.get("mlb.season")["standings_season_id"] == 2025
     assert snap.get("mlb.scores") == [] and snap.get("mlb.main_event") is None
+
+
+def test_season_end_date_for_the_offseason():
+    payload = load("seasons_2026.json")
+    end = payload["seasons"][0]["postSeasonEndDate"]
+    after = date.fromisoformat(end) + timedelta(days=6)
+    info = season_info(payload, after)
+    assert info["phase"] == "offseason" and info["ended"] == end
+    assert season_info(payload, date.fromisoformat(end))["ended"] is None             # the last day of the World Series
+    assert season_info(payload, date(2026, 9, 3))["ended"] is None
+    assert season_info(payload, date(2026, 1, 10))["ended"] is None                   # January: this file is the season ahead

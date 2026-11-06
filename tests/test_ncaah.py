@@ -215,3 +215,25 @@ def test_a_mid_season_day_with_only_upcoming_games_is_not_the_offseason():
     cal = [{"label": "Regular Season", "start": "2026-10-01", "end": "2027-03-20"}]
     assert src._season(games, "2027-01-12", calendar=cal)["phase"] == "regular"
     assert src._season(games, "2027-01-12")["phase"] == "offseason"                     # the old rule, without a calendar
+
+
+def test_game_day_calendar_bounds_the_season():
+    """ESPN's college hockey calendar is a list of game days, not phases. Outside them is the
+    off-season (with the day it ended); inside them a quiet Tuesday is not."""
+    from scoreboard.nfl.normalize import season_days
+    payload = {"leagues": [{"calendarType": "day", "calendar": ["2026-10-03T07:00Z", "2026-10-02T07:00Z", "2027-04-10T07:00Z", "junk"]}]}
+    days = season_days(payload)
+    assert days == ("2026-10-02", "2027-04-10")
+    assert season_days({"leagues": [{"calendar": [{"label": "Regular Season", "startDate": "2026-09-06T07:00Z", "endDate": "2027-01-13T07:59Z"}]}]}) is None
+    assert season_days({}) is None and season_days(load("espn_scoreboard_2026-01-10.json")) is None      # the captures carry no days
+    src = NcaahSource()
+    final = [{"phase": "postgame", "type": 3, "date": "2027-04-10", "start_time_utc": "2027-04-10T23:00:00Z", "week": None}]
+    summer = src._season(final, "2027-06-15", days=days)                               # the slate is still the title game
+    assert summer["phase"] == "offseason" and summer["ended"] == "2027-04-10" and summer["regular_start"] is None
+    assert src._season(final, "2027-04-10", days=days)["phase"] == "playoffs"
+    upcoming = [{"phase": "pregame", "type": 2, "date": "2027-01-15", "start_time_utc": "2027-01-15T23:00:00Z", "week": None}]
+    assert src._season(upcoming, "2027-01-12", days=days)["phase"] == "regular"
+    opener = [{"phase": "pregame", "type": 2, "date": "2026-10-02", "start_time_utc": "2026-10-02T23:00:00Z", "week": None}]
+    before = src._season(opener, "2026-09-17", days=days)
+    assert before["phase"] == "offseason" and before["ended"] is None
+    assert before["regular_start"] == "2026-10-02" and before["days_to_regular"] == 15

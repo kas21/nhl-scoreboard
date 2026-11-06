@@ -318,3 +318,13 @@ async def test_api_unwraps_the_statview_parentheses_and_reports_failures():
         api_mod.RETRY_DELAYS = ()
         with pytest.raises(AhlApiError):
             await AhlApi(http).seasons()
+
+
+def test_season_end_date_for_the_offseason():
+    seasons = sitekit("seasons.json")
+    off = pick_seasons(seasons, date(2026, 9, 17))["info"]
+    ends = [date.fromisoformat(s["end_date"]) for s in seasons["Seasons"]
+            if (str(s.get("playoff")) == "1" or str(s.get("career")) == "1") and s.get("end_date") and s["end_date"] < "2026-09-17"]
+    assert off["phase"] == "offseason" and off["ended"] == max(ends).isoformat()       # the Calder Cup final, not the regular season
+    assert pick_seasons(seasons, date(2026, 1, 15))["info"]["ended"] is None
+    assert pick_seasons(seasons, date(2026, 9, 26))["info"]["ended"] is None           # preseason

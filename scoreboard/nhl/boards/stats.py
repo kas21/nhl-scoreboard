@@ -104,6 +104,7 @@ class GameStatsBoard(BaseBoard):
     config_model = GameStatsConfig
     requires = frozenset({"nhl.game_stats"})       # not main_event: last night's numbers are a recap the next morning
     pace_unit = "page"
+    seasonal = True                                # nor the last game of the season all summer
 
     def rows(self, ctx: BoardContext, cfg: GameStatsConfig) -> list[dict[str, Any]]:
         value = ctx.snapshot.get("nhl.game_stats") or {}

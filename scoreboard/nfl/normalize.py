@@ -137,6 +137,15 @@ def season_calendar(payload: dict[str, Any]) -> list[dict[str, str]]:
     return out
 
 
+def season_days(payload: dict[str, Any]) -> tuple[str, str] | None:
+    """The first and last game day of the season, for a league whose ``calendar`` is a plain
+    list of days rather than phases (college hockey): ``("2026-10-02", "2027-04-10")``. None
+    for a phase calendar, which ``season_calendar`` reads."""
+    days = sorted(d.date().isoformat() for d in (parse_iso(e) for e in ((payload.get("leagues") or [{}])[0].get("calendar") or [])
+                                                 if isinstance(e, str)) if d is not None)
+    return (days[0], days[-1]) if days else None
+
+
 def _last_play(sit: dict[str, Any]) -> str:
     """ESPN's play text, trimmed of its padding and capped so a marquee finishes in one board dwell."""
     text = (sit.get("lastPlay") or {}).get("text") or ""

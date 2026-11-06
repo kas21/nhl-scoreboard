@@ -37,6 +37,7 @@ class StandingsBoard(BaseBoard):
     title = "NHL standings"
     config_model = StandingsConfig
     requires = frozenset({"nhl.standings"})
+    seasonal = True
     standings_key = "nhl.standings"
     summary_key = "nhl.team_summary"
     points_header = "PTS"

@@ -10,7 +10,7 @@ A ``pregame`` phase is split in two by the clock: GAMEDAY from midnight until
 """
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from enum import Enum
 
 from ..data import Snapshot
@@ -72,6 +72,44 @@ def pregame_window_open(event: dict, now: datetime | None = None, pregame_hours:
         return True
     now = now or datetime.now(UTC)
     return (start - now).total_seconds() <= pregame_hours * 3600
+
+
+LONG_OVER_DAYS = 10**6
+
+
+def season_over_days(season: dict | None, today: date) -> int | None:
+    """Days since a sport's season finished, from its ``<sport>.season`` record: None while
+    it is in season (or has said nothing), else the count from ``ended``.
+
+    A feed only says when the season ended for a while: the NHL's dates roll over to next
+    season a few weeks into the summer, MLB's with the new year. An off-season with no
+    ``ended`` is therefore one that is long over, and reads as a very large number.
+    """
+    if not isinstance(season, dict) or season.get("phase") != "offseason":
+        return None
+    try:
+        return max(0, (today - date.fromisoformat(str(season.get("ended") or ""))).days)
+    except ValueError:
+        return LONG_OVER_DAYS
+
+
+def dormant_sports(snapshot: Snapshot, today: date, grace_days: int | None) -> frozenset[str]:
+    """The sports whose season has been over for more than ``grace_days`` (None = never):
+    what last season left behind — the record, the final standings, the last game's recap —
+    is stale there. A sport with a game of its own on today is never one, whatever its season
+    record says: the Simulator's game in July, or a feed that is late to notice opening day.
+    """
+    if grace_days is None:
+        return frozenset()
+    out = set()
+    for key, season in snapshot.data.items():
+        if not key.endswith(".season"):
+            continue
+        sport = key[: -len(".season")]
+        days = season_over_days(season, today)
+        if days is not None and days > grace_days and not snapshot.get(f"{sport}.main_event"):
+            out.add(sport)
+    return frozenset(out)
 
 
 def is_offseason(snapshot: Snapshot) -> bool:

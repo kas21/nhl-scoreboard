@@ -153,6 +153,15 @@ the far end of your county shows too.
 Standings from a finished season carry a FINAL banner; far-off game days don't show as "tonight";
 the countdown board takes the front. This is all automatic from the league calendars.
 
+Each sport is on its own clock. A week after a league's last game, that sport's team summary, standings
+and (NHL) game stats and goal replay recaps drop out of every playlist, and come back with its preseason:
+baseball's final table does not sit between the hockey scores all winter. The entries stay in your
+playlists; the dashboard's rotation view lists them as skipped (*off-season*). Settings → Sports →
+*offseason hide after days* is the number of days (0 = gone the day after the last game, blank = never hide
+them). Once a league's feed has moved on to next season's dates it no longer says when the last one ended,
+and the boards are hidden from then on whatever the number. Tickers and game boards are not affected: they
+follow the slate, which empties on its own.
+
 ## More than one panel
 One scoreboard on the network can do all the fetching and feed the others. On the second panel, Settings →
 Integrations → *Follower*: tick *enabled*, put the first panel's web address in *master url*

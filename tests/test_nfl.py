@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -287,3 +287,29 @@ def test_a_postponed_game_is_not_a_permanent_pregame_card():
     from scoreboard.nhl.select import select_main_event
     live = {"id": 2, "state": "PRE", "date": g["date"], "away": {"abbrev": g["away"]["abbrev"]}, "home": {"abbrev": "ZZZ"}}
     assert select_main_event([g, live], [g["away"]["abbrev"]], today=g["date"]) is live       # ranks below a game that will be played
+
+
+def test_season_end_date_and_the_gap_before_a_new_calendar():
+    from scoreboard.nfl.normalize import season_calendar
+    from scoreboard.nfl.source import _season
+    payload = load("espn_scoreboard.json")
+    cal, games = season_calendar(payload), normalize_scoreboard(payload)
+    post = next(c for c in cal if c["label"] == "Postseason")
+    off = next(c for c in cal if c["label"] == "Off Season")
+    after = (date.fromisoformat(off["start"]) + timedelta(days=4)).isoformat()
+    info = _season(games, after, "nfl", cal)
+    assert info["phase"] == "offseason" and info["ended"] == post["end"]              # the Super Bowl, not the off-season's own dates
+    assert _season(games, "2026-09-20", "nfl", cal)["ended"] is None
+    # College football's calendar turns over on February 1 and its first phase starts in late
+    # August: ESPN's slate is week 1 by then, which read as "regular" until kickoff.
+    college = [{"label": "Regular Season", "start": "2026-08-22", "end": "2026-12-13"},
+               {"label": "Postseason", "start": "2026-12-13", "end": "2027-01-28"},
+               {"label": "Off Season", "start": "2027-01-28", "end": "2027-02-01"}]
+    spring = _season(games, "2026-06-01", "ncaaf", college)
+    assert spring["phase"] == "offseason" and spring["ended"] is None
+    assert spring["regular_start"] == "2026-08-22" and spring["days_to_regular"] == 82
+    assert _season(games, "2026-10-10", "ncaaf", college)["phase"] == "regular"
+    late = _season(games, "2027-01-30", "ncaaf", college)
+    assert late["phase"] == "offseason" and late["ended"] == "2027-01-28"
+    stale = _season(games, "2027-03-01", "ncaaf", college)                            # a calendar that is all behind us says nothing
+    assert stale["phase"] == _season(games, "2027-03-01", "ncaaf", [])["phase"] != "offseason" and stale["ended"] is None

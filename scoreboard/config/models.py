@@ -209,6 +209,7 @@ class SportsConfig(FrozenModel):
     priority: list[Literal["nhl", "nfl", "ncaaf", "mlb", "ncaah", "ahl"]] = Field(["nhl", "nfl", "ncaaf", "mlb", "ncaah", "ahl"], description="When two sports have a game, which wins the screen (live games always win)")
     pregame_hours: float = Field(1.0, ge=0, le=24, description="Hours before the start that the pregame playlist takes over; until then a day with a game plays the game-day playlist. 0 = pregame only once the start time has passed")
     game_day_rollover_hour: int = Field(10, ge=0, le=12, description="Keep last night's finals in the ticker until this hour of the morning (local time); 0 = they leave at midnight. Today's games always show as soon as the date turns")
+    offseason_hide_after_days: int | None = Field(7, ge=0, le=365, description="Days after a sport's season ends that its team summary, standings and last-game recap stay in the playlists; after that they are skipped until its preseason. 0 = gone the day after the last game; blank = never hide them")
 
 
 class WebConfig(FrozenModel):

@@ -82,12 +82,16 @@ class NcaahSource(NflSource):
     def _slate(self, games: list[dict[str, Any]], cfg: BaseModel) -> list[dict[str, Any]]:
         return slate(games, cfg)  # type: ignore[arg-type]
 
-    def _season(self, games: list[dict[str, Any]], today: str, calendar: list[dict[str, str]] | None = None) -> dict[str, Any]:
+    def _season(self, games: list[dict[str, Any]], today: str, calendar: list[dict[str, str]] | None = None,
+                days: tuple[str, str] | None = None) -> dict[str, Any]:
         """ESPN's current slate is the season opener until it is played: count down to it. The
         league calendar, when it says which phase today is in, is the last word (a mid-season
-        Tuesday with only pregame games on the slate is not the off-season)."""
-        info = super()._season(games, today, calendar=calendar)
+        Tuesday with only pregame games on the slate is not the off-season). College hockey's
+        calendar is a list of game days; between the first and the last the season is on."""
+        info = super()._season(games, today, calendar=calendar, days=days)
         if calendar and any(c["start"] <= today <= c["end"] for c in calendar):
+            return info
+        if days and days[0] <= today <= days[1]:
             return info
         if games and not any(g["phase"] != "pregame" for g in games) and (info.get("days_to_next") or 0) > 0:
             info = {**info, "phase": "offseason", "regular_start": info["next_game_date"], "days_to_regular": info["days_to_next"],

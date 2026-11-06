@@ -1,4 +1,5 @@
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from PIL import Image
 
@@ -14,6 +15,7 @@ from scoreboard.director import AppState, Director, compute_state
 from scoreboard.director.brightness import brightness_for
 from scoreboard.director.director import BOOT_SECONDS
 from scoreboard.director.playlist import available_entries
+from scoreboard.director.state import dormant_sports, season_over_days
 from scoreboard.plugins import Registry
 
 
@@ -534,3 +536,98 @@ def test_director_moves_from_gameday_to_pregame_on_the_clock(tmp_path):
     store.publish("main_event", {"phase": "pregame", "start_time_utc": (datetime.now(UTC) + timedelta(minutes=90)).isoformat()})
     d.frame(1000.0 + BOOT_SECONDS + 0.2)
     assert d.state == AppState.PREGAME and d.active_board == "clock"
+
+
+def test_days_since_a_season_ended():
+    today = date(2026, 11, 6)
+    assert season_over_days(None, today) is None and season_over_days({"phase": "regular", "ended": "2026-10-31"}, today) is None
+    assert season_over_days({"phase": "offseason", "ended": "2026-10-31"}, today) == 6
+    assert season_over_days({"phase": "offseason", "ended": "2026-11-06"}, today) == 0
+    # The feed has moved on to next season's dates (or never said): long over, not "just ended".
+    assert season_over_days({"phase": "offseason", "ended": None}, today) > 10_000
+    assert season_over_days({"phase": "offseason"}, today) > 10_000
+    assert season_over_days({"phase": "offseason", "ended": "soon"}, today) > 10_000
+
+
+def test_dormant_sports_are_the_ones_past_the_grace_period():
+    today = date(2026, 11, 6)
+    store = SnapshotStore()
+    store.publish("mlb.season", {"phase": "offseason", "ended": "2026-10-31"})         # six days ago
+    store.publish("nfl.season", {"phase": "offseason"})                               # no date: long over
+    store.publish("ahl.season", {"phase": "preseason"})
+    snap = store.publish("nhl.season", {"phase": "regular"})
+    assert dormant_sports(snap, today, 7) == {"nfl"}
+    assert dormant_sports(snap, today, 6) == {"nfl"}                                  # still inside the last day
+    assert dormant_sports(snap, today, 5) == {"mlb", "nfl"}
+    assert dormant_sports(snap, today, 0) == {"mlb", "nfl"}
+    assert dormant_sports(snap, today, None) == frozenset()                           # switched off
+    # A game of its own today (the Simulator's, or a feed late to notice opening day) wakes a sport up.
+    snap = store.publish("nfl.main_event", {"phase": "live"})
+    assert dormant_sports(snap, today, 5) == {"mlb"}
+    assert dormant_sports(store.publish("nfl.main_event", None), today, 5) == {"mlb", "nfl"}
+
+
+def test_season_boards_leave_the_rotation_once_their_sport_is_long_over(tmp_path):
+    class Summary(BlankBoard):
+        key = "mlb.team_summary"
+        title = "MLB team summary"
+        requires = frozenset({"mlb.team_summary"})
+        seasonal = True
+
+    class Standings(Summary):
+        key = "nhl.standings"
+        title = "NHL standings"
+        requires = frozenset({"nhl.standings"})
+
+    class Ticker(BlankBoard):               # not seasonal: it follows the slate
+        key = "mlb.ticker"
+        title = "MLB ticker"
+
+    config = ConfigStore(tmp_path / "config.json")
+    config.update({"transition": {"style": "none"}, "playlists": {"offday": [
+        {"board": "mlb.team_summary", "duration": 5}, {"board": "nhl.standings", "duration": 5},
+        {"board": "mlb.ticker", "duration": 5}, {"board": "clock", "duration": 5}]}})
+    snapshots, events = SnapshotStore(), EventBus()
+    reg = Registry(boards={b.key: b for b in (ClockBoard(), SplashBoard(), Summary(), Standings(), Ticker())})
+    d = Director(config, snapshots, reg, events)
+    today = datetime.now(ZoneInfo(config.get().location.timezone)).date()
+    snapshots.publish("mlb.team_summary", {"NYY": {}})
+    snapshots.publish("nhl.standings", {"teams": {"TOR": {}}})
+    snapshots.publish("nhl.season", {"phase": "regular"})
+    snapshots.publish("mlb.season", {"phase": "offseason", "ended": (today - timedelta(days=3)).isoformat()})
+    t = booted(d)
+
+    def skipped(at):
+        return {e["board"]: e["skipped"] for e in d.rotation(at)["entries"]}
+
+    assert config.get().sports.offseason_hide_after_days == 7
+    assert set(skipped(t).values()) == {None} and d.active_board == "mlb.team_summary"    # three days on: still up
+
+    snapshots.publish("mlb.season", {"phase": "offseason", "ended": (today - timedelta(days=30)).isoformat()})
+    d.frame(t + 0.1)
+    assert skipped(t + 0.1) == {"mlb.team_summary": "off-season", "nhl.standings": None, "mlb.ticker": None, "clock": None}
+    assert d.active_board == "nhl.standings"                                              # hockey is in season
+
+    config.update({"sports": {"offseason_hide_after_days": None}})                        # blank: never hide
+    assert skipped(t + 0.2)["mlb.team_summary"] is None
+    config.update({"sports": {"offseason_hide_after_days": 60}})
+    assert skipped(t + 0.2)["mlb.team_summary"] is None
+    config.update({"sports": {"offseason_hide_after_days": 0}})
+    assert skipped(t + 0.2)["mlb.team_summary"] == "off-season"
+
+    snapshots.publish("mlb.season", {"phase": "preseason", "ended": None})                # spring training: back
+    assert skipped(t + 0.3)["mlb.team_summary"] is None
+    d.set_override("mlb.team_summary")                                                    # a preview is never blocked
+    snapshots.publish("mlb.season", {"phase": "offseason"})
+    d.frame(t + 0.4)
+    assert d.active_board == "mlb.team_summary" and skipped(t + 0.4)["mlb.team_summary"] == "off-season"
+
+
+def test_which_bundled_boards_follow_the_season():
+    from scoreboard.plugins import load_registry
+    boards = load_registry().boards
+    seasonal = {k for k, b in boards.items() if b.seasonal}
+    assert seasonal == ({f"{s}.team_summary" for s in ("nhl", "nfl", "ncaaf", "mlb", "ncaah", "ahl")}
+                        | {f"{s}.standings" for s in ("nhl", "nfl", "ncaaf", "mlb", "ahl")}
+                        | {"nhl.game_stats", "nhl.goal_replay"})
+    assert all(boards[k].playlistable for k in seasonal)

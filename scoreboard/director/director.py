@@ -24,7 +24,7 @@ from ..plugins import Registry
 from ..render.profiles import profile_for
 from .brightness import brightness_for
 from .playlist import Cursor, advance, clamp
-from .state import PLAYLIST_STATES, AppState, compute_state, is_offline
+from .state import PLAYLIST_STATES, AppState, compute_state, dormant_sports, is_offline
 from .transitions import transition
 
 log = logging.getLogger(__name__)
@@ -235,14 +235,19 @@ class Director:
     def _entries(self, cfg: AppConfig, snap: Snapshot, state: AppState, usable: set[str]) -> list:
         """Playlist entries that are enabled, loaded, not quarantined, and whose required data is non-empty."""
         entries = getattr(cfg.playlists, state.value)
-        return [e for e in entries if self._skip_reason(e, snap, usable) is None]
+        dormant = self._dormant(cfg, snap)
+        return [e for e in entries if self._skip_reason(e, snap, usable, dormant) is None]
 
-    def _skip_reason(self, entry, snap: Snapshot, usable: set[str]) -> str | None:
+    def _dormant(self, cfg: AppConfig, snap: Snapshot) -> frozenset[str]:
+        """The sports whose season boards are out of the rotation today (see ``dormant_sports``)."""
+        return dormant_sports(snap, self._now(cfg).date(), cfg.sports.offseason_hide_after_days)
+
+    def _skip_reason(self, entry, snap: Snapshot, usable: set[str], dormant: frozenset[str] = frozenset()) -> str | None:
         """Why the director passes ``entry`` over right now, or None when it is in the rotation.
 
         One place for the rule so the rotation view on the dashboard says exactly what the
         frame loop does (the first three checks are ``available_entries``; the rest depend
-        on the snapshot).
+        on the snapshot). ``dormant`` is the sports whose season is long over.
         """
         boards = self._registry.boards
         if not entry.enabled:
@@ -259,6 +264,8 @@ class Director:
         main = snap.get("main_event") or {}
         if board.sport is not None and "main_event" in board.requires and main.get("sport") != board.sport:
             return "another sport's game"
+        if board.seasonal and entry.board.partition(".")[0] in dormant:
+            return "off-season"
         return None
 
     def rotation(self, mono: float | None = None) -> dict[str, Any]:
@@ -283,8 +290,9 @@ class Director:
         except Exception:
             ctx = None
         entries: list[dict[str, Any]] = []
+        dormant = self._dormant(cfg, snap)
         for e in configured:
-            reason = self._skip_reason(e, snap, usable)
+            reason = self._skip_reason(e, snap, usable, dormant)
             board = boards.get(e.board)
             paced = board is not None and board.pace_unit is not None
             seconds: float | None = None if paced else e.duration

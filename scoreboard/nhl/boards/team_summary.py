@@ -53,6 +53,7 @@ class TeamSummaryBoard(BaseBoard):
     title = "NHL team summary"
     config_model = TeamSummaryConfig
     requires = frozenset({"nhl.team_summary"})
+    seasonal = True
     summary_key = "nhl.team_summary"
 
     def logo_image(self, abbrev: str) -> Image.Image:

@@ -72,6 +72,11 @@ class BaseBoard:
     # False for boards that only draw something with an event behind them: the director keeps
     # them out of the rotation and the web UI out of the playlist pickers.
     playlistable: ClassVar[bool] = True
+    # True on a board that shows what a season has added up to (a team's record, the standings,
+    # the last game's recap). The director drops it from the rotation once its sport's season
+    # has been over for ``sports.offseason_hide_after_days``, and brings it back with the
+    # preseason. The sport is the key's prefix: ``mlb.standings`` follows ``mlb.season``.
+    seasonal: ClassVar[bool] = False
     # Set on a board that shows a list one item at a time (games, aircraft, holidays, alerts).
     # The playlist's seconds then mean seconds per item, handed over as ``ctx.pace``, and the
     # board decides when it is done; for every other board the seconds are the whole run.

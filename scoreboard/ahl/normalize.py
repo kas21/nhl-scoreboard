@@ -438,6 +438,7 @@ def pick_seasons(seasons: dict[str, Any], today: date) -> dict[str, Any]:
     else:
         phase = "offseason"
     next_regular = future_regular[0] if future_regular else None
+    ended = max((e for e in (_date(s.get("end_date")) for s in regular + playoffs) if e and e < today), default=None)
     pre_start = _date((current_pre or upcoming_pre or {}).get("start_date"))
     reg_start = _date((current_regular or next_regular or {}).get("start_date"))
     season_num = _season_id_number(schedule_season) if schedule_season else None
@@ -454,6 +455,7 @@ def pick_seasons(seasons: dict[str, Any], today: date) -> dict[str, Any]:
             "playoff_end": (_date((current_playoffs or {}).get("end_date")) or date.min).isoformat() if current_playoffs else None,
             "days_to_preseason": (pre_start - today).days if pre_start and pre_start >= today else None,
             "days_to_regular": (reg_start - today).days if reg_start and reg_start >= today else None,
+            "ended": ended.isoformat() if phase == "offseason" and ended else None,
             "standings_season_id": standings_num,
             "standings_final": bool(standings_num and season_num and standings_num < season_num),
             "first_game": None,

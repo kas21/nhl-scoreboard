@@ -127,8 +127,10 @@ Two listeners are wired at startup:
    already playing; the first pending event some event board `matches()` (it becomes the active event);
    the pinned splash (BOOT) or clock (ERROR); else the playlist for the state. Playlist entries are
    filtered each frame: enabled, board loaded, not quarantined, `playlistable`, every `requires` key
-   present and non-empty, and `sport` matching `main_event.sport` for sport-specific boards. If nothing
-   survives, the clock.
+   present and non-empty, `sport` matching `main_event.sport` for sport-specific boards, and — for a
+   `seasonal` board (team summary, standings, the last game's recap) — its sport not *dormant*:
+   `<sport>.season` saying off-season with `ended` more than `sports.offseason_hide_after_days` ago (or not
+   given at all), and no `<sport>.main_event` (`director/state.py: dormant_sports`). If nothing survives, the clock.
 4. **Enter** the board when it changed — or when the same event board has a new event behind it, so a
    cached `Sequence` is rebuilt for the new payload. Playlist boards get a transition in from the last
    frame (`config.transition`: none / fade / slide_left|right|up|down / wipe / blinds); event boards cut in instantly.

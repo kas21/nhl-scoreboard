@@ -93,7 +93,9 @@ docs/               OVERVIEW (start here), USER_GUIDE, HARDWARE, ARCHITECTURE, D
   Every pydantic field appears in the web UI automatically. Live edits apply without restart, except
   `display.*` driver options (need a restart — the wizard has a button).
 - **Plugins**: `scoreboard.boards` / `scoreboard.sources` / `scoreboard.detectors` / `scoreboard.sims` entry points; bundled
-  extras use the same mechanism. A board may declare `sport` and `requires` (snapshot keys, must be non-empty).
+  extras use the same mechanism. A board may declare `sport` and `requires` (snapshot keys, must be non-empty),
+  and `seasonal` (team summary, standings, recaps): skipped once `<sport>.season` has been off-season for
+  `sports.offseason_hide_after_days` (`ended` in the season record; missing = long over).
 - **Multi-panel / MQTT**: `follower.enabled` makes a panel relay another's snapshot instead of fetching (own display config,
   needs a restart); `mqtt.enabled` mirrors the snapshot, events and state to a broker and takes a couple of commands. Both live
   beside the sources and change nothing downstream.

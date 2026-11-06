@@ -9,7 +9,11 @@ PHASES = ("offseason", "preseason", "regular", "playoffs")
 
 def season_info(schedule_now: dict[str, Any], today: date, standings_season_id: int | None = None,
                 club_schedule: dict[str, Any] | None = None, abbrev: str | None = None) -> dict[str, Any]:
-    """{phase, dates..., days_to_preseason/regular, standings_final, first_game}."""
+    """{phase, dates..., days_to_preseason/regular, ended, standings_final, first_game}.
+
+    ``ended`` is the day the season finished, in the off-season and only while the schedule
+    still describes that season: once the league posts next year's dates there is no telling.
+    """
     def d(key: str) -> date | None:
         v = schedule_now.get(key)
         try:
@@ -44,6 +48,7 @@ def season_info(schedule_now: dict[str, Any], today: date, standings_season_id: 
         "preseason_start": pre.isoformat() if pre else None, "regular_start": reg.isoformat() if reg else None,
         "regular_end": reg_end.isoformat() if reg_end else None, "playoff_end": po_end.isoformat() if po_end else None,
         "days_to_preseason": (pre - today).days if pre else None, "days_to_regular": (reg - today).days if reg else None,
+        "ended": po_end.isoformat() if phase == "offseason" and po_end and po_end < today else None,
         "standings_season_id": standings_season_id,
         "standings_final": bool(standings_season_id and season_id and standings_season_id < season_id),
         "first_game": first_game,

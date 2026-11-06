@@ -74,6 +74,11 @@ class MyAlert(SequenceMixin, EventBoard):
 ```
 Emit events with a detector: `def detect(prev: Snapshot, new: Snapshot) -> Iterable[Event]` registered
 under `scoreboard.detectors`. Diff the two snapshots; never keep state in the detector.
+A board that shows what a season added up to (a record, a table, the last game's recap) should set
+`seasonal = True`: the director skips it once its sport's season has been over for
+`sports.offseason_hide_after_days`. The sport is the board key's prefix (`xfl.standings` follows `xfl.season`),
+so the source must publish `<sport>.season` with `phase` and, in the off-season, `ended` (ISO date of the last
+day; leave it out and the boards are hidden for the whole off-season).
 `EventBoard` sets `playlistable = False`: the director keeps such a board out of every rotation (it would hold a
 blank frame with no event behind it), the web UI keeps it out of the playlist pickers and marks any saved entry
 that still names one, and a new event on the board already showing re-enters it, so a cached `Sequence` is

@@ -65,3 +65,14 @@ def test_standings_final_banner():
     assert b._banner(ctx) == "FINAL 2025-26"
     img = b.render(ctx, StandingsConfig())
     assert any(px == (255, 200, 0) for px in [img.getpixel((x, 3)) for x in range(0, 128, 4)])
+
+
+def test_season_end_date_for_the_offseason():
+    """``ended`` only in the off-season, and only while the schedule still describes the season
+    that finished: SCHED is 2026-27, so the summer before it has no end date to give."""
+    assert season_info(SCHED, date(2027, 6, 11))["phase"] == "offseason"
+    assert season_info(SCHED, date(2027, 6, 11))["ended"] == "2027-06-10"
+    assert season_info(SCHED, date(2027, 7, 20))["ended"] == "2027-06-10"
+    assert season_info(SCHED, date(2027, 6, 10))["ended"] is None                  # the last day of the playoffs
+    assert season_info(SCHED, date(2026, 12, 1))["ended"] is None
+    assert season_info(SCHED, date(2026, 8, 27))["phase"] == "offseason" and season_info(SCHED, date(2026, 8, 27))["ended"] is None

@@ -337,7 +337,10 @@ def _sched(g: dict[str, Any] | None, abbrev: str) -> dict[str, Any] | None:
 
 def season_info(seasons_payload: dict[str, Any], today: date, opener_schedule: dict[str, Any] | None = None,
                 abbrev: str | None = None, standings_season: int | None = None) -> dict[str, Any]:
-    """{phase, dates..., days_to_preseason/regular, first_game} from ``/seasons?season=YYYY``."""
+    """{phase, dates..., days_to_preseason/regular, ended, first_game} from ``/seasons?season=YYYY``.
+
+    ``ended`` is the last day of the postseason, from the World Series to the new year (the
+    source then asks for the next season, whose dates are all ahead)."""
     season = next(iter(seasons_payload.get("seasons") or []), {}) or {}
 
     def d(key: str) -> date | None:
@@ -359,6 +362,7 @@ def season_info(seasons_payload: dict[str, Any], today: date, opener_schedule: d
         phase = "preseason"
     else:
         phase = "offseason"
+    last = post_end or reg_end
     season_id = _int(season.get("seasonId"), today.year)
     first_game = None
     if abbrev and opener_schedule:
@@ -373,6 +377,7 @@ def season_info(seasons_payload: dict[str, Any], today: date, opener_schedule: d
         "preseason_start": spring.isoformat() if spring else None, "regular_start": reg.isoformat() if reg else None,
         "regular_end": reg_end.isoformat() if reg_end else None, "playoff_end": post_end.isoformat() if post_end else None,
         "days_to_preseason": (spring - today).days if spring else None, "days_to_regular": (reg - today).days if reg else None,
+        "ended": last.isoformat() if phase == "offseason" and last and last < today else None,
         "standings_season_id": standings_season,
         "standings_final": bool(standings_season and standings_season < season_id),
         "first_game": first_game,

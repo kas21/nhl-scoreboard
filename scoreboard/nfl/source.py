@@ -18,7 +18,13 @@ from ..logos import id_before
 from ..logos import watch as watch_logos
 from ..nhl.select import favorite_side, select_main_event
 from .api import NflApi, NflApiError
-from .normalize import normalize_scoreboard, normalize_standings, season_calendar, team_summary
+from .normalize import (
+    normalize_scoreboard,
+    normalize_standings,
+    season_calendar,
+    season_days,
+    team_summary,
+)
 from .teams import NFL_TEAMS
 
 TeamAbbrev = Literal[NFL_TEAMS]  # type: ignore[valid-type]
@@ -61,9 +67,10 @@ class NflSource:
         """The games worth showing on the ticker and dashboard (the main event is picked from all of them)."""
         return games
 
-    def _season(self, games: list[dict[str, Any]], today: str, calendar: list[dict[str, str]] | None = None) -> dict[str, Any]:
+    def _season(self, games: list[dict[str, Any]], today: str, calendar: list[dict[str, str]] | None = None,
+                days: tuple[str, str] | None = None) -> dict[str, Any]:
         """The ``<sport>.season`` record from the slate ESPN hands us and its league calendar."""
-        return _season(games, today, self.sport, calendar)
+        return _season(games, today, self.sport, calendar, days)
 
     def _check_teams(self, ctx: SourceContext, listed: dict[str, str]) -> None:
         """Called with ESPN's abbreviation -> id map once per standings refresh."""
@@ -105,7 +112,7 @@ class NflSource:
                 games = self._scoreboard(payload, _tz(ctx))
                 today = _today(ctx)
                 games = sorted(games, key=lambda g: g["start_time_utc"])
-                ctx.publish(self._season(games, today, calendar=season_calendar(payload)), subkey="season")
+                ctx.publish(self._season(games, today, calendar=season_calendar(payload), days=season_days(payload)), subkey="season")
                 slate = self._slate(games, cfg)
                 ctx.publish([g for g in slate if 0 <= _days(today, g["date"]) <= cfg.show_games_within_days], subkey="schedule")
                 # ESPN hands us the whole week; results and games in progress always show, an upcoming
@@ -179,28 +186,43 @@ def _days(today: str, other: str) -> int:
         return 0
 
 
-def _season(games: list, today: str, sport: str = "nfl", calendar: list[dict[str, str]] | None = None) -> dict:
-    """Season phase, and what the countdown board counts down to.
+def _season(games: list, today: str, sport: str = "nfl", calendar: list[dict[str, str]] | None = None,
+            days: tuple[str, str] | None = None) -> dict:
+    """Season phase, what the countdown board counts down to, and when the last season ended.
 
     ESPN's default scoreboard points at the *next* scheduled week as soon as a schedule
     exists, so the slate alone said "preseason" all summer and the off-season state (and the
     countdown board) never came. The league ``calendar`` in the same payload says which
-    phase today falls in and when the next ones start; the slate is the fallback."""
+    phase today falls in and when the next ones start; the slate is the fallback.
+
+    A calendar with nothing for today still says something when all of it lies ahead: college
+    football's turns over on February 1 with its first phase starting in late August, and
+    that gap is the off-season. A league that lists game ``days`` instead of phases (college
+    hockey) is in its off-season outside them. ``ended`` is the last day of the season just
+    finished, in the off-season and only while the calendar still describes that season."""
     nxt = min((g for g in games if g["phase"] != "postgame"), key=lambda g: g["start_time_utc"], default=None)
     info: dict = {"sport": sport, "week": games[0].get("week") if games else None,
                   "next_game_date": nxt["date"] if nxt else None, "days_to_next": _days(today, nxt["date"]) if nxt else None}
-    current = next((c for c in calendar or () if c["start"] <= today <= c["end"]), None)
-    if current is not None:
-        label = current["label"].lower()
+    calendar = calendar or []
+    current = next((c for c in calendar if c["start"] <= today <= c["end"]), None)
+    if current is not None or (calendar and all(c["start"] > today for c in calendar)):
+        label = current["label"].lower() if current else "off season"
         phase = ("offseason" if "off" in label else "preseason" if "pre" in label
                  else "playoffs" if "post" in label or "playoff" in label else "regular")
-        starts = {c["label"].lower(): c["start"] for c in calendar or () if c["start"] > today}
+        starts = {c["label"].lower(): c["start"] for c in calendar if c["start"] > today}
         pre = next((s for lbl, s in starts.items() if "pre" in lbl), None)
         reg = next((s for lbl, s in starts.items() if "regular" in lbl), None)
+        ended = max((c["end"] for c in calendar if c["end"] < today and "off" not in c["label"].lower()), default=None)
         return {**info, "phase": phase,
                 "preseason_start": pre, "days_to_preseason": _days(today, pre) if pre else None,
-                "regular_start": reg, "days_to_regular": _days(today, reg) if reg else None}
+                "regular_start": reg, "days_to_regular": _days(today, reg) if reg else None,
+                "ended": ended if phase == "offseason" else None}
+    if days and not days[0] <= today <= days[1]:
+        before = today < days[0]
+        return {**info, "phase": "offseason", "preseason_start": None, "days_to_preseason": None,
+                "regular_start": days[0] if before else None, "days_to_regular": _days(today, days[0]) if before else None,
+                "ended": None if before else days[1]}
     if not games:
-        return {**info, "phase": "offseason"}
+        return {**info, "phase": "offseason", "ended": None}
     types = {g["type"] for g in games}
-    return {**info, "phase": "playoffs" if 3 in types else "regular" if 2 in types else "preseason"}
+    return {**info, "phase": "playoffs" if 3 in types else "regular" if 2 in types else "preseason", "ended": None}

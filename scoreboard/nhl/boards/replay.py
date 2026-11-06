@@ -326,6 +326,7 @@ class GoalReplayBoard(BaseBoard):
     config_model = ReplayConfig
     requires = frozenset({"nhl.goal_replays"})
     pace_unit = "goal"
+    seasonal = True
 
     def goals(self, ctx: BoardContext, cfg: ReplayConfig) -> list[dict[str, Any]]:
         return with_clips(ctx.snapshot.get("nhl.goal_replays"), cfg.favorite_goals_only)
