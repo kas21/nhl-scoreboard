@@ -118,6 +118,8 @@ class Playlists(FrozenModel):
         PlaylistEntry(board="clock", duration=10),
         PlaylistEntry(board="nhl.ticker", duration=None),
         PlaylistEntry(board="nhl.standings", duration=None),
+        PlaylistEntry(board="nhl.leaders", duration=None),
+        PlaylistEntry(board="nhl.team_leaders", duration=None),
         PlaylistEntry(board="holidays.countdown", duration=None),
     )
     gameday: tuple[PlaylistEntry, ...] = (
@@ -132,6 +134,8 @@ class Playlists(FrozenModel):
         PlaylistEntry(board="clock", duration=10),
         PlaylistEntry(board="nhl.ticker", duration=None),
         PlaylistEntry(board="nhl.standings", duration=None),
+        PlaylistEntry(board="nhl.leaders", duration=None),
+        PlaylistEntry(board="nhl.team_leaders", duration=None),
         PlaylistEntry(board="holidays.countdown", duration=None),
     )
     pregame: tuple[PlaylistEntry, ...] = (

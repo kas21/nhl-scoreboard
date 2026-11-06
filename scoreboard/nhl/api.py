@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 from typing import Any
 
 import httpx
@@ -11,6 +12,7 @@ log = logging.getLogger(__name__)
 
 BASE_URL = "https://api-web.nhle.com/v1"
 RETRY_DELAYS = (1.0, 3.0, 8.0)
+LEADERS_SEASON = re.compile(r"/(\d{8})/(\d)$")     # .../skater-stats-leaders/20262027/2 — where "current" redirects to
 
 
 class NhlApiError(Exception):
@@ -45,7 +47,33 @@ class NhlApi:
     async def club_schedule_season(self, team: str) -> dict[str, Any]:
         return await self._get(f"/club-schedule-season/{team.upper()}/now")
 
-    async def _get(self, path: str) -> dict[str, Any]:
+    async def skater_leaders(self, categories: tuple[str, ...], limit: int) -> dict[str, Any]:
+        """The league's top skaters per category: ``{category: [player...]}``, best first."""
+        return await self._leaders("skater-stats-leaders", categories, limit)
+
+    async def goalie_leaders(self, categories: tuple[str, ...], limit: int = -1) -> dict[str, Any]:
+        """The same for goalies. ``limit=-1`` is every goalie the league ranks in the category
+        (save percentage and goals-against only list goalies with enough games to qualify)."""
+        return await self._leaders("goalie-stats-leaders", categories, limit)
+
+    async def _leaders(self, kind: str, categories: tuple[str, ...], limit: int) -> dict[str, Any]:
+        """``current`` redirects to ``/{season}/{gameType}`` and the payload itself says neither,
+        so both are read off the final URL and added as ``season`` / ``gameType`` (the names
+        club-stats uses): the playoffs' leaders are a different list from the season's."""
+        final: list[str] = []
+        data = await self._get(f"/{kind}/current?categories={','.join(categories)}&limit={limit}", final)
+        found = LEADERS_SEASON.search(final[0]) if final else None
+        if found:
+            data.setdefault("season", found.group(1))
+            data.setdefault("gameType", int(found.group(2)))
+        return data
+
+    async def club_stats(self, team: str) -> dict[str, Any]:
+        """Every skater's and goalie's season line for one club (``skaters``, ``goalies``)."""
+        return await self._get(f"/club-stats/{team.upper()}/now")
+
+    async def _get(self, path: str, final_path: list[str] | None = None) -> dict[str, Any]:
+        """``final_path``, when given, receives the path the request ended on after redirects."""
         url = f"{self._base}{path}"
         last: Exception | None = None
         for attempt, delay in enumerate((*RETRY_DELAYS, None)):
@@ -60,6 +88,8 @@ class NhlApi:
                 data = resp.json()
                 if not isinstance(data, dict):
                     raise NhlApiError(f"unexpected payload for {path}")
+                if final_path is not None:
+                    final_path.append(resp.url.path)
                 return data
             except (httpx.HTTPError, ValueError) as exc:
                 last = exc

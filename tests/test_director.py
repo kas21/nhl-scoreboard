@@ -629,5 +629,5 @@ def test_which_bundled_boards_follow_the_season():
     seasonal = {k for k, b in boards.items() if b.seasonal}
     assert seasonal == ({f"{s}.team_summary" for s in ("nhl", "nfl", "ncaaf", "mlb", "ncaah", "ahl")}
                         | {f"{s}.standings" for s in ("nhl", "nfl", "ncaaf", "mlb", "ahl")}
-                        | {"nhl.game_stats", "nhl.goal_replay"})
+                        | {"nhl.game_stats", "nhl.goal_replay", "nhl.leaders", "nhl.team_leaders"})
     assert all(boards[k].playlistable for k in seasonal)

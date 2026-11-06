@@ -31,6 +31,10 @@ STANDINGS_PLAYED_FIELDS = ("streakCode", "streakCount")
 GOAL_FIELDS = ("teamAbbrev", "timeInPeriod", "name", "firstName", "lastName", "goalsToDate",
                "strength", "assists", "awayScore", "homeScore")
 PENALTY_FIELDS = ("teamAbbrev", "timeInPeriod", "type", "duration", "descKey")
+LEADER_FIELDS = ("id", "firstName", "lastName", "teamAbbrev", "value")
+CLUB_SKATER_FIELDS = ("playerId", "firstName", "lastName", "gamesPlayed", "goals", "assists", "points")
+CLUB_GOALIE_FIELDS = ("playerId", "firstName", "lastName", "gamesPlayed", "wins", "goalsAgainstAverage",
+                      "savePercentage", "shutouts")
 
 # Values normalize maps through a lookup rather than passing along: an unknown one is not a
 # missing field, it is a state the director cannot classify, so it must not appear quietly.
@@ -109,6 +113,33 @@ def _check_standings_row(row: Any) -> list[str]:
     if isinstance(row, dict) and (row.get("gamesPlayed") or 0) > 0:
         notes += _missing(row, STANDINGS_PLAYED_FIELDS, "standings row")
     return notes
+
+
+def check_leaders_payload(payload: dict[str, Any], categories: tuple[str, ...], what: str) -> list[str]:
+    """A ``skater-stats-leaders`` / ``goalie-stats-leaders`` payload: a list per category asked
+    for (an empty one is the feed's shape before anyone has a goal, not drift)."""
+    notes: list[str] = []
+    for category in categories:
+        rows = payload.get(category)
+        if not isinstance(rows, list):
+            notes.append(f"{what} leaders have no {category} list")
+            continue
+        for row in rows:
+            notes += _missing(row, LEADER_FIELDS, f"{what} leader")
+    return _dedupe(notes)
+
+
+def check_club_stats(payload: dict[str, Any]) -> list[str]:
+    """``club-stats/{team}/now``: the player lines the team leaders are ranked from."""
+    notes: list[str] = []
+    for key, fields, what in (("skaters", CLUB_SKATER_FIELDS, "club skater"), ("goalies", CLUB_GOALIE_FIELDS, "club goalie")):
+        rows = payload.get(key)
+        if not isinstance(rows, list):
+            notes.append(f"club stats have no {key} list")
+            continue
+        for row in rows:
+            notes += _missing(row, fields, what)
+    return _dedupe(notes)
 
 
 def _dedupe(notes: Any) -> list[str]:

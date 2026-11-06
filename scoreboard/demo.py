@@ -12,6 +12,7 @@ from typing import Any, ClassVar
 from pydantic import BaseModel, ConfigDict, Field
 
 from .data.source import SourceContext
+from .nhl.leaders import normalize_league_leaders, normalize_team_leaders
 from .nhl.normalize import normalize_game, normalize_standings, records_from_standings, team_summary
 from .nhl.replay import replays_from_files
 from .nhl.select import favorite_side
@@ -46,6 +47,10 @@ class DemoSource:
         ctx.publish(replays_from_files(landing, sprites, ctx.config.favorites), subkey="goal_replays")
         rail = json.loads((FIXTURES / "right_rail_2025021270.json").read_text())
         ctx.publish(normalize_game_stats(rail, 2025021270, "FLA", "TOR"), subkey="game_stats")
+        skaters, goalies, club = (json.loads((FIXTURES / f"{name}_2026-11-06.json").read_text())
+                                  for name in ("skater_leaders", "goalie_leaders", "club_stats_TOR"))
+        ctx.publish(normalize_league_leaders(skaters, goalies), subkey="leaders")
+        ctx.publish({"TOR": normalize_team_leaders(club, "TOR")}, subkey="team_leaders")
         while True:
             for step in _script(final):
                 cfg: DemoConfig = ctx.config  # type: ignore[assignment]

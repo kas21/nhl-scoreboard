@@ -104,6 +104,12 @@ from scoreboard.nfl.normalize import normalize_standings as nfl_standings
 from scoreboard.nfl.normalize import team_summary as nfl_team_summary
 from scoreboard.nhl.boards.events import GoalBoard, GoalConfig, PenaltyBoard, PenaltyConfig
 from scoreboard.nhl.boards.game import GameBoard, GameConfig
+from scoreboard.nhl.boards.leaders import (
+    LeadersBoard,
+    LeadersConfig,
+    TeamLeadersBoard,
+    TeamLeadersConfig,
+)
 from scoreboard.nhl.boards.replay import (
     GoalReplayAlert,
     GoalReplayBoard,
@@ -114,6 +120,7 @@ from scoreboard.nhl.boards.standings import StandingsBoard, StandingsConfig
 from scoreboard.nhl.boards.stats import GameStatsBoard, GameStatsConfig
 from scoreboard.nhl.boards.team_summary import TeamSummaryBoard, TeamSummaryConfig
 from scoreboard.nhl.boards.ticker import TickerBoard, TickerConfig
+from scoreboard.nhl.leaders import normalize_league_leaders, normalize_team_leaders
 from scoreboard.nhl.normalize import (
     normalize_game,
     normalize_standings,
@@ -174,6 +181,8 @@ def _nhl_world() -> dict[str, Any]:
     sprites = {ev: _load("nhl", f"ppt_replay_2025021270_ev{ev}.json") for ev in (101, 950)}
     store.publish("nhl.goal_replays", replays_from_files(_load("nhl", "landing_2025021270.json"), sprites, ["TOR"]))
     store.publish("nhl.game_stats", normalize_game_stats(_load("nhl", "right_rail_2025021270.json"), 2025021270, "FLA", "TOR"))
+    store.publish("nhl.leaders", normalize_league_leaders(_load("nhl", "skater_leaders_2026-11-06.json"), _load("nhl", "goalie_leaders_2026-11-06.json")))
+    store.publish("nhl.team_leaders", {"TOR": normalize_team_leaders(_load("nhl", "club_stats_TOR_2026-11-06.json"), "TOR")})
     return {"store": store, "final": final, "live": live, "pre": pre, "ppd": ppd}
 
 
@@ -211,6 +220,12 @@ def nhl_scenes() -> list[Scene]:
         Scene("nhl.game_stats/settled", GameStatsBoard(), GameStatsConfig(), with_game("live"), now, 2.0),
         Scene("nhl.game_stats/sliding", GameStatsBoard(), GameStatsConfig(), with_game("live"), now, 0.3, sizes=((128, 64),)),
         Scene("nhl.game_stats/page2", GameStatsBoard(), GameStatsConfig(), with_game("final"), now, 8.0, sizes=((128, 64),)),
+        Scene("nhl.leaders/goals", LeadersBoard(), LeadersConfig(), idle, now, 2.0),
+        Scene("nhl.leaders/growing", LeadersBoard(), LeadersConfig(), idle, now, 16.3, sizes=((128, 64),)),
+        Scene("nhl.leaders/goalies", LeadersBoard(), LeadersConfig(), idle, now, 26.0),
+        Scene("nhl.leaders/save_pct_top8", LeadersBoard(), LeadersConfig(count=8, goalie_rank="save_pct", goals=False, assists=False, points=False), idle, now, 2.0, sizes=((128, 64),)),
+        Scene("nhl.team_leaders/points", TeamLeadersBoard(), TeamLeadersConfig(), idle, now, 18.0),
+        Scene("nhl.team_leaders/goalies", TeamLeadersBoard(), TeamLeadersConfig(), idle, now, 26.0, sizes=((128, 64),)),
     ]
 
 

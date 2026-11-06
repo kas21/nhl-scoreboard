@@ -33,11 +33,14 @@ import httpx
 import pytest
 
 from scoreboard.nhl.contract import (
+    check_club_stats,
     check_game,
     check_landing,
+    check_leaders_payload,
     check_score_payload,
     check_standings_payload,
 )
+from scoreboard.nhl.leaders import GOALIE_FEED_CATEGORIES, SKATER_CATEGORIES
 
 FIX = Path(__file__).parent / "fixtures" / "nhl"
 BASE = "https://api-web.nhle.com/v1"
@@ -110,6 +113,23 @@ def test_a_team_that_has_not_played_has_no_streak():
         "standings row missing streakCode", "standings row missing streakCount"]
 
 
+def test_spec_matches_the_recorded_leaders_and_club_stats():
+    skaters, goalies = _fixture("skater_leaders_2026-11-06.json"), _fixture("goalie_leaders_2026-11-06.json")
+    assert check_leaders_payload(skaters, SKATER_CATEGORIES, "skater") == []
+    assert check_leaders_payload(goalies, GOALIE_FEED_CATEGORIES, "goalie") == []
+    assert check_club_stats(_fixture("club_stats_TOR_2026-11-06.json")) == []
+
+
+def test_leaders_checks_name_what_moved():
+    skaters, club = _fixture("skater_leaders_2026-11-06.json"), _fixture("club_stats_TOR_2026-11-06.json")
+    renamed = {**skaters, "goals": [{k: v for k, v in row.items() if k != "value"} for row in skaters["goals"]]}
+    assert check_leaders_payload(renamed, SKATER_CATEGORIES, "skater") == ["skater leader missing value"]
+    assert check_leaders_payload({"goals": [], "assists": []}, SKATER_CATEGORIES, "skater") == ["skater leaders have no points list"]
+    no_sv = {**club, "goalies": [{k: v for k, v in row.items() if k != "savePercentage"} for row in club["goalies"]]}
+    assert check_club_stats(no_sv) == ["club goalie missing savePercentage"]
+    assert check_club_stats({"skaters": []}) == ["club stats have no goalies list"]
+
+
 # -- and the live API still matches the spec (opt-in) ---------------------------
 
 @pytest.fixture(scope="module")
@@ -157,3 +177,19 @@ def test_the_live_feed_still_normalises_end_to_end(api):
         assert game["id"] and game["away"]["abbrev"] and game["home"]["abbrev"]
         assert game["phase"] in ("pregame", "live", "intermission", "postgame")
         assert game["away"]["record"], f"{game['away']['abbrev']} lost its record — the abbrevs stopped matching standings"
+
+
+
+@live_only
+def test_live_leaders_and_club_stats_still_have_what_the_boards_read(api):
+    from scoreboard.nhl.leaders import has_leaders, normalize_league_leaders, normalize_team_leaders
+
+    skaters = api.get("/skater-stats-leaders/current", params={"categories": ",".join(SKATER_CATEGORIES), "limit": 10}).raise_for_status().json()
+    goalies = api.get("/goalie-stats-leaders/current", params={"categories": ",".join(GOALIE_FEED_CATEGORIES), "limit": -1}).raise_for_status().json()
+    club = api.get("/club-stats/TOR/now").raise_for_status().json()
+    assert check_leaders_payload(skaters, SKATER_CATEGORIES, "skater") == []
+    assert check_leaders_payload(goalies, GOALIE_FEED_CATEGORIES, "goalie") == []
+    assert check_club_stats(club) == []
+    if not skaters.get("points"):
+        pytest.skip("nobody has a point yet; empty lists prove nothing either way")
+    assert has_leaders(normalize_league_leaders(skaters, goalies)) and has_leaders(normalize_team_leaders(club, "TOR"))

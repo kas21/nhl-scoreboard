@@ -7,6 +7,8 @@ Snapshot keys published:
   nhl.team_summary  {abbrev: summary} for each favourite
   nhl.goal_replays  the tracking clip behind each goal of the favourite's last game (see replay.py)
   nhl.game_stats    team stats of the favourite's game, live and after (see stats.py)
+  nhl.leaders       the league's goals / assists / points leaders and top goalies (see leaders.py)
+  nhl.team_leaders  {abbrev: the same lists for that club} for each favourite
   system            {"online": bool}
 """
 from __future__ import annotations
@@ -24,7 +26,21 @@ from ..data.gameday import carry_last_night, is_last_nights, yesterday
 from ..data.source import SourceContext
 from ..logos import watch as watch_logos
 from .api import NhlApi, NhlApiError
-from .contract import check_landing, check_score_payload, check_standings_payload
+from .contract import (
+    check_club_stats,
+    check_landing,
+    check_leaders_payload,
+    check_score_payload,
+    check_standings_payload,
+)
+from .leaders import (
+    GOALIE_FEED_CATEGORIES,
+    KEEP,
+    SKATER_CATEGORIES,
+    has_leaders,
+    normalize_league_leaders,
+    normalize_team_leaders,
+)
 from .normalize import (
     ACTIVE_STATES,
     normalize_game,
@@ -48,6 +64,7 @@ REPLAY_LOOKUP_SECONDS = 5.0     # how often the replay loop looks at the snapsho
 REPLAY_LIVE_SECONDS = 30.0      # how often it re-reads the landing while the game is on (a goal's file lands 3-4 min after the goal)
 STATS_LIVE_SECONDS = 30.0       # how often the right rail is re-read while the game is on
 STATS_FINAL_SECONDS = 600.0     # ...and after it (the numbers are settled; one late correction is all this catches)
+LEADERS_OFF_SECONDS = 5.0       # how often the leaders loop looks at its setting while it is off (no network)
 
 
 class NhlConfig(BaseModel):
@@ -65,6 +82,8 @@ class NhlConfig(BaseModel):
     follow_preseason: bool = Field(True, description="Treat your team's preseason games like any other game")
     goal_replays: bool = Field(True, description="Fetch the league's player-tracking replay of each goal in your team's game for the goal replay boards (a goal's file appears three to four minutes after the goal)")
     game_stats: bool = Field(True, description="Fetch team stats (shots, faceoffs, hits, power play…) for your team's game, for the game stats board")
+    leaders: bool = Field(True, description="Fetch the league's goals, assists and points leaders and top goalies, and your teams' own, for the two leaders boards")
+    leaders_interval: float = Field(1800.0, ge=300, le=86400, description="Seconds between leaders refreshes", json_schema_extra=ADVANCED)
     replay_interval: float = Field(120.0, ge=30, le=900, description="Seconds between looks for replay files that are not there yet", json_schema_extra=ADVANCED)
     replay_retry_hours: float = Field(3.0, ge=0.5, le=24, description="Give up on a goal's replay this long after the game", json_schema_extra=ADVANCED)
 
@@ -103,6 +122,7 @@ class NhlSource:
             tg.create_task(self._standings_loop(ctx, api))
             tg.create_task(self._replay_loop(ctx, api))
             tg.create_task(self._stats_loop(ctx, api))
+            tg.create_task(self._leaders_loop(ctx, api))
 
     # -- scores + main event ------------------------------------------------
 
@@ -257,6 +277,75 @@ class NhlSource:
                 self._standings_ready.set()
             await ctx.nap(cfg.standings_interval)
 
+
+    # -- leaders --------------------------------------------------------------
+
+    async def _leaders_loop(self, ctx: SourceContext, api: NhlApi) -> None:
+        """The league's leaders and each favourite's, every ``leaders_interval``.
+
+        Four independent fetches a round (skaters, goalies, a club-stats per favourite): one
+        that fails keeps what it published last time and is tried again next round, and none
+        of it reaches the scores loop. A value with no rows at all (opening night, before
+        anyone has a point) is published as None so the boards sit out rather than show an
+        empty table. Both keys are withdrawn with the setting off."""
+        published = False
+        while True:
+            cfg: NhlConfig = ctx.config  # type: ignore[assignment]
+            if not cfg.leaders:
+                if published:
+                    ctx.publish(None, subkey="leaders")
+                    ctx.publish(None, subkey="team_leaders")
+                    published = False
+                await ctx.nap(LEADERS_OFF_SECONDS)
+                continue
+            skaters = await self._leaders_fetch(ctx, api.skater_leaders(SKATER_CATEGORIES, KEEP), "skater leaders")
+            goalies = await self._leaders_fetch(ctx, api.goalie_leaders(GOALIE_FEED_CATEGORIES), "goalie leaders")
+            if skaters is not None:
+                _report(ctx, check_leaders_payload(skaters, SKATER_CATEGORIES, "skater"))
+            if goalies is not None:
+                _report(ctx, check_leaders_payload(goalies, GOALIE_FEED_CATEGORIES, "goalie"))
+            previous = ctx.snapshot().get("nhl.leaders") or {}
+            if skaters is not None or goalies is not None:
+                try:
+                    league = normalize_league_leaders(skaters, goalies)
+                    if skaters is None:                      # half the round failed: keep that half's last lists
+                        league.update({c: previous.get(c) or [] for c in SKATER_CATEGORIES})
+                    if goalies is None:
+                        league["goalies"] = previous.get("goalies") or league["goalies"]
+                    ctx.publish(league if has_leaders(league) else None, subkey="leaders")
+                    published = True
+                except NORMALISE_ERRORS as exc:
+                    ctx.drift(f"the league leaders could not be normalised ({type(exc).__name__}: {exc})")
+            before = ctx.snapshot().get("nhl.team_leaders") or {}
+            teams: dict[str, Any] = {}
+            for team in cfg.favorites:
+                club = await self._leaders_fetch(ctx, api.club_stats(team), f"club stats for {team}")
+                if club is None:
+                    if before.get(team):
+                        teams[team] = before[team]
+                    continue
+                _report(ctx, check_club_stats(club))
+                try:
+                    value = normalize_team_leaders(club, team)
+                except NORMALISE_ERRORS as exc:
+                    ctx.drift(f"club stats could not be normalised ({type(exc).__name__}: {exc})")
+                    continue
+                if has_leaders(value):
+                    teams[team] = value
+            ctx.publish(teams or None, subkey="team_leaders")
+            published = True
+            await ctx.nap(cfg.leaders_interval)
+
+    @staticmethod
+    async def _leaders_fetch(ctx: SourceContext, request: Any, what: str) -> dict[str, Any] | None:
+        try:
+            return await request
+        except NhlApiError as exc:
+            ctx.log.warning("%s fetch failed: %s", what, exc)
+            return None
+        except Exception as exc:        # the leaders must never take the scores loop down with them
+            ctx.log.warning("%s fetch failed unexpectedly: %s: %s", what, type(exc).__name__, exc)
+            return None
 
     # -- game stats -----------------------------------------------------------
 

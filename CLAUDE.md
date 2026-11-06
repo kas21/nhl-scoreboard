@@ -51,7 +51,9 @@ scoreboard/
                     web UI (Simulator page, /api/sim); entry-point group scoreboard.sims; nhl/sim.py is the NHL game engine
   nhl/              api-web.nhle.com client, normaliser, source, season phase, event detectors, boards (ported old designs), sim;
                     replay.py fetches the tracking clip behind each goal (wsr.nhle.com, 3-4 min after the goal) for boards/replay.py;
-                    stats.py normalises the right rail's team stats for boards/stats.py
+                    stats.py normalises the right rail's team stats for boards/stats.py;
+                    leaders.py normalises the league's leader lists and a club's player lines to one shape for boards/leaders.py
+                    (two boards, league and favourites, a switch per category)
   nfl/              ESPN site API, normaliser, source, detectors; boards subclass the NHL ones
   ncaaf/            college football (FBS) on the same ESPN API: subclasses the NFL source/client/boards; owns the
                     138-team registry (teams.py, ESPN abbrevs by conference), conference standings, ranks, slate filter
@@ -84,6 +86,7 @@ docs/               OVERVIEW (start here), USER_GUIDE, HARDWARE, ARCHITECTURE, D
 - **Boards are pure**: `render(ctx, cfg) -> PIL.Image` from an immutable `Snapshot`; `ctx.elapsed` is the
   only clock; no I/O. Boards never fetch — sources do, in the background, on their own cadence.
 - **Snapshot keys** (docs/DATA.md): `<sport>.scores|standings|team_summary|season|main_event` (sport = nhl / nfl / ncaaf / mlb / ncaah / ahl),
+  `nhl.leaders|team_leaders`,
   `main_event` (arbitrated across sports), `system`, `holidays.upcoming|available`, `flights.nearby|overhead`,
   `weather.current|daily|alerts`.
 - **Events** are derived by diffing consecutive snapshots (goal, penalty, touchdown, run / home run, flight overhead…);

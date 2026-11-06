@@ -1,6 +1,7 @@
 """Font loading (cached) and text measuring."""
 from __future__ import annotations
 
+import unicodedata
 from functools import lru_cache
 from pathlib import Path
 
@@ -49,6 +50,21 @@ def load_font(name: str = DEFAULT_FONT, size: int = 8) -> ImageFont.FreeTypeFont
         return ImageFont.truetype(str(path), size)
     except OSError:
         return ImageFont.load_default()
+
+
+def bitmap_safe(text: str) -> str:
+    """``text`` in characters a bitmap face can draw. The bundled faces hold Latin-1 (Stützle
+    is fine); anything past it (Dobeš, Jiříček) raises in PIL, so those letters are folded to
+    their base letter and whatever has none is dropped."""
+    if text.isascii():
+        return text
+    out = []
+    for ch in text:
+        if ord(ch) < 256:
+            out.append(ch)
+        else:
+            out.append("".join(c for c in unicodedata.normalize("NFKD", ch) if ord(c) < 128))
+    return "".join(out)
 
 
 def text_box(text: str, font: ImageFont.ImageFont, antialias: bool = False) -> tuple[int, int, int, int]:
